@@ -316,7 +316,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-4 pb-8">
               <Button size="lg" className="h-12 px-8 text-base" asChild>
-                <Link href="/registro">Crear Cuenta Gratis</Link>
+                <Link href="/register">Crear Cuenta Gratis</Link>
               </Button>
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="h-4 w-4" aria-hidden />
