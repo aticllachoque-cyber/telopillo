@@ -12,8 +12,8 @@ export async function GET() {
       .select('*')
       .limit(1)
     
-    // PGRST116 = table doesn't exist (expected for now)
-    if (error && error.code !== 'PGRST116') {
+    // PGRST116 or PGRST205 = table doesn't exist (expected for now)
+    if (error && error.code !== 'PGRST116' && error.code !== 'PGRST205') {
       throw error
     }
     
