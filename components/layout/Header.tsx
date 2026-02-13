@@ -12,11 +12,55 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Menu } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isAuthenticated = false // TODO: Replace with actual auth state
+  const menuRef = useRef<HTMLDivElement>(null)
+  const previousActiveElement = useRef<HTMLElement | null>(null)
+
+  const closeMenu = useCallback((restoreFocus = true) => {
+    setMobileMenuOpen(false)
+    if (restoreFocus) {
+      requestAnimationFrame(() => previousActiveElement.current?.focus())
+    }
+  }, [])
+
+  // Escape key to close menu (WCAG 2.4.3 - Focus Order)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        closeMenu()
+        previousActiveElement.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [mobileMenuOpen, closeMenu])
+
+  // Focus first focusable element when menu opens (WCAG 2.1.2 - No Keyboard Trap)
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const menu = menuRef.current
+      if (menu) {
+        const focusable = menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
+        focusable[0]?.focus()
+      }
+    }
+  }, [mobileMenuOpen])
+
+  // Body scroll lock when menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -86,11 +130,19 @@ export function Header() {
           variant="ghost"
           size="icon"
           className="md:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => {
+            if (mobileMenuOpen) {
+              closeMenu()
+            } else {
+              previousActiveElement.current = document.activeElement as HTMLElement | null
+              setMobileMenuOpen(true)
+            }
+          }}
           aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
           aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-nav-dialog"
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="h-6 w-6" aria-hidden />
         </Button>
       </div>
 
@@ -100,11 +152,13 @@ export function Header() {
           {/* Backdrop */}
           <div
             className="fixed inset-0 z-40 bg-black/50 md:hidden"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => closeMenu()}
             aria-hidden="true"
           />
           {/* Menu */}
           <div
+            ref={menuRef}
+            id="mobile-nav-dialog"
             className="fixed inset-x-0 top-16 z-50 md:hidden border-t bg-background shadow-lg"
             role="dialog"
             aria-label="Menú de navegación"
@@ -114,21 +168,21 @@ export function Header() {
               <Link
                 href="/buscar"
                 className="block text-sm font-medium transition-colors hover:text-primary py-2"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => closeMenu(false)}
               >
                 Buscar
               </Link>
               <Link
                 href="/categorias"
                 className="block text-sm font-medium transition-colors hover:text-primary py-2"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => closeMenu(false)}
               >
                 Categorías
               </Link>
               <Link
                 href="/publicar"
                 className="block text-sm font-medium transition-colors hover:text-primary py-2"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => closeMenu(false)}
               >
                 Publicar Gratis
               </Link>
@@ -137,20 +191,20 @@ export function Header() {
                   <Link
                     href="/perfil"
                     className="block text-sm font-medium transition-colors hover:text-primary py-2"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() => closeMenu(false)}
                   >
                     Perfil
                   </Link>
                   <Link
                     href="/mensajes"
                     className="block text-sm font-medium transition-colors hover:text-primary py-2"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() => closeMenu(false)}
                   >
                     Mensajes
                   </Link>
                   <button
-                    className="block text-sm font-medium transition-colors hover:text-primary py-2"
-                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full text-left text-sm font-medium transition-colors hover:text-primary py-2"
+                    onClick={() => closeMenu()}
                   >
                     Cerrar Sesión
                   </button>
@@ -159,7 +213,7 @@ export function Header() {
                 <Link
                   href="/login"
                   className="block text-sm font-medium transition-colors hover:text-primary py-2"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => closeMenu(false)}
                 >
                   Iniciar Sesión
                 </Link>

@@ -31,7 +31,7 @@ export default function Home() {
     { name: 'Hogar', slug: 'hogar', Icon: Sofa },
     { name: 'Deportes', slug: 'deportes', Icon: Dumbbell },
     { name: 'Servicios', slug: 'servicios', Icon: Wrench },
-    { name: 'Ver todas', slug: 'categorias', Icon: MoreHorizontal },
+    { name: 'Ver todas', slug: 'categorias', Icon: MoreHorizontal, isAllCategories: true },
   ]
 
   const stats = [
@@ -229,10 +229,11 @@ export default function Home() {
           <div className="mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
             {categories.map((category) => {
               const IconComponent = category.Icon
+              const href = category.isAllCategories ? '/categorias' : `/categorias/${category.slug}`
               return (
                 <Link
                   key={category.name}
-                  href={`/categorias/${category.slug}`}
+                  href={href}
                   className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   <div
