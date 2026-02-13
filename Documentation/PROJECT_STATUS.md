@@ -204,22 +204,64 @@ Overall Project: ████░░░░░░░░░░░░░░░░ 24
 
 ---
 
-## ⏳ M2: Product Listings (PENDING)
+## 🚧 M2: Product Listings (STARTING)
 
-**Status:** 0% Complete  
-**Estimated Duration:** 12-15 days
+**Status:** 0% Complete (Documentation ready, ready to implement)  
+**Started:** February 13, 2026  
+**Estimated Duration:** 10-12 days
 
-### Planned Features
+### Phases
 
-- Product creation and editing
-- Image upload (multiple images)
-- Category selection
-- Price and location
-- Product listing page
-- Product detail page
-- User's product management
+**Phase 1: Database Schema** (2-3 hours)
+- Products table with full schema
+- RLS policies for security
+- Product images storage bucket
+- Indexes for performance
 
-**Dependencies:** M1 (Authentication) must be complete
+**Phase 2: Image Upload** (3-4 hours)
+- Multi-image upload component (1-5 images)
+- Drag-and-drop interface
+- Image compression/optimization (WebP)
+- Preview and reordering
+
+**Phase 3: Product Creation** (6-8 hours)
+- Product creation form (`/publicar`)
+- Category/subcategory selection
+- Location selector (reuse from M1)
+- Price and condition inputs
+- Form validation (Zod + React Hook Form)
+
+**Phase 4: Product Detail** (4-6 hours)
+- Product detail page (`/productos/[id]`)
+- Image gallery with zoom
+- Seller information card
+- Contact button
+- Share functionality (WhatsApp, Facebook)
+- View counter
+
+**Phase 5: Product Listing** (4-6 hours)
+- My products page (`/perfil/mis-productos`)
+- Product grid/card layout
+- Status filters (active, sold, inactive)
+- Sort options (newest, price)
+- Quick actions (edit, delete, mark as sold)
+
+**Phase 6: Product Management** (6-8 hours)
+- Edit product page (`/productos/[id]/editar`)
+- Mark as sold/inactive functionality
+- Delete product with confirmation
+- Permissions (only owner can edit)
+
+**Phase 7: Testing & Polish** (6-8 hours)
+- Manual testing (create, edit, delete)
+- Security testing (RLS policies)
+- UI/UX testing (responsive, loading states)
+- Accessibility testing (WCAG 2.2 AA)
+- Performance testing (image upload, page loads)
+
+**Dependencies:** M1 (Authentication) ✅ Complete
+
+**Documentation:** [M2 README](../milestones/M2-product-listings/README.md) | [M2 PROGRESS](../milestones/M2-product-listings/PROGRESS.md)
 
 ---
 
