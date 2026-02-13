@@ -151,7 +151,7 @@ export function Header() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-[60] bg-black/50 md:hidden"
             onClick={() => closeMenu()}
             aria-hidden="true"
           />
@@ -159,7 +159,7 @@ export function Header() {
           <div
             ref={menuRef}
             id="mobile-nav-dialog"
-            className="fixed inset-y-0 right-0 z-50 w-[280px] md:hidden bg-background shadow-2xl transform transition-transform duration-300 ease-in-out"
+            className="fixed inset-y-0 right-0 z-[70] w-[280px] md:hidden bg-background shadow-2xl transform transition-transform duration-300 ease-in-out"
             role="dialog"
             aria-label="Menú de navegación"
             aria-modal="true"
