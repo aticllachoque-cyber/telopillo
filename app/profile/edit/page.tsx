@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LocationSelector } from '@/components/profile/LocationSelector'
+import { AvatarUpload } from '@/components/profile/AvatarUpload'
 
 export default function ProfileEditPage() {
   const router = useRouter()
@@ -20,11 +21,15 @@ export default function ProfileEditPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [userInitials, setUserInitials] = useState<string>('U')
   const supabase = createClient()
 
   useEffect(() => {
     document.title = 'Editar Perfil - Telopillo.bo'
     loadProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const {
@@ -51,6 +56,8 @@ export default function ProfileEditPage() {
         return
       }
 
+      setUserId(user.id)
+
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
@@ -64,6 +71,16 @@ export default function ProfileEditPage() {
         setValue('phone', profile.phone || '')
         setValue('location_department', profile.location_department || '')
         setValue('location_city', profile.location_city || '')
+        setAvatarUrl(profile.avatar_url)
+
+        // Set initials
+        const initials = profile.full_name
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2)
+        setUserInitials(initials || 'U')
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al cargar perfil')
@@ -174,6 +191,19 @@ export default function ProfileEditPage() {
                 className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
               >
                 {error}
+              </div>
+            )}
+
+            {/* Avatar Upload Section */}
+            {userId && (
+              <div className="space-y-2">
+                <Label>Foto de Perfil</Label>
+                <AvatarUpload
+                  userId={userId}
+                  currentAvatarUrl={avatarUrl}
+                  userInitials={userInitials}
+                  onUploadComplete={(url) => setAvatarUrl(url)}
+                />
               </div>
             )}
 
