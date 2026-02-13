@@ -241,7 +241,7 @@ export async function middleware(request: NextRequest) {
 # .env.local
 NEXT_PUBLIC_DISABLE_AUTH=false
 DEV_TEST_EMAIL=dev@telopillo.test
-DEV_TEST_PASSWORD=DevTest123!
+DEV_TEST_PASSWORD=DevTest123
 
 # Use dev user to login
 ```
