@@ -14,7 +14,7 @@ export function Footer() {
 
   return (
     <footer className="border-t bg-background">
-      <div className="container py-8 md:py-12">
+      <div className="container px-4 py-8 md:py-12">
         {/* Mobile: Accordion Layout */}
         <div className="md:hidden space-y-4">
           {/* Brand - Always visible */}
