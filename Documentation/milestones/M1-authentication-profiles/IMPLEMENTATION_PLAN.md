@@ -1,10 +1,25 @@
 # Implementation Plan - Milestone 1: Authentication & User Profiles
 
-**Version:** 1.0  
-**Date:** February 12, 2026  
+**Version:** 1.1  
+**Date:** February 13, 2026  
 **Author:** Alcides Cardenas  
 **Estimated Duration:** 10 working days (2 weeks)  
-**Status:** Ready to Execute
+**Status:** Phase 1 Complete, Phase 2 In Progress
+
+---
+
+## Development Strategy
+
+### Testing Approach
+
+**1. Test User Management:**
+- **Option A (Immediate):** Create fixed dev user `dev@telopillo.test`
+- **Option D (Future):** Use Supabase Local Development (Docker) for isolated testing
+
+**2. Auth Bypass Feature Flag:**
+- **Option A:** Environment variable `NEXT_PUBLIC_DISABLE_AUTH=true`
+- Middleware will check this flag and skip auth when enabled
+- Allows building features without authentication blocking
 
 ---
 
@@ -12,7 +27,8 @@
 
 1. [Overview](#1-overview)
 2. [Prerequisites](#2-prerequisites)
-3. [Phase 1: Database Setup](#3-phase-1-database-setup)
+3. [Development Setup](#3-development-setup)
+4. [Phase 1: Database Setup](#4-phase-1-database-setup)
 4. [Phase 2: OAuth Configuration](#4-phase-2-oauth-configuration)
 5. [Phase 3: Authentication Pages](#5-phase-3-authentication-pages)
 6. [Phase 4: Profile Management](#6-phase-4-profile-management)
@@ -90,16 +106,76 @@ Week 3:
 
 ### 2.3 Tools Needed
 ```bash
-# Verify Supabase CLI is installed
-supabase --version
+# Supabase CLI (already installed as dev dependency)
+npx supabase --version
 
-# If not installed:
-npm install -g supabase
+# Docker (optional, for local Supabase)
+docker --version
 ```
 
 ---
 
-## 3. Phase 1: Database Setup
+## 3. Development Setup
+
+### 3.1 Create Development Test User
+
+**Option A: Fixed Dev User (Immediate)**
+
+1. Go to Supabase Dashboard → Authentication → Users
+2. Click "Invite user" or "Create user"
+3. Create user:
+   - Email: `dev@telopillo.test`
+   - Password: `DevTest123!`
+   - Auto Confirm User: ✅ (check this box)
+4. Save credentials in `.env.local`:
+   ```env
+   # Development Test User
+   DEV_TEST_EMAIL=dev@telopillo.test
+   DEV_TEST_PASSWORD=DevTest123!
+   ```
+
+**Option D: Supabase Local (Future - Optional)**
+
+When you need isolated testing:
+
+```bash
+# Start local Supabase (requires Docker)
+npx supabase start
+
+# This creates a local database at:
+# API URL: http://localhost:54321
+# DB URL: postgresql://postgres:postgres@localhost:54322/postgres
+
+# Stop local Supabase
+npx supabase stop
+```
+
+### 3.2 Configure Auth Bypass Feature Flag
+
+Add to `.env.local`:
+
+```env
+# Auth Bypass (set to true to disable auth during development)
+NEXT_PUBLIC_DISABLE_AUTH=false
+```
+
+**Usage:**
+- Set to `true` when building features without auth
+- Set to `false` when testing auth flows
+- Middleware will check this flag
+
+### 3.3 Create Auth Bypass Middleware
+
+This will be implemented in Phase 6 (Protected Routes).
+
+The middleware will:
+1. Check `NEXT_PUBLIC_DISABLE_AUTH` environment variable
+2. If `true`, allow all requests without authentication
+3. If `false`, enforce normal authentication rules
+
+---
+
+## 4. Phase 1: Database Setup ✅ COMPLETE
 
 **Duration:** Day 1-2 (8-10 hours)  
 **Goal:** Create profiles table with RLS policies and triggers
@@ -1889,9 +1965,9 @@ const loadProfile = async () => {
 ## 8. Phase 6: Protected Routes
 
 **Duration:** Day 9 (4-6 hours)  
-**Goal:** Implement auth middleware and protected routes
+**Goal:** Implement auth middleware and protected routes with bypass option
 
-### 8.1 Create Auth Middleware
+### 8.1 Create Auth Middleware with Feature Flag
 
 Create `middleware.ts` in project root:
 
@@ -1900,6 +1976,14 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Auth bypass feature flag for development
+  const disableAuth = process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true'
+  
+  if (disableAuth) {
+    console.log('🔓 Auth bypass enabled - skipping authentication')
+    return NextResponse.next()
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,

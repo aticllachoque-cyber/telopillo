@@ -1,0 +1,21 @@
+-- RLS Policy Tests for profiles table
+-- Run with: psql "postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres" < supabase/tests/profiles_rls.test.sql
+-- Or run sections manually in Supabase SQL Editor
+
+-- Test 1: Anyone can view profiles (anon role)
+-- BEGIN;
+--   SET LOCAL ROLE anon;
+--   SELECT * FROM profiles; -- Should work
+-- ROLLBACK;
+
+-- Test 2: Authenticated users can only update own profile
+-- BEGIN;
+--   SET LOCAL ROLE authenticated;
+--   SET LOCAL request.jwt.claims TO '{"sub": "test-user-id"}';
+--
+--   -- This should work (own profile)
+--   UPDATE profiles SET full_name = 'Test' WHERE id = 'test-user-id';
+--
+--   -- This should fail (other's profile)
+--   UPDATE profiles SET full_name = 'Hacker' WHERE id = 'other-user-id';
+-- ROLLBACK;

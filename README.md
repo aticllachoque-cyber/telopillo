@@ -100,6 +100,42 @@ telopillo/
 
 ---
 
+## 📊 Estado del Proyecto
+
+**Última actualización:** February 13, 2026
+
+### Milestones Completados
+
+- ✅ **M0: Foundation & Setup** (100%) - Completed in ~7.5 hours
+  - Next.js 14 + TypeScript + Tailwind CSS + shadcn/ui
+  - Supabase integration (client, server, middleware)
+  - Development tools (ESLint, Prettier, Husky)
+  - Base layout (Header, Footer, Landing page)
+  - UX/Accessibility improvements (WCAG 2.2 AA)
+
+### Milestones En Progreso
+
+- 🚧 **M1: Authentication & User Profiles** (15%)
+  - ✅ Phase 1: Database Setup (Complete)
+    - `profiles` table with RLS policies
+    - Auto-create profile trigger
+    - `avatars` storage bucket
+    - Supabase CLI configured
+  - ⏳ Phase 2: OAuth Configuration (Pending)
+  - ⏳ Phase 3: Authentication Pages (Pending)
+  - ⏳ Phase 4: Profile Management (Pending)
+  - ⏳ Phase 5: Avatar Upload (Pending)
+  - ⏳ Phase 6: Protected Routes (Pending)
+  - ⏳ Phase 7: Testing & Polish (Pending)
+
+### Próximos Milestones
+
+- ⏳ **M2: Product Listings** (0%)
+- ⏳ **M3: Search & Discovery** (0%)
+- ⏳ **M4: Chat & Messaging** (0%)
+
+---
+
 ## 🚀 Inicio Rápido
 
 ### Prerequisites
@@ -144,8 +180,9 @@ telopillo/
 
 5. **Set up database schema**
    ```bash
-   # Install Supabase CLI
-   npm install -g supabase
+   # Supabase CLI is already installed as dev dependency
+   npx supabase login
+   npx supabase link --project-ref your-project-ref
 
    # Link to your project
    supabase link --project-ref your-project-ref
