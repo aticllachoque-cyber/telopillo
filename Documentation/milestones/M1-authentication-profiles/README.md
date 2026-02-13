@@ -59,3 +59,15 @@
 - Auto-create profile on registration (database trigger)
 - Email verification required
 - Phone verification optional (future)
+
+## 📚 Documentation
+
+- **[PRD](./PRD.md)** - Complete requirements and user stories
+- **[Implementation Plan](./IMPLEMENTATION_PLAN.md)** - Detailed step-by-step guide with code
+- **[Quick Start](./QUICK_START.md)** - Fast-track implementation guide
+
+## 🚀 Getting Started
+
+1. Read the [Quick Start Guide](./QUICK_START.md) for a 3-day implementation plan
+2. Follow the [Implementation Plan](./IMPLEMENTATION_PLAN.md) for detailed code and instructions
+3. Reference the [PRD](./PRD.md) for requirements and acceptance criteria
