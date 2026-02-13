@@ -1,183 +1,40 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-instance/
-.webassets-cache
-.scrapy
-docs/_build/
-target/
-.ipynb_checkpoints
-profile_default/
-ipython_config.py
-.python-version
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-.spyderproject
-.spyproject
-.ropeproject
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pyre/
-.pytype/
-cython_debug/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Node.js / Frontend
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-pids
-*.pid
-*.seed
-*.pid.lock
-lib-cov
-coverage
-*.lcov
-.nyc_output
-.grunt
-bower_components
-.lock-wscript
-build/Release
-.npm
-.eslintcache
-.stylelintcache
-.node_repl_history
-*.tgz
-.yarn-integrity
-.next/
-out/
-.nuxt
-dist
-.cache/
-.parcel-cache
-.vuepress/dist
-.temp
-.docusaurus
-.serverless/
-.fusebox/
-.dynamodb/
-.tern-port
-.vscode-test
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 .yarn/install-state.gz
-.pnp.*
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
+*.pem
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env*.local
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-postgres_data/
-pgdata/
-
-# Docker
-docker-compose.override.yml
-.dockerignore
-
-# Logs
-logs/
-*.log
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
-# Testing
-.coverage
-.pytest_cache/
-htmlcov/
-.tox/
-.nox/
-coverage.xml
-*.cover
-.hypothesis/
+# local env files
+.env*.local
+.env
 
-# ML Models (if stored locally)
-models/*.bin
-models/*.pt
-models/*.pth
-*.onnx
-*.h5
+# vercel
+.vercel
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
-*.swp
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 
-# OS
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# Redis
-dump.rdb
-
-# Meilisearch
-data.ms/
-meili_data/
-
-# MinIO / S3
-minio_data/
-
-# Uploads (if stored locally during dev)
-uploads/
-media/
-
-# Secrets
-secrets/
-*.pem
-*.key
-*.crt
-credentials.json
-service-account.json
+# supabase
+.supabase
