@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import {
-  Package,
   Search,
   MessageCircle,
   Shield,
@@ -12,18 +11,27 @@ import {
   Smartphone,
   Zap,
   MapPin,
+  Monitor,
+  Car,
+  Home as HomeIcon,
+  Shirt,
+  Sofa,
+  Dumbbell,
+  Wrench,
+  MoreHorizontal,
+  Upload,
 } from 'lucide-react'
 
 export default function Home() {
   const categories = [
-    { name: 'Electrónica', slug: 'electronica', icon: '📱' },
-    { name: 'Vehículos', slug: 'vehiculos', icon: '🚗' },
-    { name: 'Inmuebles', slug: 'inmuebles', icon: '🏠' },
-    { name: 'Moda', slug: 'moda', icon: '👕' },
-    { name: 'Hogar', slug: 'hogar', icon: '🛋️' },
-    { name: 'Deportes', slug: 'deportes', icon: '⚽' },
-    { name: 'Servicios', slug: 'servicios', icon: '🔧' },
-    { name: 'Más...', slug: 'categorias', icon: '📦' },
+    { name: 'Electrónica', slug: 'electronica', Icon: Monitor },
+    { name: 'Vehículos', slug: 'vehiculos', Icon: Car },
+    { name: 'Inmuebles', slug: 'inmuebles', Icon: HomeIcon },
+    { name: 'Moda', slug: 'moda', Icon: Shirt },
+    { name: 'Hogar', slug: 'hogar', Icon: Sofa },
+    { name: 'Deportes', slug: 'deportes', Icon: Dumbbell },
+    { name: 'Servicios', slug: 'servicios', Icon: Wrench },
+    { name: 'Ver todas', slug: 'categorias', Icon: MoreHorizontal },
   ]
 
   const stats = [
@@ -93,7 +101,7 @@ export default function Home() {
                   <Input
                     type="search"
                     name="q"
-                    placeholder="¿Qué estás buscando? Ej: iPhone, moto, departamento..."
+                    placeholder="Ej: iPhone, moto, departamento..."
                     className="h-12 pl-12 text-base"
                     aria-label="Término de búsqueda"
                     autoComplete="off"
@@ -109,17 +117,16 @@ export default function Home() {
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Button size="lg" variant="outline" asChild>
                 <Link href="/publicar" className="flex items-center gap-2">
-                  <Package className="h-5 w-5" aria-hidden />
+                  <Upload className="h-5 w-5" aria-hidden />
                   Publicar Gratis
                 </Link>
               </Button>
-              <Link
-                href="/categorias"
-                className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-              >
-                Explorar categorías
-                <ChevronRight className="h-4 w-4" aria-hidden />
-              </Link>
+              <Button size="lg" variant="ghost" asChild>
+                <Link href="/categorias" className="flex items-center gap-1">
+                  Explorar categorías
+                  <ChevronRight className="h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
             </div>
 
             {/* Social proof stats */}
@@ -158,7 +165,7 @@ export default function Home() {
                   className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10"
                   aria-hidden
                 >
-                  <Package className="h-6 w-6 text-primary" />
+                  <Upload className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-xl">Publicá Gratis</CardTitle>
@@ -220,20 +227,26 @@ export default function Home() {
           </div>
 
           <div className="mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
-            {categories.map((category) => (
-              <Link
-                key={category.name}
-                href={`/categorias/${category.slug}`}
-                className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              >
-                <span className="text-3xl" role="img" aria-hidden>
-                  {category.icon}
-                </span>
-                <p className="font-medium text-foreground group-hover:text-primary">
-                  {category.name}
-                </p>
-              </Link>
-            ))}
+            {categories.map((category) => {
+              const IconComponent = category.Icon
+              return (
+                <Link
+                  key={category.name}
+                  href={`/categorias/${category.slug}`}
+                  className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                >
+                  <div
+                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20"
+                    aria-hidden
+                  >
+                    <IconComponent className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="font-medium text-foreground group-hover:text-primary">
+                    {category.name}
+                  </p>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -242,7 +255,7 @@ export default function Home() {
       <section className="border-y bg-muted/30 py-16 md:py-20" aria-labelledby="trust-heading">
         <div className="container px-4">
           <div className="mx-auto max-w-4xl">
-            <h2 id="trust-heading" className="sr-only">
+            <h2 id="trust-heading" className="text-3xl font-bold text-center mb-12">
               Por qué confiar en Telopillo.bo
             </h2>
             <div className="grid gap-8 md:grid-cols-2 md:gap-12">
@@ -308,6 +321,12 @@ export default function Home() {
                 <Users className="h-4 w-4" aria-hidden />
                 Únete a miles de bolivianos que ya compran y venden en Telopillo
               </p>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-sm px-2 py-1"
+              >
+                ¿Ya tenés cuenta? Iniciá sesión
+              </Link>
             </CardContent>
           </Card>
         </div>

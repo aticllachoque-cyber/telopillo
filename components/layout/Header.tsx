@@ -45,7 +45,7 @@ export function Header() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
           <Button asChild>
-            <Link href="/publicar">Publicar</Link>
+            <Link href="/publicar">Publicar Gratis</Link>
           </Button>
 
           {isAuthenticated ? (
@@ -94,56 +94,79 @@ export function Header() {
         </Button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu with Backdrop */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t" role="dialog" aria-label="Menú de navegación">
-          <nav className="container py-4 space-y-3" aria-label="Navegación principal">
-            <Link
-              href="/buscar"
-              className="block text-sm font-medium transition-colors hover:text-primary"
-            >
-              Buscar
-            </Link>
-            <Link
-              href="/categorias"
-              className="block text-sm font-medium transition-colors hover:text-primary"
-            >
-              Categorías
-            </Link>
-            <Link
-              href="/publicar"
-              className="block text-sm font-medium transition-colors hover:text-primary"
-            >
-              Publicar
-            </Link>
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href="/perfil"
-                  className="block text-sm font-medium transition-colors hover:text-primary"
-                >
-                  Perfil
-                </Link>
-                <Link
-                  href="/mensajes"
-                  className="block text-sm font-medium transition-colors hover:text-primary"
-                >
-                  Mensajes
-                </Link>
-                <button className="block text-sm font-medium transition-colors hover:text-primary">
-                  Cerrar Sesión
-                </button>
-              </>
-            ) : (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          {/* Menu */}
+          <div
+            className="fixed inset-x-0 top-16 z-50 md:hidden border-t bg-background shadow-lg"
+            role="dialog"
+            aria-label="Menú de navegación"
+            aria-modal="true"
+          >
+            <nav className="container py-4 space-y-3" aria-label="Navegación principal">
               <Link
-                href="/login"
-                className="block text-sm font-medium transition-colors hover:text-primary"
+                href="/buscar"
+                className="block text-sm font-medium transition-colors hover:text-primary py-2"
+                onClick={() => setMobileMenuOpen(false)}
               >
-                Iniciar Sesión
+                Buscar
               </Link>
-            )}
-          </nav>
-        </div>
+              <Link
+                href="/categorias"
+                className="block text-sm font-medium transition-colors hover:text-primary py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Categorías
+              </Link>
+              <Link
+                href="/publicar"
+                className="block text-sm font-medium transition-colors hover:text-primary py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Publicar Gratis
+              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/perfil"
+                    className="block text-sm font-medium transition-colors hover:text-primary py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Perfil
+                  </Link>
+                  <Link
+                    href="/mensajes"
+                    className="block text-sm font-medium transition-colors hover:text-primary py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Mensajes
+                  </Link>
+                  <button
+                    className="block text-sm font-medium transition-colors hover:text-primary py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Cerrar Sesión
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="block text-sm font-medium transition-colors hover:text-primary py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Iniciar Sesión
+                </Link>
+              )}
+            </nav>
+          </div>
+        </>
       )}
     </header>
   )
