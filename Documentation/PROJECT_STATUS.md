@@ -9,7 +9,7 @@
 
 ```
 M0: Foundation & Setup          ████████████████████ 100% ✅
-M1: Authentication & Profiles   ███░░░░░░░░░░░░░░░░░  15% 🚧
+M1: Authentication & Profiles   ████████████████░░░░  85% 🚧
 M2: Product Listings            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M3: Search & Discovery          ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M4: Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
@@ -18,7 +18,7 @@ M6: Ratings & Reviews           ░░░░░░░░░░░░░░░░
 M7: Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M8: Semantic Search             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 
-Overall Project: ███░░░░░░░░░░░░░░░░░ 14%
+Overall Project: ████░░░░░░░░░░░░░░░░ 21%
 ```
 
 ---
@@ -62,9 +62,10 @@ Overall Project: ███░░░░░░░░░░░░░░░░░ 14
 
 ## 🚧 M1: Authentication & User Profiles (IN PROGRESS)
 
-**Status:** 15% Complete (Phase 1/7 done)  
+**Status:** 85% Complete (Phase 1-6/7 done)  
 **Started:** February 13, 2026  
-**Estimated Duration:** 10 days
+**Estimated Duration:** 10 days  
+**Actual Duration So Far:** ~12 hours
 
 ### Phase 1: Database Setup ✅ COMPLETE
 
@@ -92,56 +93,64 @@ Overall Project: ███░░░░░░░░░░░░░░░░░ 14
 - `supabase/README.md`
 - `supabase/tests/profiles_rls.test.sql`
 
-### Phase 2: OAuth Configuration ⏳ PENDING
+### Phase 2: OAuth Configuration ✅ COMPLETE
 
-**Estimated:** 3-4 hours
+**Completed:** February 13, 2026 (~2 hours)
 
-- [ ] Create Google OAuth credentials
-- [ ] Configure Google OAuth in Supabase
-- [ ] Create Facebook OAuth credentials
-- [ ] Configure Facebook OAuth in Supabase
-- [ ] Test OAuth flows
+- ✅ Created Google OAuth credentials
+- ✅ Configured Google OAuth in Supabase
+- ✅ Created Facebook OAuth credentials
+- ✅ Configured Facebook OAuth in Supabase
+- ✅ Tested OAuth flows
+- ✅ Created PHASE2_OAUTH_GUIDE.md documentation
 
-### Phase 3: Authentication Pages ⏳ PENDING
+### Phase 3: Authentication Pages ✅ COMPLETE
 
-**Estimated:** 12-16 hours
+**Completed:** February 13, 2026 (~4 hours)
 
-- [ ] Create validation schemas (zod)
-- [ ] Install dependencies (react-hook-form, react-icons)
-- [ ] Create OAuthButtons component
-- [ ] Create Login page
-- [ ] Create Register page
-- [ ] Create OAuth callback handler
-- [ ] Create Forgot Password page
-- [ ] Create Reset Password page
+- ✅ Created validation schemas (zod)
+- ✅ Installed dependencies (react-hook-form, react-icons)
+- ✅ Created OAuthButtons component
+- ✅ Created Login page with UX/accessibility improvements
+- ✅ Created Register page with success state
+- ✅ Created OAuth callback handler
+- ✅ Created Forgot Password page
+- ✅ Created Reset Password page
+- ✅ Fixed auth bug (NULL tokens in auth.users table)
 
-### Phase 4: Profile Management ⏳ PENDING
+### Phase 4: Profile Management ✅ COMPLETE
 
-**Estimated:** 10-12 hours
+**Completed:** February 13, 2026 (~3 hours)
 
-- [ ] Generate TypeScript types from Supabase
-- [ ] Create profile validation schemas
-- [ ] Create LocationSelector component
-- [ ] Create Profile Edit page
-- [ ] Create Public Profile View page
+- ✅ Generated TypeScript types from Supabase
+- ✅ Created profile validation schemas
+- ✅ Created LocationSelector component (Bolivia departments/cities)
+- ✅ Created Profile Edit page
+- ✅ Created Profile View page (current user)
+- ✅ Tested profile load and update
 
-### Phase 5: Avatar Upload ⏳ PENDING
+### Phase 5: Avatar Upload ✅ COMPLETE
 
-**Estimated:** 6-8 hours
+**Completed:** February 13, 2026 (~2 hours)
 
-- [ ] Create AvatarUpload component
-- [ ] Implement file upload to storage
-- [ ] Implement file validation
-- [ ] Integrate into Profile Edit page
+- ✅ Created AvatarUpload component
+- ✅ Implemented file upload to Supabase Storage
+- ✅ Implemented file validation (type, 5MB size limit)
+- ✅ Integrated into Profile Edit page
+- ✅ Added loading states and error handling
+- ✅ Implemented avatar removal
+- ✅ Created PHASE5_TESTING_GUIDE.md
 
-### Phase 6: Protected Routes ⏳ PENDING
+### Phase 6: Protected Routes ✅ COMPLETE
 
-**Estimated:** 4-6 hours
+**Completed:** February 13, 2026 (~2 hours)
 
-- [ ] Create/update auth middleware
-- [ ] Define protected routes
-- [ ] Create UserMenu component
-- [ ] Update Header with UserMenu
+- ✅ Updated auth middleware with protection logic
+- ✅ Defined protected routes (/profile/edit, /publicar, /mensajes)
+- ✅ Created UserMenu component with dropdown
+- ✅ Updated Header with UserMenu
+- ✅ Implemented auth bypass for development
+- ✅ Added redirect to login with return URL
 
 ### Phase 7: Testing & Polish ⏳ PENDING
 
@@ -153,6 +162,16 @@ Overall Project: ███░░░░░░░░░░░░░░░░░ 14
 - [ ] Browser testing
 - [ ] Lighthouse audit (target >90)
 - [ ] Code quality checks
+
+### Git Commits (M1)
+
+1. `1b9b09e` - Add accessibility-expert agent and M1 documentation
+2. `7565d22` - Implement authentication pages with UX/UI and accessibility improvements
+3. `0c711ae` - Add M1 documentation and Supabase database configuration
+4. `0d8371a` - Implement profile management with location selector and auth bug fix
+5. `22fbca4` - Implement avatar upload and protected routes (Phase 5 & 6)
+
+**Total:** 5 commits, ~1,500+ lines of code
 
 **Documentation:** [M1 README](../milestones/M1-authentication-profiles/README.md)
 
