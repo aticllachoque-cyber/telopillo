@@ -18,6 +18,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary"
+                aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5" />
               </Link>
@@ -26,6 +27,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary"
+                aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
               </Link>
@@ -34,6 +36,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary"
+                aria-label="Twitter"
               >
                 <Twitter className="h-5 w-5" />
               </Link>

@@ -1,109 +1,316 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import Link from 'next/link'
-import { Package, Search, MessageCircle } from 'lucide-react'
+import {
+  Package,
+  Search,
+  MessageCircle,
+  Shield,
+  Users,
+  ChevronRight,
+  Smartphone,
+  Zap,
+  MapPin,
+} from 'lucide-react'
 
 export default function Home() {
+  const categories = [
+    { name: 'Electrónica', slug: 'electronica', icon: '📱' },
+    { name: 'Vehículos', slug: 'vehiculos', icon: '🚗' },
+    { name: 'Inmuebles', slug: 'inmuebles', icon: '🏠' },
+    { name: 'Moda', slug: 'moda', icon: '👕' },
+    { name: 'Hogar', slug: 'hogar', icon: '🛋️' },
+    { name: 'Deportes', slug: 'deportes', icon: '⚽' },
+    { name: 'Servicios', slug: 'servicios', icon: '🔧' },
+    { name: 'Más...', slug: 'categorias', icon: '📦' },
+  ]
+
+  const stats = [
+    { value: '+50K', label: 'Usuarios activos' },
+    { value: '+100K', label: 'Productos publicados' },
+    { value: '9', label: 'Departamentos' },
+  ]
+
   return (
-    <div className="container py-12">
-      {/* Hero Section */}
-      <section className="text-center space-y-6 py-12">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-          Lo que buscás, <span className="text-primary">¡telopillo!</span>
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          El marketplace boliviano donde comprás y vendés de todo, fácil y rápido.
-        </p>
-        <div className="flex gap-4 justify-center flex-wrap">
-          <Button size="lg" asChild>
-            <Link href="/buscar">Buscar Productos</Link>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <Link href="/publicar">Publicar Gratis</Link>
-          </Button>
+    <div className="min-h-screen">
+      {/* Skip link for accessibility */}
+      <a
+        href="#contenido-principal"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Saltar al contenido principal
+      </a>
+
+      {/* Hero Section - More engaging, search-focused */}
+      <section
+        className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background"
+        aria-labelledby="hero-heading"
+      >
+        {/* Subtle decorative elements */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        </div>
+
+        <div className="container px-4 py-16 sm:py-20 md:py-24 lg:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            {/* Trust badge - mobile first */}
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-sm text-muted-foreground shadow-sm backdrop-blur-sm">
+              <MapPin className="h-4 w-4 text-primary" aria-hidden />
+              <span>100% boliviano • Compra y vende en todo el país</span>
+            </p>
+
+            <h1
+              id="hero-heading"
+              className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+            >
+              Lo que buscás,{' '}
+              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                ¡telopillo!
+              </span>
+            </h1>
+
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+              El marketplace boliviano donde comprás y vendés de todo, fácil y rápido. Sin
+              comisiones por publicar.
+            </p>
+
+            {/* Primary CTA: Search bar - key action for marketplace */}
+            <form
+              action="/buscar"
+              method="GET"
+              className="mx-auto mt-8 max-w-xl"
+              role="search"
+              aria-label="Buscar productos"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+                <div className="relative flex-1">
+                  <Search
+                    className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+                    aria-hidden
+                  />
+                  <Input
+                    type="search"
+                    name="q"
+                    placeholder="¿Qué estás buscando? Ej: iPhone, moto, departamento..."
+                    className="h-12 pl-12 text-base"
+                    aria-label="Término de búsqueda"
+                    autoComplete="off"
+                  />
+                </div>
+                <Button type="submit" size="lg" className="h-12 px-8">
+                  Buscar
+                </Button>
+              </div>
+            </form>
+
+            {/* Secondary CTAs */}
+            <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/publicar" className="flex items-center gap-2">
+                  <Package className="h-5 w-5" aria-hidden />
+                  Publicar Gratis
+                </Link>
+              </Button>
+              <Link
+                href="/categorias"
+                className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              >
+                Explorar categorías
+                <ChevronRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
+
+            {/* Social proof stats */}
+            <div className="mt-12 flex flex-wrap justify-center gap-8 sm:gap-12">
+              {stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <p className="text-2xl font-bold text-foreground sm:text-3xl">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-12">
-        <h2 className="text-3xl font-bold text-center mb-8">¿Por qué Telopillo.bo?</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <Package className="h-6 w-6 text-primary" />
-                <CardTitle>Publicá Gratis</CardTitle>
-              </div>
-              <CardDescription>
-                Publicá tus productos sin costo y llegá a miles de compradores en toda Bolivia
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <Search className="h-6 w-6 text-primary" />
-                <CardTitle>Búsqueda Inteligente</CardTitle>
-              </div>
-              <CardDescription>
-                Encontrá lo que buscás rápido con nuestra búsqueda avanzada y filtros
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <MessageCircle className="h-6 w-6 text-primary" />
-                <CardTitle>Chat Directo</CardTitle>
-              </div>
-              <CardDescription>
-                Hablá directamente con vendedores y compradores de forma segura
-              </CardDescription>
-            </CardHeader>
-          </Card>
+      {/* Features Section - Improved hierarchy and icons */}
+      <section
+        id="contenido-principal"
+        className="border-y bg-muted/30 py-16 md:py-20"
+        aria-labelledby="features-heading"
+      >
+        <div className="container px-4">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 id="features-heading" className="text-3xl font-bold sm:text-4xl">
+              ¿Por qué Telopillo.bo?
+            </h2>
+            <p className="mt-3 text-lg text-muted-foreground">
+              Diseñado para bolivianos, pensado para vos
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
+            <Card className="border-0 bg-card shadow-md transition-shadow hover:shadow-lg">
+              <CardHeader className="space-y-4">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10"
+                  aria-hidden
+                >
+                  <Package className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Publicá Gratis</CardTitle>
+                  <CardDescription className="mt-2 text-base">
+                    Publicá tus productos sin costo y llegá a miles de compradores en toda Bolivia
+                  </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-0 bg-card shadow-md transition-shadow hover:shadow-lg">
+              <CardHeader className="space-y-4">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10"
+                  aria-hidden
+                >
+                  <Search className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Búsqueda Inteligente</CardTitle>
+                  <CardDescription className="mt-2 text-base">
+                    Encontrá lo que buscás rápido con nuestra búsqueda avanzada y filtros por
+                    ubicación
+                  </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-0 bg-card shadow-md transition-shadow hover:shadow-lg">
+              <CardHeader className="space-y-4">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10"
+                  aria-hidden
+                >
+                  <MessageCircle className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Chat Directo</CardTitle>
+                  <CardDescription className="mt-2 text-base">
+                    Hablá directamente con vendedores y compradores de forma segura y en tiempo real
+                  </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+          </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-12">
-        <h2 className="text-3xl font-bold text-center mb-8">Categorías Populares</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            'Electrónica',
-            'Vehículos',
-            'Inmuebles',
-            'Moda',
-            'Hogar',
-            'Deportes',
-            'Servicios',
-            'Más...',
-          ].map((category) => (
-            <Link key={category} href={`/categorias/${category.toLowerCase()}`}>
-              <Card className="hover:border-primary transition-colors cursor-pointer">
-                <CardContent className="p-6 text-center">
-                  <p className="font-medium">{category}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+      {/* Categories Section - Icons, better touch targets */}
+      <section className="py-16 md:py-20" aria-labelledby="categories-heading">
+        <div className="container px-4">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 id="categories-heading" className="text-3xl font-bold sm:text-4xl">
+              Categorías Populares
+            </h2>
+            <p className="mt-3 text-lg text-muted-foreground">
+              Encontrá lo que necesitás en segundos
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
+            {categories.map((category) => (
+              <Link
+                key={category.name}
+                href={`/categorias/${category.slug}`}
+                className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <span className="text-3xl" role="img" aria-hidden>
+                  {category.icon}
+                </span>
+                <p className="font-medium text-foreground group-hover:text-primary">
+                  {category.name}
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 text-center">
-        <Card className="max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="text-2xl">¿Listo para empezar?</CardTitle>
-            <CardDescription>
-              Creá tu cuenta gratis y comenzá a comprar o vender hoy mismo
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button size="lg" asChild>
-              <Link href="/registro">Crear Cuenta Gratis</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Trust & Mobile Section */}
+      <section className="border-y bg-muted/30 py-16 md:py-20" aria-labelledby="trust-heading">
+        <div className="container px-4">
+          <div className="mx-auto max-w-4xl">
+            <h2 id="trust-heading" className="sr-only">
+              Por qué confiar en Telopillo.bo
+            </h2>
+            <div className="grid gap-8 md:grid-cols-2 md:gap-12">
+              <div className="flex gap-4">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10"
+                  aria-hidden
+                >
+                  <Smartphone className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Hecho para tu celular</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    La mayoría de nuestros usuarios compran y venden desde el celular. Nuestra app
+                    web está optimizada para que tengas la mejor experiencia en pantalla chica.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10"
+                  aria-hidden
+                >
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Comprá y vendé con confianza</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    Chat directo con vendedores, perfiles verificables y una comunidad activa.
+                    Siempre podés reportar si algo no cuadra.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - Stronger, more compelling */}
+      <section className="py-16 md:py-24" aria-labelledby="cta-heading">
+        <div className="container px-4">
+          <Card className="mx-auto max-w-2xl overflow-hidden border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-xl">
+            <CardHeader className="space-y-4 text-center">
+              <div
+                className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10"
+                aria-hidden
+              >
+                <Zap className="h-7 w-7 text-primary" />
+              </div>
+              <CardTitle id="cta-heading" className="text-2xl sm:text-3xl">
+                ¿Listo para empezar?
+              </CardTitle>
+              <CardDescription className="text-base">
+                Creá tu cuenta gratis en menos de 2 minutos. Sin tarjeta de crédito. Sin
+                compromisos.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-4 pb-8">
+              <Button size="lg" className="h-12 px-8 text-base" asChild>
+                <Link href="/registro">Crear Cuenta Gratis</Link>
+              </Button>
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="h-4 w-4" aria-hidden />
+                Únete a miles de bolivianos que ya compran y venden en Telopillo
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </section>
     </div>
   )

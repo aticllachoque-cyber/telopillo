@@ -27,7 +27,10 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6 flex-1 justify-center">
+        <nav
+          className="hidden md:flex items-center space-x-6 flex-1 justify-center"
+          aria-label="Navegación principal"
+        >
           <Link href="/buscar" className="text-sm font-medium transition-colors hover:text-primary">
             Buscar
           </Link>
@@ -84,6 +87,8 @@ export function Header() {
           size="icon"
           className="md:hidden"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={mobileMenuOpen}
         >
           <Menu className="h-6 w-6" />
         </Button>
@@ -91,8 +96,8 @@ export function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t">
-          <nav className="container py-4 space-y-3">
+        <div className="md:hidden border-t" role="dialog" aria-label="Menú de navegación">
+          <nav className="container py-4 space-y-3" aria-label="Navegación principal">
             <Link
               href="/buscar"
               className="block text-sm font-medium transition-colors hover:text-primary"
