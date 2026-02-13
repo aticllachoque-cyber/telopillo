@@ -29,12 +29,13 @@ export async function POST(request: Request) {
         {
           success: false,
           error: {
+            // Supabase errors may have additional properties
+            ...error,
+            // Explicitly override to ensure these are included
             message: error.message,
             name: error.name,
             status: error.status,
             code: (error as { code?: string }).code,
-            // Supabase errors may have additional properties
-            ...error,
           },
         },
         { status: 200 } // Return 200 so we can see the error payload

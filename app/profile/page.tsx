@@ -33,6 +33,7 @@ export default function ProfilePage() {
   useEffect(() => {
     document.title = 'Mi Perfil - Telopillo.bo'
     loadProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadProfile = async () => {
