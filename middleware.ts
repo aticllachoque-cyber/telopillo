@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function middleware(request: NextRequest) {
   // Auth bypass for development
   if (process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true') {
-    const protectedRoutes = ['/profile', '/publicar', '/mensajes']
+    const protectedRoutes = ['/profile', '/perfil', '/publicar', '/mensajes']
     const isProtectedRoute = protectedRoutes.some((route) =>
       request.nextUrl.pathname.startsWith(route)
     )
@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protected routes - require authentication
-  const protectedRoutes = ['/profile/edit', '/publicar', '/mensajes']
+  const protectedRoutes = ['/profile/edit', '/perfil', '/publicar', '/mensajes']
   const isProtectedRoute = protectedRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   )

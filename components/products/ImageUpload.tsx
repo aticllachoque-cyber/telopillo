@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   compressImage,
@@ -8,7 +8,6 @@ import {
   getProductImagePath,
   createImagePreview,
   revokeImagePreview,
-  formatFileSize,
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
 import { Upload, X, Loader2, GripVertical } from 'lucide-react'
@@ -46,14 +45,12 @@ export function ImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
-  // Update parent when previews change
-  const updateParent = useCallback(
-    (newPreviews: ImagePreview[]) => {
-      const uploadedUrls = newPreviews.filter((p) => p.uploaded).map((p) => p.url)
-      onChange(uploadedUrls)
-    },
-    [onChange]
-  )
+  // Sync uploaded URLs with parent component
+  useEffect(() => {
+    const uploadedUrls = previews.filter((p) => p.uploaded).map((p) => p.url)
+    onChange(uploadedUrls)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previews])
 
   // Handle file selection
   const handleFileSelect = async (files: FileList | null) => {
@@ -139,14 +136,6 @@ export function ImageUpload({
         })
       }
     }
-
-    // Update parent after all uploads
-    setTimeout(() => {
-      setPreviews((prev) => {
-        updateParent(prev)
-        return prev
-      })
-    }, 500)
   }
 
   // Handle drag and drop
@@ -194,7 +183,6 @@ export function ImageUpload({
     // Remove from previews
     const updated = previews.filter((_, i) => i !== index)
     setPreviews(updated)
-    updateParent(updated)
   }
 
   // Handle reorder (drag to reorder)
@@ -219,7 +207,6 @@ export function ImageUpload({
 
     setPreviews(updated)
     setDraggedIndex(index)
-    updateParent(updated)
   }
 
   return (
@@ -247,7 +234,9 @@ export function ImageUpload({
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
-              !disabled && fileInputRef.current?.click()
+              if (!disabled) {
+                fileInputRef.current?.click()
+              }
             }
           }}
         >
@@ -313,6 +302,7 @@ export function ImageUpload({
 
               {/* Image */}
               <div className="aspect-square relative bg-muted">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={preview.url}
                   alt={`Imagen ${index + 1}`}

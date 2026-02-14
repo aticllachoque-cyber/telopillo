@@ -1,0 +1,120 @@
+import { z } from 'zod'
+
+// Product categories enum
+export const PRODUCT_CATEGORIES = [
+  'electronics',
+  'vehicles',
+  'home',
+  'fashion',
+  'construction',
+  'sports',
+  'baby',
+  'beauty',
+  'books',
+] as const
+
+// Product condition enum
+export const PRODUCT_CONDITIONS = ['new', 'used_like_new', 'used_good', 'used_fair'] as const
+
+// Bolivia departments
+export const BOLIVIA_DEPARTMENTS = [
+  'La Paz',
+  'Cochabamba',
+  'Santa Cruz',
+  'Oruro',
+  'Potosí',
+  'Chuquisaca',
+  'Tarija',
+  'Beni',
+  'Pando',
+] as const
+
+// Product validation schema
+export const productSchema = z.object({
+  title: z
+    .string()
+    .min(10, 'El título debe tener al menos 10 caracteres')
+    .max(100, 'El título no puede exceder 100 caracteres')
+    .trim(),
+
+  description: z
+    .string()
+    .min(50, 'La descripción debe tener al menos 50 caracteres')
+    .max(5000, 'La descripción no puede exceder 5000 caracteres')
+    .trim(),
+
+  category: z.enum(PRODUCT_CATEGORIES, {
+    required_error: 'Selecciona una categoría',
+    invalid_type_error: 'Categoría inválida',
+  }),
+
+  subcategory: z.string().optional(),
+
+  price: z
+    .number({
+      required_error: 'El precio es requerido',
+      invalid_type_error: 'El precio debe ser un número',
+    })
+    .min(1, 'El precio debe ser mayor a 0')
+    .max(999999999, 'El precio es demasiado alto'),
+
+  condition: z.enum(PRODUCT_CONDITIONS, {
+    required_error: 'Selecciona el estado del producto',
+    invalid_type_error: 'Estado inválido',
+  }),
+
+  location_department: z.enum(BOLIVIA_DEPARTMENTS, {
+    required_error: 'Selecciona un departamento',
+    invalid_type_error: 'Departamento inválido',
+  }),
+
+  location_city: z
+    .string()
+    .min(1, 'La ciudad es requerida')
+    .max(100, 'El nombre de la ciudad es demasiado largo')
+    .trim(),
+
+  images: z
+    .array(z.string().url('URL de imagen inválida'))
+    .min(1, 'Debes subir al menos 1 imagen')
+    .max(5, 'Puedes subir máximo 5 imágenes'),
+})
+
+// Type inference
+export type ProductInput = z.infer<typeof productSchema>
+
+// Partial schema for updates (all fields optional)
+export const productUpdateSchema = productSchema.partial()
+
+export type ProductUpdateInput = z.infer<typeof productUpdateSchema>
+
+// Helper function to validate product data
+export function validateProduct(data: unknown): {
+  success: boolean
+  data?: ProductInput
+  errors?: z.ZodError
+} {
+  const result = productSchema.safeParse(data)
+
+  if (result.success) {
+    return { success: true, data: result.data }
+  }
+
+  return { success: false, errors: result.error }
+}
+
+// Condition labels for UI
+export const CONDITION_LABELS: Record<(typeof PRODUCT_CONDITIONS)[number], string> = {
+  new: 'Nuevo',
+  used_like_new: 'Usado - Como nuevo',
+  used_good: 'Usado - Buen estado',
+  used_fair: 'Usado - Estado regular',
+}
+
+// Condition descriptions
+export const CONDITION_DESCRIPTIONS: Record<(typeof PRODUCT_CONDITIONS)[number], string> = {
+  new: 'Sin usar, en su empaque original',
+  used_like_new: 'Usado pero en excelente estado, sin marcas visibles',
+  used_good: 'Usado con signos normales de uso, totalmente funcional',
+  used_fair: 'Usado con marcas visibles, pero funcional',
+}
