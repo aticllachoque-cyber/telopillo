@@ -58,7 +58,7 @@ export function ProductCard({ product, onUpdate, showActions = true }: ProductCa
         {/* Quick Actions Menu */}
         {showActions && (
           <div
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity"
             onClick={(e) => e.preventDefault()}
           >
             <ProductActions

@@ -115,7 +115,9 @@ export function UserMenu() {
               src={profile?.avatar_url || undefined}
               alt={profile?.full_name || 'Usuario'}
             />
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              {initials}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

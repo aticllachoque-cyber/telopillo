@@ -114,7 +114,9 @@ export default function MisProductosPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" aria-hidden />
-          <p className="text-muted-foreground mt-4">Cargando productos...</p>
+          <p className="text-muted-foreground mt-4" role="status" aria-live="polite">
+            Cargando productos...
+          </p>
         </div>
       </div>
     )

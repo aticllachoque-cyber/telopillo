@@ -217,7 +217,10 @@ export function ProductForm({
           <Label htmlFor="category">
             Categoría <span className="text-destructive">*</span>
           </Label>
-          <Select value={selectedCategory} onValueChange={(value) => setValue('category', value)}>
+          <Select
+            value={selectedCategory}
+            onValueChange={(value) => setValue('category', value as ProductInput['category'])}
+          >
             <SelectTrigger
               id="category"
               aria-invalid={errors.category ? 'true' : 'false'}
@@ -294,7 +297,7 @@ export function ProductForm({
         </Label>
         <RadioGroup
           value={watch('condition')}
-          onValueChange={(value) => setValue('condition', value)}
+          onValueChange={(value) => setValue('condition', value as ProductInput['condition'])}
           aria-invalid={errors.condition ? 'true' : 'false'}
           aria-describedby={errors.condition ? 'condition-error' : undefined}
         >
@@ -326,7 +329,9 @@ export function ProductForm({
           </Label>
           <Select
             value={watch('location_department')}
-            onValueChange={(value) => setValue('location_department', value)}
+            onValueChange={(value) =>
+              setValue('location_department', value as ProductInput['location_department'])
+            }
           >
             <SelectTrigger
               id="location_department"

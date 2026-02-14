@@ -38,7 +38,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
       {/* Main Image */}
       <div className="relative aspect-square bg-muted rounded-lg overflow-hidden group">
         <Image
-          src={images[selectedIndex]}
+          src={images[selectedIndex] ?? ''}
           alt={`${productTitle} - Imagen ${selectedIndex + 1}`}
           fill
           className="object-cover"
@@ -52,7 +52,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-2 top-1/2 -translate-y-1/2 md:opacity-70 md:hover:opacity-100 md:focus:opacity-100 transition-opacity shadow-lg"
               onClick={handlePrevious}
               aria-label="Imagen anterior"
             >
@@ -61,7 +61,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-2 top-1/2 -translate-y-1/2 md:opacity-70 md:hover:opacity-100 md:focus:opacity-100 transition-opacity shadow-lg"
               onClick={handleNext}
               aria-label="Imagen siguiente"
             >
@@ -69,7 +69,12 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             </Button>
 
             {/* Image Counter */}
-            <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+            <div
+              className="absolute bottom-4 right-4 bg-black/80 text-white px-3 py-1 rounded-full text-sm font-medium"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               {selectedIndex + 1} / {images.length}
             </div>
           </>

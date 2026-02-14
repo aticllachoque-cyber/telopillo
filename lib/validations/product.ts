@@ -44,28 +44,24 @@ export const productSchema = z.object({
     .trim(),
 
   category: z.enum(PRODUCT_CATEGORIES, {
-    required_error: 'Selecciona una categoría',
-    invalid_type_error: 'Categoría inválida',
+    message: 'Selecciona una categoría',
   }),
 
   subcategory: z.string().optional(),
 
   price: z
     .number({
-      required_error: 'El precio es requerido',
-      invalid_type_error: 'El precio debe ser un número',
+      message: 'El precio debe ser un número',
     })
     .min(1, 'El precio debe ser mayor a 0')
     .max(999999999, 'El precio es demasiado alto'),
 
   condition: z.enum(PRODUCT_CONDITIONS, {
-    required_error: 'Selecciona el estado del producto',
-    invalid_type_error: 'Estado inválido',
+    message: 'Selecciona el estado del producto',
   }),
 
   location_department: z.enum(BOLIVIA_DEPARTMENTS, {
-    required_error: 'Selecciona un departamento',
-    invalid_type_error: 'Departamento inválido',
+    message: 'Selecciona un departamento',
   }),
 
   location_city: z

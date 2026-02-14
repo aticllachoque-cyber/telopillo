@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/toast'
 import { Edit, MoreVertical, Loader2 } from 'lucide-react'
 
 interface ProductActionsProps {
@@ -42,6 +43,7 @@ export function ProductActions({
 }: ProductActionsProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { showToast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
   const [dialogAction, setDialogAction] = useState<ActionType>(null)
 
@@ -87,7 +89,7 @@ export function ProductActions({
       }
     } catch (err) {
       console.error('Error updating product:', err)
-      alert('Error al actualizar el producto')
+      showToast('Error al actualizar el producto', 'error')
     } finally {
       setIsProcessing(false)
       setDialogAction(null)

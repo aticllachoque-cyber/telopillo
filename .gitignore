@@ -11,6 +11,7 @@
 /test-results
 /playwright-report
 /tests/screenshots
+/.playwright-mcp
 
 # next.js
 /.next/
@@ -41,3 +42,17 @@ next-env.d.ts
 
 # supabase
 .supabase
+
+# test screenshots and images (keep test-images folder but ignore root level screenshots)
+/*.png
+/*.jpg
+/*.jpeg
+/test-images/
+
+# logs
+/logs/
+
+# Keep documentation
+!README.md
+!Documentation/**/*.md
+!docs/**/*.md

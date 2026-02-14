@@ -73,7 +73,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
         full_name,
         avatar_url,
         location_city,
-        location_department
+        location_department,
+        phone
       )
     `
     )
@@ -114,17 +115,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
       <div className="container max-w-7xl">
         {/* Breadcrumbs */}
-        <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-          <Link href="/" className="hover:text-foreground">
-            Inicio
-          </Link>
-          <span>/</span>
-          <Link href={`/categorias/${product.category}`} className="hover:text-foreground">
-            {categoryName}
-          </Link>
-          <span>/</span>
-          <span className="text-foreground truncate">{product.title}</span>
-        </div>
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex items-center gap-2 text-sm text-muted-foreground">
+            <li>
+              <Link href="/" className="hover:text-foreground">
+                Inicio
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li>
+              <Link href={`/categorias/${product.category}`} className="hover:text-foreground">
+                {categoryName}
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page">
+              <span className="text-foreground truncate">{product.title}</span>
+            </li>
+          </ol>
+        </nav>
 
         {/* Back Button */}
         <Link

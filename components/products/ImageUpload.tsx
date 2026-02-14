@@ -10,7 +10,8 @@ import {
   revokeImagePreview,
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
-import { Upload, X, Loader2, GripVertical } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
+import { Upload, X, Loader2, GripVertical, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ImageUploadProps {
   userId: string
@@ -44,6 +45,7 @@ export function ImageUpload({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
+  const { showToast } = useToast()
 
   // Sync uploaded URLs with parent component
   useEffect(() => {
@@ -60,7 +62,7 @@ export function ImageUpload({
     const remainingSlots = maxImages - previews.length
 
     if (fileArray.length > remainingSlots) {
-      alert(`Solo puedes subir ${remainingSlots} imagen(es) más`)
+      showToast(`Solo puedes subir ${remainingSlots} imagen(es) más`, 'warning')
       return
     }
 
@@ -68,7 +70,7 @@ export function ImageUpload({
     for (const file of fileArray) {
       const validation = validateImageFile(file)
       if (!validation.valid) {
-        alert(validation.error || 'Archivo inválido')
+        showToast(validation.error || 'Archivo inválido', 'error')
         return
       }
     }
@@ -85,7 +87,7 @@ export function ImageUpload({
 
     // Upload each file
     for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i]
+      const file = fileArray[i]!
       const previewIndex = previews.length + i
 
       try {
@@ -114,7 +116,8 @@ export function ImageUpload({
         setPreviews((prev) => {
           const updated = [...prev]
           // Revoke object URL
-          revokeImagePreview(updated[previewIndex].url)
+          const existing = updated[previewIndex]
+          if (existing) revokeImagePreview(existing.url)
           updated[previewIndex] = {
             url: publicUrl,
             uploading: false,
@@ -126,11 +129,14 @@ export function ImageUpload({
         console.error('Error uploading image:', err)
         setPreviews((prev) => {
           const updated = [...prev]
-          updated[previewIndex] = {
-            ...updated[previewIndex],
-            uploading: false,
-            uploaded: false,
-            error: err instanceof Error ? err.message : 'Error al subir imagen',
+          const existing = updated[previewIndex]
+          if (existing) {
+            updated[previewIndex] = {
+              ...existing,
+              uploading: false,
+              uploaded: false,
+              error: err instanceof Error ? err.message : 'Error al subir imagen',
+            }
           }
           return updated
         })
@@ -162,6 +168,7 @@ export function ImageUpload({
   // Handle remove image
   const handleRemove = async (index: number) => {
     const preview = previews[index]
+    if (!preview) return
 
     // If uploaded to storage, delete it
     if (preview.uploaded && preview.url.includes('supabase')) {
@@ -169,8 +176,8 @@ export function ImageUpload({
         // Extract path from URL
         const urlParts = preview.url.split('/product-images/')
         if (urlParts.length > 1) {
-          const path = urlParts[1].split('?')[0] // Remove query params
-          await supabase.storage.from('product-images').remove([path])
+          const path = urlParts[1]?.split('?')[0] // Remove query params
+          if (path) await supabase.storage.from('product-images').remove([path])
         }
       } catch (err) {
         console.error('Error deleting image from storage:', err)
@@ -183,6 +190,31 @@ export function ImageUpload({
     // Remove from previews
     const updated = previews.filter((_, i) => i !== index)
     setPreviews(updated)
+  }
+
+  // Handle reorder with buttons (keyboard accessible)
+  const handleMoveLeft = (index: number) => {
+    if (index === 0) return
+    const updated = [...previews]
+    const current = updated[index]
+    const previous = updated[index - 1]
+    if (current && previous) {
+      updated[index] = previous
+      updated[index - 1] = current
+      setPreviews(updated)
+    }
+  }
+
+  const handleMoveRight = (index: number) => {
+    if (index === previews.length - 1) return
+    const updated = [...previews]
+    const current = updated[index]
+    const next = updated[index + 1]
+    if (current && next) {
+      updated[index] = next
+      updated[index + 1] = current
+      setPreviews(updated)
+    }
   }
 
   // Handle reorder (drag to reorder)
@@ -202,6 +234,7 @@ export function ImageUpload({
     // Reorder previews
     const updated = [...previews]
     const draggedItem = updated[draggedIndex]
+    if (!draggedItem) return
     updated.splice(draggedIndex, 1)
     updated.splice(index, 0, draggedItem)
 
@@ -220,6 +253,7 @@ export function ImageUpload({
           className={`
             relative border-2 border-dashed rounded-lg p-8 text-center
             transition-colors cursor-pointer
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
             ${
               isDragging
                 ? 'border-primary bg-primary/5'
@@ -254,9 +288,16 @@ export function ImageUpload({
           <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" aria-hidden />
 
           <p className="text-sm font-medium mb-2">
-            {isDragging
-              ? 'Suelta las imágenes aquí'
-              : 'Arrastra imágenes o haz click para seleccionar'}
+            {isDragging ? (
+              'Suelta las imágenes aquí'
+            ) : (
+              <>
+                <span className="sm:hidden">Toca para seleccionar imagenes</span>
+                <span className="hidden sm:inline">
+                  Arrastra imagenes o haz click para seleccionar
+                </span>
+              </>
+            )}
           </p>
 
           <p className="text-xs text-muted-foreground">
@@ -327,13 +368,47 @@ export function ImageUpload({
                 )}
               </div>
 
+              {/* Reorder Buttons (keyboard accessible alternative to drag) */}
+              {!preview.uploading && previews.length > 1 && (
+                <div className="absolute bottom-2 left-2 flex gap-1">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="min-h-[44px] min-w-[44px] h-11 w-11 md:h-8 md:w-8 md:min-h-0 md:min-w-0 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus:opacity-100 transition-opacity shadow-lg touch-manipulation"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleMoveLeft(index)
+                    }}
+                    disabled={disabled || index === 0}
+                    aria-label={`Mover imagen ${index + 1} a la izquierda`}
+                  >
+                    <ChevronLeft className="h-4 w-4" aria-hidden />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="min-h-[44px] min-w-[44px] h-11 w-11 md:h-8 md:w-8 md:min-h-0 md:min-w-0 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus:opacity-100 transition-opacity shadow-lg touch-manipulation"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleMoveRight(index)
+                    }}
+                    disabled={disabled || index === previews.length - 1}
+                    aria-label={`Mover imagen ${index + 1} a la derecha`}
+                  >
+                    <ChevronRight className="h-4 w-4" aria-hidden />
+                  </Button>
+                </div>
+              )}
+
               {/* Remove Button */}
               {!preview.uploading && (
                 <Button
                   type="button"
                   variant="destructive"
                   size="icon"
-                  className="absolute bottom-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute bottom-2 right-2 min-h-[44px] min-w-[44px] h-11 w-11 md:h-8 md:w-8 md:min-h-0 md:min-w-0 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus:opacity-100 transition-opacity shadow-lg touch-manipulation"
                   onClick={(e) => {
                     e.stopPropagation()
                     handleRemove(index)

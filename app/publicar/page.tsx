@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { ProductForm } from '@/components/products/ProductForm'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ProductFormWizard } from '@/components/products/ProductFormWizard'
 import { Loader2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -30,7 +29,6 @@ export default function PublicarPage() {
       if (error) throw error
 
       if (!user) {
-        // Redirect to login if not authenticated
         router.push('/login?redirect=/publicar')
         return
       }
@@ -49,21 +47,23 @@ export default function PublicarPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" aria-hidden />
-          <p className="text-muted-foreground mt-4">Cargando...</p>
+          <p className="text-muted-foreground mt-4" role="status" aria-live="polite">
+            Cargando...
+          </p>
         </div>
       </div>
     )
   }
 
   if (!userId) {
-    return null // Will redirect
+    return null
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
-      <div className="container max-w-4xl">
+    <div className="min-h-screen bg-background py-8">
+      <div className="container max-w-3xl px-4 sm:px-6">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <Link
             href="/"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
@@ -73,43 +73,17 @@ export default function PublicarPage() {
           </Link>
           <h1 className="text-3xl font-bold">Publicar Producto</h1>
           <p className="text-muted-foreground mt-2">
-            Completa el formulario para publicar tu producto en Telopillo.bo
+            Completá los pasos para publicar tu producto en Telopillo.bo
           </p>
         </div>
 
-        {/* Tips Card */}
-        <Card className="mb-6 border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-lg">💡 Consejos para una buena publicación</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>Usa un título claro y descriptivo</li>
-              <li>Incluye todos los detalles importantes en la descripción</li>
-              <li>Sube fotos claras y bien iluminadas (mínimo 1, máximo 5)</li>
-              <li>Indica el estado real del producto</li>
-              <li>Establece un precio justo y competitivo</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Form Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Información del Producto</CardTitle>
-            <CardDescription>
-              Los campos marcados con <span className="text-destructive">*</span> son obligatorios
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ProductForm userId={userId} mode="create" />
-          </CardContent>
-        </Card>
+        {/* Wizard Form */}
+        <ProductFormWizard userId={userId} mode="create" />
 
         {/* Footer Info */}
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        <div className="mt-8 text-center text-sm text-muted-foreground">
           <p>
-            Al publicar, aceptas nuestros{' '}
+            Al publicar, aceptás nuestros{' '}
             <Link href="/terminos" className="underline hover:text-foreground">
               Términos de Uso
             </Link>{' '}

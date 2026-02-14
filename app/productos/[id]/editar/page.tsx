@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { ProductForm } from '@/components/products/ProductForm'
+import { ProductFormWizard } from '@/components/products/ProductFormWizard'
+import type { ProductInput } from '@/lib/validations/product'
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -99,8 +100,8 @@ export default function EditProductPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
-        <div className="container max-w-2xl">
+      <div className="min-h-screen bg-background py-8">
+        <div className="container max-w-2xl px-4 sm:px-6">
           <div className="bg-destructive/10 border border-destructive rounded-lg p-6 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" aria-hidden />
             <h1 className="text-2xl font-bold mb-2">Error</h1>
@@ -127,8 +128,8 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
-      <div className="container max-w-4xl">
+    <div className="min-h-screen bg-background py-8">
+      <div className="container max-w-4xl px-4 sm:px-6">
         {/* Header */}
         <div className="mb-6">
           <Link
@@ -143,18 +144,19 @@ export default function EditProductPage() {
         </div>
 
         {/* Form */}
-        <ProductForm
+        <ProductFormWizard
           userId={userId}
           productId={productId}
           mode="edit"
           defaultValues={{
             title: productData.title,
             description: productData.description,
-            category: productData.category,
+            category: productData.category as ProductInput['category'],
             subcategory: productData.subcategory,
             price: productData.price,
-            condition: productData.condition,
-            location_department: productData.location_department,
+            condition: productData.condition as ProductInput['condition'],
+            location_department:
+              productData.location_department as ProductInput['location_department'],
             location_city: productData.location_city,
             images: productData.images || [],
           }}
