@@ -33,6 +33,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_config: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string
@@ -41,6 +59,7 @@ export type Database = {
           created_at: string
           currency: string
           description: string
+          embedding: string | null
           expires_at: string
           favorites_count: number
           id: string
@@ -63,6 +82,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description: string
+          embedding?: string | null
           expires_at?: string
           favorites_count?: number
           id?: string
@@ -85,6 +105,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string
+          embedding?: string | null
           expires_at?: string
           favorites_count?: number
           id?: string
@@ -168,6 +189,25 @@ export type Database = {
           location_department_filter?: string
           price_max?: number
           price_min?: number
+          result_limit?: number
+          result_offset?: number
+          search_query?: string
+          sort_by?: string
+          status_filter?: string
+        }
+        Returns: {
+          products: Json
+          total_count: number
+        }[]
+      }
+      search_products_semantic: {
+        Args: {
+          category_filter?: string
+          condition_filter?: string
+          location_department_filter?: string
+          price_max?: number
+          price_min?: number
+          query_embedding?: string
           result_limit?: number
           result_offset?: number
           search_query?: string
