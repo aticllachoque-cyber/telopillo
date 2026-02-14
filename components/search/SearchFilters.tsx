@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { X, SlidersHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   PRODUCT_CATEGORIES,
   PRODUCT_CONDITIONS,
@@ -23,9 +23,11 @@ import {
 
 interface SearchFiltersProps {
   className?: string
+  /** Callback when filters are applied (used to close mobile panel) */
+  onApply?: () => void
 }
 
-export function SearchFilters({ className = '' }: SearchFiltersProps) {
+export function SearchFilters({ className = '', onApply }: SearchFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -36,9 +38,23 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
   const currentPriceMin = searchParams?.get('priceMin') || ''
   const currentPriceMax = searchParams?.get('priceMax') || ''
 
-  // Local state for inputs
+  // C2: Use a key derived from URL to reset local state on back/forward
+  const urlPriceKey = useMemo(
+    () => `${currentPriceMin}|${currentPriceMax}`,
+    [currentPriceMin, currentPriceMax]
+  )
+
+  // Local state for price inputs, resets when URL changes
   const [priceMin, setPriceMin] = useState(currentPriceMin)
   const [priceMax, setPriceMax] = useState(currentPriceMax)
+  const [lastUrlKey, setLastUrlKey] = useState(urlPriceKey)
+
+  // Sync without useEffect: compare keys on each render
+  if (urlPriceKey !== lastUrlKey) {
+    setPriceMin(currentPriceMin)
+    setPriceMax(currentPriceMax)
+    setLastUrlKey(urlPriceKey)
+  }
 
   const hasActiveFilters =
     currentCategory || currentCondition || currentDepartment || currentPriceMin || currentPriceMax
@@ -56,6 +72,7 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
     })
 
     router.push(`/buscar?${params.toString()}`)
+    onApply?.()
   }
 
   const clearAllFilters = () => {
@@ -68,6 +85,7 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
     setPriceMin('')
     setPriceMax('')
     router.push(`/buscar?${params.toString()}`)
+    onApply?.()
   }
 
   const applyPriceFilter = () => {
@@ -75,7 +93,8 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
   }
 
   return (
-    <aside className={`space-y-6 ${className}`}>
+    // I6: aria-label on aside
+    <aside className={`space-y-6 ${className}`} aria-label="Filtros de búsqueda">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -96,6 +115,11 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
         )}
       </div>
 
+      {/* Instruction for screen readers (3.2.2) */}
+      <p className="text-xs text-muted-foreground">
+        Los filtros se aplican automáticamente al seleccionar.
+      </p>
+
       {/* Category Filter */}
       <div className="space-y-2">
         <Label htmlFor="filter-category">Categoría</Label>
@@ -103,7 +127,8 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
           value={currentCategory || '__all__'}
           onValueChange={(value) => applyFilters({ category: value === '__all__' ? '' : value })}
         >
-          <SelectTrigger id="filter-category" className="w-full">
+          {/* C3: touch targets */}
+          <SelectTrigger id="filter-category" className="w-full min-h-[44px] sm:min-h-0">
             <SelectValue placeholder="Todas las categorías" />
           </SelectTrigger>
           <SelectContent>
@@ -124,7 +149,7 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
           value={currentCondition || '__all__'}
           onValueChange={(value) => applyFilters({ condition: value === '__all__' ? '' : value })}
         >
-          <SelectTrigger id="filter-condition" className="w-full">
+          <SelectTrigger id="filter-condition" className="w-full min-h-[44px] sm:min-h-0">
             <SelectValue placeholder="Todas las condiciones" />
           </SelectTrigger>
           <SelectContent>
@@ -145,7 +170,7 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
           value={currentDepartment || '__all__'}
           onValueChange={(value) => applyFilters({ department: value === '__all__' ? '' : value })}
         >
-          <SelectTrigger id="filter-department" className="w-full">
+          <SelectTrigger id="filter-department" className="w-full min-h-[44px] sm:min-h-0">
             <SelectValue placeholder="Todos los departamentos" />
           </SelectTrigger>
           <SelectContent>
@@ -159,40 +184,50 @@ export function SearchFilters({ className = '' }: SearchFiltersProps) {
         </Select>
       </div>
 
-      {/* Price Range Filter */}
-      <div className="space-y-3">
-        <Label>Rango de precio (Bs)</Label>
+      {/* N5: Price Range with fieldset/legend */}
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium">Rango de precio (Bs)</legend>
         <div className="flex items-center gap-2">
+          <Label htmlFor="price-min" className="sr-only">
+            Precio mínimo
+          </Label>
           <Input
+            id="price-min"
             type="number"
             placeholder="Mín"
             value={priceMin}
             onChange={(e) => setPriceMin(e.target.value)}
-            className="w-full"
+            className="w-full min-h-[44px] sm:min-h-0"
             min="0"
-            aria-label="Precio mínimo"
+            aria-label="Precio mínimo en bolivianos"
           />
-          <span className="text-muted-foreground">-</span>
+          <span className="text-muted-foreground" aria-hidden>
+            –
+          </span>
+          <Label htmlFor="price-max" className="sr-only">
+            Precio máximo
+          </Label>
           <Input
+            id="price-max"
             type="number"
             placeholder="Máx"
             value={priceMax}
             onChange={(e) => setPriceMax(e.target.value)}
-            className="w-full"
+            className="w-full min-h-[44px] sm:min-h-0"
             min="0"
-            aria-label="Precio máximo"
+            aria-label="Precio máximo en bolivianos"
           />
         </div>
         <Button
           variant="secondary"
           size="sm"
           onClick={applyPriceFilter}
-          className="w-full"
+          className="w-full min-h-[44px] sm:min-h-0 touch-manipulation"
           disabled={!priceMin && !priceMax}
         >
           Aplicar precio
         </Button>
-      </div>
+      </fieldset>
     </aside>
   )
 }

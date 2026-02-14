@@ -66,34 +66,35 @@ export function SearchBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
+          autoComplete="off"
           className="pl-9 pr-9 min-h-[44px] sm:min-h-0"
           autoFocus={autoFocus}
           disabled={isSearching}
           aria-label="Buscar productos"
         />
+        {/* C3: Clear button with proper touch target */}
         {query && (
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="icon"
             onClick={handleClear}
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 hover:bg-transparent"
+            className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:h-7 sm:w-7 text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
             aria-label="Limpiar búsqueda"
             disabled={isSearching}
           >
             <X className="h-4 w-4" aria-hidden />
-          </Button>
+          </button>
         )}
       </div>
 
+      {/* I3: descriptive label when disabled */}
       <Button
         type="submit"
         disabled={!query.trim() || isSearching}
         className="min-h-[44px] sm:min-h-0 touch-manipulation"
-        aria-label="Buscar"
+        aria-label={!query.trim() ? 'Buscar (escribe un término primero)' : 'Buscar'}
       >
         {isSearching ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden />
         ) : (
           <>
             <Search className="h-4 w-4 sm:mr-2" aria-hidden />

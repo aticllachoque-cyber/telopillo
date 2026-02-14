@@ -34,13 +34,16 @@ export function SearchSort({ className = '', showLabel = true }: SearchSortProps
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {showLabel && (
-        <Label htmlFor="sort-select" className="whitespace-nowrap text-sm font-normal">
-          Ordenar por:
-        </Label>
-      )}
+      {/* I3: Always render label, sr-only when hidden visually */}
+      <Label
+        htmlFor="sort-select"
+        className={showLabel ? 'whitespace-nowrap text-sm font-normal' : 'sr-only'}
+      >
+        Ordenar por:
+      </Label>
       <Select value={currentSort} onValueChange={handleSortChange}>
-        <SelectTrigger id="sort-select" className="w-full sm:w-[180px]">
+        {/* C3: touch target */}
+        <SelectTrigger id="sort-select" className="w-full sm:w-[180px] min-h-[44px] sm:min-h-0">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

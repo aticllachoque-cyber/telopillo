@@ -40,7 +40,7 @@ export default function CategoriasPage() {
       <div className="container py-8 px-4 sm:px-6">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Categorías</h1>
+          <h1 className="text-3xl font-bold mb-2 text-balance">Categorías</h1>
           <p className="text-muted-foreground">Explora productos por categoría</p>
         </div>
 
