@@ -6,6 +6,7 @@ import { Menu } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { UserMenu } from './UserMenu'
+import { SearchBar } from '@/components/search/SearchBar'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -57,36 +58,33 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2 shrink-0">
           <span className="text-2xl font-bold text-primary">Telopillo.bo</span>
         </Link>
 
+        {/* Desktop Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-xl">
+          <SearchBar className="w-full" />
+        </div>
+
         {/* Desktop Navigation */}
         <nav
-          className="hidden md:flex items-center space-x-6 flex-1 justify-center"
+          className="hidden md:flex items-center space-x-4 shrink-0"
           aria-label="Navegación principal"
         >
-          <Link href="/buscar" className="text-sm font-medium transition-colors hover:text-primary">
-            Buscar
-          </Link>
           <Link
             href="/categorias"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
             Categorías
           </Link>
-        </nav>
-
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center space-x-4">
-          <Button asChild>
+          <Button asChild size="sm">
             <Link href="/publicar">Publicar Gratis</Link>
           </Button>
-
           <UserMenu />
-        </div>
+        </nav>
 
         {/* Mobile Menu Button */}
         <Button
@@ -161,6 +159,11 @@ export function Header() {
                 className="flex flex-col h-[calc(100%-64px)] overflow-y-auto"
                 aria-label="Navegación principal"
               >
+                {/* Mobile Search Bar */}
+                <div className="px-4 pt-4 pb-2">
+                  <SearchBar placeholder="Buscar productos..." />
+                </div>
+
                 <div className="flex-1 px-4 py-4 space-y-1">
                   <Link
                     href="/buscar"

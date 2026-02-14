@@ -99,6 +99,45 @@ export function validateProduct(data: unknown): {
   return { success: false, errors: result.error }
 }
 
+// Category labels for UI
+export const CATEGORY_LABELS: Record<(typeof PRODUCT_CATEGORIES)[number], string> = {
+  electronics: 'Electrónica',
+  vehicles: 'Vehículos',
+  home: 'Hogar y Jardín',
+  fashion: 'Moda y Accesorios',
+  construction: 'Construcción',
+  sports: 'Deportes',
+  baby: 'Bebés y Niños',
+  beauty: 'Belleza y Salud',
+  books: 'Libros y Educación',
+}
+
+// Category descriptions for browsing
+export const CATEGORY_DESCRIPTIONS: Record<(typeof PRODUCT_CATEGORIES)[number], string> = {
+  electronics: 'Celulares, laptops, tablets, audio, TV y más',
+  vehicles: 'Autos, motos, bicicletas y accesorios',
+  home: 'Muebles, electrodomésticos, decoración y jardín',
+  fashion: 'Ropa, zapatos, bolsos y accesorios',
+  construction: 'Materiales, herramientas y equipos',
+  sports: 'Equipos deportivos, ropa y accesorios',
+  baby: 'Ropa, juguetes, coches y accesorios para bebés',
+  beauty: 'Cosméticos, cuidado personal y salud',
+  books: 'Libros, cursos, material educativo',
+}
+
+// Category icons (Lucide icon names)
+export const CATEGORY_ICONS: Record<(typeof PRODUCT_CATEGORIES)[number], string> = {
+  electronics: 'Smartphone',
+  vehicles: 'Car',
+  home: 'Home',
+  fashion: 'Shirt',
+  construction: 'Hammer',
+  sports: 'Dumbbell',
+  baby: 'Baby',
+  beauty: 'Sparkles',
+  books: 'BookOpen',
+}
+
 // Condition labels for UI
 export const CONDITION_LABELS: Record<(typeof PRODUCT_CONDITIONS)[number], string> = {
   new: 'Nuevo',

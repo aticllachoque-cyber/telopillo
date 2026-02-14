@@ -48,6 +48,7 @@ export type Database = {
           location_city: string
           location_department: string
           price: number
+          search_vector: unknown
           status: string
           subcategory: string | null
           title: string
@@ -69,6 +70,7 @@ export type Database = {
           location_city: string
           location_department: string
           price: number
+          search_vector?: unknown
           status?: string
           subcategory?: string | null
           title: string
@@ -90,6 +92,7 @@ export type Database = {
           location_city?: string
           location_department?: string
           price?: number
+          search_vector?: unknown
           status?: string
           subcategory?: string | null
           title?: string
@@ -157,6 +160,24 @@ export type Database = {
       increment_product_views: {
         Args: { product_id: string }
         Returns: undefined
+      }
+      search_products: {
+        Args: {
+          category_filter?: string
+          condition_filter?: string
+          location_department_filter?: string
+          price_max?: number
+          price_min?: number
+          result_limit?: number
+          result_offset?: number
+          search_query?: string
+          sort_by?: string
+          status_filter?: string
+        }
+        Returns: {
+          products: Json
+          total_count: number
+        }[]
       }
     }
     Enums: {

@@ -49,6 +49,8 @@ next-env.d.ts
 /*.jpg
 /*.jpeg
 /test-images/
+/test-screenshots/
+/test-results/
 
 # logs
 /logs/
