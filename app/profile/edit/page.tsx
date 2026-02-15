@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { Loader2, ArrowLeft, Store, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { profileSchema, type ProfileInput } from '@/lib/validations/profile'
@@ -14,6 +14,9 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LocationSelector } from '@/components/profile/LocationSelector'
 import { AvatarUpload } from '@/components/profile/AvatarUpload'
+import { BusinessProfileForm } from '@/components/profile/BusinessProfileForm'
+import { VerificationBadge } from '@/components/ui/VerificationBadge'
+import { useToast } from '@/components/ui/toast'
 
 export default function ProfileEditPage() {
   const router = useRouter()
@@ -24,7 +27,11 @@ export default function ProfileEditPage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [userInitials, setUserInitials] = useState<string>('U')
+  const [hasBusinessProfile, setHasBusinessProfile] = useState(false)
+  const [verificationLevel, setVerificationLevel] = useState(0)
+  const [isCreatingBusiness, setIsCreatingBusiness] = useState(false)
   const supabase = createClient()
+  const { showToast } = useToast()
 
   useEffect(() => {
     document.title = 'Editar Perfil - Telopillo.bo'
@@ -72,8 +79,8 @@ export default function ProfileEditPage() {
         setValue('location_department', profile.location_department || '')
         setValue('location_city', profile.location_city || '')
         setAvatarUrl(profile.avatar_url)
+        setVerificationLevel(profile.verification_level ?? 0)
 
-        // Set initials
         const initials = profile.full_name
           .split(' ')
           .map((n: string) => n[0])
@@ -82,10 +89,45 @@ export default function ProfileEditPage() {
           .slice(0, 2)
         setUserInitials(initials || 'U')
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al cargar perfil')
+
+      // Check if user has a business profile
+      const { data: bizProfile } = await supabase
+        .from('business_profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      setHasBusinessProfile(!!bizProfile)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar perfil')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleCreateBusinessProfile = async () => {
+    if (!userId) return
+
+    try {
+      setIsCreatingBusiness(true)
+
+      const fullName = watch('full_name') || 'Mi Negocio'
+      const { data: slugResult } = await supabase.rpc('generate_slug', { input: fullName })
+
+      const { error: insertError } = await supabase.from('business_profiles').insert({
+        id: userId,
+        business_name: fullName,
+        slug: slugResult || 'negocio',
+      })
+
+      if (insertError) throw insertError
+
+      setHasBusinessProfile(true)
+      showToast('Perfil de negocio creado. Completa tu información abajo.', 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Error al crear perfil de negocio', 'error')
+    } finally {
+      setIsCreatingBusiness(false)
     }
   }
 
@@ -112,12 +154,23 @@ export default function ProfileEditPage() {
 
       if (error) throw error
 
+      // Re-fetch to get updated verification_level (auto-trigger on phone change)
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .select('verification_level')
+        .eq('id', user.id)
+        .single()
+
+      if (updatedProfile) {
+        setVerificationLevel(updatedProfile.verification_level ?? 0)
+      }
+
       setSuccess(true)
       setTimeout(() => {
         router.push('/profile')
       }, 2000)
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al guardar perfil')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al guardar perfil')
     } finally {
       setIsSaving(false)
     }
@@ -175,110 +228,170 @@ export default function ProfileEditPage() {
         </Link>
       </div>
 
-      <Card className="border-0 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-3xl">Editar Perfil</CardTitle>
-          <CardDescription>
-            Completa tu información para empezar a publicar y comprar
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {error && (
-              <div
-                role="alert"
-                aria-live="assertive"
-                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-              >
-                {error}
+      <div className="space-y-6">
+        {/* Personal Profile Card */}
+        <Card className="border-0 shadow-xl">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-3xl">Editar Perfil</CardTitle>
+                <CardDescription>
+                  Completa tu información para empezar a publicar y comprar
+                </CardDescription>
               </div>
-            )}
-
-            {/* Avatar Upload Section */}
-            {userId && (
-              <div className="space-y-2">
-                <Label>Foto de Perfil</Label>
-                <AvatarUpload
-                  userId={userId}
-                  currentAvatarUrl={avatarUrl}
-                  userInitials={userInitials}
-                  onUploadComplete={(url) => setAvatarUrl(url)}
-                />
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Nombre Completo *</Label>
-              <Input
-                id="full_name"
-                type="text"
-                placeholder="Juan Pérez"
-                className="h-11"
-                autoComplete="name"
-                aria-invalid={!!errors.full_name}
-                aria-describedby={errors.full_name ? 'full_name-error' : undefined}
-                {...register('full_name')}
-                disabled={isSaving}
+              <VerificationBadge
+                hasBusinessProfile={hasBusinessProfile}
+                verificationLevel={verificationLevel}
+                showTeaser
               />
-              {errors.full_name && (
-                <p id="full_name-error" className="text-sm text-destructive" role="alert">
-                  {errors.full_name.message}
-                </p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {error && (
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+                >
+                  {error}
+                </div>
               )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Teléfono (opcional)</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="7XXXXXXX"
-                className="h-11"
-                autoComplete="tel"
-                {...register('phone')}
+              {/* Avatar Upload Section */}
+              {userId && (
+                <div className="space-y-2">
+                  <Label>Foto de Perfil</Label>
+                  <AvatarUpload
+                    userId={userId}
+                    currentAvatarUrl={avatarUrl}
+                    userInitials={userInitials}
+                    onUploadComplete={(url) => setAvatarUrl(url)}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="full_name">Nombre Completo *</Label>
+                <Input
+                  id="full_name"
+                  type="text"
+                  placeholder="Juan Pérez"
+                  className="h-11"
+                  autoComplete="name"
+                  aria-invalid={!!errors.full_name}
+                  aria-describedby={errors.full_name ? 'full_name-error' : undefined}
+                  {...register('full_name')}
+                  disabled={isSaving}
+                />
+                {errors.full_name && (
+                  <p id="full_name-error" className="text-sm text-destructive" role="alert">
+                    {errors.full_name.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Teléfono (opcional)</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="7XXXXXXX"
+                  className="h-11"
+                  autoComplete="tel"
+                  {...register('phone')}
+                  disabled={isSaving}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Tu número de contacto para compradores. Al agregarlo tu nivel de confianza sube.
+                </p>
+              </div>
+
+              <LocationSelector
+                department={department}
+                city={city}
+                onDepartmentChange={(value) => setValue('location_department', value)}
+                onCityChange={(value) => setValue('location_city', value)}
                 disabled={isSaving}
+                errors={{
+                  department: errors.location_department?.message,
+                  city: errors.location_city?.message,
+                }}
               />
-              <p className="text-xs text-muted-foreground">
-                Tu número de contacto para compradores
-              </p>
-            </div>
 
-            <LocationSelector
-              department={department}
-              city={city}
-              onDepartmentChange={(value) => setValue('location_department', value)}
-              onCityChange={(value) => setValue('location_city', value)}
-              disabled={isSaving}
-              errors={{
-                department: errors.location_department?.message,
-                city: errors.location_city?.message,
-              }}
-            />
+              <div className="flex gap-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => router.push('/profile')}
+                  disabled={isSaving}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" className="flex-1" disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                      Guardando...
+                    </>
+                  ) : (
+                    'Guardar Cambios'
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
-            <div className="flex gap-4 pt-4">
+        {/* Business Profile Section - available to ALL users */}
+        {userId && hasBusinessProfile ? (
+          <Card className="border-0 shadow-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Store className="h-5 w-5" aria-hidden />
+                Perfil de Negocio
+              </CardTitle>
+              <CardDescription>Información de tu tienda visible para compradores</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BusinessProfileForm userId={userId} />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-0 shadow-xl">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <Store className="h-6 w-6 text-muted-foreground" aria-hidden />
+              </div>
+              <CardTitle className="text-xl">¿Tienes un negocio?</CardTitle>
+              <CardDescription>
+                Activa tu perfil de negocio para tener una tienda virtual con logo, horarios, redes
+                sociales y más. Puedes hacerlo en cualquier momento.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
               <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => router.push('/profile')}
-                disabled={isSaving}
+                onClick={handleCreateBusinessProfile}
+                disabled={isCreatingBusiness}
+                className="gap-2"
               >
-                Cancelar
-              </Button>
-              <Button type="submit" className="flex-1" disabled={isSaving}>
-                {isSaving ? (
+                {isCreatingBusiness ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                    Guardando...
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    Creando...
                   </>
                 ) : (
-                  'Guardar Cambios'
+                  <>
+                    <Plus className="h-4 w-4" aria-hidden />
+                    Crear Perfil de Negocio
+                  </>
                 )}
               </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   )
 }

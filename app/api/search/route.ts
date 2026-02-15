@@ -11,6 +11,7 @@ interface SearchParams {
   department?: string
   condition?: string
   status?: string
+  sellerType?: 'business' | 'personal'
   sort?: 'relevance' | 'newest' | 'price_asc' | 'price_desc'
   page?: number
   limit?: number
@@ -124,6 +125,7 @@ export async function GET(request: NextRequest) {
         : undefined,
       department: searchParams.get('department') || undefined,
       condition: searchParams.get('condition') || undefined,
+      sellerType: (searchParams.get('sellerType') as SearchParams['sellerType']) || undefined,
       status: searchParams.get('status') || 'active',
       sort: (searchParams.get('sort') as SearchParams['sort']) || 'relevance',
       page: searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1,
@@ -142,6 +144,7 @@ export async function GET(request: NextRequest) {
       location_department_filter: params.department || null,
       condition_filter: params.condition || null,
       status_filter: params.status || null,
+      seller_type_filter: params.sellerType || null,
       sort_by: params.sort || 'relevance',
       result_limit: limit,
       result_offset: offset,

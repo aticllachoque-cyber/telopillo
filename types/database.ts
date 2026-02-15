@@ -131,8 +131,83 @@ export type Database = {
           },
         ]
       }
+      business_profiles: {
+        Row: {
+          id: string
+          business_name: string
+          slug: string
+          business_description: string | null
+          business_category: string | null
+          nit: string | null
+          business_logo_url: string | null
+          website_url: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_tiktok: string | null
+          social_whatsapp: string | null
+          business_hours: Json | null
+          business_address: string | null
+          business_department: string | null
+          business_city: string | null
+          is_nit_verified: boolean | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          business_name: string
+          slug: string
+          business_description?: string | null
+          business_category?: string | null
+          nit?: string | null
+          business_logo_url?: string | null
+          website_url?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
+          social_whatsapp?: string | null
+          business_hours?: Json | null
+          business_address?: string | null
+          business_department?: string | null
+          business_city?: string | null
+          is_nit_verified?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_name?: string
+          slug?: string
+          business_description?: string | null
+          business_category?: string | null
+          nit?: string | null
+          business_logo_url?: string | null
+          website_url?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
+          social_whatsapp?: string | null
+          business_hours?: Json | null
+          business_address?: string | null
+          business_department?: string | null
+          business_city?: string | null
+          is_nit_verified?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'business_profiles_id_fkey'
+            columns: ['id']
+            isOneToOne: true
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profiles: {
         Row: {
+          account_type: string
           avatar_url: string | null
           created_at: string
           full_name: string
@@ -141,11 +216,14 @@ export type Database = {
           location_city: string | null
           location_department: string | null
           phone: string | null
+          phone_verified: boolean
           rating_average: number | null
           rating_count: number | null
           updated_at: string
+          verification_level: number
         }
         Insert: {
+          account_type?: string
           avatar_url?: string | null
           created_at?: string
           full_name: string
@@ -154,11 +232,14 @@ export type Database = {
           location_city?: string | null
           location_department?: string | null
           phone?: string | null
+          phone_verified?: boolean
           rating_average?: number | null
           rating_count?: number | null
           updated_at?: string
+          verification_level?: number
         }
         Update: {
+          account_type?: string
           avatar_url?: string | null
           created_at?: string
           full_name?: string
@@ -167,9 +248,11 @@ export type Database = {
           location_city?: string | null
           location_department?: string | null
           phone?: string | null
+          phone_verified?: boolean
           rating_average?: number | null
           rating_count?: number | null
           updated_at?: string
+          verification_level?: number
         }
         Relationships: []
       }
@@ -192,6 +275,7 @@ export type Database = {
           result_limit?: number
           result_offset?: number
           search_query?: string
+          seller_type_filter?: string
           sort_by?: string
           status_filter?: string
         }
@@ -211,6 +295,7 @@ export type Database = {
           result_limit?: number
           result_offset?: number
           search_query?: string
+          seller_type_filter?: string
           sort_by?: string
           status_filter?: string
         }
@@ -343,6 +428,39 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
     ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never
+
+// ---------------------------------------------------------------------------
+// SearchProduct: typed shape returned by search_products / search_products_semantic RPCs
+// ---------------------------------------------------------------------------
+export interface SearchProduct {
+  id: string
+  user_id: string
+  title: string
+  description: string
+  category: string
+  subcategory: string | null
+  price: number
+  currency: string
+  condition: string
+  location_department: string
+  location_city: string
+  images: string[]
+  status: string
+  views_count: number
+  favorites_count: number
+  contacts_count: number
+  created_at: string
+  updated_at: string
+  expires_at: string | null
+  relevance_score: number
+  // Seller info (joined from profiles + business_profiles)
+  seller_name: string | null
+  seller_avatar_url: string | null
+  seller_verification_level: number
+  seller_business_name: string | null
+  seller_business_slug: string | null
+  seller_business_logo: string | null
+}
 
 export const Constants = {
   graphql_public: {

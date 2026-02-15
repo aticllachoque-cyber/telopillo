@@ -4,13 +4,21 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, Shield } from 'lucide-react'
+import { Loader2, Shield, Store, ChevronDown, ChevronUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { registerSchema, type RegisterInput } from '@/lib/validations/auth'
+import { BUSINESS_CATEGORIES } from '@/lib/validations/business-profile'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Logo } from '@/components/ui/logo'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 
@@ -18,6 +26,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [showBusiness, setShowBusiness] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -27,30 +36,52 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      wantsBusiness: false,
+      businessName: '',
+      businessCategory: '',
+    },
   })
+
+  const toggleBusiness = () => {
+    const next = !showBusiness
+    setShowBusiness(next)
+    setValue('wantsBusiness', next)
+    if (!next) {
+      setValue('businessName', '')
+      setValue('businessCategory', '')
+    }
+  }
 
   const onSubmit = async (data: RegisterInput) => {
     try {
       setIsLoading(true)
       setError(null)
 
+      const metadata: Record<string, string> = {
+        full_name: data.fullName,
+      }
+
+      if (data.wantsBusiness && data.businessName) {
+        metadata.business_name = data.businessName
+        if (data.businessCategory) metadata.business_category = data.businessCategory
+      }
+
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
-          data: {
-            full_name: data.fullName,
-          },
+          data: metadata,
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
       if (error) throw error
 
-      // Show success message
       setSuccess(true)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al registrarse')
@@ -104,11 +135,11 @@ export default function RegisterPage() {
           <Logo className="mx-auto" />
           <div>
             <h1 className="text-3xl font-semibold">Crear Cuenta</h1>
-            <CardDescription>Únete a Telopillo y empieza a comprar o vender</CardDescription>
+            <CardDescription>Únete a la comunidad de Telopillo</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
               <div
                 role="alert"
@@ -119,6 +150,7 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {/* Full Name */}
             <div className="space-y-2">
               <Label htmlFor="fullName">Nombre Completo</Label>
               <Input
@@ -139,6 +171,7 @@ export default function RegisterPage() {
               )}
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -159,6 +192,7 @@ export default function RegisterPage() {
               )}
             </div>
 
+            {/* Password */}
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
               <Input
@@ -184,6 +218,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
+            {/* Confirm Password */}
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
               <Input
@@ -204,7 +239,74 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            {/* Optional business section */}
+            <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-3">
+              <button
+                type="button"
+                onClick={toggleBusiness}
+                className="flex w-full items-center justify-between text-sm font-medium text-foreground hover:text-primary transition-colors min-h-[44px]"
+                aria-expanded={showBusiness}
+                aria-controls="business-fields"
+              >
+                <span className="flex items-center gap-2">
+                  <Store className="h-4 w-4 text-primary" aria-hidden />
+                  ¿Tienes un negocio? Créalo ahora (opcional)
+                </span>
+                {showBusiness ? (
+                  <ChevronUp className="h-4 w-4" aria-hidden />
+                ) : (
+                  <ChevronDown className="h-4 w-4" aria-hidden />
+                )}
+              </button>
+
+              {showBusiness && (
+                <div id="business-fields" className="mt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="businessName">Nombre del Negocio</Label>
+                    <Input
+                      id="businessName"
+                      type="text"
+                      placeholder="Mi Tienda Bolivia"
+                      className="h-11"
+                      aria-invalid={!!errors.businessName}
+                      aria-describedby={errors.businessName ? 'businessName-error' : undefined}
+                      {...register('businessName')}
+                      disabled={isLoading}
+                    />
+                    {errors.businessName && (
+                      <p id="businessName-error" className="text-sm text-destructive" role="alert">
+                        {errors.businessName.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="businessCategory">Categoría del Negocio</Label>
+                    <Select
+                      onValueChange={(val) => setValue('businessCategory', val)}
+                      disabled={isLoading}
+                    >
+                      <SelectTrigger className="h-11 w-full" id="businessCategory">
+                        <SelectValue placeholder="Selecciona una categoría" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BUSINESS_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-foreground/60">
+                      Opcional - puedes cambiarlo después
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Submit */}
+            <Button type="submit" disabled={isLoading} className="w-full h-11">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />

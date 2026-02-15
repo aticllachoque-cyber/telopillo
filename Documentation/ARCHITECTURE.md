@@ -1,9 +1,9 @@
 # Telopillo.bo - System Architecture
 
-**Version:** 1.0  
-**Date:** February 12, 2026  
+**Version:** 1.1  
+**Date:** February 15, 2026  
 **Author:** Alcides Cardenas  
-**Status:** Design Document
+**Status:** Living Document (updated through M4.5)
 
 ---
 
@@ -651,17 +651,38 @@ search-service/
 │ - full_name         │              │
 │ - avatar_url        │              │
 │ - phone             │              │
+│ - phone_verified    │◄─── KYC      │
+│ - verification_level│◄─── 0/1     │
+│ - account_type      │◄─── legacy  │
 │ - location_city     │              │
 │ - location_dept     │              │
-│ - location_coords   │              │
 │ - rating_average    │              │
 │ - rating_count      │              │
 │ - is_verified       │              │
 └──────────┬──────────┘              │
            │                         │
-           │ 1:N                     │
+           │ 1:0..1                  │
            │                         │
            ▼                         │
+┌─────────────────────┐              │
+│  business_profiles  │ (Add-on)     │
+│                     │              │
+│ - id (FK profiles)  │              │
+│ - business_name     │              │
+│ - slug (unique)     │              │
+│ - description       │              │
+│ - business_dept     │              │
+│ - business_city     │              │
+│ - logo_url          │              │
+│ - nit               │              │
+│ - business_hours    │              │
+│ - website_url       │              │
+│ - social_whatsapp   │              │
+│ - social_facebook   │              │
+│ - social_instagram  │              │
+│ - social_tiktok     │              │
+└─────────────────────┘              │
+                                     │
 ┌─────────────────────┐              │
 │      products       │              │
 │                     │              │
@@ -722,9 +743,19 @@ search-service/
 **profiles** (extends auth.users)
 - Stores user profile information
 - 1:1 relationship with auth.users
-- Includes location data (PostGIS) for geolocation
+- Includes location data for geolocation
 - Reputation system (rating_average, rating_count)
+- Verification level (0 = email only, 1 = phone verified)
 - RLS: Public profiles viewable, users can only edit own
+
+**business_profiles** (optional add-on to profiles)
+- Optional business identity layer (1:0..1 with profiles)
+- Row existence = user has a business (source of truth)
+- Business name, slug (unique, URL-friendly), description
+- Business location, logo, NIT, business hours (JSONB)
+- Social links (WhatsApp, Facebook, Instagram, TikTok, website)
+- RLS: Public viewing, users can only manage own
+- Storage: `business-logos` public bucket for logos
 
 **products**
 - Main product listing table
@@ -1849,6 +1880,6 @@ The hybrid search architecture with Bolivian Spanish optimizations provides a co
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** February 12, 2026  
+**Document Version:** 1.1  
+**Last Updated:** February 15, 2026  
 **Maintained By:** Alcides Cardenas

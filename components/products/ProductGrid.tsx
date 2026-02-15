@@ -2,6 +2,7 @@ import { ProductCard } from './ProductCard'
 
 interface Product {
   id: string
+  user_id?: string
   title: string
   price: number
   images: string[]
@@ -10,6 +11,11 @@ interface Product {
   location_department: string
   views_count: number
   created_at: string
+  // Seller info (optional — present when from search API)
+  seller_name?: string | null
+  seller_business_name?: string | null
+  seller_business_slug?: string | null
+  seller_verification_level?: number
 }
 
 interface ProductGridProps {

@@ -2,12 +2,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Eye, MapPin } from 'lucide-react'
+import { Eye, MapPin, Store, User } from 'lucide-react'
 import { ProductActions } from './ProductActions'
 
 interface ProductCardProps {
   product: {
     id: string
+    user_id?: string
     title: string
     price: number
     images: string[]
@@ -16,6 +17,11 @@ interface ProductCardProps {
     location_department: string
     views_count: number
     created_at: string
+    // Seller info (optional — available when coming from search API)
+    seller_name?: string | null
+    seller_business_name?: string | null
+    seller_business_slug?: string | null
+    seller_verification_level?: number
   }
   onUpdate?: () => void
   showActions?: boolean
@@ -34,7 +40,7 @@ export function ProductCard({ product, onUpdate, showActions = true }: ProductCa
   const location = `${product.location_city}, ${product.location_department}`
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow group focus-within:shadow-lg">
       {/* Image */}
       <Link
         href={`/productos/${product.id}`}
@@ -90,6 +96,36 @@ export function ProductCard({ product, onUpdate, showActions = true }: ProductCa
             <span className="truncate">{location}</span>
           </div>
         </Link>
+
+        {/* Seller Info */}
+        {(product.seller_business_name || product.seller_name) && (
+          <div className="mt-2 pt-2 border-t">
+            {product.seller_business_slug && product.seller_business_name ? (
+              <Link
+                href={`/negocio/${product.seller_business_slug}`}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                title={`Ver tienda: ${product.seller_business_name}`}
+              >
+                <Store className="h-3 w-3 flex-shrink-0 text-primary/70" aria-hidden />
+                <span className="truncate font-medium">{product.seller_business_name}</span>
+              </Link>
+            ) : product.seller_name && product.user_id ? (
+              <Link
+                href={`/vendedor/${product.user_id}`}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                title={`Ver perfil de ${product.seller_name}`}
+              >
+                <User className="h-3 w-3 flex-shrink-0" aria-hidden />
+                <span className="truncate">{product.seller_name}</span>
+              </Link>
+            ) : product.seller_name ? (
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <User className="h-3 w-3 flex-shrink-0" aria-hidden />
+                <span className="truncate">{product.seller_name}</span>
+              </span>
+            ) : null}
+          </div>
+        )}
       </CardContent>
 
       {/* Footer - Stats */}

@@ -1,328 +1,288 @@
 # Telopillo.bo - Project Status
 
-**Last Updated:** February 13, 2026  
+**Last Updated:** February 15, 2026  
 **Project Start:** February 12, 2026
 
 ---
 
-## 📊 Overall Progress
+## Overall Progress
 
 ```
-M0: Foundation & Setup          ████████████████████ 100% ✅
-M1: Authentication & Profiles   ███████████████████░  93% ✅ (Code Complete)
-M2: Product Listings            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M3: Search & Discovery          ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M4: Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M5: Payments & Orders           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M6: Ratings & Reviews           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M7: Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M8: Semantic Search             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+M0:   Foundation & Setup          ████████████████████ 100% ✅
+M1:   Authentication & Profiles   ███████████████████░  93% ✅ (Code Complete)
+M2:   Product Listings            ████████████████████ 100% ✅
+M3:   Search & Discovery          ████████████████████ 100% ✅
+M4:   Semantic Search             ████████████████████ 100% ✅
+M4.5: Account Types & Minimal KYC ████████████████████ 100% ✅
+M5:   Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+M6:   Ratings & Reviews           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+M7:   Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+M8:   Payments & Orders           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 
-Overall Project: ████░░░░░░░░░░░░░░░░ 24%
+Overall Project: ████████████░░░░░░░░ 60%
 ```
 
 ---
 
-## ✅ M0: Foundation & Setup (COMPLETE)
+## Completed Milestones
+
+### ✅ M0: Foundation & Setup (COMPLETE)
 
 **Status:** 100% Complete  
 **Duration:** ~7.5 hours (estimated 5-7 days)  
-**Completed:** February 13, 2026
+**Completed:** February 12, 2026
 
-### Achievements
-
+**Achievements:**
 - Next.js 14 with TypeScript, Tailwind CSS v4, shadcn/ui
 - Supabase integration (client, server, middleware)
 - Development tools (ESLint, Prettier, Husky, lint-staged)
 - Base layout with responsive Header and Footer
 - Landing page with search-first hero
-- UX improvements (Lucide icons, trust signals)
 - Accessibility (WCAG 2.2 AA compliant)
 - Mobile UX (slide-in drawer menu, accordion footer)
-
-### Deliverables
-
-- ✅ 40+ files created
-- ✅ ~3,000+ lines of code
-- ✅ 20 git commits
-- ✅ 8 documentation pages
-
-### Tech Stack Configured
-
-- Next.js 14 (App Router)
-- TypeScript 5+ (strict mode)
-- Tailwind CSS v4
-- shadcn/ui components
-- Supabase (PostgreSQL, Auth, Storage)
-- ESLint + Prettier + Husky
 
 **Documentation:** [M0 README](../milestones/M0-foundation-setup/README.md)
 
 ---
 
-## ✅ M1: Authentication & User Profiles (CODE COMPLETE)
+### ✅ M1: Authentication & User Profiles (CODE COMPLETE)
 
-**Status:** 93% Complete (All code done, manual testing pending)  
+**Status:** 93% Complete (All code done, manual OAuth testing pending)  
 **Started:** February 13, 2026  
 **Completed:** February 13, 2026 (Code)  
-**Estimated Duration:** 10 days  
-**Actual Duration:** ~14 hours (1.75 days)
+**Actual Duration:** ~14 hours
 
-### Phase 1: Database Setup ✅ COMPLETE
+**Phases (7/7 complete):**
+1. Database Setup - `profiles` table, RLS, triggers, `avatars` storage bucket
+2. OAuth Configuration - Google & Facebook OAuth
+3. Authentication Pages - Login, Register, Forgot/Reset Password (Zod + react-hook-form)
+4. Profile Management - Profile Edit/View, LocationSelector (Bolivia departments/cities)
+5. Avatar Upload - Upload to Supabase Storage, compression, validation
+6. Protected Routes - Middleware, UserMenu, auth bypass for dev
+7. Testing & Polish - 45/45 automated tests passed, manual OAuth pending
 
-**Completed:** February 13, 2026 (~1 hour)
-
-- ✅ Supabase CLI installed and linked
-- ✅ `profiles` table created with schema:
-  - id, full_name, avatar_url, phone
-  - location_city, location_department
-  - rating_average, rating_count, is_verified
-  - created_at, updated_at
-- ✅ RLS policies implemented:
-  - Anyone can view profiles
-  - Users can only edit their own profile
-- ✅ Triggers created:
-  - Auto-create profile on user registration
-  - Auto-update `updated_at` timestamp
-- ✅ `avatars` storage bucket with RLS policies
-- ✅ Migrations applied to remote database
-
-**Files Created:**
-- `supabase/migrations/20260213111133_create_profiles_table.sql`
-- `supabase/migrations/20260213111208_create_avatars_storage.sql`
-- `supabase/config.toml`
-- `supabase/README.md`
-- `supabase/tests/profiles_rls.test.sql`
-
-### Phase 2: OAuth Configuration ✅ COMPLETE
-
-**Completed:** February 13, 2026 (~2 hours)
-
-- ✅ Created Google OAuth credentials
-- ✅ Configured Google OAuth in Supabase
-- ✅ Created Facebook OAuth credentials
-- ✅ Configured Facebook OAuth in Supabase
-- ✅ Tested OAuth flows
-- ✅ Created PHASE2_OAUTH_GUIDE.md documentation
-
-### Phase 3: Authentication Pages ✅ COMPLETE
-
-**Completed:** February 13, 2026 (~4 hours)
-
-- ✅ Created validation schemas (zod)
-- ✅ Installed dependencies (react-hook-form, react-icons)
-- ✅ Created OAuthButtons component
-- ✅ Created Login page with UX/accessibility improvements
-- ✅ Created Register page with success state
-- ✅ Created OAuth callback handler
-- ✅ Created Forgot Password page
-- ✅ Created Reset Password page
-- ✅ Fixed auth bug (NULL tokens in auth.users table)
-
-### Phase 4: Profile Management ✅ COMPLETE
-
-**Completed:** February 13, 2026 (~3 hours)
-
-- ✅ Generated TypeScript types from Supabase
-- ✅ Created profile validation schemas
-- ✅ Created LocationSelector component (Bolivia departments/cities)
-- ✅ Created Profile Edit page
-- ✅ Created Profile View page (current user)
-- ✅ Tested profile load and update
-
-### Phase 5: Avatar Upload ✅ COMPLETE
-
-**Completed:** February 13, 2026 (~2 hours)
-
-- ✅ Created AvatarUpload component
-- ✅ Implemented file upload to Supabase Storage
-- ✅ Implemented file validation (type, 5MB size limit)
-- ✅ Integrated into Profile Edit page
-- ✅ Added loading states and error handling
-- ✅ Implemented avatar removal
-- ✅ Created PHASE5_TESTING_GUIDE.md
-
-### Phase 6: Protected Routes ✅ COMPLETE
-
-**Completed:** February 13, 2026 (~2 hours)
-
-- ✅ Updated auth middleware with protection logic
-- ✅ Defined protected routes (/profile/edit, /publicar, /mensajes)
-- ✅ Created UserMenu component with dropdown
-- ✅ Updated Header with UserMenu
-- ✅ Implemented auth bypass for development
-- ✅ Added redirect to login with return URL
-
-### Phase 7: Testing & Polish ✅ COMPLETE (Automated), ⏳ PENDING (Manual)
-
-**Completed:** February 13, 2026 (~2 hours for automated testing)
-
-**Automated Testing (100%):**
-- ✅ ESLint: 0 errors, 0 warnings
-- ✅ TypeScript: 0 type errors, strict mode
-- ✅ Prettier: Code formatted consistently
-- ✅ Pre-commit hooks: Working correctly
-- ✅ UI/UX tests: 31 test cases passed
-- ✅ Functionality tests: 9 test cases passed
-- ✅ Profile view/edit tested
-- ✅ UserMenu tested
-- ✅ Protected routes tested
-- ✅ Test report created (45/45 tests passed)
-- ✅ Screenshots captured
-
-**Manual Testing (Pending):**
-- [ ] Email registration/login (requires disabling auth bypass)
-- [ ] Google/Facebook OAuth (requires real accounts)
-- [ ] Password reset flow (requires email)
-- [ ] Avatar upload/remove (requires file selection)
-- [ ] Security testing (RLS policies, multiple users)
-- [ ] Browser testing (Firefox, Safari, mobile)
-- [ ] Lighthouse audit (target >90)
-
-**Test Coverage:** 45/70 tests (64%)  
-**Bugs Found:** 0 🎉  
-**Code Quality:** 100%
-
-**Deliverables:**
-- ✅ `PHASE7_TESTING_CHECKLIST.md`
-- ✅ `PHASE7_TEST_REPORT.md`
-- ✅ Test screenshots (3)
-- ✅ All code quality issues fixed
-
-### Git Commits (M1)
-
-1. `1b9b09e` - Add accessibility-expert agent and M1 documentation
-2. `7565d22` - Implement authentication pages with UX/UI and accessibility improvements
-3. `0c711ae` - Add M1 documentation and Supabase database configuration
-4. `0d8371a` - Implement profile management with location selector and auth bug fix
-5. `22fbca4` - Implement avatar upload and protected routes (Phase 5 & 6)
-6. `9d660a1` - Phase 7 code quality and documentation updates (pending)
-
-**Total:** 6 commits (5 pushed, 1 pending), ~1,800+ lines of code
+**Key Deliverables:**
+- 6 database migrations (profiles, avatars)
+- Authentication pages (login, register, forgot-password, reset-password)
+- Profile management (edit, view)
+- Protected route middleware
+- 45 automated test cases passed
 
 **Documentation:** [M1 README](../milestones/M1-authentication-profiles/README.md)
 
 ---
 
-## 🚧 M2: Product Listings (STARTING)
+### ✅ M2: Product Listings (COMPLETE)
 
-**Status:** 0% Complete (Documentation ready, ready to implement)  
+**Status:** 100% Complete  
 **Started:** February 13, 2026  
-**Estimated Duration:** 10-12 days
+**Completed:** February 14, 2026  
+**Actual Duration:** ~12 hours
 
-### Phases
+**Phases (7/7 complete):**
+1. Database Schema - `products` table, 7 indexes, 4 RLS policies, `product-images` storage
+2. Image Upload - Multi-image drag-and-drop, WebP compression, Supabase Storage integration
+3. Product Creation Form - `/publicar` page, 8 categories with subcategories, Zod validation
+4. Product Detail Page - `/productos/[id]`, image gallery, SellerCard, WhatsApp contact, SEO metadata
+5. Product Listing Page - `/perfil/mis-productos`, status filters, sort options, quick actions
+6. Product Management - Edit page, Mark as Sold/Inactive, Delete with confirmation, AlertDialog
+7. Testing & Polish - UX/Accessibility review, 28 test cases, axe-core audit (0 violations)
 
-**Phase 1: Database Schema** (2-3 hours)
-- Products table with full schema
-- RLS policies for security
-- Product images storage bucket
-- Indexes for performance
+**Key Deliverables:**
+- Products database schema with full-text search support
+- ImageUpload component (drag-and-drop, reorder, WebP compression)
+- ProductForm (create + edit modes)
+- ProductGallery with navigation
+- SellerCard with WhatsApp integration
+- ProductCard, ProductGrid, ProductActions components
+- ShareButton, ToastProvider for accessible notifications
+- 28 automated test cases, 0 axe-core violations
 
-**Phase 2: Image Upload** (3-4 hours)
-- Multi-image upload component (1-5 images)
-- Drag-and-drop interface
-- Image compression/optimization (WebP)
-- Preview and reordering
-
-**Phase 3: Product Creation** (6-8 hours)
-- Product creation form (`/publicar`)
-- Category/subcategory selection
-- Location selector (reuse from M1)
-- Price and condition inputs
-- Form validation (Zod + React Hook Form)
-
-**Phase 4: Product Detail** (4-6 hours)
-- Product detail page (`/productos/[id]`)
-- Image gallery with zoom
-- Seller information card
-- Contact button
-- Share functionality (WhatsApp, Facebook)
-- View counter
-
-**Phase 5: Product Listing** (4-6 hours)
-- My products page (`/perfil/mis-productos`)
-- Product grid/card layout
-- Status filters (active, sold, inactive)
-- Sort options (newest, price)
-- Quick actions (edit, delete, mark as sold)
-
-**Phase 6: Product Management** (6-8 hours)
-- Edit product page (`/productos/[id]/editar`)
-- Mark as sold/inactive functionality
-- Delete product with confirmation
-- Permissions (only owner can edit)
-
-**Phase 7: Testing & Polish** (6-8 hours)
-- Manual testing (create, edit, delete)
-- Security testing (RLS policies)
-- UI/UX testing (responsive, loading states)
-- Accessibility testing (WCAG 2.2 AA)
-- Performance testing (image upload, page loads)
-
-**Dependencies:** M1 (Authentication) ✅ Complete
-
-**Documentation:** [M2 README](../milestones/M2-product-listings/README.md) | [M2 PROGRESS](../milestones/M2-product-listings/PROGRESS.md)
+**Documentation:** [M2 PROGRESS](../milestones/M2-product-listings/PROGRESS.md)
 
 ---
 
-## ⏳ M3: Search & Discovery (PENDING)
+### ✅ M3: Search & Discovery - Keyword (COMPLETE)
 
-**Status:** 0% Complete  
-**Estimated Duration:** 10-12 days
+**Status:** 100% Complete  
+**Started:** February 14, 2026  
+**Completed:** February 14, 2026  
+**Actual Duration:** ~2 hours 10 minutes
 
-### Planned Features
+**Phases (7/7 complete):**
+1. Database Schema (FTS) - `search_vector` TSVECTOR column, GIN index, `search_products` RPC
+2. Search API - `/api/search` route with filters, sort, pagination
+3. Search Bar Component - Integrated into Header (desktop + mobile), URL sync
+4. Search Results Page - `/buscar` with loading/error/empty states
+5. Filters & Sort - Category, condition, department, price range, relevance/price/date sort
+6. Category Browsing - `/categorias` page with 9 categories and icons
+7. Empty States & Testing - All empty states, 8 test cases passed
 
-- Keyword search
-- Category filtering
-- Location filtering
-- Price range filtering
-- Sort options
-- Search results page
-- Pagination
+**Key Deliverables:**
+- PostgreSQL Full-Text Search with Spanish config and weighted ranking
+- `search_products()` RPC function with all filters
+- SearchBar, SearchFilters, SearchSort components
+- `/buscar` search results page with responsive filters
+- `/categorias` category browsing page
 
-**Dependencies:** M2 (Product Listings) must be complete
+**Documentation:** [M3 PROGRESS](../milestones/M3-search-keyword/PROGRESS.md)
 
 ---
 
-## ⏳ M4: Chat & Messaging (PENDING)
+### ✅ M4: Semantic Search - Embeddings (COMPLETE)
+
+**Status:** 100% Complete  
+**Started:** February 14, 2026  
+**Completed:** February 14, 2026  
+**Actual Duration:** ~6 hours
+
+**Phases (9/9 complete):**
+1. Database (pgvector) - `embedding vector(384)` column, HNSW index
+2. Feature Flag System - `app_config` table, env var + DB toggle
+3. Edge Function (HF) - `generate-embedding` with Hugging Face API, retry logic
+4. Hybrid Search RPC (RRF) - `search_products_semantic()` with adaptive RRF weights (k=60)
+5. API Route + Fallback - Hybrid search with transparent fallback to keyword-only
+6. Auto-embed + Backfill - PostgreSQL trigger via `pg_net`, backfill script
+7. Performance Optimizations - In-memory embedding cache (5min TTL, 2.8x speedup)
+8. Search Quality Tuning - Title boost, adaptive RRF, 10/10 ranking accuracy
+9. E2E Testing - 5 Playwright tests, all passing
+
+**Key Deliverables:**
+- pgvector extension with HNSW cosine index
+- `generate-embedding` Supabase Edge Function (Deno)
+- Hybrid search: keyword FTS top 50 + semantic top 50, merged via RRF
+- Feature flag system (env var priority over DB)
+- Auto-embedding trigger on product insert/update
+- Embedding cache (340ms cached vs 940ms uncached)
+- 10/10 search quality on test suite (Spanish + English queries)
+
+**Documentation:** [M4 PROGRESS](../milestones/M4-search-semantic/PROGRESS.md)
+
+---
+
+### ✅ M4.5: Account Types & Minimal KYC (COMPLETE)
+
+**Status:** 100% Complete  
+**Started:** February 15, 2026  
+**Completed:** February 15, 2026  
+**Actual Duration:** ~10 hours
+
+**Architecture:** "Business as Add-on" model - all users have a base personal profile, business profile is an optional, non-mutually-exclusive extension.
+
+**Phases (9/9 complete):**
+1. Database Schema & Types - `business_profiles` table, `verification_level`, `phone_verified` on profiles
+2. Registration Flow - Single-step form with optional collapsible business section
+3. Profile Edit & Trust Badge - VerificationBadge component, business profile management
+4. Business Storefront Page - `/negocio/[slug]` with SEO, JSON-LD, breadcrumbs
+5. Personal Seller Profile - `/vendedor/[id]` with SEO, JSON-LD, cross-navigation
+6. Search & Product Integration (6a + 6b) - Seller info in search RPC, SellerCard updates
+7. Testing & Polish - UX/Accessibility audit, 42 E2E tests (28 functional + 7 a11y + 7 mobile)
+
+**Key Architectural Decisions:**
+- Business profile = add-on (not mutually exclusive with personal)
+- `business_profiles` row existence is source of truth (not `account_type` enum)
+- Minimal KYC: email (Level 0), phone (Level 1), descriptive badges (no gating)
+- Strong KYC deferred to future milestone
+
+**Key Deliverables:**
+- `business_profiles` table with RLS, `business-logos` storage bucket
+- VerificationBadge with accessible tooltip (keyboard + hover)
+- Business storefront (`/negocio/[slug]`) with BusinessHeader, BusinessInfoSidebar
+- Personal seller profile (`/vendedor/[id]`) with SellerProfileHeader
+- BusinessProfileForm with BusinessHoursEditor, logo upload
+- Updated search RPCs with seller info (full_name, avatar, business_name)
+- Cross-navigation between business storefront and personal profile
+- 42 Playwright tests: 0 failures, 0 WCAG 2.2 AA violations
+- i18n: Spanish user-facing strings, English code/documentation
+
+**Documentation:** [M4.5 PROGRESS](../milestones/M4.5-account-types-kyc/PROGRESS.md) | [M4.5 PRD](../milestones/M4.5-account-types-kyc/PRD.md)
+
+---
+
+## Pending Milestones
+
+### ⏳ M5: Chat & Messaging (NEXT)
 
 **Status:** 0% Complete  
-**Estimated Duration:** 10-12 days
+**Estimated Duration:** 10-12 days  
+**Dependencies:** M1 (Auth) ✅, M2 (Products) ✅
 
-### Planned Features
-
-- Real-time chat (Supabase Realtime)
-- Message list
-- Chat interface
-- Notifications
+**Planned Features:**
+- Real-time chat (Supabase Realtime WebSocket)
+- Conversation list with unread counts
+- Chat interface with message bubbles
+- Typing indicators and presence
+- Push notifications (future)
 - Read receipts
 
-**Dependencies:** M1 (Authentication) must be complete
+---
+
+### ⏳ M6: Ratings & Reviews
+
+**Status:** 0% Complete  
+**Estimated Duration:** 7-10 days  
+**Dependencies:** M1 (Auth) ✅, M2 (Products) ✅
+
+**Planned Features:**
+- 1-5 star ratings with comments
+- Seller reputation system
+- Auto-update rating_average/rating_count on profiles
+- Review moderation
+- Display on seller profiles and product pages
 
 ---
 
-## 📈 Project Metrics
+### ⏳ M7: Admin Dashboard
+
+**Status:** 0% Complete  
+**Estimated Duration:** 10-14 days  
+**Dependencies:** All previous milestones
+
+**Planned Features:**
+- Admin panel for content moderation
+- User management
+- Product moderation (approve, flag, remove)
+- Reports system
+- Analytics dashboard
+
+---
+
+### ⏳ M8: Payments & Orders
+
+**Status:** 0% Complete  
+**Estimated Duration:** 14-21 days  
+**Dependencies:** M5 (Chat) ✅, M6 (Ratings) ✅
+
+**Planned Features:**
+- Payment gateway integration
+- Order tracking
+- Transaction history
+- Escrow system (future)
+- Premium seller features
+
+---
+
+## Project Metrics
 
 ### Time Tracking
 
 | Milestone | Estimated | Actual | Status |
 |-----------|-----------|--------|--------|
-| M0 | 5-7 days | 7.5 hours | ✅ Complete |
-| M1 Phase 1 | 8-10 hours | 1 hour | ✅ Complete |
-| M1 Phase 2 | 4-6 hours | 2 hours | ✅ Complete |
-| M1 Phase 3 | 6-8 hours | 3 hours | ✅ Complete |
-| M1 Phase 4 | 6-8 hours | 3 hours | ✅ Complete |
-| M1 Phase 5 | 4-6 hours | 2 hours | ✅ Complete |
-| M1 Phase 6 | 4-6 hours | 2 hours | ✅ Complete |
-| M1 Phase 7 | 6-8 hours | 2 hours (automated) | 🚧 Partial |
-| **Total so far** | - | **22.5 hours** | - |
+| M0: Foundation & Setup | 5-7 days | ~7.5 hours | ✅ Complete |
+| M1: Authentication & Profiles | 10 days | ~14 hours | ✅ Code Complete |
+| M2: Product Listings | 10-12 days | ~12 hours | ✅ Complete |
+| M3: Search & Discovery (Keyword) | 10-12 days | ~2.1 hours | ✅ Complete |
+| M4: Semantic Search (Embeddings) | 7-10 days | ~6 hours | ✅ Complete |
+| M4.5: Account Types & KYC | 5-7 days | ~10 hours | ✅ Complete |
+| **Total** | **~55 days** | **~51.6 hours** | **60% complete** |
 
 ### Code Statistics
 
-- **Total files:** 50+
-- **Total lines of code:** ~3,500+
-- **Git commits:** 20+
-- **Documentation pages:** 12+
+- **Source files (TS/TSX):** 92
+- **Database migrations (SQL):** 12
+- **Test spec files:** 11
+- **Total lines of code:** ~16,300+
+- **Documentation pages:** 49
 
 ### Quality Metrics
 
@@ -330,40 +290,96 @@ Overall Project: ████░░░░░░░░░░░░░░░░ 24
 - **ESLint errors:** 0 ✅
 - **Prettier issues:** 0 ✅
 - **WCAG 2.2 AA:** Compliant ✅
+- **Playwright E2E tests:** 75+ test cases across all milestones
+
+### Database Tables
+
+| Table | Milestone | Purpose |
+|-------|-----------|---------|
+| `profiles` | M1 | User profiles (extends auth.users) |
+| `products` | M2 | Product listings with FTS + embeddings |
+| `business_profiles` | M4.5 | Business profile add-on |
+| `app_config` | M4 | Feature flags and configuration |
+
+### Storage Buckets
+
+| Bucket | Access | Purpose |
+|--------|--------|---------|
+| `avatars` | Private | User profile avatars |
+| `product-images` | Public | Product listing images |
+| `business-logos` | Public | Business profile logos |
+
+### Supabase Edge Functions
+
+| Function | Purpose |
+|----------|---------|
+| `generate-embedding` | Auto-generate product embeddings via Hugging Face API |
+
+### Key Routes
+
+| Route | Type | Description |
+|-------|------|-------------|
+| `/` | Public | Landing page with search hero |
+| `/login` | Public | Login page (email + OAuth) |
+| `/register` | Public | Registration with optional business |
+| `/buscar` | Public | Search results with filters |
+| `/categorias` | Public | Category browsing |
+| `/productos/[id]` | Public | Product detail page |
+| `/negocio/[slug]` | Public | Business storefront page |
+| `/vendedor/[id]` | Public | Personal seller profile |
+| `/publicar` | Protected | Create new product listing |
+| `/productos/[id]/editar` | Protected | Edit product listing |
+| `/profile/edit` | Protected | Edit user profile |
+| `/perfil/mis-productos` | Protected | My products management |
+| `/api/search` | API | Search endpoint (keyword + semantic) |
 
 ---
 
-## 🎯 Next Actions
+## Next Actions
 
-### Immediate (Today)
+### Immediate
 
-1. **Test Phase 1 deliverables:**
-   - Create a test user in Supabase Dashboard
-   - Verify profile is auto-created
-   - Test RLS policies
+1. **Decide next milestone priority:**
+   - M5 (Chat & Messaging) - enables buyer-seller communication
+   - M6 (Ratings & Reviews) - builds trust, leverages seller profiles
+   - Other priorities as needed
 
-2. **Start Phase 2: OAuth Configuration**
-   - Set up Google OAuth credentials
-   - Set up Facebook OAuth credentials
-   - Configure in Supabase Dashboard
+2. **Consider PRD for next milestone** - Analyze with PM agent before implementation
 
-### Short-term (This Week)
+### Short-term
 
-1. Complete M1 Phases 2-4 (OAuth, Auth Pages, Profile Management)
-2. Begin M1 Phases 5-7 (Avatar Upload, Protected Routes, Testing)
+1. Complete next milestone (M5 or M6)
+2. Consider git commit strategy for M4.5 changes (currently uncommitted)
 
-### Medium-term (Next 2 Weeks)
+### Medium-term
 
-1. Complete M1 (Authentication & Profiles)
-2. Start M2 (Product Listings)
+1. Admin Dashboard (M7) for content moderation
+2. Production deployment to Vercel
+3. User testing with real users in Bolivia
 
 ---
 
-## 🔗 Quick Links
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 14 (App Router), TypeScript 5+, Tailwind CSS v4, shadcn/ui |
+| **Backend (BaaS)** | Supabase (PostgreSQL, Auth, Storage, Realtime, Edge Functions) |
+| **Database** | PostgreSQL 15 + pgvector + Full-Text Search (Spanish) |
+| **Search** | Hybrid: Keyword FTS + Semantic (embeddings) with RRF fusion |
+| **Embeddings** | Hugging Face Inference API (`paraphrase-multilingual-MiniLM-L12-v2`) |
+| **Auth** | Supabase Auth (Email, Google OAuth, Facebook OAuth) |
+| **Testing** | Playwright (E2E + accessibility via axe-core) |
+| **Dev Tools** | ESLint, Prettier, Husky, lint-staged, Hatch |
+| **Hosting** | Vercel (planned), Supabase Cloud |
+
+---
+
+## Quick Links
 
 ### Live App
 
-- **Development:** http://localhost:3003
+- **Development:** http://localhost:3000
 - **Production:** TBD
 
 ### Supabase
@@ -374,36 +390,46 @@ Overall Project: ████░░░░░░░░░░░░░░░░ 24
 ### Documentation
 
 - [Project README](../README.md)
+- [Architecture](./ARCHITECTURE.md)
+- [PRD](./PRD.md)
 - [M0 Documentation](../milestones/M0-foundation-setup/)
 - [M1 Documentation](../milestones/M1-authentication-profiles/)
+- [M2 Documentation](../milestones/M2-product-listings/)
+- [M3 Documentation](../milestones/M3-search-keyword/)
+- [M4 Documentation](../milestones/M4-search-semantic/)
+- [M4.5 Documentation](../milestones/M4.5-account-types-kyc/)
 
 ---
 
-## 📝 Notes
+## Notes
 
-### Decisions Made
+### Key Decisions
 
-1. **Supabase CLI:** Installed as dev dependency, using migrations for database changes
-2. **TypeScript:** Strict mode enabled for better type safety
-3. **UI Framework:** shadcn/ui for consistent, accessible components
-4. **Mobile-first:** All components designed for mobile first, then desktop
-5. **Accessibility:** WCAG 2.2 AA compliance from the start
+1. **Supabase BaaS:** $0/month MVP, PostgreSQL + pgvector for hybrid search
+2. **TypeScript strict mode:** Type safety across entire codebase
+3. **shadcn/ui:** Accessible, customizable component library
+4. **Mobile-first:** All components designed for mobile first
+5. **WCAG 2.2 AA:** Accessibility compliance from M0 onward
+6. **Business as Add-on (M4.5):** Business profiles are non-mutually-exclusive extensions of personal profiles
+7. **Minimal KYC (M4.5):** Phone collection for trust signals, strong KYC deferred
+8. **i18n Policy:** Spanish for user-facing text, English for code and documentation
+9. **Hybrid Search:** Keyword FTS + Semantic embeddings merged via Reciprocal Rank Fusion
 
-### Challenges Encountered
+### Challenges & Lessons Learned
 
-1. **M0:** Port 3000 in use → switched to 3003
-2. **M0:** Mobile menu hidden by CSS stacking context → fixed with React Portal
-3. **M1:** Supabase CLI global install not supported → installed as dev dependency
-
-### Lessons Learned
-
-1. Always test connections incrementally
-2. Documentation is crucial for complex setups
-3. Git commits should be frequent and descriptive
-4. CSS stacking contexts can trap fixed-position children - use Portals
-5. UX and accessibility reviews catch real issues early
+1. **M0:** Port conflict (3000 in use) - switched to 3003, later back to 3000
+2. **M0:** Mobile menu CSS stacking context - fixed with React Portal
+3. **M1:** Supabase CLI global install unsupported - installed as dev dependency
+4. **M2:** React controlled/uncontrolled input warnings - resolved with useEffect sync
+5. **M3:** Search vector auto-update required careful trigger design
+6. **M4:** Hugging Face API URL migration (api-inference -> router.huggingface.co)
+7. **M4:** Adaptive RRF weights needed for cross-language queries (English -> Spanish)
+8. **M4.5:** Mutually exclusive account types refactored to add-on model after PM review
+9. **M4.5:** PostgREST join limitations required separate queries for business_profiles
+10. **M4.5:** Playwright test stability - dev server warm-up and client-side navigation handling
+11. **Testing:** UX and accessibility reviews catch real issues early - always audit before polish
 
 ---
 
-**Last Updated:** February 13, 2026  
-**Next Review:** After M1 Phase 2 completion
+**Last Updated:** February 15, 2026  
+**Next Review:** After next milestone decision

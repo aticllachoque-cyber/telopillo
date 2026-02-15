@@ -19,6 +19,7 @@ import Link from 'next/link'
 
 interface Product {
   id: string
+  user_id: string
   title: string
   description: string
   price: number
@@ -33,6 +34,13 @@ interface Product {
   views_count: number
   created_at: string
   relevance_score?: number
+  // Seller info (from search RPC JOINs)
+  seller_name: string | null
+  seller_avatar_url: string | null
+  seller_verification_level: number
+  seller_business_name: string | null
+  seller_business_slug: string | null
+  seller_business_logo: string | null
 }
 
 interface SearchResponse {

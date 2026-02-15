@@ -74,7 +74,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
         avatar_url,
         location_city,
         location_department,
-        phone
+        phone,
+        verification_level
       )
     `
     )
@@ -84,6 +85,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (error || !product) {
     notFound()
   }
+
+  // Fetch business profile for the seller (separate query — no direct FK from products)
+  const { data: businessProfile } = await supabase
+    .from('business_profiles')
+    .select('business_name, slug')
+    .eq('id', product.user_id)
+    .single()
 
   // Only show active products to non-owners
   const {
@@ -237,7 +245,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Right Column: Seller Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
-              <SellerCard seller={product.profiles} productTitle={product.title} />
+              <SellerCard
+                seller={product.profiles}
+                productTitle={product.title}
+                business={businessProfile}
+              />
             </div>
           </div>
         </div>
