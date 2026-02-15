@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { getAvatarColor } from '@/lib/utils'
 import { Upload, X, Loader2 } from 'lucide-react'
 
 interface AvatarUploadProps {
@@ -117,7 +118,7 @@ export function AvatarUpload({
       <div className="flex items-center gap-4">
         <Avatar className="h-24 w-24">
           <AvatarImage src={previewUrl || undefined} alt="Avatar preview" />
-          <AvatarFallback className="text-2xl">
+          <AvatarFallback className={`text-2xl font-medium ${getAvatarColor(userId)}`}>
             {isUploading ? <Loader2 className="h-8 w-8 animate-spin" aria-hidden /> : userInitials}
           </AvatarFallback>
         </Avatar>

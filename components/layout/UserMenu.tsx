@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { getAvatarColor } from '@/lib/utils'
 import { User, Settings, LogOut, Loader2 } from 'lucide-react'
 
 interface Profile {
@@ -22,12 +23,16 @@ interface Profile {
   avatar_url: string | null
 }
 
+const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password']
+
 export function UserMenu() {
   const router = useRouter()
+  const pathname = usePathname()
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
+  const isOnAuthPage = AUTH_ROUTES.some((route) => pathname.startsWith(route))
 
   useEffect(() => {
     loadUser()
@@ -80,6 +85,8 @@ export function UserMenu() {
   }
 
   if (!user) {
+    if (isOnAuthPage) return null
+
     return (
       <div className="flex items-center gap-2">
         <Link href="/login">
@@ -115,7 +122,7 @@ export function UserMenu() {
               src={profile?.avatar_url || undefined}
               alt={profile?.full_name || 'Usuario'}
             />
-            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+            <AvatarFallback className={`font-medium ${getAvatarColor(user.id)}`}>
               {initials}
             </AvatarFallback>
           </Avatar>

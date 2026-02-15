@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { getAvatarColor } from '@/lib/utils'
 
 interface Profile {
   id: string
@@ -117,7 +118,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
                   <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name} />
-                  <AvatarFallback className="text-lg">
+                  <AvatarFallback className={`text-lg font-medium ${getAvatarColor(profile.id)}`}>
                     {getInitials(profile.full_name)}
                   </AvatarFallback>
                 </Avatar>

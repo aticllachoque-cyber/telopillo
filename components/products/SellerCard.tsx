@@ -1,7 +1,10 @@
+import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MapPin, MessageCircle } from 'lucide-react'
+import { VerificationBadge } from '@/components/ui/VerificationBadge'
+import { getAvatarColor } from '@/lib/utils'
+import { MapPin, MessageCircle, Store, User } from 'lucide-react'
 
 interface SellerProfile {
   id: string
@@ -10,14 +13,21 @@ interface SellerProfile {
   location_city: string | null
   location_department: string | null
   phone: string | null
+  verification_level?: number
+}
+
+interface BusinessInfo {
+  business_name: string
+  slug: string
 }
 
 interface SellerCardProps {
   seller: SellerProfile
   productTitle: string
+  business?: BusinessInfo | null
 }
 
-export function SellerCard({ seller, productTitle }: SellerCardProps) {
+export function SellerCard({ seller, productTitle, business }: SellerCardProps) {
   // Get seller initials for avatar fallback
   const getInitials = (name: string | null): string => {
     if (!name) return 'U'
@@ -62,18 +72,41 @@ export function SellerCard({ seller, productTitle }: SellerCardProps) {
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={seller.avatar_url || undefined} alt={seller.full_name || 'Usuario'} />
-            <AvatarFallback className="text-lg bg-primary/10 text-primary font-medium">
+            <AvatarFallback className={`text-lg font-medium ${getAvatarColor(seller.id)}`}>
               {getInitials(seller.full_name)}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 space-y-1">
             <p className="font-semibold text-lg truncate">{seller.full_name || 'Usuario'}</p>
+            {seller.verification_level !== undefined && (
+              <VerificationBadge
+                hasBusinessProfile={!!business}
+                verificationLevel={seller.verification_level}
+                size="sm"
+              />
+            )}
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="h-3 w-3 flex-shrink-0" aria-hidden />
               <span className="truncate">{location}</span>
             </div>
           </div>
         </div>
+
+        {/* Business Info */}
+        {business && (
+          <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+            <Store className="h-4 w-4 text-primary flex-shrink-0" aria-hidden />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{business.business_name}</p>
+            </div>
+            <Link
+              href={`/negocio/${business.slug}`}
+              className="text-xs text-primary hover:underline font-medium whitespace-nowrap"
+            >
+              Visitar tienda
+            </Link>
+          </div>
+        )}
 
         {/* Contact Button */}
         {hasPhone ? (
@@ -90,16 +123,43 @@ export function SellerCard({ seller, productTitle }: SellerCardProps) {
             </a>
           </Button>
         ) : (
-          <div className="text-center p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              El vendedor no ha agregado un número de teléfono
-            </p>
+          <div className="space-y-3">
+            <div className="text-center p-3 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                El vendedor aún no ha agregado un número de contacto.
+              </p>
+            </div>
+            {/* Make "Ver perfil" the primary CTA when no phone */}
+            <Button asChild className="w-full" size="lg">
+              <Link
+                href={`/vendedor/${seller.id}`}
+                className="flex items-center justify-center gap-2"
+              >
+                <User className="h-5 w-5" aria-hidden />
+                Ver perfil del vendedor
+              </Link>
+            </Button>
           </div>
+        )}
+
+        {/* View Seller Profile Link (secondary when phone available) */}
+        {hasPhone && (
+          <Button asChild variant="outline" className="w-full" size="sm">
+            <Link
+              href={`/vendedor/${seller.id}`}
+              className="flex items-center justify-center gap-2"
+            >
+              <User className="h-4 w-4" aria-hidden />
+              Ver perfil del vendedor
+            </Link>
+          </Button>
         )}
 
         {/* Safety Tips */}
         <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground space-y-1">
-          <p className="font-medium text-foreground">💡 Consejos de seguridad:</p>
+          <p className="font-medium text-foreground">
+            <span aria-hidden="true">💡</span> Consejos de seguridad:
+          </p>
           <ul className="list-disc list-inside space-y-0.5 ml-1">
             <li>Reúnete en lugares públicos</li>
             <li>Verifica el producto antes de pagar</li>
