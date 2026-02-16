@@ -15,7 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { getAvatarColor } from '@/lib/utils'
-import { User, Settings, LogOut, Loader2 } from 'lucide-react'
+import { User, Settings, LogOut, Loader2, Package } from 'lucide-react'
 
 interface Profile {
   id: string
@@ -140,6 +140,12 @@ export function UserMenu() {
           <Link href="/profile" className="cursor-pointer">
             <User className="mr-2 h-4 w-4" aria-hidden />
             Mi Perfil
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/perfil/mis-productos" className="cursor-pointer">
+            <Package className="mr-2 h-4 w-4" aria-hidden />
+            Mis Publicaciones
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

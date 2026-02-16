@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Loader2, MapPin, Phone, Star, Edit, LogOut } from 'lucide-react'
+import { Loader2, MapPin, Phone, Star, Edit, LogOut, Package, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -229,16 +229,24 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Placeholder for future sections */}
+        {/* Listings quick actions */}
         <Card className="border-0 shadow-xl">
           <CardHeader>
             <h2 className="text-xl font-semibold">Mis Publicaciones</h2>
           </CardHeader>
           <CardContent>
-            <div className="py-8 text-center text-muted-foreground">
-              <p>Aún no tienes publicaciones</p>
-              <Button className="mt-4" disabled>
-                Crear Publicación
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Button variant="outline" className="flex-1" asChild>
+                <Link href="/perfil/mis-productos">
+                  <Package className="mr-2 h-4 w-4" aria-hidden />
+                  Ver mis publicaciones
+                </Link>
+              </Button>
+              <Button className="flex-1" asChild>
+                <Link href="/publicar">
+                  <Plus className="mr-2 h-4 w-4" aria-hidden />
+                  Crear Publicación
+                </Link>
               </Button>
             </div>
           </CardContent>
