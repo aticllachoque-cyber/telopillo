@@ -41,7 +41,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
       {/* Toast Container */}
       <div
-        className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
+        className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 mx-auto flex flex-col gap-2 sm:inset-x-auto sm:right-4 sm:left-auto sm:max-w-sm"
         aria-live="polite"
         aria-atomic="true"
       >
@@ -51,7 +51,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role="status"
             className={`
               flex items-center gap-3 p-4 rounded-lg shadow-lg border
-              animate-in slide-in-from-bottom-5 fade-in duration-300
+              animate-in slide-in-from-bottom-5 fade-in duration-200
+              motion-reduce:animate-none
               ${
                 toast.type === 'error'
                   ? 'bg-destructive text-destructive-foreground border-destructive'
@@ -67,11 +68,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 shrink-0 opacity-70 hover:opacity-100"
+              className="size-6 shrink-0 opacity-70 hover:opacity-100"
               onClick={() => removeToast(toast.id)}
               aria-label="Cerrar notificación"
             >
-              <X className="h-4 w-4" aria-hidden />
+              <X className="size-4" aria-hidden />
             </Button>
           </div>
         ))}

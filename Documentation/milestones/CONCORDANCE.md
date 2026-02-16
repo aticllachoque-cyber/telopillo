@@ -187,6 +187,8 @@ This document maps features from the PRD and Architecture to specific milestones
 | `favorites` | M6 | ✅ Mapped |
 | `ratings` | M6 | ✅ Mapped |
 | `reports` | M9 | ✅ Mapped |
+| `demand_posts` | M4.7 | ✅ Mapped |
+| `demand_offers` | M4.7 | ✅ Mapped |
 
 ### PostgreSQL Extensions (Architecture Section 6.3) → Milestones
 
@@ -253,18 +255,19 @@ This document maps features from the PRD and Architecture to specific milestones
 
 ---
 
-## Missing Features (Not in MVP)
+## Phase 2 Features (Post-MVP)
 
-These features are in the PRD but marked as Phase 2 (Post-MVP):
+These features are in the PRD but planned as Phase 2 (Post-Launch):
 
 | Feature | PRD Section | Planned Milestone | Notes |
 |---------|-------------|-------------------|-------|
+| Demand-side posting ("Busco") | 7.2 | **M4.7** | Buyer posts what they need, sellers offer products. [Milestone docs](./M4.7-demand-side-busco/) |
 | Image search | 7.1 | M13 | Upload photo to find similar |
 | Voice search | 7.1 | M13 | Speech-to-text search |
+| Mobile app | 7.4 | M14 | React Native (iOS/Android) |
 | Payment gateway | 7.2 | M15 | Bolivian QR payments |
 | Shipping system | 7.3 | M15 | Delivery integration |
-| Mobile app | 7.4 | M14 | React Native (iOS/Android) |
-| WhatsApp Business API | 7.5 | M12 | Direct integration |
+| WhatsApp Business API | 7.5 | M16 | Direct integration |
 | Advanced analytics | 7.6 | Phase 2 | Mixpanel/Amplitude |
 
 ---

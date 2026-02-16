@@ -20,8 +20,20 @@ const HF_URL = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}/pi
 const MAX_RETRIES = 2
 const RETRY_BASE_DELAY_MS = 1000
 
+// SECURITY: Require ALLOWED_ORIGIN to be explicitly set (no fallback)
+// Set via:
+//   Development: npx supabase secrets set ALLOWED_ORIGIN=http://localhost:3003
+//   Production:  npx supabase secrets set ALLOWED_ORIGIN=https://telopillo.bo
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN')
+if (!ALLOWED_ORIGIN) {
+  throw new Error(
+    'SECURITY: ALLOWED_ORIGIN environment variable must be set. ' +
+      'Use: npx supabase secrets set ALLOWED_ORIGIN=<your-origin>'
+  )
+}
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 

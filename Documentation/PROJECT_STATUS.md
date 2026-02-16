@@ -15,6 +15,7 @@ M3:   Search & Discovery          ███████████████�
 M4:   Semantic Search             ████████████████████ 100% ✅
 M4.5: Account Types & Minimal KYC ████████████████████ 100% ✅
 E2E:  Test Infrastructure         ████████████████████ 100% ✅
+M4.7: Demand-Side "Busco"          ░░░░░░░░░░░░░░░░░░░░   0% ⏳ (NEXT)
 M5:   Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M6:   Ratings & Reviews           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M7:   Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
@@ -239,7 +240,26 @@ Overall Project: ████████████░░░░░░░░ 60
 
 ## Pending Milestones
 
-### ⏳ M5: Chat & Messaging (NEXT)
+### ⏳ M4.7: Demand-Side Posting — "Busco/Necesito" (NEXT)
+
+**Status:** 0% Complete  
+**Estimated Duration:** 12-16 days  
+**Dependencies:** M1 (Auth) ✅, M2 (Products) ✅, M3 (Search) ✅, M4 (Semantic Search) ✅
+
+**Planned Features:**
+- Buyers post what they need ("Busco" posts)
+- Sellers browse/search demand posts by category and location
+- Sellers offer their products to demand posts
+- WhatsApp contact between buyer and seller
+- Post expiration (30 days) with renewal
+- Semantic search on demand posts (reuse embeddings)
+- "¿No encontraste?" CTA on search results
+
+**Documentation:** [M4.7 README](../milestones/M4.7-demand-side-busco/README.md)
+
+---
+
+### ⏳ M5: Chat & Messaging
 
 **Status:** 0% Complete  
 **Estimated Duration:** 10-12 days  

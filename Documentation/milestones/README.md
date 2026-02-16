@@ -29,6 +29,7 @@ Each milestone has its own folder with a README containing:
 | [M2: Product Listings](./M2-product-listings/) | Week 4-5 | 📅 Not Started | 0/16 |
 | [M3: Search - Keyword](./M3-search-keyword/) | Week 6 | 📅 Not Started | 0/11 |
 | [M4: Search - Semantic](./M4-search-semantic/) | Week 7 | 📅 Not Started | 0/10 |
+| [M4.6: Share Profile Link](./M4.6-share-profile/) | 1-2 days | 📅 Not Started | 0/10 |
 | [M5: Real-time Chat](./M5-realtime-chat/) | Week 8-9 | 📅 Not Started | 0/19 |
 | [M6: Favorites & Ratings](./M6-favorites-ratings/) | Week 10 | 📅 Not Started | 0/13 |
 | [M7: Geolocation & Maps](./M7-geolocation-maps/) | Week 11 | 📅 Not Started | 0/13 |

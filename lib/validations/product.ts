@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { stripHtml } from './sanitize'
 
 // Product categories enum
 export const PRODUCT_CATEGORIES = [
@@ -35,13 +36,15 @@ export const productSchema = z.object({
     .string()
     .min(10, 'El título debe tener al menos 10 caracteres')
     .max(100, 'El título no puede exceder 100 caracteres')
-    .trim(),
+    .trim()
+    .transform(stripHtml),
 
   description: z
     .string()
     .min(50, 'La descripción debe tener al menos 50 caracteres')
     .max(5000, 'La descripción no puede exceder 5000 caracteres')
-    .trim(),
+    .trim()
+    .transform(stripHtml),
 
   category: z.enum(PRODUCT_CATEGORIES, {
     message: 'Selecciona una categoría',
