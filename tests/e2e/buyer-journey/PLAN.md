@@ -4,10 +4,11 @@
 > **Priority:** Critical
 > **Prerequisite Plans:** E2E-AUTH-001 (login must work)
 > **Target Files:**
-> - `tests/e2e/buyer-journey/homepage-to-search.spec.ts`
-> - `tests/e2e/buyer-journey/product-detail.spec.ts`
-> - `tests/e2e/buyer-journey/seller-profiles.spec.ts`
-> - `tests/e2e/buyer-journey/complete-buyer-flow.spec.ts`
+> - `tests/e2e/buyer-journey/homepage-to-search.spec.ts` (implemented)
+> - `tests/e2e/buyer-journey/product-detail.spec.ts` (implemented)
+> - `tests/e2e/buyer-journey/seller-profiles.spec.ts` (implemented)
+> - `tests/e2e/buyer-journey/contact-seller.spec.ts` (implemented)
+> - `tests/e2e/buyer-journey/complete-buyer-flow.spec.ts` (implemented)
 
 ---
 

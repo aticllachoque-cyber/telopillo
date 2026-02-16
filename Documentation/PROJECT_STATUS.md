@@ -1,6 +1,6 @@
 # Telopillo.bo - Project Status
 
-**Last Updated:** February 15, 2026  
+**Last Updated:** February 16, 2026  
 **Project Start:** February 12, 2026
 
 ---
@@ -14,6 +14,7 @@ M2:   Product Listings            ███████████████�
 M3:   Search & Discovery          ████████████████████ 100% ✅
 M4:   Semantic Search             ████████████████████ 100% ✅
 M4.5: Account Types & Minimal KYC ████████████████████ 100% ✅
+E2E:  Test Infrastructure         ████████████████████ 100% ✅
 M5:   Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M6:   Ratings & Reviews           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M7:   Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
@@ -199,6 +200,43 @@ Overall Project: ████████████░░░░░░░░ 60
 
 ---
 
+### ✅ E2E Test Infrastructure (COMPLETE)
+
+**Status:** 100% Complete  
+**Started:** February 15, 2026  
+**Completed:** February 16, 2026  
+**Actual Duration:** ~4 hours
+
+**Architecture:** Organized E2E test suite by business flows, with structured plans consumable by automation agents.
+
+**What was built:**
+1. **E2E Test Planner subagent** — Custom Cursor subagent (`.cursor/agents/e2e-test-planner.md`) that produces structured test plans for other agents to automate
+2. **Folder structure** — 7 test domains organized by complete business flows
+3. **29 spec files** — 229 test cases covering all implemented routes and flows
+4. **Test plans** — Machine-readable PLAN.md per folder with step-by-step selectors, assertions, and error scenarios
+5. **Shared fixture/helper designs** — Plans for reusable auth, test data, and a11y helpers (implementation pending)
+
+**Test Suite Structure:**
+
+| Folder | Files | Tests | Coverage |
+|--------|-------|-------|----------|
+| `auth/` | 3 | 39 | Registration, login, password recovery, redirects |
+| `buyer-journey/` | 5 | 44 | Homepage → search → product → seller → contact |
+| `seller-journey/` | 4 | 28 | Create → manage → edit → sell/delete products |
+| `business-seller/` | 3 | 16 | Business registration, storefront, complete flow |
+| `search-discovery/` | 5 | 35 | Keyword, semantic, filters, categories, API |
+| `account-management/` | 4 | 31 | Profile view/edit, avatar, product management |
+| `cross-cutting/` | 5 | 48 | Accessibility, mobile, navigation, SEO, errors |
+| **Total** | **29** | **229** | **All implemented routes covered** |
+
+**Known Issues Found:**
+- Product detail page has ~12px horizontal overflow at 375px viewport (responsive bug)
+- Business storefront WhatsApp button is 40px height vs 44px WCAG touch target recommendation
+
+**Legacy Tests:** 11 older spec files remain in `tests/` root from M1–M4.5 (pre-reorganization).
+
+---
+
 ## Pending Milestones
 
 ### ⏳ M5: Chat & Messaging (NEXT)
@@ -274,15 +312,17 @@ Overall Project: ████████████░░░░░░░░ 60
 | M3: Search & Discovery (Keyword) | 10-12 days | ~2.1 hours | ✅ Complete |
 | M4: Semantic Search (Embeddings) | 7-10 days | ~6 hours | ✅ Complete |
 | M4.5: Account Types & KYC | 5-7 days | ~10 hours | ✅ Complete |
-| **Total** | **~55 days** | **~51.6 hours** | **60% complete** |
+| E2E: Test Infrastructure | 2-3 days | ~4 hours | ✅ Complete |
+| **Total** | **~60 days** | **~55.6 hours** | **60% complete** |
 
 ### Code Statistics
 
-- **Source files (TS/TSX):** 92
+- **Source files (TS/TSX):** 77
 - **Database migrations (SQL):** 12
-- **Test spec files:** 11
-- **Total lines of code:** ~16,300+
-- **Documentation pages:** 49
+- **Test spec files:** 40 (29 organized in `tests/e2e/` + 11 legacy in `tests/`)
+- **Total lines of source code:** ~11,700+
+- **Documentation pages:** 49+
+- **AI subagents:** 9 (`.cursor/agents/`)
 
 ### Quality Metrics
 
@@ -290,7 +330,8 @@ Overall Project: ████████████░░░░░░░░ 60
 - **ESLint errors:** 0 ✅
 - **Prettier issues:** 0 ✅
 - **WCAG 2.2 AA:** Compliant ✅
-- **Playwright E2E tests:** 75+ test cases across all milestones
+- **Playwright E2E tests:** 229 test cases across 29 spec files (organized by business flow)
+- **Legacy E2E tests:** 75+ test cases across 11 spec files (pre-reorganization)
 
 ### Database Tables
 
@@ -339,17 +380,20 @@ Overall Project: ████████████░░░░░░░░ 60
 
 ### Immediate
 
-1. **Decide next milestone priority:**
-   - M5 (Chat & Messaging) - enables buyer-seller communication
-   - M6 (Ratings & Reviews) - builds trust, leverages seller profiles
-   - Other priorities as needed
-
-2. **Consider PRD for next milestone** - Analyze with PM agent before implementation
+1. **Fix known UI issues** found by E2E tests:
+   - Product detail horizontal overflow at 375px (~12px)
+   - Business storefront WhatsApp button touch target (40px vs 44px WCAG)
+2. **Decide next milestone priority:**
+   - M5 (Chat & Messaging) — enables buyer-seller communication
+   - M6 (Ratings & Reviews) — builds trust, leverages seller profiles
+3. **Consider PRD for next milestone** — Analyze with PM agent before implementation
 
 ### Short-term
 
-1. Complete next milestone (M5 or M6)
-2. Consider git commit strategy for M4.5 changes (currently uncommitted)
+1. Implement shared fixtures and helpers (`tests/fixtures/`, `tests/helpers/`) to reduce test duplication
+2. Decide on legacy test files in `tests/` root (keep, migrate, or remove)
+3. Complete next milestone (M5 or M6)
+4. Consider git commit strategy for all uncommitted changes
 
 ### Medium-term
 
@@ -363,14 +407,15 @@ Overall Project: ████████████░░░░░░░░ 60
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | Next.js 14 (App Router), TypeScript 5+, Tailwind CSS v4, shadcn/ui |
+| **Frontend** | Next.js 16.1.6 (App Router), React 19.2.3, TypeScript 5+, Tailwind CSS v4, shadcn/ui |
 | **Backend (BaaS)** | Supabase (PostgreSQL, Auth, Storage, Realtime, Edge Functions) |
 | **Database** | PostgreSQL 15 + pgvector + Full-Text Search (Spanish) |
 | **Search** | Hybrid: Keyword FTS + Semantic (embeddings) with RRF fusion |
 | **Embeddings** | Hugging Face Inference API (`paraphrase-multilingual-MiniLM-L12-v2`) |
 | **Auth** | Supabase Auth (Email, Google OAuth, Facebook OAuth) |
-| **Testing** | Playwright (E2E + accessibility via axe-core) |
+| **Testing** | Playwright 1.58+ (E2E + accessibility via axe-core), 229 test cases |
 | **Dev Tools** | ESLint, Prettier, Husky, lint-staged, Hatch |
+| **AI Agents** | 9 custom Cursor subagents (quality-gate, code-reviewer, e2e-test-planner, etc.) |
 | **Hosting** | Vercel (planned), Supabase Cloud |
 
 ---
@@ -428,8 +473,11 @@ Overall Project: ████████████░░░░░░░░ 60
 9. **M4.5:** PostgREST join limitations required separate queries for business_profiles
 10. **M4.5:** Playwright test stability - dev server warm-up and client-side navigation handling
 11. **Testing:** UX and accessibility reviews catch real issues early - always audit before polish
+12. **E2E:** Organizing tests by business flow (not by page) makes coverage gaps obvious
+13. **E2E:** AI subagents (e2e-test-planner) accelerate test plan creation — structured plans enable other agents to automate
+14. **E2E:** Real mobile/responsive issues found by 375px viewport tests (product detail overflow)
 
 ---
 
-**Last Updated:** February 15, 2026  
+**Last Updated:** February 16, 2026  
 **Next Review:** After next milestone decision

@@ -1,11 +1,11 @@
 # PRD — Telopillo.bo
 ## Marketplace de Compra y Venta para Bolivia
 
-**Versión:** 1.4  
-**Fecha:** 12 de febrero de 2026  
+**Versión:** 1.5  
+**Fecha:** 16 de febrero de 2026  
 **Autor:** Alcides Cardenas  
 **Estado:** Draft  
-**Última actualización:** Fixed inconsistencies, added complete database schema, detailed categories, reputation system, geolocation, image handling, and content moderation policies
+**Última actualización:** Actualizado stack técnico (Next.js 16, React 19), añadida sección de testing E2E (229 test cases, Playwright), documentada infraestructura de agentes AI (9 subagentes), actualizado estado de milestones (M0-M4.5 completados)
 
 ---
 
@@ -64,7 +64,7 @@
 | **Búsqueda Semántica** | **FastAPI (Railway/Render)** | Solo para embeddings + búsqueda híbrida (10% del tráfico) | **$0** (free tier) |
 | **Embeddings** | **Hugging Face Inference API** (MVP) → **FastAPI + Sentence Transformers** (Growth) | Fase 1: Serverless API gratuita. Fase 2: Self-hosted cuando superes rate limits | **$0** → **$7/mes** |
 | **Modelo inicial** | `paraphrase-multilingual-MiniLM-L12-v2` | 118MB, 384 dims, optimizado para español. Solo genera vectores (no es LLM conversacional) | **$0** |
-| **Frontend** | **Next.js 14+ (React)** | SSR para SEO, App Router, Tailwind CSS, TypeScript, Supabase SDK | **$0** |
+| **Frontend** | **Next.js 16 (React 19)** | SSR para SEO, App Router, Tailwind CSS v4, TypeScript, Supabase SDK | **$0** |
 | **Hosting Frontend** | **Vercel** | Edge Network global, 100GB bandwidth/mes gratis | **$0** |
 | **Background Jobs** | **Supabase Edge Functions** | Deno runtime, 500K invocations/mes gratis, cron jobs incluidos | **$0** |
 | **Email** | **Resend** | 3,000 emails/mes gratis, excelente deliverability | **$0** |
@@ -2654,7 +2654,7 @@ interface Appeal {
 
 ```
 telopillo/
-├── frontend/                        # Next.js 14 (React + TypeScript)
+├── frontend/                        # Next.js 16 (React 19 + TypeScript)
 │   ├── app/                        # App Router
 │   │   ├── (auth)/                # Auth routes group
 │   │   │   ├── login/
@@ -2747,7 +2747,7 @@ telopillo/
 
 ```yaml
 Frontend (TypeScript):
-  - Next.js 14+ (App Router)
+  - Next.js 16 (App Router)
   - React 18+
   - TypeScript 5+
   - Tailwind CSS 3+

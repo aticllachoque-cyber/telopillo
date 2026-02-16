@@ -1,9 +1,9 @@
 # Telopillo.bo - System Architecture
 
-**Version:** 1.1  
-**Date:** February 15, 2026  
+**Version:** 1.2  
+**Date:** February 16, 2026  
 **Author:** Alcides Cardenas  
-**Status:** Living Document (updated through M4.5)
+**Status:** Living Document (updated through M4.5 + E2E Testing Infrastructure)
 
 ---
 
@@ -18,9 +18,10 @@
 7. [Security Architecture](#7-security-architecture)
 8. [Search Architecture](#8-search-architecture)
 9. [Real-time Architecture](#9-real-time-architecture)
-10. [Deployment Architecture](#10-deployment-architecture)
-11. [Scalability Strategy](#11-scalability-strategy)
-12. [Technology Decisions](#12-technology-decisions)
+10. [Testing Architecture](#10-testing-architecture)
+11. [Deployment Architecture](#11-deployment-architecture)
+12. [Scalability Strategy](#12-scalability-strategy)
+13. [Technology Decisions](#13-technology-decisions)
 
 ---
 
@@ -60,7 +61,7 @@ Telopillo.bo is a serverless-first marketplace platform built on a Backend-as-a-
 │                                                                 │
 │  ┌───────────────────────────────────────────────────────────┐ │
 │  │                    Frontend Layer                         │ │
-│  │              Next.js 14 + React + TypeScript              │ │
+│  │           Next.js 16 + React 19 + TypeScript              │ │
 │  │                   (Vercel Edge Network)                   │ │
 │  └───────────────────────────────────────────────────────────┘ │
 │                              │                                  │
@@ -186,7 +187,7 @@ Leave Rating
                              │
 ┌────────────────────────────▼────────────────────────────────────────┐
 │                      FRONTEND LAYER                                 │
-│                   (Next.js 14 App Router)                           │
+│                   (Next.js 16 App Router)                           │
 │                                                                     │
 │  ┌─────────────────────────────────────────────────────────────┐  │
 │  │  Server Components (RSC)        Client Components          │  │
@@ -470,7 +471,7 @@ Leave Rating
 
 ## 5. Component Architecture
 
-### 5.1 Frontend Architecture (Next.js 14)
+### 5.1 Frontend Architecture (Next.js 16)
 
 ```
 frontend/
@@ -1425,7 +1426,115 @@ export default function ChatPage({
 
 ---
 
-## 10. Deployment Architecture
+## 10. Testing Architecture
+
+### 10.1 Testing Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **E2E Framework** | Playwright 1.58+ | Browser automation, assertions, screenshots |
+| **Accessibility** | axe-core (`@axe-core/playwright`) | WCAG 2.2 AA compliance scanning |
+| **Browser** | Chromium (Desktop Chrome) | Single project; Firefox/WebKit planned |
+| **CI Config** | 2 retries, 1 worker, trace on first retry | Stability in CI environments |
+| **Test Account** | `dev@telopillo.test` / `DevTest123` | Pre-seeded development account |
+
+### 10.2 Test Organization
+
+Tests are organized by **complete business flows**, not by page or component:
+
+```
+tests/
+├── e2e/                              # Organized E2E tests (229 test cases)
+│   ├── TEST_PLAN.md                  # Master plan, execution order, coverage matrix
+│   ├── auth/                         # 3 specs, 39 tests
+│   │   ├── PLAN.md                   # Flow plan for automation agents
+│   │   ├── login.spec.ts
+│   │   ├── registration.spec.ts
+│   │   └── password-recovery.spec.ts
+│   ├── buyer-journey/                # 5 specs, 44 tests
+│   │   ├── PLAN.md
+│   │   ├── homepage-to-search.spec.ts
+│   │   ├── product-detail.spec.ts
+│   │   ├── seller-profiles.spec.ts
+│   │   ├── contact-seller.spec.ts
+│   │   └── complete-buyer-flow.spec.ts
+│   ├── seller-journey/               # 4 specs, 28 tests
+│   │   ├── PLAN.md
+│   │   ├── create-product.spec.ts
+│   │   ├── manage-products.spec.ts
+│   │   ├── edit-product.spec.ts
+│   │   └── complete-seller-flow.spec.ts
+│   ├── business-seller/              # 3 specs, 16 tests
+│   │   ├── PLAN.md
+│   │   ├── register-business.spec.ts
+│   │   ├── storefront.spec.ts
+│   │   └── complete-business-flow.spec.ts
+│   ├── search-discovery/             # 5 specs, 35 tests
+│   │   ├── PLAN.md
+│   │   ├── keyword-search.spec.ts
+│   │   ├── semantic-search.spec.ts
+│   │   ├── filters-sort.spec.ts
+│   │   ├── categories.spec.ts
+│   │   └── search-api.spec.ts
+│   ├── account-management/           # 4 specs, 31 tests
+│   │   ├── PLAN.md
+│   │   ├── profile-view.spec.ts
+│   │   ├── profile-edit.spec.ts
+│   │   ├── avatar-upload.spec.ts
+│   │   └── product-management.spec.ts
+│   └── cross-cutting/                # 5 specs, 48 tests
+│       ├── PLAN.md
+│       ├── accessibility-audit.spec.ts
+│       ├── mobile-responsive.spec.ts
+│       ├── navigation-layout.spec.ts
+│       ├── seo-metadata.spec.ts
+│       └── error-pages.spec.ts
+├── fixtures/                         # Shared fixtures (planned)
+│   └── PLAN.md
+├── helpers/                          # Shared helpers (planned)
+│   └── PLAN.md
+└── *.spec.ts                         # 11 legacy test files (pre-reorganization)
+```
+
+### 10.3 Test Execution Order
+
+```
+auth/                    ← Run first (creates sessions)
+  ├─► buyer-journey/     ← Needs: seeded products, optional auth
+  ├─► seller-journey/    ← Needs: authenticated user
+  ├─► business-seller/   ← Needs: authenticated user with business
+  ├─► search-discovery/  ← Needs: seeded products
+  ├─► account-management/← Needs: authenticated user with products
+  └─► cross-cutting/     ← Runs last, audits all pages
+```
+
+### 10.4 Coverage Per Route
+
+Each route is tested for 4 dimensions:
+
+| Dimension | Tool/Method | Standard |
+|-----------|-------------|----------|
+| **Happy Path** | Playwright assertions | Complete user flow from start to finish |
+| **Error Cases** | Validation, 404s, edge cases | All known error states |
+| **Mobile** | 375x812 viewport | No horizontal scroll, touch targets >= 44px |
+| **Accessibility** | axe-core WCAG 2.2 AA | Zero critical/serious violations |
+
+### 10.5 AI-Assisted Testing
+
+Custom Cursor subagents accelerate the testing workflow:
+
+| Subagent | Role |
+|----------|------|
+| `e2e-test-planner` | Produces structured test plans (step tables, selectors, assertions) |
+| `e2e-test-writer` | Converts plans into Playwright spec files |
+| `quality-gate` | Validates test output against requirements |
+| `accessibility-expert` | Reviews WCAG compliance |
+
+Test plans use a machine-readable format (markdown tables with selectors and assertions) that the `e2e-test-writer` agent can consume directly.
+
+---
+
+## 11. Deployment Architecture
 
 ### 10.1 Production Deployment Diagram
 
@@ -1570,7 +1679,7 @@ MODEL_NAME=paraphrase-multilingual-MiniLM-L12-v2
 
 ---
 
-## 11. Scalability Strategy
+## 12. Scalability Strategy
 
 ### 11.1 Scaling Phases
 
@@ -1729,14 +1838,14 @@ return products
 
 ---
 
-## 12. Technology Decisions
+## 13. Technology Decisions
 
-### 12.1 Technology Matrix
+### 13.1 Technology Matrix
 
 | Category | Technology | Rationale | Alternatives Considered |
 |----------|-----------|-----------|------------------------|
-| **Frontend Framework** | Next.js 14 | SSR for SEO, App Router, Vercel integration | Remix, SvelteKit, Astro |
-| **UI Library** | React 18 | Large ecosystem, Server Components | Vue, Svelte, Solid |
+| **Frontend Framework** | Next.js 16 | SSR for SEO, App Router, Vercel integration | Remix, SvelteKit, Astro |
+| **UI Library** | React 19 | Large ecosystem, Server Components | Vue, Svelte, Solid |
 | **Styling** | Tailwind CSS | Utility-first, fast development | CSS Modules, Styled Components |
 | **Component Library** | shadcn/ui | Customizable, accessible, free | Material-UI, Chakra UI |
 | **Backend BaaS** | Supabase | All-in-one, $0/month MVP, open-source | Firebase, AWS Amplify, Appwrite |
@@ -1750,7 +1859,7 @@ return products
 | **Email** | Resend | 3K/month free, great DX | SendGrid, Mailgun, AWS SES |
 | **Monitoring** | Supabase Dashboard | Built-in, logs, metrics | Datadog, New Relic, Sentry |
 
-### 12.2 Decision Log
+### 13.2 Decision Log
 
 #### Decision 1: Supabase vs Firebase
 **Date:** January 2026  
@@ -1841,7 +1950,7 @@ Need embeddings for semantic search. Budget: $0 for MVP.
 
 ---
 
-### 12.3 Future Technology Considerations
+### 13.3 Future Technology Considerations
 
 #### Phase 2 (Growth)
 - **Redis** for caching (hot products, user sessions)
@@ -1880,6 +1989,6 @@ The hybrid search architecture with Bolivian Spanish optimizations provides a co
 
 ---
 
-**Document Version:** 1.1  
-**Last Updated:** February 15, 2026  
+**Document Version:** 1.2  
+**Last Updated:** February 16, 2026  
 **Maintained By:** Alcides Cardenas
