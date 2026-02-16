@@ -35,6 +35,7 @@ Public seller pages already exist (`/vendedor/[id]` for personal accounts, `/neg
 - Business accounts share their clean slug URL (`/negocio/mi-tienda`)
 - Personal accounts share their UUID-based URL (`/vendedor/{id}`)
 - Share available on both `/profile` and `/perfil/mis-productos`
+- **Shared links are fully public** — recipients can view the seller profile, browse products, and contact the seller via WhatsApp without creating an account or logging in
 
 ---
 
@@ -60,6 +61,8 @@ Public seller pages already exist (`/vendedor/[id]` for personal accounts, `/neg
 - Share button usage rate: >20% of active sellers
 - WhatsApp shares: primary channel (>60% of shares)
 - Profile page views from shared links: measurable increase
+
+> **Note:** These KPIs are aspirational targets for MVP. Measuring them requires share event tracking (deferred to share analytics enhancement). For now, success is validated by manual testing and qualitative seller feedback.
 
 ---
 

@@ -35,6 +35,25 @@
      - Share2 icon + "Compartir perfil" text
      - On click: `handleShare()` if available, else `handleCopy()`
 
+### Environment Validation
+
+The component relies on `NEXT_PUBLIC_APP_URL` for the share base URL. Add a runtime guard:
+
+```typescript
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'
+if (!process.env.NEXT_PUBLIC_APP_URL) {
+  console.warn('NEXT_PUBLIC_APP_URL is not set. Share URLs will default to https://telopillo.bo')
+}
+```
+
+Ensure `NEXT_PUBLIC_APP_URL` is set in `.env.local`, `.env.example`, and production deployment.
+
+### Web Share API — Safari/iOS Notes
+
+- Safari on iOS supports Web Share API from 12.2+, but may not include `text` in the shared payload (only `url` is guaranteed)
+- On iOS, `navigator.share()` can throw `NotAllowedError` if not triggered by a user gesture — ensure the call is inside a direct click handler, not in async callbacks
+- Samsung Internet (8+) supports Web Share but may display differently — acceptable for MVP
+
 ### Deliverables
 - `components/profile/ShareProfile.tsx`
 
@@ -151,6 +170,14 @@
 - [ ] Compact button triggers share/copy correctly
 - [ ] Component not rendered when profile data is missing
 - [ ] Works in both light and dark mode
+
+### Unauthenticated Access (Critical)
+
+- [ ] Opening a shared `/vendedor/{id}` link in an incognito window shows the full profile
+- [ ] Opening a shared `/negocio/{slug}` link in an incognito window shows the full storefront
+- [ ] WhatsApp contact button is visible and functional without login
+- [ ] Product listings on the seller profile are visible without login
+- [ ] No login redirect or auth prompt appears for shared link visitors
 
 ### Edge Cases
 

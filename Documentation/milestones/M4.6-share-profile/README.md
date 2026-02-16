@@ -31,6 +31,7 @@ Public seller pages already exist (`/vendedor/[id]` and `/negocio/[slug]`), but 
 3. Business accounts share `/negocio/{slug}`, personal accounts share `/vendedor/{id}`
 4. Share control also available on `/perfil/mis-productos`
 5. Clipboard + toast feedback on copy
+6. **Shared links are fully usable without authentication** — visitors can view the seller profile, browse their products, and contact them via WhatsApp without logging in
 
 ---
 
@@ -139,6 +140,7 @@ Personal account:  {NEXT_PUBLIC_APP_URL}/vendedor/{id}
 - [ ] Business users see `/negocio/{slug}`; personal users see `/vendedor/{id}`
 - [ ] Toast confirms copy action
 - [ ] Share also available on `/perfil/mis-productos`
+- [ ] **Shared links work without login** — unauthenticated visitors can view profile, browse products, and contact seller via WhatsApp
 - [ ] No new dependencies added
 
 ---
@@ -168,3 +170,6 @@ Personal account:  {NEXT_PUBLIC_APP_URL}/vendedor/{id}
 | Web Share API not available on desktop | Fallback to clipboard copy |
 | Clipboard API requires HTTPS | Works on localhost for dev; production uses HTTPS |
 | UUID URLs are ugly for personal accounts | Functional for MVP; username/slug deferred |
+| `NEXT_PUBLIC_APP_URL` not set in production | Runtime fallback to `https://telopillo.bo`; add to deployment checklist |
+| Safari/iOS may drop `text` from Web Share payload | Acceptable — `url` is the critical field; `text` is supplementary |
+| KPIs not measurable without analytics | KPIs are aspirational for MVP; share analytics deferred to future enhancement |
