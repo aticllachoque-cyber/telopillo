@@ -1,16 +1,21 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { UserMenu } from './UserMenu'
 import { SearchBar } from '@/components/search/SearchBar'
+import { useAuth } from '@/components/providers/AuthProvider'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { getAvatarColor } from '@/lib/utils'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const isAuthenticated = false // TODO: Replace with actual auth state
+  const { user, profile, isAuthenticated, signOut } = useAuth()
+  const router = useRouter()
   const menuRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
 
@@ -128,13 +133,35 @@ export function Header() {
             >
               {/* Menu Header */}
               <div className="flex items-center justify-between border-b px-4 py-4">
-                <span className="text-lg font-bold">Menú</span>
+                {isAuthenticated && profile ? (
+                  <div className="flex items-center gap-3">
+                    <Avatar className="size-9">
+                      <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name} />
+                      <AvatarFallback
+                        className={`text-sm font-medium ${getAvatarColor(user?.id || '')}`}
+                      >
+                        {profile.full_name
+                          ?.split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()
+                          .slice(0, 2) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{profile.full_name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <span className="text-lg font-bold">Menú</span>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => closeMenu()}
                   aria-label="Cerrar menú"
-                  className="h-8 w-8"
+                  className="size-8 shrink-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -287,7 +314,12 @@ export function Header() {
                       </Link>
                       <button
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground text-left"
-                        onClick={() => closeMenu()}
+                        onClick={async () => {
+                          closeMenu()
+                          await signOut()
+                          router.push('/')
+                          router.refresh()
+                        }}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

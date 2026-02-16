@@ -1,9 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { useRouter, usePathname } from 'next/navigation'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,69 +14,26 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { getAvatarColor } from '@/lib/utils'
 import { User, Settings, LogOut, Loader2, Package } from 'lucide-react'
-
-interface Profile {
-  id: string
-  full_name: string
-  avatar_url: string | null
-}
+import { useAuth } from '@/components/providers/AuthProvider'
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password']
 
 export function UserMenu() {
   const router = useRouter()
   const pathname = usePathname()
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
+  const { user, profile, isLoading, signOut } = useAuth()
   const isOnAuthPage = AUTH_ROUTES.some((route) => pathname.startsWith(route))
 
-  useEffect(() => {
-    loadUser()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const loadUser = async () => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (user) {
-        setUser(user)
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .eq('id', user.id)
-          .single()
-
-        if (profile) {
-          setProfile(profile)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading user:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut()
-      router.push('/login')
-      router.refresh()
-    } catch (error) {
-      console.error('Error logging out:', error)
-    }
+    await signOut()
+    router.push('/')
+    router.refresh()
   }
 
   if (isLoading) {
     return (
       <Button variant="ghost" size="icon" disabled>
-        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+        <Loader2 className="size-5 animate-spin" aria-hidden />
         <span className="sr-only">Cargando...</span>
       </Button>
     )
@@ -114,10 +69,10 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-10 w-10 rounded-full"
+          className="relative size-10 rounded-full"
           aria-label="Menú de usuario"
         >
-          <Avatar className="h-9 w-9">
+          <Avatar className="size-9">
             <AvatarImage
               src={profile?.avatar_url || undefined}
               alt={profile?.full_name || 'Usuario'}
@@ -138,25 +93,25 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/profile" className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" aria-hidden />
+            <User className="mr-2 size-4" aria-hidden />
             Mi Perfil
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/perfil/mis-productos" className="cursor-pointer">
-            <Package className="mr-2 h-4 w-4" aria-hidden />
+            <Package className="mr-2 size-4" aria-hidden />
             Mis Publicaciones
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/profile/edit" className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" aria-hidden />
+            <Settings className="mr-2 size-4" aria-hidden />
             Editar Perfil
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
-          <LogOut className="mr-2 h-4 w-4" aria-hidden />
+          <LogOut className="mr-2 size-4" aria-hidden />
           Cerrar Sesión
         </DropdownMenuItem>
       </DropdownMenuContent>
