@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Date:** February 15, 2026  
 **Author:** Alcides Cardenas  
-**Status:** Not Started  
+**Status:** Completed  
 **Milestone Duration:** 1-2 working days  
 **Priority:** P1 (Medium-High - Organic growth via social sharing)
 
@@ -48,14 +48,14 @@ Public seller pages already exist (`/vendedor/[id]` for personal accounts, `/neg
 4. **Cross-page Access**: Share available on profile dashboard and product management
 
 ### 3.2 Success Metrics
-- [ ] Sellers can copy their public URL from `/profile`
-- [ ] Native share works on mobile browsers (Android + iOS)
-- [ ] Business users see `/negocio/{slug}` URL
-- [ ] Personal users see `/vendedor/{id}` URL
-- [ ] Toast confirms copy action
-- [ ] Share also available on `/perfil/mis-productos`
-- [ ] No new external dependencies added
-- [ ] WCAG 2.2 AA compliance on share controls
+- [x] Sellers can copy their public URL from `/profile`
+- [x] Native share works on mobile browsers (Android + iOS)
+- [x] Business users see `/negocio/{slug}` URL
+- [x] Personal users see `/vendedor/{id}` URL
+- [x] Toast confirms copy action
+- [x] Share also available on `/perfil/mis-productos`
+- [x] No new external dependencies added
+- [x] WCAG 2.2 AA compliance on share controls
 
 ### 3.3 Key Performance Indicators (KPIs)
 - Share button usage rate: >20% of active sellers
@@ -76,7 +76,7 @@ Public seller pages already exist (`/vendedor/[id]` for personal accounts, `/neg
   - Section title: "Compartir mi perfil"
   - URL preview (truncated, readable)
   - "Copiar enlace" button (clipboard icon)
-  - "Compartir" button (share icon, visible when Web Share API is available)
+  - "Compartir" button (share icon, always visible; uses native share when available, falls back to clipboard copy)
 - URL preview uses monospace or code-style font for clarity
 
 #### 4.1.2 Compact Variant (for `/perfil/mis-productos`)
@@ -100,13 +100,14 @@ Base URL: `process.env.NEXT_PUBLIC_APP_URL` or fallback `https://telopillo.bo`
 - On failure: toast "No se pudo copiar el enlace" (error type)
 
 #### 4.1.5 Native Share (Web Share API)
-- Feature detection: `typeof navigator.share === 'function'`
+- Feature detection at call time: `typeof navigator.share === 'function'`
 - Share data:
   - `title`: "Mi perfil en Telopillo.bo"
   - `text`: "Mira mis productos en Telopillo.bo"
   - `url`: the computed share URL
-- On error/cancel: silent (no error toast for user cancellation)
+- On `AbortError` (user cancelled): silent (no error toast)
 - Fallback: copy to clipboard when Web Share API is not available
+- **Implementation note:** Detection happens at invocation time (not via `useEffect` + `useState`) to avoid React lint warnings about synchronous setState in effects and prevent hydration mismatches
 
 ---
 

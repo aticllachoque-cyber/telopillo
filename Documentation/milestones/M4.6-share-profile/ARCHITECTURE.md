@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Date:** February 15, 2026  
 **Author:** Alcides Cardenas  
-**Status:** Design Document  
+**Status:** Implemented  
 **Milestone:** M4.6 - Share Profile Link
 
 ---
@@ -61,20 +61,21 @@ Props:
 
 Internal state:
   shareUrl: string            — Computed from props + env
-  canShare: boolean           — navigator.share availability
-  copied: boolean             — Brief state for copy feedback
+  copied: boolean             — Brief state for copy feedback (2s timer)
+
+Runtime checks (no state):
+  navigator.share             — Checked at invocation time in handleShare()
 
 Dependencies:
   useToast()                  — From components/ui/toast
   navigator.clipboard         — Browser API
-  navigator.share             — Browser API (optional)
+  navigator.share             — Browser API (optional, checked at call time)
 ```
 
 ### 2.3 URL Computation
 
 ```
 baseUrl = process.env.NEXT_PUBLIC_APP_URL
-        || process.env.NEXT_PUBLIC_BASE_URL
         || 'https://telopillo.bo'
 
 if (businessSlug):
@@ -159,7 +160,7 @@ await navigator.share({
 ```
 
 - **Support:** Mobile Chrome 61+, Safari 12.2+, Samsung Internet 8+
-- **Detection:** `typeof navigator !== 'undefined' && typeof navigator.share === 'function'`
+- **Detection:** `typeof navigator !== 'undefined' && typeof navigator.share === 'function'` (checked at invocation time, not in `useEffect`, to avoid React `set-state-in-effect` lint errors and SSR hydration mismatches)
 - **Error handling:** `AbortError` (user cancelled) is silently ignored; other errors fall back to clipboard
 
 ---
@@ -181,9 +182,10 @@ await navigator.share({
 ```
 
 - Card component from shadcn/ui
-- URL in a styled code/preview block
-- Two buttons side by side
-- "Compartir" hidden when Web Share API is unavailable
+- URL in a styled code/preview block (`text-foreground` for contrast)
+- Two buttons always visible: "Compartir" (primary) + "Copiar enlace" (outline)
+- "Compartir" button always renders; uses native share when available, falls back to clipboard copy
+- Green check icon uses `dark:text-green-400` for WCAG 1.4.11 contrast in dark mode
 
 ### 6.2 Compact Variant (for `/perfil/mis-productos`)
 

@@ -22,10 +22,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useToast } from '@/components/ui/toast'
-import { Edit, MoreVertical, Loader2 } from 'lucide-react'
+import { Edit, MoreVertical, Loader2, Share2 } from 'lucide-react'
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'
 
 interface ProductActionsProps {
   productId: string
+  productTitle?: string
   status: string
   onUpdate?: () => void
   showEdit?: boolean
@@ -36,6 +39,7 @@ type ActionType = 'sold' | 'inactive' | 'delete' | null
 
 export function ProductActions({
   productId,
+  productTitle,
   status,
   onUpdate,
   showEdit = true,
@@ -49,6 +53,28 @@ export function ProductActions({
 
   const handleEdit = () => {
     router.push(`/productos/${productId}/editar`)
+  }
+
+  const handleShareProduct = async () => {
+    const productUrl = `${BASE_URL}/productos/${productId}`
+    const shareTitle = productTitle || 'Producto en Telopillo.bo'
+    const shareText = `Mira este producto: ${shareTitle}`
+
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: shareTitle, text: shareText, url: productUrl })
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(productUrl)
+      showToast('Enlace del producto copiado', 'success')
+    } catch {
+      showToast('No se pudo copiar el enlace', 'error')
+    }
   }
 
   const handleAction = async (action: ActionType) => {
@@ -181,6 +207,10 @@ export function ProductActions({
               Editar
             </DropdownMenuItem>
           )}
+          <DropdownMenuItem onClick={handleShareProduct}>
+            <Share2 className="mr-2 h-4 w-4" aria-hidden />
+            Compartir
+          </DropdownMenuItem>
           {status === 'active' && (
             <>
               <DropdownMenuSeparator />

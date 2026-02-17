@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Loader2, MapPin, Phone, Star, Edit, LogOut, Package, Plus } from 'lucide-react'
+import { Loader2, MapPin, Phone, Star, Edit, LogOut, Package, Plus, Store } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { ShareProfile } from '@/components/profile/ShareProfile'
+import { useToast } from '@/components/ui/toast'
 import { getAvatarColor } from '@/lib/utils'
 
 interface Profile {
@@ -28,8 +30,12 @@ export default function ProfilePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [businessSlug, setBusinessSlug] = useState<string | null>(null)
+  const [businessName, setBusinessName] = useState<string | null>(null)
+  const [isCreatingBusiness, setIsCreatingBusiness] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
+  const { showToast } = useToast()
 
   useEffect(() => {
     document.title = 'Mi Perfil - Telopillo.bo'
@@ -53,6 +59,17 @@ export default function ProfilePage() {
       if (error) throw error
 
       setProfile(data)
+
+      const { data: business } = await supabase
+        .from('business_profiles')
+        .select('slug, business_name')
+        .eq('id', user.id)
+        .single()
+
+      if (business) {
+        setBusinessSlug(business.slug || null)
+        setBusinessName(business.business_name || null)
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al cargar perfil')
     } finally {
@@ -63,6 +80,32 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  const handleCreateBusiness = async () => {
+    if (!profile) return
+
+    try {
+      setIsCreatingBusiness(true)
+      const { data: slugResult } = await supabase.rpc('generate_slug', {
+        input: profile.full_name,
+      })
+
+      const { error: insertError } = await supabase.from('business_profiles').insert({
+        id: profile.id,
+        business_name: profile.full_name,
+        slug: slugResult || 'negocio',
+      })
+
+      if (insertError) throw insertError
+
+      showToast('Negocio creado. Completa la información de tu tienda.', 'success')
+      router.push('/profile/edit')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Error al crear negocio', 'error')
+    } finally {
+      setIsCreatingBusiness(false)
+    }
   }
 
   const getInitials = (name: string) => {
@@ -228,6 +271,75 @@ export default function ProfilePage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Share Profile */}
+        <ShareProfile profileId={profile.id} businessSlug={businessSlug} variant="card" />
+
+        {/* Business Profile Section */}
+        {businessName ? (
+          <Card className="border-0 shadow-xl">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Store className="h-5 w-5 text-primary" aria-hidden />
+                <h2 className="text-lg font-semibold">Mi Negocio</h2>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Tu negocio <span className="font-medium text-foreground">{businessName}</span> está
+                activo.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                {businessSlug && (
+                  <Button variant="outline" className="flex-1" asChild>
+                    <Link href={`/negocio/${businessSlug}`}>
+                      <Store className="mr-2 h-4 w-4" aria-hidden />
+                      Ver mi tienda
+                    </Link>
+                  </Button>
+                )}
+                <Button variant="outline" className="flex-1" asChild>
+                  <Link href="/profile/edit">
+                    <Edit className="mr-2 h-4 w-4" aria-hidden />
+                    Editar negocio
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-0 shadow-xl">
+            <CardHeader className="text-center pb-3">
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <Store className="h-6 w-6 text-muted-foreground" aria-hidden />
+              </div>
+              <h2 className="text-lg font-semibold">¿Tienes un negocio?</h2>
+              <p className="text-sm text-muted-foreground">
+                Crea tu perfil de negocio para tener una tienda virtual con logo, horarios, redes
+                sociales y más.
+              </p>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button
+                onClick={handleCreateBusiness}
+                disabled={isCreatingBusiness}
+                className="gap-2"
+              >
+                {isCreatingBusiness ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    Creando...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" aria-hidden />
+                    Crear Perfil de Negocio
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Listings quick actions */}
         <Card className="border-0 shadow-xl">

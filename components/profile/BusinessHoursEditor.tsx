@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -60,20 +60,26 @@ export function BusinessHoursEditor({
     return initial
   })
 
-  const updateDay = useCallback(
-    (key: string, update: Partial<DayHours>) => {
-      setHours((prev) => {
-        const current = prev[key] ?? { open: false, start: '09:00', end: '18:00' }
-        const next: Record<string, DayHours> = {
-          ...prev,
-          [key]: { ...current, ...update },
-        }
-        onChange(serializeHours(next))
-        return next
-      })
-    },
-    [onChange]
-  )
+  const isInitialMount = useRef(true)
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+    onChange(serializeHours(hours))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hours])
+
+  const updateDay = useCallback((key: string, update: Partial<DayHours>) => {
+    setHours((prev) => {
+      const current = prev[key] ?? { open: false, start: '09:00', end: '18:00' }
+      return {
+        ...prev,
+        [key]: { ...current, ...update },
+      }
+    })
+  }, [])
 
   const setAllOpen = () => {
     const next: Record<string, DayHours> = {}
@@ -81,7 +87,6 @@ export function BusinessHoursEditor({
       next[day.key] = { open: true, start: '09:00', end: '18:00' }
     }
     setHours(next)
-    onChange(serializeHours(next))
   }
 
   const setWeekdays = () => {
@@ -95,7 +100,6 @@ export function BusinessHoursEditor({
       }
     }
     setHours(next)
-    onChange(serializeHours(next))
   }
 
   return (

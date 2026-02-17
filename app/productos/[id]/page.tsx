@@ -158,7 +158,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <Badge variant="secondary" className="text-sm py-2 px-4">
               Este es tu producto
             </Badge>
-            <ProductActions productId={product.id} status={product.status} variant="buttons" />
+            <ProductActions
+              productId={product.id}
+              productTitle={product.title}
+              status={product.status}
+              variant="buttons"
+            />
           </div>
         )}
 

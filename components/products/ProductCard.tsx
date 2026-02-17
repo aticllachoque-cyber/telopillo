@@ -69,6 +69,7 @@ export function ProductCard({ product, onUpdate, showActions = true }: ProductCa
           >
             <ProductActions
               productId={product.id}
+              productTitle={product.title}
               status={product.status}
               onUpdate={onUpdate}
               variant="dropdown"

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { Loader2, Plus, Package, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { ShareProfile } from '@/components/profile/ShareProfile'
 
 type Product = {
   id: string
@@ -39,6 +40,8 @@ export default function MisProductosPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [sortOption, setSortOption] = useState<SortOption>('newest')
   const [error, setError] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [businessSlug, setBusinessSlug] = useState<string | null>(null)
 
   useEffect(() => {
     document.title = 'Mis Productos - Telopillo.bo'
@@ -62,6 +65,18 @@ export default function MisProductosPage() {
       if (!user) {
         router.push('/login?redirect=/perfil/mis-productos')
         return
+      }
+
+      setUserId(user.id)
+
+      const { data: business } = await supabase
+        .from('business_profiles')
+        .select('slug')
+        .eq('id', user.id)
+        .single()
+
+      if (business?.slug) {
+        setBusinessSlug(business.slug)
       }
 
       // Build query
@@ -139,12 +154,17 @@ export default function MisProductosPage() {
               <h1 className="text-3xl font-bold">Mis Productos</h1>
               <p className="text-muted-foreground mt-2">Gestiona tus publicaciones</p>
             </div>
-            <Button asChild>
-              <Link href="/publicar">
-                <Plus className="mr-2 h-4 w-4" aria-hidden />
-                Publicar Nuevo
-              </Link>
-            </Button>
+            <div className="flex items-center gap-3">
+              {userId && (
+                <ShareProfile profileId={userId} businessSlug={businessSlug} variant="compact" />
+              )}
+              <Button asChild>
+                <Link href="/publicar">
+                  <Plus className="mr-2 h-4 w-4" aria-hidden />
+                  Publicar Nuevo
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 

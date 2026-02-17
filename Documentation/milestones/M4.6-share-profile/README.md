@@ -3,7 +3,8 @@
 **Priority:** MEDIUM-HIGH (organic growth via WhatsApp sharing)  
 **Duration:** 1-2 days  
 **Dependencies:** M1 (Authentication), M4.5 (Account Types)  
-**Status:** Not Started
+**Status:** Completed  
+**Completed:** February 15, 2026
 
 ## Documentation
 
@@ -43,12 +44,12 @@ Public seller pages already exist (`/vendedor/[id]` and `/negocio/[slug]`), but 
 **So that** I can paste it in WhatsApp, Facebook, or anywhere I want to share
 
 **Acceptance Criteria:**
-- [ ] "Compartir mi perfil" section visible on `/profile`
-- [ ] URL preview shows the correct public link
-- [ ] "Copiar enlace" copies URL to clipboard
-- [ ] Toast "Enlace copiado" confirms the action
-- [ ] Business accounts see `/negocio/{slug}` URL
-- [ ] Personal accounts see `/vendedor/{id}` URL
+- [x] "Compartir mi perfil" section visible on `/profile`
+- [x] URL preview shows the correct public link
+- [x] "Copiar enlace" copies URL to clipboard
+- [x] Toast "Enlace copiado" confirms the action
+- [x] Business accounts see `/negocio/{slug}` URL
+- [x] Personal accounts see `/vendedor/{id}` URL
 
 ### US-4.6.2: Native share on mobile
 **As a** seller on mobile  
@@ -56,10 +57,10 @@ Public seller pages already exist (`/vendedor/[id]` and `/negocio/[slug]`), but 
 **So that** I don't have to copy-paste manually
 
 **Acceptance Criteria:**
-- [ ] "Compartir" button uses Web Share API when available
-- [ ] Share includes title ("Mi perfil en Telopillo.bo") and URL
-- [ ] Falls back to clipboard copy when Web Share API is not available
-- [ ] Works on Android and iOS browsers
+- [x] "Compartir" button uses Web Share API when available
+- [x] Share includes title ("Mi perfil en Telopillo.bo") and URL
+- [x] Falls back to clipboard copy when Web Share API is not available
+- [x] Works on Android and iOS browsers
 
 ### US-4.6.3: Share from product management
 **As a** seller managing my listings  
@@ -67,9 +68,9 @@ Public seller pages already exist (`/vendedor/[id]` and `/negocio/[slug]`), but 
 **So that** I can quickly share without navigating to my profile
 
 **Acceptance Criteria:**
-- [ ] Compact share button on `/perfil/mis-productos`
-- [ ] Same URL logic (business vs personal)
-- [ ] Same copy/share behavior
+- [x] Compact share button on `/perfil/mis-productos`
+- [x] Same URL logic (business vs personal)
+- [x] Same copy/share behavior
 
 ---
 
@@ -87,8 +88,8 @@ interface ShareProfileProps {
 }
 ```
 
-- **`card` variant** (for `/profile`): Full card with URL preview, "Copiar enlace" button, and "Compartir" button
-- **`compact` variant** (for `/perfil/mis-productos`): Single inline button
+- **`card` variant** (for `/profile`): Full card with URL preview, "Compartir" button (native share with clipboard fallback), and "Copiar enlace" button
+- **`compact` variant** (for `/perfil/mis-productos`): Single inline button that triggers native share or clipboard copy
 
 ### URL Logic
 
@@ -115,33 +116,33 @@ Personal account:  {NEXT_PUBLIC_APP_URL}/vendedor/{id}
 
 ## Implementation Plan
 
-### Phase 1: Core Component (0.5 day)
-- [ ] Create `ShareProfile.tsx` with `card` and `compact` variants
-- [ ] Implement clipboard copy with toast feedback
-- [ ] Implement Web Share API with fallback
-- [ ] URL computation logic (business vs personal)
+### Phase 1: Core Component (0.5 day) -- COMPLETED
+- [x] Create `ShareProfile.tsx` with `card` and `compact` variants
+- [x] Implement clipboard copy with toast feedback
+- [x] Implement Web Share API with fallback
+- [x] URL computation logic (business vs personal)
 
-### Phase 2: Profile Page Integration (0.5 day)
-- [ ] Fetch `business_profiles.slug` in `/profile` page
-- [ ] Add ShareProfile card between profile header and "Mis Publicaciones"
-- [ ] Test copy and share on desktop and mobile
+### Phase 2: Profile Page Integration (0.5 day) -- COMPLETED
+- [x] Fetch `business_profiles.slug` in `/profile` page
+- [x] Add ShareProfile card between profile header and "Mis Publicaciones"
+- [x] Test copy and share on desktop and mobile
 
-### Phase 3: Product Management Integration (0.5 day)
-- [ ] Add compact ShareProfile to `/perfil/mis-productos`
-- [ ] Lint check and browser verification
-- [ ] E2E test considerations
+### Phase 3: Product Management Integration (0.5 day) -- COMPLETED
+- [x] Add compact ShareProfile to `/perfil/mis-productos`
+- [x] Lint check and browser verification
+- [x] E2E test considerations
 
 ---
 
 ## Success Criteria
 
-- [ ] Sellers can copy their public URL from `/profile`
-- [ ] Native share works on mobile (WhatsApp, etc.)
-- [ ] Business users see `/negocio/{slug}`; personal users see `/vendedor/{id}`
-- [ ] Toast confirms copy action
-- [ ] Share also available on `/perfil/mis-productos`
-- [ ] **Shared links work without login** — unauthenticated visitors can view profile, browse products, and contact seller via WhatsApp
-- [ ] No new dependencies added
+- [x] Sellers can copy their public URL from `/profile`
+- [x] Native share works on mobile (WhatsApp, etc.)
+- [x] Business users see `/negocio/{slug}`; personal users see `/vendedor/{id}`
+- [x] Toast confirms copy action
+- [x] Share also available on `/perfil/mis-productos`
+- [x] **Shared links work without login** — unauthenticated visitors can view profile, browse products, and contact seller via WhatsApp
+- [x] No new dependencies added
 
 ---
 
