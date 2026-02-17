@@ -52,26 +52,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const knownUserIdRef = useRef<string | null>(null)
 
   const loadProfile = useCallback(async (userId: string): Promise<Profile | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, avatar_url')
-        .eq('id', userId)
-        .single()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .eq('id', userId)
+      .maybeSingle()
 
-      if (error) {
-        console.error('[AuthProvider] Failed to load profile:', error)
-        return null
-      }
-
-      if (data) {
-        setProfile(data)
-      }
-      return data
-    } catch (error) {
-      console.error('[AuthProvider] Unexpected error loading profile:', error)
+    if (error) {
+      console.error('[AuthProvider] Failed to load profile:', error.message)
       return null
     }
+
+    if (data) {
+      setProfile(data)
+    }
+    return data
   }, [])
 
   useEffect(() => {
