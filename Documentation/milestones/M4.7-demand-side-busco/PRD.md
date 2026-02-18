@@ -1,9 +1,9 @@
 # PRD - Milestone 4.7: Demand-Side Posting — "Busco/Necesito"
 
-**Version:** 1.0  
-**Date:** February 15, 2026  
+**Version:** 1.1  
+**Date:** February 17, 2026  
 **Author:** Alcides Cardenas  
-**Status:** Approved — Next Implementation  
+**Status:** Approved — Ready for Implementation  
 **Milestone Duration:** 12-16 working days  
 **Priority:** P1 (High — marketplace differentiator, promoted from Phase 2)
 
@@ -97,16 +97,18 @@ This milestone introduces **demand-side posting** to Telopillo.bo — a reverse 
 | Category | Select | Yes | Same as product categories (9 categories) |
 | Subcategory | Select | No | Same as product subcategories |
 | Department | Select | Yes | 9 Bolivia departments |
-| City | Text | Yes | 1-100 chars |
+| City | Select | Yes | Fixed list from LocationSelector (same cities as products) |
 | Minimum Price | Number | No | >= 0 BOB |
 | Maximum Price | Number | No | >= min price BOB |
 
 **Behavior:**
 - Auth required to create
 - Rate limit: max 5 demand posts per user per 24 hours
-- Embedding generated on creation for semantic search matching
-- Auto-expires after 30 days (status changes to `expired`)
-- Owner can renew expired posts (resets 30-day timer)
+- Embedding generated automatically via DB trigger (pg_net → generate-embedding Edge Function) — same pattern as products
+- `search_vector` (FTS, Spanish config) generated via separate DB trigger on same columns
+- Expiration enforced by TTL: queries filter `expires_at > NOW()`. No cron job required.
+- Owner can renew expired posts (sets `expires_at = NOW() + 30 days`)
+- **No edit after creation** (MVP scope): posts are immutable once published
 
 #### 4.1.2 Demand Post Discovery
 
@@ -128,27 +130,41 @@ This milestone introduces **demand-side posting** to Telopillo.bo — a reverse 
 
 ```
                   ┌──────────┐
-     Create ─────►│  active   │◄──── Renew
+     Create ─────►│  active   │◄──── Renew (resets 30-day timer)
                   └─────┬─────┘
                         │
-              ┌─────────┼─────────┐
-              │         │         │
-              ▼         ▼         ▼
-        ┌──────────┐ ┌──────┐ ┌─────────┐
-        │  found   │ │expired│ │ deleted │
-        └──────────┘ └──────┘ └─────────┘
-         (by owner)  (30 days)  (by owner)
+              ┌─────────┴─────────┐
+              │                   │
+              ▼                   ▼
+        ┌──────────┐        ┌─────────┐
+        │  found   │        │ deleted │
+        └──────────┘        └─────────┘
+         (by owner)          (by owner)
+
+     Note: Expiration (expires_at < NOW()) is a computed
+     state, not a stored status. Expired posts remain
+     status='active' but are filtered from public listings.
+     Owner can renew from dashboard.
 ```
 
-- **active**: Default state. Visible in listings, accepts offers
-- **found**: Owner marks as resolved. Visible but no new offers accepted
-- **expired**: Auto-set after 30 days. Hidden from listings. Owner can renew
+**Stored statuses** (3 values in CHECK constraint):
+- **active**: Default state. Visible in listings (when `expires_at > NOW()`), accepts offers
+- **found**: Owner marks as resolved ("Encontrado"). Visible but no new offers accepted
 - **deleted**: Soft delete by owner. Hidden from all views
+
+**Computed state** (not stored in `status` column):
+- **expired**: Posts where `status = 'active' AND expires_at < NOW()`. Hidden from public listings via TTL filter. Owner sees them in the "Expiradas" dashboard tab and can renew (resets `expires_at` to `NOW() + 30 days`) or delete.
 
 #### 4.1.5 User Dashboard
 
-- `/perfil/demandas` — user's demand posts organized by status (Active / Found / Expired)
-- Actions: View, Mark as Found, Renew, Delete
+- `/perfil/demandas` — user's demand posts organized in tabs:
+  - **Activas**: `status = 'active' AND expires_at > NOW()`
+  - **Encontradas**: `status = 'found'`
+  - **Expiradas**: `status = 'active' AND expires_at < NOW()` (computed state)
+- Actions: View, Mark as Found, Renew (expired only — resets 30-day timer), Delete
+- **Edit is not in MVP scope** (immutable posts keep the flow simple and prevent gaming)
+- **"Delete and repost" UX**: Delete confirmation dialog explains the user can create a new post. After delete, redirect with toast message guiding to `/busco/publicar`.
+- Prominent **[+ Nueva solicitud]** button always visible at top of dashboard
 - Accessible from profile/account navigation
 
 #### 4.1.6 CTA Integration
@@ -161,8 +177,12 @@ This milestone introduces **demand-side posting** to Telopillo.bo — a reverse 
 
 Two new tables:
 
-- `demand_posts` — buyer's demand with category, location, price range, embedding, expiration
+- `demand_posts` — buyer's demand with category, location (fixed list), price range, embedding (trigger-generated), `search_vector` (FTS trigger), `expires_at` (TTL). Status CHECK: `('active', 'found', 'deleted')` — expiration is a computed state via TTL filter, not a stored status.
 - `demand_offers` — junction table linking products to demand posts with optional message
+
+**Key RLS decisions:**
+- `demand_posts`: Public read for active, non-expired posts (`status = 'active' AND expires_at > NOW()`). Owners see their own regardless of status.
+- `demand_offers`: Public read for offers on active, non-expired demand posts. Anyone can see how many and which products are offered.
 
 Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE.md](./ARCHITECTURE.md).
 
@@ -170,6 +190,7 @@ Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE
 
 | Feature | Reason | Deferred To |
 |---------|--------|-------------|
+| Edit demand post | Immutable posts keep the flow simple; prevents gaming and "bump via edit" | Post-launch |
 | Email/push notifications for new offers | Requires notification infrastructure | M5+ |
 | In-app chat from demand post | Requires M5 (Chat) | After M5 |
 | Demand alerts for sellers | Requires saved searches + notifications | Future |
@@ -178,6 +199,8 @@ Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE
 | Bump/promote demand posts | Monetization feature | Future |
 | Auto-match products to demands | Complex ML feature | Future |
 | Image upload on demand posts | Adds complexity, text is sufficient for MVP | Future |
+| Edit demand post | Immutable in MVP; "delete and repost" is the UX path (D5) | Post-launch |
+| Cron-based expiration | Supabase free tier lacks pg_cron; TTL filter is sufficient. `status` stays `'active'`; expiration is computed (D3). | Post-launch (paid tier) |
 
 ---
 
@@ -417,26 +440,42 @@ Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE
 - [ ] **AC-12**: WhatsApp contact button on each offer opens seller contact
 - [ ] **AC-13**: Owner can mark demand post as "Encontrado"
 - [ ] **AC-14**: "Encontrado" posts stop accepting new offers
-- [ ] **AC-15**: Posts auto-expire after 30 days
+- [ ] **AC-15**: Posts with `expires_at < NOW()` are hidden from public listings (TTL filter; `status` stays `'active'`, expiration is computed — no cron required)
 - [ ] **AC-16**: Owner can renew expired posts
 - [ ] **AC-17**: Owner can delete demand posts (soft delete)
-- [ ] **AC-18**: `/perfil/demandas` shows user's demand posts organized by status
+- [ ] **AC-18**: `/perfil/demandas` shows user's demand posts in tabs: Activas / Encontradas / Expiradas (computed: `status = 'active' AND expires_at < NOW()`)
 - [ ] **AC-19**: "¿No encontraste?" CTA appears on search results page
 - [ ] **AC-20**: Unauthenticated users redirected to login when trying to create/offer
+- [ ] **AC-21a**: Delete confirmation dialog explains user can create a new post afterward
+- [ ] **AC-21b**: After deleting a demand post, user is redirected with a toast guiding to create a new one
 
 ### 8.2 Non-Functional
 
-- [ ] **AC-21**: All pages load in < 2s (LCP) on 3G mobile
-- [ ] **AC-22**: No horizontal scroll at 375px viewport
-- [ ] **AC-23**: Touch targets >= 44px on mobile
-- [ ] **AC-24**: WCAG 2.2 AA compliance (axe-core zero critical/serious violations)
-- [ ] **AC-25**: Form validation errors are accessible (aria-describedby)
-- [ ] **AC-26**: Rate limit enforced: max 5 demand posts per user per 24h
-- [ ] **AC-27**: All text inputs sanitized with stripHtml
+- [ ] **AC-22**: All pages load in < 2s (LCP) on 3G mobile
+- [ ] **AC-23**: No horizontal scroll at 375px viewport
+- [ ] **AC-24**: Touch targets >= 44px on mobile
+- [ ] **AC-25**: WCAG 2.2 AA compliance (axe-core zero critical/serious violations)
+- [ ] **AC-26**: Form validation errors are accessible (aria-describedby)
+- [ ] **AC-27**: Rate limit enforced: max 5 demand posts per user per 24h
+- [ ] **AC-28**: All text inputs sanitized with stripHtml
 
 ---
 
-## 9. Risks & Mitigations
+## 9. Design Decisions
+
+The following decisions were finalized during PM review on February 17, 2026:
+
+| # | Decision | Choice | Rationale |
+|---|----------|--------|-----------|
+| D1 | Offer visibility | **Public** — anyone can see offers on active posts | Transparency builds trust; sellers see competition, buyers see options |
+| D2 | Embedding strategy | **DB trigger** (same pattern as products) | Consistent with existing architecture; no client-side complexity |
+| D3 | Expiration mechanism | **TTL filter** (`expires_at > NOW()`) — no cron; `status` stays `'active'`, expiration is computed | Supabase free tier lacks pg_cron; filter is simpler; 3-value status model (active/found/deleted) keeps every status tied to a user action |
+| D4 | `location_city` input | **Fixed list** from `LocationSelector` | Consistent UX; prevents typos/variants; reuses existing constants |
+| D5 | Edit demand post | **Deferred** — immutable posts in MVP | Simpler implementation; prevents gaming; reduces moderation complexity |
+
+---
+
+## 10. Risks & Mitigations
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|------|------------|--------|------------|
@@ -450,7 +489,7 @@ Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE
 
 ---
 
-## 10. Dependencies
+## 11. Dependencies
 
 | Dependency | Status | Impact |
 |------------|--------|--------|
@@ -464,7 +503,7 @@ Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE
 
 ---
 
-## 11. Timeline
+## 12. Timeline
 
 | Phase | Duration | Description |
 |-------|----------|-------------|
@@ -479,7 +518,7 @@ Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE
 
 ---
 
-## 12. Future Enhancements (Not in This Milestone)
+## 13. Future Enhancements (Not in This Milestone)
 
 | Enhancement | Description | Prerequisite |
 |-------------|-------------|--------------|

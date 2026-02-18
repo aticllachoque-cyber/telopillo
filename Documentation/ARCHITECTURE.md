@@ -1,9 +1,9 @@
 # Telopillo.bo - System Architecture
 
-**Version:** 1.2  
-**Date:** February 16, 2026  
+**Version:** 1.3  
+**Date:** February 17, 2026  
 **Author:** Alcides Cardenas  
-**Status:** Living Document (updated through M4.5 + E2E Testing Infrastructure)
+**Status:** Living Document (updated through M4.6 Share Profile + Landing Page Quality Fixes)
 
 ---
 
@@ -105,16 +105,27 @@ Telopillo.bo is a serverless-first marketplace platform built on a Backend-as-a-
 
 #### 2.2.1 Seller Flow
 ```
-Register/Login → Complete Profile → Create Product Listing → 
-Upload Images → Set Price & Details → Publish → 
-Receive Messages from Buyers → Negotiate → Mark as Sold
+Register/Login → Complete Profile → (Optional) Add Business Profile →
+Create Product Listing → Upload Images → Set Price & Details → Publish →
+Share Profile Link via WhatsApp/Social →
+Receive Inquiries from Buyers → Negotiate → Mark as Sold
 ```
 
 #### 2.2.2 Buyer Flow
 ```
-Browse/Search Products → View Details → Contact Seller → 
-Chat in Real-time → Negotiate → Complete Transaction → 
-Leave Rating
+Browse/Search Products → View Details → Contact Seller (WhatsApp) →
+Negotiate → Complete Transaction → Leave Rating
+```
+
+#### 2.2.3 Share Profile Flow (M4.6)
+```
+Authenticated Seller →
+  Open /profile or /perfil/mis-productos →
+  Click "Compartir perfil" →
+  Mobile: Web Share API → native share sheet (WhatsApp, etc.)
+  Desktop: Clipboard copy → toast "Enlace copiado" →
+  Recipient opens /negocio/{slug} or /vendedor/{id} →
+  Views products, contacts seller — no login required
 ```
 
 ---
@@ -473,141 +484,194 @@ Leave Rating
 
 ### 5.1 Frontend Architecture (Next.js 16)
 
+> Note: Spanish route names are used throughout (Bolivian marketplace convention).
+> Items marked `⏳` are planned for future milestones; all others are implemented.
+
 ```
-frontend/
-├── app/                          # Next.js 14 App Router
-│   ├── (auth)/                   # Auth route group
-│   │   ├── login/
-│   │   │   └── page.tsx          # Login page (Server Component)
-│   │   ├── register/
-│   │   │   └── page.tsx          # Register page
-│   │   └── layout.tsx            # Auth layout
-│   │
-│   ├── (marketplace)/            # Main app route group
-│   │   ├── page.tsx              # Home page (product feed)
-│   │   ├── search/
-│   │   │   └── page.tsx          # Search results
-│   │   ├── products/
-│   │   │   ├── [id]/
-│   │   │   │   └── page.tsx      # Product detail page
-│   │   │   └── new/
-│   │   │       └── page.tsx      # Create product
-│   │   ├── profile/
-│   │   │   ├── page.tsx          # User profile
-│   │   │   └── edit/
-│   │   │       └── page.tsx      # Edit profile
-│   │   ├── chat/
-│   │   │   ├── page.tsx          # Chat list
-│   │   │   └── [conversationId]/
-│   │   │       └── page.tsx      # Chat conversation
-│   │   ├── favorites/
-│   │   │   └── page.tsx          # Saved products
-│   │   └── layout.tsx            # Marketplace layout
-│   │
-│   ├── api/                      # API routes (if needed)
-│   │   └── search/
-│   │       └── route.ts          # Server-side search endpoint
-│   │
-│   ├── layout.tsx                # Root layout
-│   └── globals.css               # Global styles
+app/                              # Next.js App Router
+├── (auth)/                       # Auth route group (public, no Header/Footer wrapper)
+│   ├── login/page.tsx            # Email + OAuth login
+│   ├── register/page.tsx         # Registration with optional business section
+│   ├── forgot-password/page.tsx  # Password recovery request
+│   ├── reset-password/page.tsx   # Password reset (token-based)
+│   └── layout.tsx                # Minimal auth layout
 │
-├── components/                   # React components
-│   ├── ui/                       # shadcn/ui components
-│   │   ├── button.tsx
-│   │   ├── input.tsx
-│   │   ├── card.tsx
-│   │   └── ...
-│   │
-│   ├── products/                 # Product-related components
-│   │   ├── ProductCard.tsx       # Product card (Client Component)
-│   │   ├── ProductGrid.tsx       # Product grid
-│   │   ├── ProductForm.tsx       # Create/edit product form
-│   │   ├── ProductFilters.tsx    # Search filters
-│   │   └── ImageUpload.tsx       # Image upload widget
-│   │
-│   ├── search/                   # Search components
-│   │   ├── SearchBar.tsx         # Search input
-│   │   ├── SearchResults.tsx     # Results display
-│   │   └── SearchFilters.tsx     # Filters sidebar
-│   │
-│   ├── chat/                     # Chat components
-│   │   ├── ChatList.tsx          # Conversation list
-│   │   ├── ChatMessage.tsx       # Message bubble
-│   │   ├── ChatInput.tsx         # Message input
-│   │   └── ChatHeader.tsx        # Chat header
-│   │
-│   └── layout/                   # Layout components
-│       ├── Header.tsx            # Site header
-│       ├── Footer.tsx            # Site footer
-│       └── Sidebar.tsx           # Navigation sidebar
+├── (static)/                     # Static content route group (LPQ fixes)
+│   ├── acerca/page.tsx           # About page (placeholder)
+│   ├── ayuda/page.tsx            # Help center (placeholder)
+│   ├── contacto/page.tsx         # Contact page (placeholder)
+│   ├── cookies/page.tsx          # Cookie policy (placeholder)
+│   ├── privacidad/page.tsx       # Privacy policy (placeholder)
+│   ├── seguridad/page.tsx        # Safety info (placeholder)
+│   └── terminos/page.tsx         # Terms and conditions (placeholder)
 │
-├── lib/                          # Utility libraries
-│   ├── supabase/                 # Supabase clients
-│   │   ├── client.ts             # Browser client
-│   │   ├── server.ts             # Server client
-│   │   └── middleware.ts         # Auth middleware
-│   │
-│   ├── hooks/                    # Custom React hooks
-│   │   ├── useAuth.ts            # Auth hook
-│   │   ├── useProducts.ts        # Products hook
-│   │   ├── useSearch.ts          # Search hook
-│   │   └── useChat.ts            # Chat hook
-│   │
-│   ├── utils/                    # Utility functions
-│   │   ├── format.ts             # Formatting helpers
-│   │   ├── validation.ts         # Form validation
-│   │   └── constants.ts          # App constants
-│   │
-│   └── types/                    # TypeScript types
-│       ├── database.ts           # Database types (auto-generated)
-│       ├── product.ts            # Product types
-│       └── user.ts               # User types
+├── auth/callback/route.ts        # Supabase OAuth callback handler
 │
-├── public/                       # Static assets
-│   ├── images/
-│   └── icons/
+├── api/
+│   └── search/route.ts           # Hybrid search endpoint (keyword + semantic)
 │
-├── middleware.ts                 # Next.js middleware (auth)
-├── next.config.js                # Next.js configuration
-├── tailwind.config.js            # Tailwind CSS config
-├── tsconfig.json                 # TypeScript config
-└── package.json                  # Dependencies
+├── buscar/page.tsx               # Search results with filters + sort
+├── categorias/page.tsx           # Category browsing (9 categories)
+│
+├── negocio/[slug]/page.tsx       # Business storefront (public, SEO + JSON-LD)
+├── vendedor/[id]/page.tsx        # Personal seller profile (public, SEO + JSON-LD)
+│
+├── productos/
+│   ├── [id]/page.tsx             # Product detail (public, SEO + gallery)
+│   └── [id]/editar/page.tsx      # Edit product (protected)
+│
+├── publicar/page.tsx             # Create product listing (protected)
+│
+├── profile/
+│   ├── page.tsx                  # Seller dashboard (protected, ShareProfile card)
+│   └── edit/page.tsx             # Edit profile + business profile (protected)
+│
+├── perfil/
+│   └── mis-productos/page.tsx    # My products list (protected, compact ShareProfile)
+│
+├── mensajes/                     # ⏳ M5: Real-time chat
+│   └── [conversationId]/
+│
+├── not-found.tsx                 # Custom Spanish 404 page
+├── layout.tsx                    # Root layout (Header, Footer, skip link, AuthProvider)
+├── page.tsx                      # Landing page (hero search, categories, features)
+└── globals.css                   # Global styles + Tailwind v4
+
+components/
+├── ui/                           # shadcn/ui primitives
+│   ├── button.tsx, input.tsx, card.tsx, badge.tsx
+│   ├── alert-dialog.tsx, dropdown-menu.tsx
+│   ├── avatar.tsx, select.tsx, separator.tsx
+│   ├── skeleton.tsx, textarea.tsx, toast.tsx
+│   ├── logo.tsx, radio-group.tsx, label.tsx
+│   └── VerificationBadge.tsx     # Trust level badge (M4.5)
+│
+├── layout/                       # Shell components
+│   ├── Header.tsx                # Responsive header with SearchBar + UserMenu
+│   ├── Footer.tsx                # Footer with social links + static page links
+│   └── UserMenu.tsx              # Auth-aware user menu (dropdown)
+│
+├── auth/
+│   └── OAuthButtons.tsx          # Google + Facebook OAuth buttons
+│
+├── home/
+│   └── CtaStrip.tsx              # CTA banner (shown to unauthenticated users)
+│
+├── search/
+│   ├── SearchBar.tsx             # Controlled search input (header + mobile)
+│   ├── SearchFilters.tsx         # Sidebar filters (category, price, dept, condition)
+│   └── SearchSort.tsx            # Sort dropdown (relevance, price, date)
+│
+├── products/                     # Product-related components
+│   ├── ProductCard.tsx           # Card with LCP priority support
+│   ├── ProductGrid.tsx           # Grid (passes priority={index===0} to first card)
+│   ├── ProductForm.tsx           # Create/edit form (Zod + react-hook-form)
+│   ├── ProductFormWizard.tsx     # Step-by-step wizard variant
+│   ├── ProductGallery.tsx        # Image gallery with navigation
+│   ├── ProductActions.tsx        # Dropdown: edit, sell, delete, share product
+│   ├── ImageUpload.tsx           # Multi-image drag-and-drop + WebP compression
+│   ├── SellerCard.tsx            # Seller info + WhatsApp CTA on product detail
+│   ├── CategoryGrid.tsx          # Category grid for /categorias
+│   └── ShareButton.tsx           # Product-level Web Share / clipboard (M4.6)
+│
+├── profile/                      # Profile + seller components
+│   ├── AvatarUpload.tsx          # Avatar upload with compression
+│   ├── BusinessHoursEditor.tsx   # JSONB business hours editor
+│   ├── BusinessProfileForm.tsx   # Business profile create/edit form
+│   ├── LocationSelector.tsx      # Bolivia dept + city cascading selector
+│   ├── SellerProfileHeader.tsx   # Header block for /vendedor/[id] page
+│   └── ShareProfile.tsx          # Share link card + compact variants (M4.6)
+│
+├── business/                     # Business storefront components
+│   ├── BusinessHeader.tsx        # Hero section for /negocio/[slug]
+│   └── BusinessInfoSidebar.tsx   # Hours, contact, social links sidebar
+│
+└── providers/
+    ├── AuthProvider.tsx          # React context for auth state
+    └── ToastProvider.tsx         # Toast notification context
+
+lib/
+├── supabase/
+│   ├── client.ts                 # Browser Supabase client
+│   ├── server.ts                 # Server-side Supabase client (cookies)
+│   ├── admin.ts                  # Service-role admin client
+│   └── middleware.ts             # Session refresh + stale token recovery
+│
+├── validations/                  # Zod schemas + sanitization
+├── utils/                        # Utility functions (image, format, etc.)
+├── data/                         # Static data (categories, departments/cities)
+└── constants.ts                  # App-wide constants
 ```
 
 ### 5.2 Backend Architecture (Supabase)
 
+> Items marked `⏳` are planned for future milestones; all others are deployed.
+
 ```
 supabase/
-├── migrations/                   # Database migrations
-│   ├── 20260101000000_initial_schema.sql
-│   ├── 20260102000000_add_pgvector.sql
-│   ├── 20260103000000_add_rls_policies.sql
-│   ├── 20260104000000_add_search_functions.sql
-│   └── 20260105000000_add_triggers.sql
+├── migrations/                   # 12 database migrations (numbered SQL files)
+│   ├── *_initial_schema.sql      # profiles table, RLS, triggers, avatars bucket
+│   ├── *_add_pgvector.sql        # vector(384) column + HNSW index on products
+│   ├── *_add_fts.sql             # search_vector tsvector + GIN index + trigger
+│   ├── *_add_rls_policies.sql    # RLS policies for products, profiles
+│   ├── *_add_search_functions.sql# search_products(), rrf_hybrid_search() RPCs
+│   ├── *_add_triggers.sql        # set_updated_at(), auto-embed trigger (pg_net)
+│   ├── *_add_business_profiles.sql # business_profiles table, slug, RLS, storage
+│   └── ...                       # Additional migrations as needed
 │
-├── functions/                    # Edge Functions (Deno)
-│   ├── generate-embedding/
-│   │   ├── index.ts              # Generate product embeddings
-│   │   └── README.md
-│   │
-│   ├── send-notification/
-│   │   ├── index.ts              # Send email notifications
-│   │   └── README.md
-│   │
-│   ├── process-image/
-│   │   ├── index.ts              # Optimize uploaded images
-│   │   └── README.md
-│   │
-│   └── cleanup-expired/
-│       ├── index.ts              # Cron job: cleanup expired products
-│       └── README.md
+├── functions/                    # Edge Functions (Deno runtime)
+│   └── generate-embedding/       # ✅ DEPLOYED — auto-embed on product insert/update
+│       └── index.ts              # Hugging Face API + retry logic + in-memory cache
+│                                 # ⏳ send-notification (M5: chat notifications)
+│                                 # ⏳ cleanup-expired (M4.7: demand post expiry)
 │
-├── seed.sql                      # Seed data for development
-├── config.toml                   # Supabase configuration
+├── config.toml                   # Supabase project configuration
 └── .env.example                  # Environment variables template
 ```
 
-### 5.3 Search Service Architecture (Optional - Phase 2+)
+**Deployed Edge Functions:**
+
+| Function | Trigger | Purpose |
+|----------|---------|---------|
+| `generate-embedding` | PostgreSQL trigger (pg_net HTTP POST) on `products` INSERT/UPDATE | Calls Hugging Face API to generate 384-dim embedding; stores result in `products.embedding`; includes 5-min in-memory cache |
+
+**Deployed Storage Buckets:**
+
+| Bucket | Access | Path Policy |
+|--------|--------|-------------|
+| `avatars` | Private | `{userId}/*` |
+| `product-images` | Public | `{userId}/*` |
+| `business-logos` | Public | `{userId}/*` |
+
+### 5.3 Share Profile Architecture (M4.6)
+
+The share feature is entirely client-side — zero backend changes required.
+
+```
+URL Computation (props-based):
+  business account → {NEXT_PUBLIC_APP_URL}/negocio/{businessSlug}
+  personal account → {NEXT_PUBLIC_APP_URL}/vendedor/{profileId}
+  fallback base URL → https://telopillo.bo
+
+Share Action (invocation-time detection — NOT useEffect):
+  if (typeof navigator.share === 'function')
+    → navigator.share({ title, text, url })     # Web Share API (mobile)
+    → on AbortError: silent (user cancelled)
+  else
+    → navigator.clipboard.writeText(url)         # Clipboard fallback (desktop)
+    → toast "Enlace copiado" / "No se pudo copiar"
+
+Component Variants:
+  <ShareProfile variant="card" />    → /profile page (URL preview + copy + share)
+  <ShareProfile variant="compact" /> → /perfil/mis-productos (single inline button)
+  <ShareButton />                    → ProductActions dropdown (product-level share)
+```
+
+**Key decision:** Web Share API detection happens at invocation time (inside the click handler), not in a `useEffect` on mount. This avoids:
+- React hydration mismatches (server renders without `navigator`, client has it)
+- ESLint warnings about synchronous `setState` inside effects
+
+### 5.4 Search Service Architecture (Optional - Phase 2+)
 
 ```
 search-service/
@@ -939,7 +1003,8 @@ WITH CHECK (
    - Access tokens: 1 hour expiration
    - Refresh tokens: 30 days expiration
    - Stored in httpOnly cookies (not localStorage)
-   - Auto-refresh on expiration
+   - Auto-refresh on expiration via `@supabase/ssr` in Next.js middleware
+   - **Stale token recovery:** `lib/supabase/middleware.ts` wraps `getUser()` in a try/catch; on `refresh_token_not_found` error, all `sb-*` auth cookies are cleared (`maxAge: 0`) so the browser stops sending the stale token on subsequent requests — prevents repeated `AuthApiError` noise in logs
 
 2. **API Security**
    - All API calls require valid JWT
@@ -1536,7 +1601,7 @@ Test plans use a machine-readable format (markdown tables with selectors and ass
 
 ## 11. Deployment Architecture
 
-### 10.1 Production Deployment Diagram
+### 11.1 Production Deployment Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -1616,7 +1681,7 @@ Test plans use a machine-readable format (markdown tables with selectors and ass
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 10.2 Deployment Pipeline
+### 11.2 Deployment Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -1657,7 +1722,7 @@ Test plans use a machine-readable format (markdown tables with selectors and ass
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 10.3 Environment Configuration
+### 11.3 Environment Configuration
 
 ```bash
 # .env.production (Vercel)
@@ -1681,7 +1746,7 @@ MODEL_NAME=paraphrase-multilingual-MiniLM-L12-v2
 
 ## 12. Scalability Strategy
 
-### 11.1 Scaling Phases
+### 12.1 Scaling Phases
 
 #### Phase 1: MVP (0-10K users)
 **Cost: $0/month**
@@ -1752,7 +1817,7 @@ Optimizations:
 - CDN optimization
 ```
 
-### 11.2 Performance Optimization
+### 12.2 Performance Optimization
 
 #### Database Optimization
 ```sql
@@ -1979,16 +2044,24 @@ This architecture document provides a comprehensive blueprint for building Telop
 
 The hybrid search architecture with Bolivian Spanish optimizations provides a competitive advantage, while the real-time chat and geolocation features create a complete marketplace experience.
 
-**Next Steps:**
-1. Set up Supabase project
-2. Implement database schema and RLS policies
-3. Build Next.js frontend with core features
-4. Deploy to Vercel + Supabase Cloud
-5. Test with real users in Bolivia
-6. Iterate based on feedback
+**Implemented so far (M0–M4.6 + LPQ):**
+1. ✅ Foundation: Next.js 16, Supabase, TypeScript, Tailwind CSS v4, shadcn/ui
+2. ✅ Auth: Email/password + Google OAuth, httpOnly cookie sessions, protected routes
+3. ✅ Product listings: CRUD, multi-image upload, product detail + gallery
+4. ✅ Search: Hybrid keyword FTS + semantic (pgvector, RRF, Hugging Face API)
+5. ✅ Account types: Personal + business profiles, verification badges, storefronts
+6. ✅ Share profile: Web Share API / clipboard, product-level sharing
+7. ✅ Quality fixes: Custom 404, 7 static pages, search hardening, stale token recovery
+8. ✅ E2E testing: 229 test cases across 7 business flows, axe-core WCAG 2.2 AA
+
+**Next architectural work:**
+1. M4.7 — `demand_posts` / `demand_offers` tables, RLS, search RPC extensions
+2. M5 — Supabase Realtime channel design, `conversations` + `messages` schema
+3. M6 — `ratings` table, auto-update trigger on `profiles.rating_average`
+4. Production: Vercel deployment, custom domain, Edge Function deploy, DB migrations
 
 ---
 
-**Document Version:** 1.2  
-**Last Updated:** February 16, 2026  
+**Document Version:** 1.3  
+**Last Updated:** February 17, 2026  
 **Maintained By:** Alcides Cardenas

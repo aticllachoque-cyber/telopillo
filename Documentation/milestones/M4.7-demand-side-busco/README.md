@@ -7,6 +7,14 @@
 **PRD Reference:** Section 7.2 ("Publicaciones de Busco"), Timeline Fase 3 (Month 8-12)  
 **Note:** Promoted from Phase 2 to next implementation phase. Contact flow uses WhatsApp (no M5 chat dependency for MVP). Moderation handled via basic report button (no M9 dependency for MVP).
 
+**Design decisions (finalized February 17-18, 2026):**
+- **Offers are public** — anyone can see all offers on an active demand post
+- **Embedding via DB trigger** — same pattern as `products`, no client-side call
+- **3-value status model** — `active`, `found`, `deleted`. No `'expired'` in CHECK; expiration is a computed state via TTL filter (`expires_at > NOW()`)
+- **Expiration via TTL filter** — `expires_at > NOW()` on every query, no cron. `status` stays `'active'` when expired. 30-day TTL.
+- **`location_city` is a fixed list** — same `LocationSelector` cities used in products
+- **No edit in MVP** — demand posts are immutable once published. "Delete and repost" is the UX path for corrections.
+
 ---
 
 ## Documentation
@@ -47,11 +55,13 @@ This is a **key differentiator** for Telopillo.bo. Neither Mercado Libre, OLX, n
 Buyer searches for product → No results / not what they want
   → CTA: "¿No encontraste? Publica lo que buscas"
   → Buyer fills form: title, description, category, location, price range (optional)
-  → Demand post created (status: active)
+  → Demand post created (status: active, expires_at = NOW() + 30 days)
   → Visible in /busco listing and searchable
   → Buyer receives offers from sellers
   → Buyer contacts preferred seller via WhatsApp
-  → Buyer marks post as "Encontrado"
+  → Buyer marks post as "Encontrado" (status: found)
+  → OR post expires after 30 days (hidden from public, owner can renew)
+  → OR buyer deletes post (status: deleted)
 ```
 
 ### Flow B: Seller Responds to Demand
@@ -104,13 +114,14 @@ CREATE TABLE demand_posts (
   category TEXT NOT NULL,
   subcategory TEXT,
   location_department TEXT NOT NULL,
-  location_city TEXT NOT NULL,
+  location_city TEXT NOT NULL,        -- fixed list from LocationSelector
   price_min DECIMAL(10,2),
   price_max DECIMAL(10,2),
   status TEXT NOT NULL DEFAULT 'active'
-    CHECK (status IN ('active', 'found', 'expired', 'deleted')),
+    CHECK (status IN ('active', 'found', 'deleted')),
   offers_count INTEGER NOT NULL DEFAULT 0,
-  embedding vector(384),
+  embedding vector(384),              -- set by DB trigger (pg_net)
+  search_vector tsvector,             -- set by DB trigger (FTS, Spanish)
   expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '30 days'),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -118,14 +129,27 @@ CREATE TABLE demand_posts (
   CONSTRAINT demand_posts_title_length
     CHECK (char_length(title) BETWEEN 5 AND 100),
   CONSTRAINT demand_posts_description_length
-    CHECK (char_length(description) BETWEEN 20 AND 1000)
+    CHECK (char_length(description) BETWEEN 20 AND 1000),
+  CONSTRAINT demand_posts_price_range
+    CHECK (price_max IS NULL OR price_min IS NULL OR price_max >= price_min)
 );
 
-CREATE INDEX idx_demand_posts_user ON demand_posts(user_id);
+-- Scalar indexes
+CREATE INDEX idx_demand_posts_user     ON demand_posts(user_id);
 CREATE INDEX idx_demand_posts_category ON demand_posts(category);
-CREATE INDEX idx_demand_posts_status ON demand_posts(status);
+CREATE INDEX idx_demand_posts_status   ON demand_posts(status);
 CREATE INDEX idx_demand_posts_location ON demand_posts(location_department);
-CREATE INDEX idx_demand_posts_created ON demand_posts(created_at DESC);
+CREATE INDEX idx_demand_posts_created  ON demand_posts(created_at DESC);
+CREATE INDEX idx_demand_posts_expires  ON demand_posts(expires_at);
+
+-- Composite index for the active-list query
+CREATE INDEX idx_demand_posts_active_list
+  ON demand_posts(status, category, location_department);
+
+-- FTS index (Spanish)
+CREATE INDEX idx_demand_posts_search_vector ON demand_posts USING GIN(search_vector);
+
+-- Semantic search index
 CREATE INDEX idx_demand_posts_embedding ON demand_posts
   USING hnsw (embedding vector_cosine_ops);
 ```
@@ -152,12 +176,18 @@ CREATE INDEX idx_demand_offers_seller ON demand_offers(seller_id);
 ### RLS Policies
 
 ```sql
--- demand_posts: anyone can read active posts
+-- demand_posts
 ALTER TABLE demand_posts ENABLE ROW LEVEL SECURITY;
 
+-- Public: active, non-expired posts
 CREATE POLICY "Anyone can view active demand posts"
   ON demand_posts FOR SELECT
-  USING (status = 'active');
+  USING (status = 'active' AND expires_at > NOW());
+
+-- Owners see their own posts regardless of status
+CREATE POLICY "Users can view their own demand posts (any status)"
+  ON demand_posts FOR SELECT
+  USING (auth.uid() = user_id);
 
 CREATE POLICY "Authenticated users can create demand posts"
   ON demand_posts FOR INSERT
@@ -171,14 +201,25 @@ CREATE POLICY "Owners can delete their demand posts"
   ON demand_posts FOR DELETE
   USING (auth.uid() = user_id);
 
--- demand_offers: visible to post owner and offer creator
+-- demand_offers: PUBLIC — anyone can see offers on active demand posts
 ALTER TABLE demand_offers ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Post owner and offer creator can view offers"
+CREATE POLICY "Anyone can view offers on active demand posts"
   ON demand_offers FOR SELECT
   USING (
-    auth.uid() = seller_id
-    OR auth.uid() = (SELECT user_id FROM demand_posts WHERE id = demand_post_id)
+    EXISTS (
+      SELECT 1 FROM demand_posts dp
+      WHERE dp.id = demand_offers.demand_post_id
+        AND dp.status = 'active'
+        AND dp.expires_at > NOW()
+    )
+  );
+
+-- Owners also see offers on their own posts (any status)
+CREATE POLICY "Owners can view offers on their own demand posts"
+  ON demand_offers FOR SELECT
+  USING (
+    auth.uid() = (SELECT user_id FROM demand_posts WHERE id = demand_post_id)
   );
 
 CREATE POLICY "Authenticated users can create offers for their products"
@@ -223,21 +264,24 @@ CREATE TRIGGER trg_demand_offers_count
 
 ### Phase 1: Database & Types (Day 1-2)
 
-- [ ] Migration: create `demand_posts` table with indexes
+- [ ] Migration: create `demand_posts` table with all indexes (scalar, composite, GIN FTS, HNSW)
 - [ ] Migration: create `demand_offers` table with indexes
-- [ ] RLS policies for both tables
+- [ ] RLS policies for both tables (public offers on active posts)
 - [ ] Auto-increment trigger for `offers_count`
-- [ ] Expiration: scheduled function or cron to mark expired posts
+- [ ] DB trigger for `search_vector` (FTS, Spanish config)
+- [ ] DB trigger for `embedding` (pg_net → generate-embedding Edge Function)
+- [ ] Expiration enforced by TTL filter (`expires_at > NOW()`) — no cron required
 - [ ] Update `types/database.ts` with new types
-- [ ] Zod validation schemas (`lib/validations/demand.ts`)
-- [ ] `stripHtml` transform on title and description
+- [ ] Zod validation schemas (`lib/validations/demand.ts`) — `location_city` uses fixed list
+- [ ] `stripHtml` transform on title, description, offer message
 
 ### Phase 2: Create Demand Post (Day 3-4)
 
-- [ ] `/busco/publicar` page — form with title, description, category, location, price range
+- [ ] `/busco/publicar` page — form with title, description, category, location (fixed list), price range
 - [ ] Reuse existing category/location constants from `lib/validations/product.ts`
 - [ ] Auth guard: require login to post
-- [ ] Generate embedding on creation (reuse `generate-embedding` Edge Function)
+- [ ] Embedding generated automatically via DB trigger (no client-side call needed)
+- [ ] Update `generate-embedding` Edge Function to handle `{ type: 'DEMAND', record: { id, text } }`
 - [ ] Success redirect to demand post detail
 - [ ] Mobile-responsive form
 
@@ -266,8 +310,9 @@ CREATE TRIGGER trg_demand_offers_count
 
 ### Phase 5: User Dashboard & CTA Integration (Day 11-12)
 
-- [ ] `/perfil/demandas` — user's demand posts (active, found, expired)
-- [ ] Status management: renew expired posts, delete posts
+- [ ] `/perfil/demandas` — user's demand posts in tabs: Active, Found, Expired (computed: `status = 'active' AND expires_at < NOW()`)
+- [ ] Status management: mark as found, renew expired posts (reset 30-day timer), delete posts
+- [ ] **No edit action** — posts are immutable in MVP. Clear "delete and repost" UX path (confirmation dialog + redirect to `/busco/publicar`)
 - [ ] CTA on search results page: "¿No encontraste? Publica lo que buscas"
 - [ ] CTA on empty search results
 - [ ] Navigation: add "Busco" link to main nav / header
@@ -326,14 +371,14 @@ CREATE TRIGGER trg_demand_offers_count
 | `/busco` | List/search demand posts | Public |
 | `/busco/publicar` | Create demand post form | Required |
 | `/busco/[id]` | Demand post detail + offers | Public (offer requires auth) |
-| `/perfil/demandas` | User's demand posts dashboard | Required |
+| `/perfil/demandas` | User's demand posts dashboard (Active / Found / Expired tabs) | Required |
 
 ### New Components
 
 | Component | Purpose |
 |-----------|---------|
 | `DemandPostCard` | Card for list view (title, snippet, category, location, offers count) |
-| `DemandPostForm` | Create/edit demand post form |
+| `DemandPostForm` | Create-only demand post form (edit deferred) |
 | `DemandPostDetail` | Detail view with buyer info and offers |
 | `DemandPostFilters` | Category, location, date filters |
 | `OfferProductModal` | Modal to select product and send offer |
@@ -356,7 +401,9 @@ CREATE TRIGGER trg_demand_offers_count
 - Create, list, search, filter demand posts
 - Offer flow: link product to demand
 - WhatsApp contact for buyer
-- Expiration (30 days) with manual renewal
+- Expiration via TTL filter (30 days); expired posts stay `status = 'active'` but hidden from public listings
+- Manual renewal from dashboard (resets 30-day timer)
+- "Delete and repost" UX for corrections (no edit in MVP)
 - Basic moderation (report button)
 
 ### Full Vision (Future Enhancements)
@@ -379,7 +426,7 @@ CREATE TRIGGER trg_demand_offers_count
 - [ ] Sellers can link their products as offers to demand posts
 - [ ] Buyers see offers and can contact sellers via WhatsApp
 - [ ] Buyers can mark posts as "Encontrado" to close them
-- [ ] Posts auto-expire after 30 days
+- [ ] Posts with `expires_at < NOW()` are hidden from public listings (TTL filter; `status` stays `'active'`, expiration is computed)
 - [ ] "¿No encontraste?" CTA appears on search results
 - [ ] Mobile-responsive for all new pages (375px+)
 - [ ] WCAG 2.2 AA compliance

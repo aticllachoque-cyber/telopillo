@@ -1,6 +1,6 @@
 # Telopillo.bo - Project Status
 
-**Last Updated:** February 16, 2026  
+**Last Updated:** February 17, 2026  
 **Project Start:** February 12, 2026
 
 ---
@@ -14,14 +14,16 @@ M2:   Product Listings            ███████████████�
 M3:   Search & Discovery          ████████████████████ 100% ✅
 M4:   Semantic Search             ████████████████████ 100% ✅
 M4.5: Account Types & Minimal KYC ████████████████████ 100% ✅
+M4.6: Share Profile Link          ████████████████████ 100% ✅
 E2E:  Test Infrastructure         ████████████████████ 100% ✅
+LPQ:  Landing Page Quality Fixes  ████████████████████ 100% ✅
 M4.7: Demand-Side "Busco"          ░░░░░░░░░░░░░░░░░░░░   0% ⏳ (NEXT)
 M5:   Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M6:   Ratings & Reviews           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M7:   Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M8:   Payments & Orders           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 
-Overall Project: ████████████░░░░░░░░ 60%
+Overall Project: █████████████░░░░░░░ 63%
 ```
 
 ---
@@ -201,6 +203,31 @@ Overall Project: ████████████░░░░░░░░ 60
 
 ---
 
+### ✅ M4.6: Share Profile Link (COMPLETE)
+
+**Status:** 100% Complete  
+**Started:** February 15, 2026  
+**Completed:** February 15, 2026  
+**Actual Duration:** ~2 hours
+
+**Overview:** Sellers can now discover and share their public profile URL directly from their dashboard. On mobile, the Web Share API enables one-tap sharing to WhatsApp, Facebook, and other apps.
+
+**Phases (3/3 complete):**
+1. Core Component — `ShareProfile.tsx` with `card` and `compact` variants, clipboard copy, Web Share API with fallback
+2. Profile Page Integration — Fetch business slug in `/profile`, add ShareProfile card between header and "Mis Publicaciones"
+3. Product Management Integration — Compact ShareProfile on `/perfil/mis-productos`; product-level sharing in ProductActions dropdown
+
+**Key Deliverables:**
+- `ShareProfile.tsx` client component (card + compact variants)
+- URL logic: business accounts → `/negocio/{slug}`, personal accounts → `/vendedor/{id}`
+- `navigator.share()` with clipboard fallback; AbortError silenced
+- Product-level sharing added to `ProductActions.tsx` (extension beyond original scope)
+- WCAG 2.2 AA compliant, no new dependencies
+
+**Documentation:** [M4.6 README](../milestones/M4.6-share-profile/README.md) | [M4.6 PRD](../milestones/M4.6-share-profile/PRD.md)
+
+---
+
 ### ✅ E2E Test Infrastructure (COMPLETE)
 
 **Status:** 100% Complete  
@@ -235,6 +262,34 @@ Overall Project: ████████████░░░░░░░░ 60
 - Business storefront WhatsApp button is 40px height vs 44px WCAG touch target recommendation
 
 **Legacy Tests:** 11 older spec files remain in `tests/` root from M1–M4.5 (pre-reorganization).
+
+---
+
+### ✅ Landing Page Quality Fixes (COMPLETE)
+
+**Status:** 100% Complete  
+**Completed:** February 17, 2026  
+**Actual Duration:** ~1 hour  
+**Trigger:** Monkey-test audit of the landing page and search results
+
+**Issues resolved (8/8):**
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 1 | 7 footer links returning 404 | Created `app/(static)/` route group with placeholder pages for `/acerca`, `/contacto`, `/ayuda`, `/seguridad`, `/terminos`, `/privacidad`, `/cookies` |
+| 2 | Default 404 page in English | Created `app/not-found.tsx` with Spanish "Página no encontrada" message, links to home and search |
+| 3 | Duplicate "Saltar al contenido principal" skip links | Removed duplicate skip link from `app/page.tsx`; canonical link in `app/layout.tsx` retained |
+| 4 | Hero search allows empty submit | Added `required` attribute to hero search input |
+| 5 | LCP product image missing `priority` | `ProductGrid` passes `priority={index === 0}` to the first `ProductCard`; forwarded to Next.js `<Image priority>` |
+| 6 | No `maxLength` on search inputs | Added `maxLength={200}` to both hero input (`app/page.tsx`) and `SearchBar.tsx` |
+| 7 | Inconsistent hero vs header search behavior | Resolved by issue #4 (`required` attribute matches header's empty-query guard) |
+| 8 | Repeated `AuthApiError: Invalid Refresh Token` in terminal | `lib/supabase/middleware.ts` now catches `refresh_token_not_found` errors, clears stale `sb-*` cookies, and lets the request proceed silently |
+
+**Key Deliverables:**
+- 7 static placeholder pages under `app/(static)/` (each with proper `metadata` export)
+- Custom Spanish 404 page (`app/not-found.tsx`)
+- Hardened search inputs (empty-submit prevention + length cap)
+- Silent stale-token recovery in middleware
 
 ---
 
@@ -332,26 +387,29 @@ Overall Project: ████████████░░░░░░░░ 60
 | M3: Search & Discovery (Keyword) | 10-12 days | ~2.1 hours | ✅ Complete |
 | M4: Semantic Search (Embeddings) | 7-10 days | ~6 hours | ✅ Complete |
 | M4.5: Account Types & KYC | 5-7 days | ~10 hours | ✅ Complete |
+| M4.6: Share Profile Link | 1-2 days | ~2 hours | ✅ Complete |
 | E2E: Test Infrastructure | 2-3 days | ~4 hours | ✅ Complete |
-| **Total** | **~60 days** | **~55.6 hours** | **60% complete** |
+| Landing Page Quality Fixes | — | ~1 hour | ✅ Complete |
+| **Total** | **~60 days** | **~58.6 hours** | **63% complete** |
 
 ### Code Statistics
 
-- **Source files (TS/TSX):** 77
+- **Source files (TS/TSX):** 86
 - **Database migrations (SQL):** 12
 - **Test spec files:** 40 (29 organized in `tests/e2e/` + 11 legacy in `tests/`)
-- **Total lines of source code:** ~11,700+
-- **Documentation pages:** 49+
-- **AI subagents:** 9 (`.cursor/agents/`)
+- **Total lines of source code:** ~14,900+
+- **Documentation pages:** 51+
+- **AI subagents:** 10 (`.cursor/agents/`)
 
 ### Quality Metrics
 
-- **TypeScript errors:** 0 ✅
+- **TypeScript errors:** 0 ✅ (excluding stale `.next` cache references)
 - **ESLint errors:** 0 ✅
 - **Prettier issues:** 0 ✅
 - **WCAG 2.2 AA:** Compliant ✅
 - **Playwright E2E tests:** 229 test cases across 29 spec files (organized by business flow)
 - **Legacy E2E tests:** 75+ test cases across 11 spec files (pre-reorganization)
+- **404 handling:** Custom Spanish 404 page; all footer links resolve to placeholder pages
 
 ### Database Tables
 
@@ -393,6 +451,13 @@ Overall Project: ████████████░░░░░░░░ 60
 | `/profile/edit` | Protected | Edit user profile |
 | `/perfil/mis-productos` | Protected | My products management |
 | `/api/search` | API | Search endpoint (keyword + semantic) |
+| `/acerca` | Public | About page (placeholder) |
+| `/contacto` | Public | Contact page (placeholder) |
+| `/ayuda` | Public | Help center (placeholder) |
+| `/seguridad` | Public | Safety info (placeholder) |
+| `/terminos` | Public | Terms and conditions (placeholder) |
+| `/privacidad` | Public | Privacy policy (placeholder) |
+| `/cookies` | Public | Cookie policy (placeholder) |
 
 ---
 
@@ -400,20 +465,20 @@ Overall Project: ████████████░░░░░░░░ 60
 
 ### Immediate
 
-1. **Fix known UI issues** found by E2E tests:
-   - Product detail horizontal overflow at 375px (~12px)
+1. **Decide next milestone priority:**
+   - M4.7 (Demand-Side "Busco") — buyer demand posts; next on the roadmap
+   - M5 (Chat & Messaging) — enables buyer-seller real-time communication
+   - M6 (Ratings & Reviews) — builds trust, leverages existing seller profiles
+2. **Consider PRD for next milestone** — Analyze with PM agent before implementation
+3. **Fix remaining known UI issues** found by E2E tests:
+   - Product detail page horizontal overflow at 375px (~12px)
    - Business storefront WhatsApp button touch target (40px vs 44px WCAG)
-2. **Decide next milestone priority:**
-   - M5 (Chat & Messaging) — enables buyer-seller communication
-   - M6 (Ratings & Reviews) — builds trust, leverages seller profiles
-3. **Consider PRD for next milestone** — Analyze with PM agent before implementation
 
 ### Short-term
 
 1. Implement shared fixtures and helpers (`tests/fixtures/`, `tests/helpers/`) to reduce test duplication
 2. Decide on legacy test files in `tests/` root (keep, migrate, or remove)
-3. Complete next milestone (M5 or M6)
-4. Consider git commit strategy for all uncommitted changes
+3. Complete next milestone (M4.7, M5, or M6)
 
 ### Medium-term
 
@@ -463,6 +528,7 @@ Overall Project: ████████████░░░░░░░░ 60
 - [M3 Documentation](../milestones/M3-search-keyword/)
 - [M4 Documentation](../milestones/M4-search-semantic/)
 - [M4.5 Documentation](../milestones/M4.5-account-types-kyc/)
+- [M4.6 Documentation](../milestones/M4.6-share-profile/)
 
 ---
 
@@ -479,6 +545,8 @@ Overall Project: ████████████░░░░░░░░ 60
 7. **Minimal KYC (M4.5):** Phone collection for trust signals, strong KYC deferred
 8. **i18n Policy:** Spanish for user-facing text, English for code and documentation
 9. **Hybrid Search:** Keyword FTS + Semantic embeddings merged via Reciprocal Rank Fusion
+10. **Share Profile (M4.6):** Web Share API detection at invocation time (not on mount) — avoids hydration mismatches; clipboard fallback for desktop and unsupported browsers
+11. **Static Pages:** Footer links use `app/(static)/` route group with "Coming Soon" placeholders — avoids 404s while keeping real content deferred
 
 ### Challenges & Lessons Learned
 
@@ -496,8 +564,10 @@ Overall Project: ████████████░░░░░░░░ 60
 12. **E2E:** Organizing tests by business flow (not by page) makes coverage gaps obvious
 13. **E2E:** AI subagents (e2e-test-planner) accelerate test plan creation — structured plans enable other agents to automate
 14. **E2E:** Real mobile/responsive issues found by 375px viewport tests (product detail overflow)
+15. **M4.6:** Web Share API detection must happen at invocation time (not `useEffect`) to avoid React hydration mismatches and lint warnings about synchronous state in effects
+16. **Quality:** Monkey-testing the landing page catches real UX/reliability issues (broken 404s, empty search submits, stale token noise) that structured E2E tests miss
 
 ---
 
-**Last Updated:** February 16, 2026  
+**Last Updated:** February 17, 2026  
 **Next Review:** After next milestone decision

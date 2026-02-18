@@ -255,6 +255,39 @@ This document maps features from the PRD and Architecture to specific milestones
 
 ---
 
+## Delivered Outside Original PRD Scope
+
+### M4.6: Share Profile Link (MVP Add-on)
+
+This milestone was not in the original PRD but was prioritized to enable organic seller growth via WhatsApp sharing (a primary commerce channel in Bolivia).
+
+| Feature | Milestone | Status |
+|---------|-----------|--------|
+| Copy profile URL to clipboard | M4.6 | ✅ Complete |
+| Web Share API (native mobile share) | M4.6 | ✅ Complete |
+| Business vs personal URL routing | M4.6 | ✅ Complete |
+| Share from `/profile` (card variant) | M4.6 | ✅ Complete |
+| Share from `/perfil/mis-productos` (compact variant) | M4.6 | ✅ Complete |
+| Share individual products from actions dropdown | M4.6 (extension) | ✅ Complete |
+
+**Documentation:** [M4.6 README](./M4.6-share-profile/README.md) | [M4.6 PRD](./M4.6-share-profile/PRD.md)
+
+### Landing Page Quality Fixes (Maintenance)
+
+Fixes identified by monkey-testing the landing page and search results.
+
+| Fix | File(s) Changed | Status |
+|-----|-----------------|--------|
+| Custom Spanish 404 page | `app/not-found.tsx` | ✅ Complete |
+| 7 static footer placeholder pages | `app/(static)/*/page.tsx` | ✅ Complete |
+| Remove duplicate skip link | `app/page.tsx` | ✅ Complete |
+| Hero search `required` attribute | `app/page.tsx` | ✅ Complete |
+| LCP image `priority` on first result | `components/products/ProductGrid.tsx` | ✅ Complete |
+| `maxLength={200}` on search inputs | `app/page.tsx`, `components/search/SearchBar.tsx` | ✅ Complete |
+| Stale refresh token silent recovery | `lib/supabase/middleware.ts` | ✅ Complete |
+
+---
+
 ## Phase 2 Features (Post-MVP)
 
 These features are in the PRD but planned as Phase 2 (Post-Launch):
@@ -342,6 +375,6 @@ The milestones are now **100% aligned** with the PRD and Architecture documents.
 
 ---
 
-**Last Updated**: February 12, 2026  
+**Last Updated**: February 17, 2026  
 **Reviewed By**: Alcides Cardenas  
 **Status**: ✅ Complete Concordance

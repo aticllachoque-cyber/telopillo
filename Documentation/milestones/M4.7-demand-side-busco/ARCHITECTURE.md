@@ -1,9 +1,9 @@
 # M4.7 — Demand-Side Posting: Architecture Document
 
-**Version:** 1.0  
-**Date:** February 15, 2026  
+**Version:** 1.1  
+**Date:** February 17, 2026  
 **Author:** Alcides Cardenas  
-**Status:** Design Document  
+**Status:** Design Document — Decisions Finalized  
 **Milestone:** M4.7 — Demand-Side Posting ("Busco/Necesito")
 
 ---
@@ -36,22 +36,28 @@ Milestone 4.7 introduces a **demand-side posting** system to complement the exis
 
 - **Additive extension:** No modifications to existing tables. Two new tables follow the same patterns as `products`
 - **Infrastructure reuse:** Same categories, locations, embedding model, search algorithms, and RLS patterns
-- **Stateless lifecycle:** Demand post status transitions (active → found/expired/deleted) managed via simple UPDATE operations
+- **3-value status model:** `active`, `found`, `deleted` — every stored status maps to a user action. Expiration is a computed state (TTL filter), not stored.
+- **Stateless lifecycle:** Status transitions (active → found/deleted) managed via simple UPDATE operations
 - **Trigger-driven counters:** `offers_count` maintained by database trigger, ensuring consistency without application-level tracking
-- **Expiration by cron:** `expire_demand_posts()` function callable by pg_cron or Edge Function scheduler
+- **TTL expiration:** No cron job. Expiration is enforced by `expires_at > NOW()` filter on all public queries. `status` stays `'active'`; the "expired" concept is computed at query time. (Supabase free tier lacks pg_cron)
+- **Public offers:** All offers on active demand posts are publicly visible (transparency by design)
 
 ### 1.2 Key Architectural Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **Two separate tables** (`demand_posts` + `demand_offers`) | Clean separation of concerns; junction table for many-to-many relationship between demands and products |
-| **Reuse `PRODUCT_CATEGORIES` taxonomy** | No new categories needed; demands mirror supply-side classification |
-| **Embed demand posts using same model** | `paraphrase-multilingual-MiniLM-L12-v2` (384 dims) already handles Spanish; no new model needed |
-| **WhatsApp-first contact** | Matches Bolivian user behavior; defers M5 chat dependency |
-| **Soft delete via `status = 'deleted'`** | Preserves data for analytics; no CASCADE side effects |
-| **Server-side embedding generation** | Generate embedding after INSERT, not during form submission, to keep UI responsive |
-| **`offers_count` denormalization** | Avoids COUNT(*) JOIN on every demand card render; trigger keeps it in sync |
-| **30-day expiration with renewal** | Prevents stale demand posts; renewal is explicit user action, not automatic |
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| **Two separate tables** | `demand_posts` + `demand_offers` | Clean separation; junction table for many-to-many between demands and products |
+| **Reuse `PRODUCT_CATEGORIES` taxonomy** | Yes | No new categories needed; demands mirror supply-side classification |
+| **Embed demand posts using same model** | `paraphrase-multilingual-MiniLM-L12-v2` (384 dims) | Already handles Spanish; no new model needed |
+| **Embedding generation strategy** | **DB trigger** (pg_net → Edge Function) | Same pattern as `products`; no client-side call needed; keeps UI responsive |
+| **WhatsApp-first contact** | `wa.me` links | Matches Bolivian user behavior; defers M5 chat dependency |
+| **Soft delete via `status = 'deleted'`** | Yes | Preserves data for analytics; no CASCADE side effects |
+| **3-value status model** | `active`, `found`, `deleted` | Every stored status maps to a user action; expiration is computed via TTL filter, not stored |
+| **`offers_count` denormalization** | Yes | Avoids COUNT(*) JOIN on every demand card render; trigger keeps it in sync |
+| **30-day expiration mechanism** | **TTL filter** (`expires_at > NOW()`); `status` stays `'active'` | Supabase free tier lacks pg_cron; filter is sufficient; no ambiguity between stored and computed state |
+| **`location_city` input** | **Fixed list** (LocationSelector) | Consistent UX; prevents typos/variants; reuses existing constants |
+| **Offer visibility** | **Public** | Transparency; buyers see competition, sellers see market |
+| **Edit demand post** | **Deferred** — immutable in MVP; "delete and repost" UX path | Simpler implementation; prevents gaming; reduces moderation surface |
 
 ### 1.3 Integration with Existing System
 
@@ -307,11 +313,14 @@ app/
           ┌─────────────┼─────────────┐
           │             │             │
           ▼             ▼             ▼
-    Seller searches   Seller browses  30 days pass
-    (semantic/kw)     (category/loc)  (pg_cron)
-          │             │             │
-          └──────┬──────┘             ▼
-                 │           status = 'expired'
+    Seller searches   Seller browses  expires_at < NOW()
+    (semantic/kw)     (category/loc)  (TTL filter — computed state,
+          │             │              status stays 'active')
+          └──────┬──────┘             │
+                 │                    ▼
+                 │           Hidden from public listings
+                 │           Owner sees in "Expiradas" dashboard tab
+                 │           Owner can: Renew (reset 30d) or Delete
                  ▼
           Seller offers product
                  │
@@ -343,13 +352,14 @@ app/
 | `category` | TEXT | No | — | Must match PRODUCT_CATEGORIES |
 | `subcategory` | TEXT | Yes | NULL | Optional subcategory |
 | `location_department` | TEXT | No | — | Must match BOLIVIA_DEPARTMENTS |
-| `location_city` | TEXT | No | — | Free text, 1-100 chars |
+| `location_city` | TEXT | No | — | Fixed list from `LocationSelector` (same as products) |
 | `price_min` | DECIMAL(10,2) | Yes | NULL | Minimum budget in BOB |
 | `price_max` | DECIMAL(10,2) | Yes | NULL | Maximum budget in BOB |
-| `status` | TEXT | No | `'active'` | One of: active, found, expired, deleted |
+| `status` | TEXT | No | `'active'` | One of: active, found, deleted. Expiration is computed via TTL (`expires_at < NOW()`), not stored. |
 | `offers_count` | INTEGER | No | `0` | Denormalized count, trigger-maintained |
-| `embedding` | vector(384) | Yes | NULL | Semantic search embedding |
-| `expires_at` | TIMESTAMPTZ | No | `NOW() + 30 days` | Auto-expiration timestamp |
+| `embedding` | vector(384) | Yes | NULL | Semantic search embedding (set by DB trigger) |
+| `search_vector` | tsvector | Yes | NULL | FTS vector (set by DB trigger, Spanish config) |
+| `expires_at` | TIMESTAMPTZ | No | `NOW() + 30 days` | TTL timestamp; queries filter `expires_at > NOW()` |
 | `created_at` | TIMESTAMPTZ | No | `NOW()` | Creation timestamp |
 | `updated_at` | TIMESTAMPTZ | No | `NOW()` | Last update timestamp |
 
@@ -360,16 +370,20 @@ app/
 | PK | `id` | B-tree | Primary key |
 | `idx_demand_posts_user` | `user_id` | B-tree | User dashboard queries |
 | `idx_demand_posts_category` | `category` | B-tree | Category filter |
-| `idx_demand_posts_status` | `status` | B-tree | Active posts filter |
+| `idx_demand_posts_status` | `status` | B-tree | Status filter |
 | `idx_demand_posts_location` | `location_department` | B-tree | Location filter |
 | `idx_demand_posts_created` | `created_at DESC` | B-tree | Sort by newest |
+| `idx_demand_posts_expires` | `expires_at` | B-tree | TTL expiration filter |
+| `idx_demand_posts_active_list` | `(status, category, location_department)` | B-tree | Composite for active-list query |
+| `idx_demand_posts_search_vector` | `search_vector` | GIN | Full-text search (Spanish) |
 | `idx_demand_posts_embedding` | `embedding` | HNSW (cosine) | Semantic search |
 
 **Constraints:**
 
 - `demand_posts_title_length`: char_length(title) BETWEEN 5 AND 100
 - `demand_posts_description_length`: char_length(description) BETWEEN 20 AND 1000
-- `status` CHECK: IN ('active', 'found', 'expired', 'deleted')
+- `demand_posts_price_range`: price_max IS NULL OR price_min IS NULL OR price_max >= price_min
+- `status` CHECK: IN ('active', 'found', 'deleted') — expiration is a computed state via TTL filter, not a stored status
 
 ### 5.2 `demand_offers` Table
 
@@ -399,12 +413,13 @@ app/
 
 | Table | Policy | Operation | Rule |
 |-------|--------|-----------|------|
-| `demand_posts` | Anyone can view active | SELECT | `status = 'active'` |
+| `demand_posts` | Anyone can view active | SELECT | `status = 'active' AND expires_at > NOW()` |
 | `demand_posts` | Users see own (any status) | SELECT | `auth.uid() = user_id` |
 | `demand_posts` | Auth users create | INSERT | `auth.uid() = user_id` |
 | `demand_posts` | Owners update | UPDATE | `auth.uid() = user_id` |
 | `demand_posts` | Owners delete | DELETE | `auth.uid() = user_id` |
-| `demand_offers` | Post owner + offer creator view | SELECT | `auth.uid() = seller_id OR auth.uid() = demand_posts.user_id` |
+| `demand_offers` | **Anyone** views offers on active posts | SELECT | `demand_post is active AND expires_at > NOW()` |
+| `demand_offers` | Owners see offers on own posts (any status) | SELECT | `auth.uid() = demand_posts.user_id` |
 | `demand_offers` | Auth users create for own products | INSERT | `auth.uid() = seller_id AND product_id IN own products` |
 | `demand_offers` | Offer creators delete | DELETE | `auth.uid() = seller_id` |
 
@@ -413,8 +428,10 @@ app/
 | Function | Trigger | Purpose |
 |----------|---------|---------|
 | `update_demand_offers_count()` | AFTER INSERT OR DELETE ON demand_offers | Maintain `offers_count` on demand_posts |
-| `update_updated_at_column()` | BEFORE UPDATE ON demand_posts | Auto-set `updated_at` (reuse existing) |
-| `expire_demand_posts()` | pg_cron (daily) | Set status = 'expired' for posts past expires_at |
+| `update_updated_at_column()` | BEFORE UPDATE ON demand_posts | Auto-set `updated_at` (reuse existing function) |
+| `update_demand_posts_search_vector()` | BEFORE INSERT OR UPDATE (title/desc/category) ON demand_posts | Generate `search_vector` (FTS, Spanish config) |
+| `trigger_demand_post_embedding()` | AFTER INSERT OR UPDATE (title/desc/category) ON demand_posts | Call generate-embedding Edge Function via pg_net to set `embedding` |
+| ~~`expire_demand_posts()`~~ | ~~pg_cron~~ | **Removed** — expiration handled by TTL filter (`expires_at > NOW()`) in all queries. `status` stays `'active'`; expiration is a computed state. |
 
 ---
 
@@ -440,8 +457,9 @@ User → /busco/publicar
           │
           └─ Submit:
               ├─ INSERT INTO demand_posts (user_id, title, ...)
-              ├─ Call generate-embedding({ text: "Busco: {title}. {desc}. Categoría: {cat}" })
-              ├─ UPDATE demand_posts SET embedding = [...] WHERE id = new_id
+              │   ├─ DB trigger: search_vector generated synchronously
+              │   └─ DB trigger: pg_net calls generate-embedding asynchronously
+              │       → embedding set in background (does not block redirect)
               └─ Redirect to /busco/[new_id]
 ```
 
@@ -478,7 +496,7 @@ Seller → /busco/[id] → Click "Ofrecer mi producto"
   │
   ├─ Is demand post owner → Button hidden (cannot offer to self)
   │
-  ├─ Demand status ≠ 'active' → Button disabled
+  ├─ Demand status ≠ 'active' OR expires_at < NOW() → Button disabled
   │
   └─ Show OfferProductModal:
       │
@@ -545,7 +563,8 @@ Header navigation:
 | Create demand post | Yes | RLS: auth.uid() = user_id |
 | Update own demand post | Yes | RLS: auth.uid() = user_id |
 | Delete own demand post | Yes | RLS: auth.uid() = user_id |
-| View offers (as buyer or seller) | Yes | RLS: auth.uid() = seller_id OR demand owner |
+| View offers on active demand posts | No (public) | RLS: demand_post is active AND expires_at > NOW() |
+| View offers on own demand posts (any status) | Yes | RLS: auth.uid() = demand owner |
 | Create offer | Yes | RLS: own product only |
 | Delete own offer | Yes | RLS: auth.uid() = seller_id |
 
@@ -660,21 +679,26 @@ The "Busco:" prefix differentiates demand embeddings from product embeddings in 
 
 ### 10.2 Generation Flow
 
+> **Decision (D2):** Embedding is generated via a **DB trigger** — same pattern as `products`. No client-side call needed.
+
 ```
-Client (after INSERT)
+INSERT INTO demand_posts (...)
   │
-  ├─ supabase.functions.invoke('generate-embedding', {
-  │    body: { text: embeddingText }
-  │  })
-  │
-  ├─ Receive { embedding: number[384] }
-  │
-  └─ supabase.from('demand_posts')
-       .update({ embedding })
-       .eq('id', demandPostId)
+  └─ DB TRIGGER: trigger_demand_post_embedding
+       │
+       ├─ Builds text: "Busco: {title}. {description}. Categoría: {category}"
+       │
+       └─ pg_net.http_post(
+            url  = supabase_url + '/functions/v1/generate-embedding',
+            body = { type: 'DEMAND', record: { id, text } }
+          )
+               │
+               └─ Edge Function handler (new DEMAND branch):
+                    ├─ generateEmbedding(text) → Hugging Face API → 384-dim vector
+                    └─ UPDATE demand_posts SET embedding = [...] WHERE id = record.id
 ```
 
-No changes needed to the Edge Function — it already supports Mode 2 (direct text input).
+**Edge Function change required:** Add `{ type: 'DEMAND', record: { id, text } }` handler to `supabase/functions/generate-embedding/index.ts`.
 
 ---
 
@@ -749,20 +773,25 @@ No changes needed to the Edge Function — it already supports Mode 2 (direct te
 Single migration file: `supabase/migrations/YYYYMMDD_create_demand_posts.sql`
 
 **Contains:**
-1. `demand_posts` table + constraints + indexes + HNSW index
+1. `demand_posts` table + constraints + indexes (scalar, composite, GIN FTS, HNSW)
 2. `demand_offers` table + constraints + indexes
-3. RLS policies for both tables
-4. `update_demand_offers_count()` trigger function
-5. `expire_demand_posts()` cron function
-6. `updated_at` trigger (reuses existing function)
+3. RLS policies for both tables (public offers on active posts)
+4. `update_demand_offers_count()` trigger function (offers_count denormalization)
+5. `update_demand_posts_search_vector()` trigger function (FTS, Spanish)
+6. `trigger_demand_post_embedding()` trigger function (pg_net → Edge Function)
+7. `updated_at` trigger (reuses existing function)
+8. **No `expire_demand_posts()` or cron** — expiration is a TTL query filter
 
 ### 13.2 Rollback Plan
 
 ```sql
-DROP TRIGGER IF EXISTS trg_demand_offers_count ON demand_offers;
-DROP TRIGGER IF EXISTS set_demand_posts_updated_at ON demand_posts;
+DROP TRIGGER IF EXISTS trg_demand_offers_count       ON demand_offers;
+DROP TRIGGER IF EXISTS trg_demand_posts_search_vector ON demand_posts;
+DROP TRIGGER IF EXISTS trg_demand_post_embedding      ON demand_posts;
+DROP TRIGGER IF EXISTS set_demand_posts_updated_at    ON demand_posts;
 DROP FUNCTION IF EXISTS update_demand_offers_count();
-DROP FUNCTION IF EXISTS expire_demand_posts();
+DROP FUNCTION IF EXISTS update_demand_posts_search_vector();
+DROP FUNCTION IF EXISTS trigger_demand_post_embedding();
 DROP TABLE IF EXISTS demand_offers;
 DROP TABLE IF EXISTS demand_posts;
 ```
