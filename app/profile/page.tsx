@@ -124,8 +124,8 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center">
-        <div className="flex items-center gap-2">
+      <div className="container mx-auto flex min-h-dvh items-center justify-center">
+        <div className="flex items-center gap-2" role="status" aria-live="polite">
           <Loader2 className="h-6 w-6 animate-spin" aria-hidden />
           <p>Cargando perfil...</p>
         </div>
@@ -135,11 +135,11 @@ export default function ProfilePage() {
 
   if (error || !profile) {
     return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center px-4">
-        <Card className="w-full max-w-md border-0 shadow-xl">
+      <div className="container mx-auto flex min-h-dvh items-center justify-center px-4">
+        <Card className="w-full max-w-md border-0 shadow-xl" role="alert">
           <CardContent className="p-6 text-center">
             <p className="text-destructive">{error || 'Perfil no encontrado'}</p>
-            <Button className="mt-4" onClick={() => router.push('/')}>
+            <Button className="mt-4 min-h-[44px]" onClick={() => router.push('/')}>
               Volver al inicio
             </Button>
           </CardContent>
@@ -160,7 +160,10 @@ export default function ProfilePage() {
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name} />
+                  <AvatarImage
+                    src={profile.avatar_url || undefined}
+                    alt={`Foto de perfil de ${profile.full_name}`}
+                  />
                   <AvatarFallback className={`text-lg font-medium ${getAvatarColor(profile.id)}`}>
                     {getInitials(profile.full_name)}
                   </AvatarFallback>
@@ -191,18 +194,16 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/profile/edit">
-                    <Edit className="mr-2 h-4 w-4" aria-hidden />
-                    Editar
-                  </Link>
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" aria-hidden />
-                  Salir
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-0 touch-manipulation"
+                asChild
+              >
+                <Link href="/profile/edit">
+                  <Edit className="mr-2 h-4 w-4" aria-hidden />
+                  Editar perfil
+                </Link>
+              </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -241,7 +242,7 @@ export default function ProfilePage() {
 
             {/* Incomplete Profile Warning */}
             {!isProfileComplete && (
-              <div className="rounded-md bg-yellow-50 p-4 dark:bg-yellow-950">
+              <div className="rounded-md bg-yellow-50 p-4 dark:bg-yellow-950" role="alert">
                 <div className="flex items-start gap-3">
                   <svg
                     className="h-5 w-5 text-yellow-600 dark:text-yellow-400"
@@ -256,9 +257,9 @@ export default function ProfilePage() {
                     />
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                    <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
                       Completa tu perfil
-                    </h3>
+                    </p>
                     <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
                       Agrega tu ubicación y más información para empezar a publicar productos.
                     </p>
@@ -363,6 +364,19 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Sign Out */}
+        <div className="flex justify-center pt-2 pb-4">
+          <Button
+            variant="ghost"
+            className="min-h-[44px] text-muted-foreground hover:text-destructive touch-manipulation"
+            onClick={handleSignOut}
+            aria-label="Cerrar sesión"
+          >
+            <LogOut className="mr-2 h-4 w-4" aria-hidden />
+            Cerrar sesión
+          </Button>
+        </div>
       </div>
     </div>
   )

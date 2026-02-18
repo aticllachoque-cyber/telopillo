@@ -13,8 +13,9 @@ import {
   PRODUCT_CONDITIONS,
   BOLIVIA_DEPARTMENTS,
 } from '@/lib/validations/product'
-import { CATEGORIES, getSubcategories } from '@/lib/data/categories'
+import { CATEGORIES, getSubcategories, CATEGORY_ICONS } from '@/lib/data/categories'
 import { ImageUpload } from '@/components/products/ImageUpload'
+import { CategoryGrid } from '@/components/products/CategoryGrid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -50,17 +51,17 @@ interface ProductFormWizardProps {
 }
 
 const STEPS = [
-  { id: 1, title: 'Información', description: 'Título y descripción', icon: FileText },
-  { id: 2, title: 'Detalles', description: 'Precio, estado y ubicación', icon: Tag },
-  { id: 3, title: 'Fotos', description: 'Imágenes del producto', icon: Camera },
+  { id: 1, title: 'Fotos', description: 'Imágenes del producto', icon: Camera },
+  { id: 2, title: 'Información', description: 'Título y descripción', icon: FileText },
+  { id: 3, title: 'Detalles', description: 'Precio, estado y ubicación', icon: Tag },
   { id: 4, title: 'Revisar', description: 'Confirmar y publicar', icon: Eye },
 ] as const
 
 // Fields validated per step
 const STEP_FIELDS: Record<number, (keyof ProductInput)[]> = {
-  1: ['title', 'description', 'category'],
-  2: ['price', 'condition', 'location_department', 'location_city'],
-  3: ['images'],
+  1: ['images'],
+  2: ['title', 'description', 'category'],
+  3: ['price', 'condition', 'location_department', 'location_city'],
   4: [],
 }
 
@@ -115,12 +116,35 @@ export function ProductFormWizard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory])
 
+  // Focus the first invalid field after failed validation
+  const focusFirstInvalidField = () => {
+    requestAnimationFrame(() => {
+      const firstError = document.querySelector<HTMLElement>('[aria-invalid="true"]')
+      if (firstError) {
+        firstError.focus()
+        firstError.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      }
+    })
+  }
+
+  // Scroll input into view when keyboard opens on mobile
+  const scrollInputIntoView = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if ('visualViewport' in window) {
+      requestAnimationFrame(() => {
+        e.target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      })
+    }
+  }
+
   // Validate current step and go to next
   const handleNext = async () => {
     const fieldsToValidate = STEP_FIELDS[currentStep] ?? []
     if (fieldsToValidate.length > 0) {
       const isValid = await trigger(fieldsToValidate)
-      if (!isValid) return
+      if (!isValid) {
+        focusFirstInvalidField()
+        return
+      }
     }
     setCurrentStep((prev) => Math.min(prev + 1, 4))
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -145,6 +169,7 @@ export function ProductFormWizard({
         const isValid = await trigger(fields)
         if (!isValid) {
           setCurrentStep(s)
+          focusFirstInvalidField()
           return
         }
       }
@@ -205,8 +230,12 @@ export function ProductFormWizard({
       }
     } catch (err) {
       console.error('Error saving product:', err)
-      setError(err instanceof Error ? err.message : 'Error al guardar el producto')
+      const errorMsg = err instanceof Error ? err.message : 'Error al guardar el producto'
+      setError(errorMsg)
       showToast('Error al guardar el producto', 'error')
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>('[role="alert"]')?.focus()
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -215,7 +244,7 @@ export function ProductFormWizard({
   // Helper: get category label
   const getCategoryLabel = (id: string) => {
     const cat = CATEGORIES.find((c) => c.id === id)
-    return cat ? `${cat.icon} ${cat.name}` : id
+    return cat?.name || id
   }
 
   return (
@@ -297,6 +326,7 @@ export function ProductFormWizard({
             aria-valuenow={currentStep}
             aria-valuemin={1}
             aria-valuemax={4}
+            aria-valuetext={`Paso ${currentStep} de ${STEPS.length}: ${STEPS[currentStep - 1]?.title}`}
           >
             <div
               className="bg-primary h-2 rounded-full transition-all duration-500 motion-reduce:transition-none"
@@ -330,7 +360,8 @@ export function ProductFormWizard({
       {error && (
         <div
           role="alert"
-          className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-4 flex items-start gap-3"
+          tabIndex={-1}
+          className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-4 flex items-start gap-3 outline-none focus-visible:ring-2 focus-visible:ring-destructive"
         >
           <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" aria-hidden />
           <div>
@@ -341,8 +372,49 @@ export function ProductFormWizard({
       )}
 
       <form onSubmit={(e) => e.preventDefault()}>
-        {/* Step 1: Basic Information */}
+        {/* Step 1: Images */}
         {currentStep === 1 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
+            <div className="mb-2">
+              <h2 className="text-xl font-semibold text-balance">Fotos del Producto</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Subí fotos claras y bien iluminadas. La primera imagen será la portada.
+              </p>
+            </div>
+
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-sm space-y-2">
+              <p className="font-medium">Tips para buenas fotos:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>Usá buena iluminación natural</li>
+                <li>Mostrá el producto desde varios ángulos</li>
+                <li>Incluí fotos de detalles o imperfecciones</li>
+                <li>La primera imagen será la portada del anuncio</li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <Label id="images-label">
+                Imágenes del Producto{' '}
+                <span className="text-destructive" aria-hidden="true">
+                  *
+                </span>
+                <span className="sr-only">(requerido)</span>
+              </Label>
+              <ImageUpload
+                userId={userId}
+                value={images || []}
+                onChange={(urls) => setValue('images', urls)}
+                maxImages={5}
+                disabled={isSubmitting}
+                error={errors.images?.message}
+              />
+              {errors.images && <p className="text-sm text-destructive">{errors.images.message}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Basic Information */}
+        {currentStep === 2 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Información Básica</h2>
@@ -361,8 +433,10 @@ export function ProductFormWizard({
                 {...register('title')}
                 placeholder="Ej: iPhone 13 Pro Max 256GB"
                 className="min-h-[44px] sm:min-h-0"
+                aria-required="true"
                 aria-invalid={errors.title ? 'true' : 'false'}
                 aria-describedby={errors.title ? 'title-error' : 'title-help'}
+                onFocus={scrollInputIntoView}
               />
               <div className="flex justify-between items-center">
                 <p id="title-help" className="text-xs text-muted-foreground">
@@ -387,9 +461,11 @@ export function ProductFormWizard({
                 {...register('description')}
                 placeholder="Describe tu producto en detalle: estado, características, qué incluye..."
                 rows={5}
-                className="min-h-[120px]"
+                className="min-h-[100px] sm:min-h-[120px]"
+                aria-required="true"
                 aria-invalid={errors.description ? 'true' : 'false'}
                 aria-describedby={errors.description ? 'description-error' : 'description-help'}
+                onFocus={scrollInputIntoView}
               />
               <div className="flex justify-between items-center">
                 <p id="description-help" className="text-xs text-muted-foreground">
@@ -404,45 +480,30 @@ export function ProductFormWizard({
               )}
             </div>
 
-            {/* Category & Subcategory */}
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="category">
-                  Categoría <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={selectedCategory}
-                  onValueChange={(value) => setValue('category', value as ProductInput['category'])}
-                >
-                  <SelectTrigger
-                    id="category"
-                    className="w-full"
-                    aria-invalid={errors.category ? 'true' : 'false'}
-                    aria-describedby={errors.category ? 'category-error' : undefined}
-                  >
-                    <SelectValue placeholder="Selecciona una categoría" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.icon} {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.category && (
-                  <p id="category-error" className="text-sm text-destructive">
-                    {errors.category.message}
-                  </p>
-                )}
-              </div>
+            {/* Category */}
+            <div className="space-y-2">
+              <Label>
+                Categoría <span className="text-destructive">*</span>
+              </Label>
+              <CategoryGrid
+                value={selectedCategory}
+                onChange={(value) => setValue('category', value as ProductInput['category'])}
+                error={!!errors.category}
+              />
+              {errors.category && (
+                <p id="category-error" className="text-sm text-destructive" role="alert">
+                  {errors.category.message}
+                </p>
+              )}
+            </div>
 
+            {/* Subcategory */}
+            {selectedCategory && subcategories.length > 0 && (
               <div className="space-y-2">
                 <Label htmlFor="subcategory">Subcategoría (Opcional)</Label>
                 <Select
                   value={watch('subcategory') || ''}
                   onValueChange={(value) => setValue('subcategory', value || undefined)}
-                  disabled={!selectedCategory || subcategories.length === 0}
                 >
                   <SelectTrigger id="subcategory" className="w-full">
                     <SelectValue placeholder="Selecciona una subcategoría" />
@@ -456,12 +517,12 @@ export function ProductFormWizard({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
+            )}
           </div>
         )}
 
-        {/* Step 2: Details */}
-        {currentStep === 2 && (
+        {/* Step 3: Details */}
+        {currentStep === 3 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Detalles del Producto</h2>
@@ -482,13 +543,16 @@ export function ProductFormWizard({
                 <Input
                   id="price"
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
                   min="1"
                   {...register('price', { valueAsNumber: true })}
                   placeholder="5000"
                   className="pl-10 min-h-[44px] sm:min-h-0"
+                  aria-required="true"
                   aria-invalid={errors.price ? 'true' : 'false'}
                   aria-describedby={errors.price ? 'price-error' : 'price-help'}
+                  onFocus={scrollInputIntoView}
                 />
               </div>
               <p id="price-help" className="text-xs text-muted-foreground">
@@ -509,6 +573,7 @@ export function ProductFormWizard({
               <RadioGroup
                 value={watch('condition')}
                 onValueChange={(value) => setValue('condition', value as ProductInput['condition'])}
+                aria-required="true"
                 aria-invalid={errors.condition ? 'true' : 'false'}
                 aria-describedby={errors.condition ? 'condition-error' : undefined}
                 className="grid gap-3"
@@ -564,6 +629,7 @@ export function ProductFormWizard({
                     <SelectTrigger
                       id="location_department"
                       className="w-full"
+                      aria-required="true"
                       aria-invalid={errors.location_department ? 'true' : 'false'}
                       aria-describedby={errors.location_department ? 'department-error' : undefined}
                     >
@@ -593,8 +659,11 @@ export function ProductFormWizard({
                     {...register('location_city')}
                     placeholder="Ej: La Paz"
                     className="min-h-[44px] sm:min-h-0"
+                    autoComplete="address-level2"
+                    aria-required="true"
                     aria-invalid={errors.location_city ? 'true' : 'false'}
                     aria-describedby={errors.location_city ? 'city-error' : undefined}
+                    onFocus={scrollInputIntoView}
                   />
                   {errors.location_city && (
                     <p id="city-error" className="text-sm text-destructive">
@@ -603,43 +672,6 @@ export function ProductFormWizard({
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Images */}
-        {currentStep === 3 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
-            <div className="mb-2">
-              <h2 className="text-xl font-semibold text-balance">Fotos del Producto</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Subí fotos claras y bien iluminadas. La primera imagen será la portada.
-              </p>
-            </div>
-
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-sm space-y-2">
-              <p className="font-medium">📸 Tips para buenas fotos:</p>
-              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>Usá buena iluminación natural</li>
-                <li>Mostrá el producto desde varios ángulos</li>
-                <li>Incluí fotos de detalles o imperfecciones</li>
-                <li>La primera imagen será la portada del anuncio</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <Label>
-                Imágenes del Producto <span className="text-destructive">*</span>
-              </Label>
-              <ImageUpload
-                userId={userId}
-                value={images || []}
-                onChange={(urls) => setValue('images', urls)}
-                maxImages={5}
-                disabled={isSubmitting}
-                error={errors.images?.message}
-              />
-              {errors.images && <p className="text-sm text-destructive">{errors.images.message}</p>}
             </div>
           </div>
         )}
@@ -691,7 +723,14 @@ export function ProductFormWizard({
 
                 {/* Category */}
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Package className="h-4 w-4" aria-hidden />
+                  {(() => {
+                    const CatIcon = watchAll.category ? CATEGORY_ICONS[watchAll.category] : null
+                    return CatIcon ? (
+                      <CatIcon className="h-4 w-4" aria-hidden />
+                    ) : (
+                      <Package className="h-4 w-4" aria-hidden />
+                    )
+                  })()}
                   <span>
                     {watchAll.category ? getCategoryLabel(watchAll.category) : 'Sin categoría'}
                     {watchAll.subcategory && ` › ${watchAll.subcategory}`}
@@ -763,7 +802,7 @@ export function ProductFormWizard({
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex items-center justify-between gap-4 pt-6 border-t mt-8 sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 py-4 -mx-1 px-1 sm:static sm:bg-transparent sm:backdrop-blur-none sm:py-0 sm:mx-0 sm:px-0 sm:pt-8">
+        <div className="flex items-center justify-between gap-4 pt-6 border-t mt-8 sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] -mx-1 px-1 sm:static sm:bg-transparent sm:backdrop-blur-none sm:py-0 sm:mx-0 sm:px-0 sm:pt-8 sm:pb-0">
           <Button
             type="button"
             variant="outline"

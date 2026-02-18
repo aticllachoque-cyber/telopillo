@@ -44,7 +44,7 @@ export default function PublicarPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" aria-hidden />
           <p className="text-muted-foreground mt-4" role="status" aria-live="polite">
@@ -66,7 +66,7 @@ export default function PublicarPage() {
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 min-h-[44px] -my-2 py-2 -ml-2 pl-2 pr-2 touch-manipulation"
           >
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />
             Volver al inicio
@@ -84,11 +84,17 @@ export default function PublicarPage() {
         <div className="mt-8 text-center text-sm text-muted-foreground">
           <p>
             Al publicar, aceptás nuestros{' '}
-            <Link href="/terminos" className="underline hover:text-foreground">
+            <Link
+              href="/terminos"
+              className="underline hover:text-foreground inline-flex items-center min-h-[44px] sm:min-h-0 touch-manipulation"
+            >
               Términos de Uso
             </Link>{' '}
             y{' '}
-            <Link href="/privacidad" className="underline hover:text-foreground">
+            <Link
+              href="/privacidad"
+              className="underline hover:text-foreground inline-flex items-center min-h-[44px] sm:min-h-0 touch-manipulation"
+            >
               Política de Privacidad
             </Link>
           </p>

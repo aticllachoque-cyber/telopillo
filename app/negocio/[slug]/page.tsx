@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: StorefrontPageProps): Promise
     return { title: 'Negocio no encontrado - Telopillo.bo' }
   }
 
-  const title = `${business.business_name} - Telopillo.bo`
+  const title = business.business_name
   const description = business.business_description
     ? business.business_description.slice(0, 160)
     : `Visita la tienda de ${business.business_name} en Telopillo.bo. Encuentra sus productos y ofertas.`
@@ -190,7 +190,10 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/" className="hover:text-foreground">
+                <Link
+                  href="/"
+                  className="inline-flex items-center min-h-[44px] py-2 hover:text-foreground touch-manipulation"
+                >
                   Inicio
                 </Link>
               </li>
@@ -202,16 +205,36 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
           </nav>
 
           {/* Header Card */}
-          <Card className="mb-8">
-            <CardContent className="p-6 sm:p-8">
+          <Card className="mb-6 sm:mb-8">
+            <CardContent className="p-4 sm:p-6">
               <BusinessHeader business={business} profile={profile} />
             </CardContent>
           </Card>
 
           {/* Main Content: Products + Sidebar */}
           <div className="grid gap-8 lg:grid-cols-3">
-            {/* Left: Products */}
-            <div className="lg:col-span-2 space-y-4">
+            {/* Sidebar — first on mobile so contact CTAs appear before products */}
+            <div className="order-1 lg:order-2 lg:col-span-1">
+              <div className="lg:sticky lg:top-8">
+                <BusinessInfoSidebar
+                  business={{
+                    business_hours: business.business_hours as Record<string, string> | null,
+                    business_address: business.business_address,
+                    business_department: business.business_department,
+                    business_city: business.business_city,
+                    website_url: business.website_url,
+                    social_facebook: business.social_facebook,
+                    social_instagram: business.social_instagram,
+                    social_tiktok: business.social_tiktok,
+                    social_whatsapp: business.social_whatsapp,
+                  }}
+                  phone={profile.phone}
+                />
+              </div>
+            </div>
+
+            {/* Products */}
+            <div className="order-2 lg:order-1 lg:col-span-2 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold flex items-center gap-2">
                   <Package className="size-5" aria-hidden="true" />
@@ -250,26 +273,6 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
                   </CardContent>
                 </Card>
               )}
-            </div>
-
-            {/* Right: Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8">
-                <BusinessInfoSidebar
-                  business={{
-                    business_hours: business.business_hours as Record<string, string> | null,
-                    business_address: business.business_address,
-                    business_department: business.business_department,
-                    business_city: business.business_city,
-                    website_url: business.website_url,
-                    social_facebook: business.social_facebook,
-                    social_instagram: business.social_instagram,
-                    social_tiktok: business.social_tiktok,
-                    social_whatsapp: business.social_whatsapp,
-                  }}
-                  phone={profile.phone}
-                />
-              </div>
             </div>
           </div>
         </div>

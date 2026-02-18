@@ -54,7 +54,27 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  try {
+    await supabase.auth.getUser()
+  } catch (error: unknown) {
+    // Gracefully handle stale refresh tokens instead of logging noisy errors.
+    // When a refresh token is invalid, clear the auth cookies so the browser
+    // stops sending the stale token on subsequent requests.
+    const isRefreshTokenError =
+      error instanceof Error &&
+      'code' in error &&
+      (error as { code?: string }).code === 'refresh_token_not_found'
+
+    if (isRefreshTokenError) {
+      const authCookiePrefix = 'sb-'
+      request.cookies.getAll().forEach((cookie) => {
+        if (cookie.name.startsWith(authCookiePrefix)) {
+          response.cookies.set(cookie.name, '', { maxAge: 0, path: '/' })
+        }
+      })
+    }
+    // Other auth errors are non-fatal for middleware — let the request proceed
+  }
 
   return response
 }

@@ -178,8 +178,8 @@ export default function ProfileEditPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center">
-        <div className="flex items-center gap-2">
+      <div className="container mx-auto flex min-h-dvh items-center justify-center">
+        <div className="flex items-center gap-2" role="status" aria-live="polite">
           <Loader2 className="h-6 w-6 animate-spin" aria-hidden />
           <p>Cargando perfil...</p>
         </div>
@@ -189,8 +189,8 @@ export default function ProfileEditPage() {
 
   if (success) {
     return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center px-4">
-        <div className="w-full max-w-md text-center">
+      <div className="container mx-auto flex min-h-dvh items-center justify-center px-4">
+        <div className="w-full max-w-md text-center" role="status" aria-live="polite">
           <div className="rounded-lg bg-green-50 p-8 dark:bg-green-950">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
               <svg
@@ -221,7 +221,7 @@ export default function ProfileEditPage() {
       <div className="mb-6">
         <Link
           href="/profile"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground min-h-[44px] py-2 touch-manipulation"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Volver al perfil
@@ -234,7 +234,7 @@ export default function ProfileEditPage() {
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="text-3xl">Editar Perfil</CardTitle>
+                <h1 className="text-3xl leading-none font-semibold">Editar Perfil</h1>
                 <CardDescription>
                   Completa tu información para empezar a publicar y comprar
                 </CardDescription>

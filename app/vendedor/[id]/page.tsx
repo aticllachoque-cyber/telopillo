@@ -172,15 +172,15 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
           {/* Back link */}
           <Link
             href="/"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
+            className="inline-flex items-center min-h-[44px] py-2 text-sm text-muted-foreground hover:text-foreground mb-6 touch-manipulation"
           >
             <ArrowLeft className="mr-2 size-4" aria-hidden />
             Volver
           </Link>
 
           {/* Seller Header */}
-          <Card className="mb-8">
-            <CardContent className="p-6 sm:p-8">
+          <Card className="mb-6 sm:mb-8">
+            <CardContent className="p-4 sm:p-6">
               <SellerProfileHeader
                 profile={profile}
                 businessSlug={businessSlug}
@@ -193,10 +193,15 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
           <section>
             <h2 className="text-xl font-semibold mb-6">
               Productos de {profile.full_name || 'este vendedor'}
+              {products.length > 0 && (
+                <span className="text-base font-normal text-muted-foreground ml-2">
+                  ({products.length})
+                </span>
+              )}
             </h2>
 
             {products.length > 0 ? (
-              <ProductGrid products={products} showActions={false} />
+              <ProductGrid products={products} showActions={false} showStatusBadge={false} />
             ) : (
               <Card>
                 <CardContent

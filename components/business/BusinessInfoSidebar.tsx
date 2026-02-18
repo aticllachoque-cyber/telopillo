@@ -48,11 +48,21 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
   const todayHours = hours?.[todayKey]
   const isOpenToday = !!todayHours && todayHours !== 'closed'
 
+  // Normalize a Bolivian phone number to include the country code
+  function normalizeBolivianPhone(raw: string): string {
+    const digits = raw.replace(/[^0-9]/g, '')
+    if (digits.startsWith('591')) return digits
+    return `591${digits}`
+  }
+
   // Build WhatsApp link
   const whatsappNumber = business.social_whatsapp || phone
   const whatsappLink = whatsappNumber
-    ? `https://wa.me/${whatsappNumber.replace(/[^0-9+]/g, '').replace('+', '')}`
+    ? `https://wa.me/${normalizeBolivianPhone(whatsappNumber)}`
     : null
+
+  // Build tel: link with country code
+  const telLink = phone ? `tel:+${normalizeBolivianPhone(phone)}` : null
 
   const hasSocialLinks =
     business.social_facebook || business.social_instagram || business.social_tiktok
@@ -61,22 +71,20 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
   const hasHours = hours && Object.keys(hours).length > 0
   const hasLocation = location || business.business_address
 
-  // Show empty state when sidebar has no meaningful content
+  // Return nothing when sidebar has no meaningful content
   if (!hasContactInfo && !hasHours && !hasLocation) {
-    return (
-      <div className="rounded-lg border border-dashed p-6 text-center" role="status">
-        <p className="text-sm text-muted-foreground">
-          Este negocio aún no ha completado su información de contacto.
-        </p>
-      </div>
-    )
+    return null
   }
 
   return (
     <div className="space-y-4">
       {/* WhatsApp CTA - most important for Bolivian market */}
       {whatsappLink && (
-        <Button asChild className="w-full bg-green-700 hover:bg-green-800 text-white" size="lg">
+        <Button
+          asChild
+          className="w-full min-h-[44px] bg-green-700 hover:bg-green-800 text-white"
+          size="lg"
+        >
           <a
             href={whatsappLink}
             target="_blank"
@@ -92,9 +100,9 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
       )}
 
       {/* Phone */}
-      {phone && (
-        <Button asChild variant="outline" className="w-full" size="lg">
-          <a href={`tel:${phone}`} aria-label={`Llamar al ${phone}`}>
+      {phone && telLink && (
+        <Button asChild variant="outline" className="w-full min-h-[44px]" size="lg">
+          <a href={telLink} aria-label={`Llamar al ${phone}`}>
             <Phone className="size-4 mr-2" aria-hidden="true" />
             {phone}
           </a>
@@ -167,8 +175,8 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
         </Card>
       )}
 
-      {/* Contact & Social Links */}
-      {hasContactInfo && (
+      {/* Contact & Social Links — only show when actual links exist */}
+      {(business.website_url || hasSocialLinks) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">

@@ -228,7 +228,28 @@ await navigator.share({
 
 ---
 
-## 10. Future Architecture Considerations
+## 10. Extension: Product-Level Sharing
+
+After M4.6 core completion, product-level sharing was added to `ProductActions.tsx`:
+
+```
+components/products/ProductActions.tsx (modified)
+
+New function: handleShareProduct()
+  - Computes product URL: `${BASE_URL}/productos/${productId}`
+  - Same Web Share API + clipboard fallback pattern as ShareProfile
+  - Triggered from "Compartir" DropdownMenuItem in the product actions menu
+
+New prop: productTitle?: string
+  - Used in share text: "Mira este producto: {title}"
+  - Passed from ProductCard, mis-productos page, and product detail page
+```
+
+This follows the same architectural pattern as `ShareProfile` (browser APIs only, no backend changes) but is implemented directly in `ProductActions` rather than as a separate component, since it integrates into an existing dropdown menu.
+
+---
+
+## 11. Future Architecture Considerations
 
 | Enhancement | Architecture Impact |
 |-------------|-------------------|

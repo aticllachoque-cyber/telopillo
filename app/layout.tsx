@@ -9,8 +9,45 @@ import { AuthProvider } from '@/components/providers/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Telopillo.bo - Marketplace Boliviano',
-  description: 'Lo que buscás, ¡telopillo!',
+  title: {
+    default: 'Telopillo.bo - Comprar y Vender en Bolivia | Marketplace Boliviano',
+    template: '%s | Telopillo.bo',
+  },
+  description:
+    'El marketplace 100% boliviano para comprar y vender de todo. Sin comisiones. Electrónica, vehículos, moda y más en los 9 departamentos de Bolivia.',
+  keywords: [
+    'comprar',
+    'vender',
+    'Bolivia',
+    'marketplace',
+    'clasificados',
+    'telopillo',
+    'La Paz',
+    'Santa Cruz',
+    'Cochabamba',
+    'gratis',
+  ],
+  authors: [{ name: 'Telopillo.bo' }],
+  creator: 'Telopillo.bo',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'),
+  openGraph: {
+    type: 'website',
+    locale: 'es_BO',
+    siteName: 'Telopillo.bo',
+    title: 'Telopillo.bo - Comprar y Vender en Bolivia',
+    description:
+      'El marketplace 100% boliviano. Comprá y vendé de todo sin comisiones en los 9 departamentos.',
+    url: '/',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Telopillo.bo - Marketplace Boliviano',
+    description: 'Comprá y vendé de todo en Bolivia. Sin comisiones. 100% boliviano.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({

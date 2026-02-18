@@ -329,7 +329,11 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
               onValueChange={(val) => setValue('business_category', val)}
               disabled={isSaving}
             >
-              <SelectTrigger className="h-11 w-full" id="business_category">
+              <SelectTrigger
+                className="h-11 w-full"
+                id="business_category"
+                aria-invalid={!!errors.business_category}
+              >
                 <SelectValue placeholder="Selecciona categoría" />
               </SelectTrigger>
               <SelectContent>

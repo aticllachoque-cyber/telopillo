@@ -1,8 +1,39 @@
+import {
+  Smartphone,
+  Car,
+  Home,
+  Shirt,
+  Hammer,
+  Dumbbell,
+  Baby,
+  Sparkles,
+  BookOpen,
+  type LucideIcon,
+} from 'lucide-react'
+
 export interface Category {
   id: string
   name: string
   icon: string
   subcategories: string[]
+}
+
+/** Centralized Lucide icon mapping for categories */
+export const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  electronics: Smartphone,
+  vehicles: Car,
+  home: Home,
+  fashion: Shirt,
+  construction: Hammer,
+  sports: Dumbbell,
+  baby: Baby,
+  beauty: Sparkles,
+  books: BookOpen,
+}
+
+/** Get the Lucide icon component for a category */
+export function getCategoryIcon(categoryId: string): LucideIcon | undefined {
+  return CATEGORY_ICONS[categoryId]
 }
 
 export const CATEGORIES: Category[] = [

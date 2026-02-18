@@ -70,6 +70,7 @@ export function SearchBar({
           className="pl-9 pr-9 min-h-[44px] sm:min-h-0"
           autoFocus={autoFocus}
           disabled={isSearching}
+          maxLength={200}
           aria-label="Buscar productos"
         />
         {/* C3: Clear button with proper touch target */}

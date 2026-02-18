@@ -75,7 +75,7 @@ export function UserMenu() {
           <Avatar className="size-9">
             <AvatarImage
               src={profile?.avatar_url || undefined}
-              alt={profile?.full_name || 'Usuario'}
+              alt={`Foto de perfil de ${profile?.full_name || 'Usuario'}`}
             />
             <AvatarFallback className={`font-medium ${getAvatarColor(user.id)}`}>
               {initials}

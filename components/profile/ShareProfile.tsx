@@ -70,22 +70,33 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
         <div
           className="truncate rounded-md bg-muted px-3 py-2 font-mono text-sm text-foreground"
           title={shareUrl}
-          aria-label="Tu enlace público"
+          role="textbox"
+          aria-readonly="true"
+          aria-label="Tu enlace público de perfil"
+          tabIndex={0}
         >
           {shareUrl}
         </div>
         <div className="flex gap-3">
-          <Button variant="default" onClick={handleShare} className="gap-2">
+          <Button
+            variant="default"
+            onClick={handleShare}
+            className="gap-2 min-h-[44px] sm:min-h-0 touch-manipulation"
+          >
             <Share2 className="h-4 w-4" aria-hidden />
             Compartir
           </Button>
-          <Button variant="outline" onClick={handleCopy} className="gap-2">
+          <Button
+            variant="outline"
+            onClick={handleCopy}
+            className="gap-2 min-h-[44px] sm:min-h-0 touch-manipulation"
+          >
             {copied ? (
               <Check className="h-4 w-4 text-green-600 dark:text-green-400" aria-hidden />
             ) : (
               <Copy className="h-4 w-4" aria-hidden />
             )}
-            {copied ? 'Copiado' : 'Copiar enlace'}
+            <span aria-live="polite">{copied ? 'Copiado' : 'Copiar enlace'}</span>
           </Button>
         </div>
       </CardContent>

@@ -132,9 +132,9 @@ Base URL: `process.env.NEXT_PUBLIC_APP_URL` or fallback `https://telopillo.bo`
 **So that** I don't have to copy-paste manually
 
 **Acceptance Criteria:**
-- "Compartir" button visible on mobile (when Web Share API available)
-- Native share sheet opens with title, text, and URL
-- Falls back to clipboard copy on desktop
+- "Compartir" button always visible (mobile and desktop)
+- On mobile: triggers native share sheet with title, text, and URL
+- On desktop or when Web Share API is unavailable: falls back to clipboard copy
 - Works on Android Chrome and iOS Safari
 
 ### US-4.6.3: Share from Product Management
@@ -172,7 +172,16 @@ Base URL: `process.env.NEXT_PUBLIC_APP_URL` or fallback `https://telopillo.bo`
 
 ---
 
-## 7. Out of Scope
+## 7. Delivered Extension: Product-Level Sharing
+
+After the core M4.6 scope was completed, product-level sharing was added:
+
+- Sellers can share individual products from the dashboard actions dropdown ("Compartir")
+- Same Web Share API + clipboard fallback pattern as profile sharing
+- Share includes product title and direct URL (`/productos/{id}`)
+- Implemented in `ProductActions.tsx` with `handleShareProduct()` function
+
+## 8. Out of Scope
 
 - QR code generation (future enhancement)
 - Username/slug for personal profiles (future enhancement)
@@ -182,7 +191,7 @@ Base URL: `process.env.NEXT_PUBLIC_APP_URL` or fallback `https://telopillo.bo`
 
 ---
 
-## 8. Dependencies
+## 9. Dependencies
 
 | Dependency | Status | Required For |
 |------------|--------|--------------|

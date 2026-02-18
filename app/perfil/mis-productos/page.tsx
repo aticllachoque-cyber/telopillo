@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, Plus, Package, ArrowLeft } from 'lucide-react'
+import { Loader2, Plus, Package, ArrowLeft, ArrowUpDown } from 'lucide-react'
 import Link from 'next/link'
 import { ShareProfile } from '@/components/profile/ShareProfile'
 
@@ -138,27 +138,28 @@ export default function MisProductosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="container max-w-7xl">
         {/* Header */}
         <div className="mb-6">
           <Link
             href="/profile"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 min-h-[44px] py-2"
+            aria-label="Volver al perfil"
           >
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />
             Volver al perfil
           </Link>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-3xl font-bold">Mis Productos</h1>
               <p className="text-muted-foreground mt-2">Gestiona tus publicaciones</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
               {userId && (
                 <ShareProfile profileId={userId} businessSlug={businessSlug} variant="compact" />
               )}
-              <Button asChild>
+              <Button asChild className="flex-1 sm:flex-initial">
                 <Link href="/publicar">
                   <Plus className="mr-2 h-4 w-4" aria-hidden />
                   Publicar Nuevo
@@ -169,57 +170,71 @@ export default function MisProductosPage() {
         </div>
 
         {/* Filters and Sort */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* Status Filter */}
-              <div className="flex-1">
-                <label htmlFor="status-filter" className="text-sm font-medium mb-2 block">
-                  Estado
-                </label>
-                <Select
-                  value={statusFilter}
-                  onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+        <div className="mb-6 space-y-3">
+          {/* Status pills */}
+          <div role="group" aria-labelledby="status-filter-label">
+            <span id="status-filter-label" className="sr-only">
+              Filtrar por estado
+            </span>
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+              {(
+                [
+                  { value: 'all', label: 'Todos' },
+                  { value: 'active', label: 'Activos' },
+                  { value: 'sold', label: 'Vendidos' },
+                  { value: 'inactive', label: 'Inactivos' },
+                ] as const
+              ).map(({ value, label }) => (
+                <Button
+                  key={value}
+                  variant={statusFilter === value ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setStatusFilter(value)}
+                  aria-pressed={statusFilter === value}
+                  className="shrink-0 min-h-[36px]"
                 >
-                  <SelectTrigger id="status-filter">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="active">Activos</SelectItem>
-                    <SelectItem value="sold">Vendidos</SelectItem>
-                    <SelectItem value="inactive">Inactivos</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Sort */}
-              <div className="flex-1">
-                <label htmlFor="sort-option" className="text-sm font-medium mb-2 block">
-                  Ordenar por
-                </label>
-                <Select
-                  value={sortOption}
-                  onValueChange={(value) => setSortOption(value as SortOption)}
-                >
-                  <SelectTrigger id="sort-option">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest">Más recientes</SelectItem>
-                    <SelectItem value="oldest">Más antiguos</SelectItem>
-                    <SelectItem value="price_desc">Precio: Mayor a menor</SelectItem>
-                    <SelectItem value="price_asc">Precio: Menor a mayor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  {label}
+                </Button>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Sort + product count */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="size-4 text-muted-foreground shrink-0" aria-hidden />
+              <Select
+                value={sortOption}
+                onValueChange={(value) => setSortOption(value as SortOption)}
+              >
+                <SelectTrigger
+                  id="sort-option"
+                  className="w-auto gap-1 border-0 shadow-none px-1 text-sm text-muted-foreground hover:text-foreground focus:ring-offset-0"
+                  aria-label="Ordenar por"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent side="bottom" sideOffset={4} collisionPadding={16}>
+                  <SelectItem value="newest">Más recientes</SelectItem>
+                  <SelectItem value="oldest">Más antiguos</SelectItem>
+                  <SelectItem value="price_desc">Precio: Mayor a menor</SelectItem>
+                  <SelectItem value="price_asc">Precio: Menor a mayor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p
+              className="text-sm text-muted-foreground tabular-nums"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {products.length} producto{products.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
 
         {/* Error State */}
         {error && (
-          <Card className="mb-6 border-destructive">
+          <Card className="mb-6 border-destructive" role="alert">
             <CardContent className="p-4">
               <p className="text-destructive">{error}</p>
             </CardContent>
@@ -228,12 +243,7 @@ export default function MisProductosPage() {
 
         {/* Products Grid */}
         {products.length > 0 ? (
-          <>
-            <div className="mb-4 text-sm text-muted-foreground">
-              {products.length} producto{products.length !== 1 ? 's' : ''}
-            </div>
-            <ProductGrid products={products} onUpdate={handleUpdate} showActions={true} />
-          </>
+          <ProductGrid products={products} onUpdate={handleUpdate} showActions={true} />
         ) : (
           /* Empty State */
           <Card className="border-dashed">

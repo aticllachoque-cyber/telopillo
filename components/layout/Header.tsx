@@ -91,25 +91,55 @@ export function Header() {
           <UserMenu />
         </nav>
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => {
-            if (mobileMenuOpen) {
-              closeMenu()
-            } else {
-              previousActiveElement.current = document.activeElement as HTMLElement | null
-              setMobileMenuOpen(true)
-            }
-          }}
-          aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="mobile-nav-dialog"
-        >
-          <Menu className="h-6 w-6" aria-hidden />
-        </Button>
+        {/* Mobile controls: avatar/login + hamburger */}
+        <div className="flex md:hidden items-center gap-2">
+          {!isAuthenticated ? (
+            <Button asChild size="sm">
+              <Link href="/login">Ingresar</Link>
+            </Button>
+          ) : profile ? (
+            <Link
+              href="/profile"
+              className="shrink-0 rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 touch-manipulation"
+              aria-label="Ir a mi perfil"
+            >
+              <Avatar className="size-9">
+                <AvatarImage
+                  src={profile.avatar_url || undefined}
+                  alt={`Foto de perfil de ${profile.full_name}`}
+                />
+                <AvatarFallback className={`text-xs font-medium ${getAvatarColor(user?.id || '')}`}>
+                  {profile.full_name
+                    ?.split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+          ) : null}
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="min-h-[44px] min-w-[44px] touch-manipulation"
+            onClick={() => {
+              if (mobileMenuOpen) {
+                closeMenu()
+              } else {
+                previousActiveElement.current = document.activeElement as HTMLElement | null
+                setMobileMenuOpen(true)
+              }
+            }}
+            aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-dialog"
+          >
+            <Menu className="h-6 w-6" aria-hidden />
+          </Button>
+        </div>
       </div>
 
       {/* Mobile Menu rendered via Portal to escape header stacking context */}
@@ -136,7 +166,10 @@ export function Header() {
                 {isAuthenticated && profile ? (
                   <div className="flex items-center gap-3">
                     <Avatar className="size-9">
-                      <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name} />
+                      <AvatarImage
+                        src={profile.avatar_url || undefined}
+                        alt={`Foto de perfil de ${profile.full_name}`}
+                      />
                       <AvatarFallback
                         className={`text-sm font-medium ${getAvatarColor(user?.id || '')}`}
                       >
@@ -161,7 +194,7 @@ export function Header() {
                   size="icon"
                   onClick={() => closeMenu()}
                   aria-label="Cerrar menú"
-                  className="size-8 shrink-0"
+                  className="size-10 shrink-0 touch-manipulation"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

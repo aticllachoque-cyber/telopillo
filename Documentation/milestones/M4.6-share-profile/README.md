@@ -146,6 +146,26 @@ Personal account:  {NEXT_PUBLIC_APP_URL}/vendedor/{id}
 
 ---
 
+## Extension: Product-Level Sharing (Delivered)
+
+After completing the core M4.6 scope, product-level sharing was added to `ProductActions.tsx`:
+
+- **Share individual products** from the dashboard dropdown menu and product detail page
+- Uses the same Web Share API + clipboard fallback pattern as profile sharing
+- Share data includes product title and URL (`/productos/{id}`)
+- Accessible via the "Compartir" option in the product actions dropdown
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `components/products/ProductActions.tsx` | Added `handleShareProduct()`, Share2 icon, "Compartir" dropdown item |
+| `components/products/ProductCard.tsx` | Passes `productTitle` to ProductActions |
+| `app/perfil/mis-productos/page.tsx` | Passes `productTitle` to ProductActions |
+| `app/productos/[id]/page.tsx` | Passes `productTitle` to ProductActions (buttons variant) |
+
+---
+
 ## Future Enhancements (Deferred)
 
 - **QR code generation** -- For in-person sharing (requires `qrcode.react` dependency)

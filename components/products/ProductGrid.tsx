@@ -22,23 +22,36 @@ interface ProductGridProps {
   products: Product[]
   onUpdate?: () => void
   showActions?: boolean
+  /** Show or hide status badges on cards (hide on public-facing pages) */
+  showStatusBadge?: boolean
 }
 
-export function ProductGrid({ products, onUpdate, showActions = true }: ProductGridProps) {
+export function ProductGrid({
+  products,
+  onUpdate,
+  showActions = true,
+  showStatusBadge,
+}: ProductGridProps) {
   if (products.length === 0) {
     return null
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          onUpdate={onUpdate}
-          showActions={showActions}
-        />
+    <ul
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0"
+      role="list"
+    >
+      {products.map((product, index) => (
+        <li key={product.id}>
+          <ProductCard
+            product={product}
+            onUpdate={onUpdate}
+            showActions={showActions}
+            showStatusBadge={showStatusBadge ?? showActions}
+            priority={index === 0}
+          />
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }

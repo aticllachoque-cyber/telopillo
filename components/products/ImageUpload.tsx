@@ -11,7 +11,7 @@ import {
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
-import { Upload, X, Loader2, GripVertical, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Upload, X, Loader2, CameraIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ImageUploadProps {
   userId: string
@@ -43,7 +43,9 @@ export function ImageUpload({
   )
   const [isDragging, setIsDragging] = useState(false)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [uploadingCount, setUploadingCount] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   const { showToast } = useToast()
 
@@ -84,6 +86,7 @@ export function ImageUpload({
     }))
 
     setPreviews((prev) => [...prev, ...newPreviews])
+    setUploadingCount(fileArray.length)
 
     // Upload each file
     for (let i = 0; i < fileArray.length; i++) {
@@ -125,6 +128,7 @@ export function ImageUpload({
           }
           return updated
         })
+        setUploadingCount((c) => Math.max(0, c - 1))
       } catch (err) {
         console.error('Error uploading image:', err)
         setPreviews((prev) => {
@@ -140,6 +144,7 @@ export function ImageUpload({
           }
           return updated
         })
+        setUploadingCount((c) => Math.max(0, c - 1))
       }
     }
   }
@@ -243,79 +248,126 @@ export function ImageUpload({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="group" aria-labelledby="image-upload-label">
+      <span id="image-upload-label" className="sr-only">
+        Carga de imágenes del producto
+      </span>
+
+      {/* Upload Status (screen reader live region) */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {uploadingCount > 0
+          ? `Subiendo ${uploadingCount} imagen${uploadingCount > 1 ? 'es' : ''}...`
+          : ''}
+      </div>
+
       {/* Upload Zone */}
       {previews.length < maxImages && (
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`
-            relative border-2 border-dashed rounded-lg p-8 text-center
-            transition-colors cursor-pointer
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-            ${
-              isDragging
-                ? 'border-primary bg-primary/5'
-                : 'border-muted-foreground/25 hover:border-primary/50'
-            }
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-          onClick={() => !disabled && fileInputRef.current?.click()}
-          role="button"
-          tabIndex={0}
-          aria-label="Zona de carga de imágenes"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              if (!disabled) {
-                fileInputRef.current?.click()
+        <div className="space-y-3">
+          {/* Main upload zone: gallery/file picker */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`
+              relative border-2 border-dashed rounded-lg p-6 sm:p-8 text-center
+              transition-colors cursor-pointer
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+              ${
+                isDragging
+                  ? 'border-primary bg-primary/5'
+                  : 'border-muted-foreground/25 hover:border-primary/50'
               }
-            }
-          }}
-        >
+              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
+            onClick={() => !disabled && fileInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            aria-label="Seleccionar imágenes de la galería"
+            aria-describedby={error ? 'image-upload-error' : 'image-upload-help'}
+            aria-disabled={disabled}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                if (!disabled) {
+                  fileInputRef.current?.click()
+                }
+              }
+            }}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              multiple
+              onChange={(e) => handleFileSelect(e.target.files)}
+              className="hidden"
+              disabled={disabled}
+              aria-label="Seleccionar imágenes de la galería"
+            />
+
+            <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" aria-hidden />
+
+            <p className="text-sm font-medium mb-2">
+              {isDragging ? (
+                'Suelta las imágenes aquí'
+              ) : (
+                <>
+                  <span className="sm:hidden">Toca para seleccionar imágenes</span>
+                  <span className="hidden sm:inline">
+                    Arrastra imágenes o haz click para seleccionar
+                  </span>
+                </>
+              )}
+            </p>
+
+            <p id="image-upload-help" className="text-xs text-muted-foreground">
+              JPG, PNG o WebP • Máximo 5MB por imagen • {previews.length}/{maxImages} imágenes
+            </p>
+          </div>
+
+          {/* Camera capture button (visible on mobile) */}
+          <button
+            type="button"
+            onClick={() => !disabled && cameraInputRef.current?.click()}
+            disabled={disabled}
+            className={`
+              sm:hidden w-full flex items-center justify-center gap-2 border-2 border-dashed
+              rounded-lg p-4 text-sm font-medium transition-colors min-h-[44px] touch-manipulation
+              ${disabled ? 'opacity-50 cursor-not-allowed' : 'border-muted-foreground/25 hover:border-primary/50 text-muted-foreground hover:text-foreground cursor-pointer'}
+            `}
+            aria-label="Tomar foto con la cámara"
+          >
+            <CameraIcon className="h-5 w-5" aria-hidden />
+            Tomar foto
+          </button>
           <input
-            ref={fileInputRef}
+            ref={cameraInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp"
-            multiple
+            accept="image/*"
+            capture="environment"
             onChange={(e) => handleFileSelect(e.target.files)}
             className="hidden"
             disabled={disabled}
-            aria-label="Seleccionar imágenes"
+            aria-label="Tomar foto con la cámara"
           />
-
-          <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" aria-hidden />
-
-          <p className="text-sm font-medium mb-2">
-            {isDragging ? (
-              'Suelta las imágenes aquí'
-            ) : (
-              <>
-                <span className="sm:hidden">Toca para seleccionar imagenes</span>
-                <span className="hidden sm:inline">
-                  Arrastra imagenes o haz click para seleccionar
-                </span>
-              </>
-            )}
-          </p>
-
-          <p className="text-xs text-muted-foreground">
-            JPG, PNG o WebP • Máximo 5MB por imagen • {previews.length}/{maxImages} imágenes
-          </p>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <p className="text-sm text-destructive" role="alert">
+        <p
+          id="image-upload-error"
+          className="text-sm text-destructive"
+          role="alert"
+          aria-live="assertive"
+        >
           {error}
         </p>
       )}
 
       {/* Image Previews */}
       {previews.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           {previews.map((preview, index) => (
             <div
               key={preview.url}
@@ -326,19 +378,38 @@ export function ImageUpload({
               className={`
                 relative group rounded-lg overflow-hidden border-2
                 ${draggedIndex === index ? 'border-primary opacity-50' : 'border-border'}
-                ${!preview.uploading && !disabled ? 'cursor-move' : ''}
+                ${!preview.uploading && !disabled ? 'sm:cursor-move' : ''}
               `}
             >
-              {/* Drag Handle */}
+              {/* Drag Handle (desktop only) */}
               {!preview.uploading && !disabled && (
-                <div className="absolute top-2 left-2 z-10 bg-background/80 rounded p-1">
-                  <GripVertical className="h-4 w-4 text-muted-foreground" aria-hidden />
+                <div className="hidden sm:flex absolute top-2 left-2 z-10 bg-background/80 rounded p-1">
+                  <svg
+                    className="h-4 w-4 text-muted-foreground"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="9" cy="12" r="1" />
+                    <circle cx="9" cy="5" r="1" />
+                    <circle cx="9" cy="19" r="1" />
+                    <circle cx="15" cy="12" r="1" />
+                    <circle cx="15" cy="5" r="1" />
+                    <circle cx="15" cy="19" r="1" />
+                  </svg>
                 </div>
               )}
 
               {/* Image Index Badge */}
               <div className="absolute top-2 right-2 z-10 bg-background/80 rounded px-2 py-1 text-xs font-medium">
-                {index + 1}
+                {index === 0 ? 'Portada' : index + 1}
               </div>
 
               {/* Image */}
@@ -346,13 +417,17 @@ export function ImageUpload({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={preview.url}
-                  alt={`Imagen ${index + 1}`}
+                  alt={`Imagen ${index + 1} del producto${index === 0 ? ' (portada)' : ''}`}
                   className="w-full h-full object-cover"
                 />
 
                 {/* Loading Overlay */}
                 {preview.uploading && (
-                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                  <div
+                    className="absolute inset-0 bg-background/80 flex items-center justify-center"
+                    role="status"
+                    aria-live="polite"
+                  >
                     <div className="text-center">
                       <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" aria-hidden />
                       <p className="text-xs text-muted-foreground">Subiendo...</p>
@@ -362,13 +437,17 @@ export function ImageUpload({
 
                 {/* Error Overlay */}
                 {preview.error && (
-                  <div className="absolute inset-0 bg-destructive/10 flex items-center justify-center p-2">
+                  <div
+                    className="absolute inset-0 bg-destructive/10 flex items-center justify-center p-2"
+                    role="alert"
+                    aria-live="assertive"
+                  >
                     <p className="text-xs text-destructive text-center">{preview.error}</p>
                   </div>
                 )}
               </div>
 
-              {/* Reorder Buttons (keyboard accessible alternative to drag) */}
+              {/* Reorder Buttons (always visible on mobile, hover on desktop) */}
               {!preview.uploading && previews.length > 1 && (
                 <div className="absolute bottom-2 left-2 flex gap-1">
                   <Button
@@ -424,10 +503,15 @@ export function ImageUpload({
         </div>
       )}
 
-      {/* Help Text */}
+      {/* Help Text (device-aware) */}
       {previews.length > 0 && previews.length < maxImages && (
-        <p className="text-xs text-muted-foreground">
-          💡 Arrastra las imágenes para reordenarlas. La primera será la imagen principal.
+        <p className="text-xs text-muted-foreground" aria-hidden="true">
+          <span className="sm:hidden">
+            Usá las flechas para reordenar. La primera será la imagen principal.
+          </span>
+          <span className="hidden sm:inline">
+            Arrastra las imágenes para reordenarlas. La primera será la imagen principal.
+          </span>
         </p>
       )}
     </div>

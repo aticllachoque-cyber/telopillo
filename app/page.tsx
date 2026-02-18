@@ -8,61 +8,79 @@ import {
   ChevronRight,
   Smartphone,
   MapPin,
-  Monitor,
-  Car,
-  Home as HomeIcon,
-  Shirt,
-  Sofa,
-  Dumbbell,
-  Wrench,
-  MoreHorizontal,
   Upload,
+  ShieldCheck,
+  MoreHorizontal,
 } from 'lucide-react'
+import { CATEGORIES, CATEGORY_ICONS } from '@/lib/data/categories'
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Telopillo.bo',
+  url: BASE_URL,
+  description: 'El marketplace 100% boliviano para comprar y vender de todo. Sin comisiones.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${BASE_URL}/buscar?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+}
+
+const HOMEPAGE_CATEGORY_IDS = [
+  'electronics',
+  'vehicles',
+  'home',
+  'fashion',
+  'sports',
+  'construction',
+  'baby',
+]
+
+const features = [
+  {
+    Icon: Upload,
+    title: 'Publicá Gratis',
+    description: 'Sin costo ni comisiones. Llegá a compradores en toda Bolivia.',
+  },
+  {
+    Icon: Search,
+    title: 'Búsqueda Inteligente',
+    description: 'Encontrá lo que buscás con filtros por ubicación, categoría y precio.',
+  },
+  {
+    Icon: MessageCircle,
+    title: 'Chat Directo',
+    description: 'Hablá con compradores y vendedores en tiempo real.',
+  },
+  {
+    Icon: Smartphone,
+    title: 'Hecho para Celular',
+    description: 'Optimizado para la mejor experiencia móvil en Bolivia.',
+  },
+]
 
 export default function Home() {
-  const categories = [
-    { name: 'Electrónica', slug: 'electronica', Icon: Monitor },
-    { name: 'Vehículos', slug: 'vehiculos', Icon: Car },
-    { name: 'Inmuebles', slug: 'inmuebles', Icon: HomeIcon },
-    { name: 'Moda', slug: 'moda', Icon: Shirt },
-    { name: 'Hogar', slug: 'hogar', Icon: Sofa },
-    { name: 'Deportes', slug: 'deportes', Icon: Dumbbell },
-    { name: 'Servicios', slug: 'servicios', Icon: Wrench },
-    { name: 'Ver todas', slug: 'categorias', Icon: MoreHorizontal, isAllCategories: true },
-  ]
-
-  const features = [
-    {
-      Icon: Upload,
-      title: 'Publicá Gratis',
-      description: 'Sin costo. Llegá a compradores en toda Bolivia.',
-    },
-    {
-      Icon: Search,
-      title: 'Búsqueda Inteligente',
-      description: 'Filtros por ubicación, categoría y precio.',
-    },
-    {
-      Icon: MessageCircle,
-      title: 'Chat Directo',
-      description: 'Hablá con compradores y vendedores en tiempo real.',
-    },
-    {
-      Icon: Smartphone,
-      title: 'Hecho para Celular',
-      description: 'Optimizado para la mejor experiencia móvil.',
-    },
-  ]
+  const categories = HOMEPAGE_CATEGORY_IDS.map((id) => {
+    const cat = CATEGORIES.find((c) => c.id === id)
+    return {
+      id,
+      name: cat?.name.split(' y ')[0] || cat?.name || id,
+      Icon: CATEGORY_ICONS[id],
+    }
+  })
 
   return (
     <div className="min-h-screen">
-      {/* Skip link for accessibility */}
-      <a
-        href="#contenido-principal"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-      >
-        Saltar al contenido principal
-      </a>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-muted/30" aria-labelledby="hero-heading">
@@ -71,7 +89,7 @@ export default function Home() {
             {/* Trust badge */}
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-sm text-muted-foreground shadow-sm">
               <MapPin className="size-4 text-primary" aria-hidden />
-              <span>100% boliviano • Compra y vende en todo el país</span>
+              <span>100% boliviano • 9 departamentos • Sin comisiones</span>
             </p>
 
             <h1
@@ -82,7 +100,7 @@ export default function Home() {
             </h1>
 
             <p className="text-pretty mx-auto mt-4 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-              Comprá y vendé de todo. Sin comisiones.
+              El marketplace boliviano para comprar y vender de todo. Gratis y seguro.
             </p>
 
             {/* Primary CTA: Search bar */}
@@ -102,10 +120,12 @@ export default function Home() {
                   <Input
                     type="search"
                     name="q"
-                    placeholder="Ej: iPhone, moto, departamento..."
+                    placeholder="Ej: iPhone, moto, muebles..."
                     className="h-12 pl-12 text-base"
                     aria-label="Término de búsqueda"
                     autoComplete="off"
+                    required
+                    maxLength={200}
                   />
                 </div>
                 <Button type="submit" size="lg" className="h-12 px-8">
@@ -114,12 +134,18 @@ export default function Home() {
               </div>
             </form>
 
-            {/* Secondary CTA */}
-            <div className="mt-6">
+            {/* Secondary CTAs */}
+            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
               <Button size="lg" variant="ghost" asChild>
                 <Link href="/categorias" className="flex items-center gap-1">
                   Explorar categorías
                   <ChevronRight className="size-4" aria-hidden />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/publicar" className="flex items-center gap-1">
+                  <Upload className="size-4" aria-hidden />
+                  Publicá gratis
                 </Link>
               </Button>
             </div>
@@ -144,18 +170,17 @@ export default function Home() {
           <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4">
             {categories.map((category) => {
               const IconComponent = category.Icon
-              const href = category.isAllCategories ? '/categorias' : `/categorias/${category.slug}`
               return (
                 <Link
-                  key={category.name}
-                  href={href}
+                  key={category.id}
+                  href={`/buscar?category=${category.id}`}
                   className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   <div
                     className="flex size-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20"
                     aria-hidden
                   >
-                    <IconComponent className="size-6 text-primary" />
+                    {IconComponent && <IconComponent className="size-6 text-primary" />}
                   </div>
                   <p className="text-pretty font-medium text-foreground group-hover:text-primary">
                     {category.name}
@@ -163,11 +188,25 @@ export default function Home() {
                 </Link>
               )
             })}
+            <Link
+              href="/categorias"
+              className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <div
+                className="flex size-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20"
+                aria-hidden
+              >
+                <MoreHorizontal className="size-6 text-primary" />
+              </div>
+              <p className="text-pretty font-medium text-foreground group-hover:text-primary">
+                Ver todas
+              </p>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Features Section - Merged features + trust */}
+      {/* Features Section */}
       <section className="border-y bg-muted/30 py-16 md:py-20" aria-labelledby="features-heading">
         <div className="container px-4">
           <h2
@@ -190,6 +229,37 @@ export default function Home() {
                 <p className="text-pretty text-sm text-muted-foreground">{feature.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section className="py-12 md:py-16" aria-labelledby="trust-heading">
+        <div className="container px-4">
+          <div className="mx-auto max-w-4xl">
+            <h2 id="trust-heading" className="sr-only">
+              Datos de confianza
+            </h2>
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+              <div className="flex flex-col items-center gap-1 text-center">
+                <span className="text-3xl font-bold text-primary sm:text-4xl">9</span>
+                <span className="text-sm text-muted-foreground">Departamentos</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <span className="text-3xl font-bold text-primary sm:text-4xl">0%</span>
+                <span className="text-sm text-muted-foreground">Comisiones</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <div className="flex items-center gap-1">
+                  <ShieldCheck className="size-7 text-primary sm:size-8" aria-hidden />
+                </div>
+                <span className="text-sm text-muted-foreground">Vendedores verificados</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <span className="text-3xl font-bold text-primary sm:text-4xl">24/7</span>
+                <span className="text-sm text-muted-foreground">Disponible siempre</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

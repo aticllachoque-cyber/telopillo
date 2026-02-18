@@ -189,7 +189,7 @@ export function ProductActions({
           <Button
             variant="secondary"
             size="icon"
-            className="h-8 w-8 shadow-md"
+            className="size-10 sm:size-8 shadow-md touch-manipulation"
             disabled={isProcessing}
           >
             {isProcessing ? (
@@ -197,7 +197,7 @@ export function ProductActions({
             ) : (
               <MoreVertical className="h-4 w-4" aria-hidden />
             )}
-            <span className="sr-only">Acciones</span>
+            <span className="sr-only">Acciones{productTitle ? ` para ${productTitle}` : ''}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

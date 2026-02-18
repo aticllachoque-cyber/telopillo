@@ -117,7 +117,7 @@ export function AvatarUpload({
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <Avatar className="h-24 w-24">
-          <AvatarImage src={previewUrl || undefined} alt="Avatar preview" />
+          <AvatarImage src={previewUrl || undefined} alt="Vista previa de tu foto de perfil" />
           <AvatarFallback className={`text-2xl font-medium ${getAvatarColor(userId)}`}>
             {isUploading ? <Loader2 className="h-8 w-8 animate-spin" aria-hidden /> : userInitials}
           </AvatarFallback>
@@ -138,6 +138,7 @@ export function AvatarUpload({
             type="button"
             variant="outline"
             size="sm"
+            className="min-h-[44px] sm:min-h-0 touch-manipulation"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
           >
@@ -159,6 +160,7 @@ export function AvatarUpload({
               type="button"
               variant="ghost"
               size="sm"
+              className="min-h-[44px] sm:min-h-0 touch-manipulation"
               onClick={handleRemove}
               disabled={isUploading}
             >

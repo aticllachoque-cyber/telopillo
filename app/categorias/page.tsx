@@ -4,30 +4,7 @@ import {
   CATEGORY_LABELS,
   CATEGORY_DESCRIPTIONS,
 } from '@/lib/validations/product'
-import {
-  Smartphone,
-  Car,
-  Home,
-  Shirt,
-  Hammer,
-  Dumbbell,
-  Baby,
-  Sparkles,
-  BookOpen,
-  type LucideIcon,
-} from 'lucide-react'
-
-const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
-  electronics: Smartphone,
-  vehicles: Car,
-  home: Home,
-  fashion: Shirt,
-  construction: Hammer,
-  sports: Dumbbell,
-  baby: Baby,
-  beauty: Sparkles,
-  books: BookOpen,
-}
+import { CATEGORY_ICONS } from '@/lib/data/categories'
 
 export const metadata = {
   title: 'Categorías - Telopillo.bo',
@@ -47,7 +24,7 @@ export default function CategoriasPage() {
         {/* Category Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {PRODUCT_CATEGORIES.map((category) => {
-            const Icon = CATEGORY_ICON_MAP[category]
+            const Icon = CATEGORY_ICONS[category]
             const label = CATEGORY_LABELS[category]
             const description = CATEGORY_DESCRIPTIONS[category]
 

@@ -84,10 +84,10 @@ export function BusinessHeader({ business, profile }: BusinessHeaderProps) {
           </span>
           <Link
             href={`/vendedor/${profile.id}`}
-            className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-1 min-h-[44px] py-2 hover:text-foreground transition-colors touch-manipulation"
           >
             <User className="size-3.5" aria-hidden="true" />
-            {profile.full_name || 'Ver vendedor'}
+            Vendedor: {profile.full_name || 'Ver perfil'}
           </Link>
         </div>
       </div>

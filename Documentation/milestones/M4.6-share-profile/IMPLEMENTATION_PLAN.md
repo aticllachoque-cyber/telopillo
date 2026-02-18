@@ -96,11 +96,10 @@ Ensure `NEXT_PUBLIC_APP_URL` is set in `.env.local`, `.env.example`, and product
    - URL preview shows correct link
    - "Copiar enlace" copies to clipboard
    - Toast appears
-   - "Compartir" button hidden (no Web Share on desktop)
+   - "Compartir" button visible; falls back to clipboard copy (no native share on desktop)
 
 3. Verify on mobile (or responsive mode):
-   - "Compartir" button visible
-   - Native share sheet opens
+   - "Compartir" button triggers native share sheet
    - WhatsApp appears as share target
 
 ### Deliverables

@@ -13,8 +13,9 @@ import {
   PRODUCT_CONDITIONS,
   BOLIVIA_DEPARTMENTS,
 } from '@/lib/validations/product'
-import { CATEGORIES, getSubcategories } from '@/lib/data/categories'
+import { getSubcategories } from '@/lib/data/categories'
 import { ImageUpload } from '@/components/products/ImageUpload'
+import { CategoryGrid } from '@/components/products/CategoryGrid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -210,46 +211,30 @@ export function ProductForm({
         )}
       </div>
 
-      {/* Category & Subcategory */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        {/* Category */}
-        <div className="space-y-2">
-          <Label htmlFor="category">
-            Categoría <span className="text-destructive">*</span>
-          </Label>
-          <Select
-            value={selectedCategory}
-            onValueChange={(value) => setValue('category', value as ProductInput['category'])}
-          >
-            <SelectTrigger
-              id="category"
-              aria-invalid={errors.category ? 'true' : 'false'}
-              aria-describedby={errors.category ? 'category-error' : undefined}
-            >
-              <SelectValue placeholder="Selecciona una categoría" />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.icon} {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.category && (
-            <p id="category-error" className="text-sm text-destructive">
-              {errors.category.message}
-            </p>
-          )}
-        </div>
+      {/* Category */}
+      <div className="space-y-2">
+        <Label>
+          Categoría <span className="text-destructive">*</span>
+        </Label>
+        <CategoryGrid
+          value={selectedCategory}
+          onChange={(value) => setValue('category', value as ProductInput['category'])}
+          error={!!errors.category}
+        />
+        {errors.category && (
+          <p id="category-error" className="text-sm text-destructive" role="alert">
+            {errors.category.message}
+          </p>
+        )}
+      </div>
 
-        {/* Subcategory */}
+      {/* Subcategory */}
+      {selectedCategory && subcategories.length > 0 && (
         <div className="space-y-2">
           <Label htmlFor="subcategory">Subcategoría (Opcional)</Label>
           <Select
             value={watch('subcategory') || ''}
             onValueChange={(value) => setValue('subcategory', value || undefined)}
-            disabled={!selectedCategory || subcategories.length === 0}
           >
             <SelectTrigger id="subcategory">
               <SelectValue placeholder="Selecciona una subcategoría" />
@@ -263,7 +248,7 @@ export function ProductForm({
             </SelectContent>
           </Select>
         </div>
-      </div>
+      )}
 
       {/* Price */}
       <div className="space-y-2">
