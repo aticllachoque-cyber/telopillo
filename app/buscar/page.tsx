@@ -287,25 +287,40 @@ export default function BuscarPage() {
 
                 {/* No Results State (I2: clear filters link) */}
                 {results.totalCount === 0 && (
-                  <div className="bg-muted/50 rounded-lg p-8 text-center">
-                    <h3 className="text-lg font-semibold mb-2">No encontramos productos</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Intenta con otras palabras clave o ajusta los filtros
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                      {hasActiveSearch && (
+                  <div className="space-y-4">
+                    <div className="bg-muted/50 rounded-lg p-8 text-center">
+                      <h3 className="text-lg font-semibold mb-2">No encontramos productos</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Intenta con otras palabras clave o ajusta los filtros
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                        {hasActiveSearch && (
+                          <Link
+                            href="/buscar"
+                            className="inline-flex items-center text-primary hover:underline font-medium"
+                          >
+                            Limpiar filtros y búsqueda
+                          </Link>
+                        )}
                         <Link
-                          href="/buscar"
+                          href="/categorias"
                           className="inline-flex items-center text-primary hover:underline font-medium"
                         >
-                          Limpiar filtros y búsqueda
+                          Ver todas las categorías →
                         </Link>
-                      )}
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center">
+                      <p className="font-medium mb-1">¿No encontraste lo que buscas?</p>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Publica una solicitud y deja que los vendedores te contacten con ofertas.
+                      </p>
                       <Link
-                        href="/categorias"
-                        className="inline-flex items-center text-primary hover:underline font-medium"
+                        href="/busco/publicar"
+                        className="inline-flex items-center text-sm font-medium text-primary hover:underline min-h-[44px] touch-manipulation"
                       >
-                        Ver todas las categorías →
+                        Publicar lo que busco →
                       </Link>
                     </div>
                   </div>
@@ -346,6 +361,22 @@ export default function BuscarPage() {
                       <ChevronRight className="h-4 w-4 ml-1" aria-hidden />
                     </Button>
                   </nav>
+                )}
+
+                {/* Demand CTA at bottom of results */}
+                {results.totalCount > 0 && (
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center mt-8">
+                    <p className="font-medium mb-1">¿No encontraste exactamente lo que buscas?</p>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Publica una solicitud y deja que los vendedores te contacten.
+                    </p>
+                    <Link
+                      href="/busco/publicar"
+                      className="inline-flex items-center text-sm font-medium text-primary hover:underline min-h-[44px] touch-manipulation"
+                    >
+                      Publicar lo que busco →
+                    </Link>
+                  </div>
                 )}
               </div>
             )}

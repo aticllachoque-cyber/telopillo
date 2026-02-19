@@ -3,7 +3,7 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { createClient } from '@/lib/supabase/server'
 
 // Protected routes: prefix matching (startsWith)
-const PROTECTED_PREFIXES = ['/profile', '/perfil', '/publicar', '/mensajes']
+const PROTECTED_PREFIXES = ['/profile', '/perfil', '/publicar', '/mensajes', '/busco/publicar']
 
 // Protected routes: pattern matching (regex) for paths that can't use prefix
 const PROTECTED_PATTERNS = [

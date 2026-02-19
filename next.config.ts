@@ -3,6 +3,22 @@ import type { NextConfig } from 'next'
 const SUPABASE_HOSTNAME = 'apwpsjjzcbytnvtnmmru.supabase.co'
 
 const nextConfig: NextConfig = {
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/.next/**',
+          '**/test-results/**',
+          '**/playwright-report/**',
+        ],
+        poll: 2000,
+      }
+    }
+    return config
+  },
   images: {
     remotePatterns: [
       {

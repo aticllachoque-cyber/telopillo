@@ -205,6 +205,123 @@ export type Database = {
           },
         ]
       }
+      demand_posts: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string
+          category: string
+          subcategory: string | null
+          location_department: string
+          location_city: string
+          price_min: number | null
+          price_max: number | null
+          status: string
+          offers_count: number
+          embedding: string | null
+          search_vector: unknown
+          expires_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description: string
+          category: string
+          subcategory?: string | null
+          location_department: string
+          location_city: string
+          price_min?: number | null
+          price_max?: number | null
+          status?: string
+          offers_count?: number
+          embedding?: string | null
+          search_vector?: unknown
+          expires_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string
+          category?: string
+          subcategory?: string | null
+          location_department?: string
+          location_city?: string
+          price_min?: number | null
+          price_max?: number | null
+          status?: string
+          offers_count?: number
+          embedding?: string | null
+          search_vector?: unknown
+          expires_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'demand_posts_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      demand_offers: {
+        Row: {
+          id: string
+          demand_post_id: string
+          product_id: string
+          seller_id: string
+          message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          demand_post_id: string
+          product_id: string
+          seller_id: string
+          message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          demand_post_id?: string
+          product_id?: string
+          seller_id?: string
+          message?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'demand_offers_demand_post_id_fkey'
+            columns: ['demand_post_id']
+            isOneToOne: false
+            referencedRelation: 'demand_posts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'demand_offers_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'demand_offers_seller_id_fkey'
+            columns: ['seller_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_type: string
@@ -281,6 +398,21 @@ export type Database = {
         }
         Returns: {
           products: Json
+          total_count: number
+        }[]
+      }
+      search_demands_hybrid: {
+        Args: {
+          search_query?: string
+          query_embedding?: string
+          category_filter?: string
+          department_filter?: string
+          sort_by?: string
+          result_limit?: number
+          result_offset?: number
+        }
+        Returns: {
+          demands: Json
           total_count: number
         }[]
       }
@@ -460,6 +592,69 @@ export interface SearchProduct {
   seller_business_name: string | null
   seller_business_slug: string | null
   seller_business_logo: string | null
+}
+
+// ---------------------------------------------------------------------------
+// DemandPost: row shape for the demand_posts table (M4.7)
+// ---------------------------------------------------------------------------
+export interface DemandPost {
+  id: string
+  user_id: string
+  title: string
+  description: string
+  category: string
+  subcategory: string | null
+  location_department: string
+  location_city: string
+  price_min: number | null
+  price_max: number | null
+  status: 'active' | 'found' | 'deleted'
+  offers_count: number
+  embedding: string | null
+  search_vector: unknown
+  expires_at: string
+  created_at: string
+  updated_at: string
+}
+
+// ---------------------------------------------------------------------------
+// DemandOffer: row shape for the demand_offers table (M4.7)
+// ---------------------------------------------------------------------------
+export interface DemandOffer {
+  id: string
+  demand_post_id: string
+  product_id: string
+  seller_id: string
+  message: string | null
+  created_at: string
+}
+
+// ---------------------------------------------------------------------------
+// SearchDemandPost: typed shape returned by search_demands_hybrid RPC
+// ---------------------------------------------------------------------------
+export interface SearchDemandPost {
+  id: string
+  user_id: string
+  title: string
+  description: string
+  category: string
+  subcategory: string | null
+  location_department: string
+  location_city: string
+  price_min: number | null
+  price_max: number | null
+  status: string
+  offers_count: number
+  expires_at: string
+  created_at: string
+  updated_at: string
+  relevance_score: number
+  poster_name: string | null
+  poster_avatar_url: string | null
+  poster_phone: string | null
+  poster_verification_level: number
+  poster_business_name: string | null
+  poster_business_slug: string | null
 }
 
 export const Constants = {

@@ -8,6 +8,8 @@
  *    -> returns { embedding: number[] }
  * 3. Backfill: receives { backfill: true, limit?: number }
  *    -> finds products without embeddings, generates and stores them
+ * 4. Demand post (M4.7): receives { type: 'DEMAND', record: { id, text } }
+ *    -> calls HF with pre-built text, updates demand_posts.embedding
  *
  * Model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (384 dims)
  */
@@ -225,6 +227,30 @@ Deno.serve(async (req: Request) => {
         remaining: count ?? 0,
         errors: errors.length > 0 ? errors : undefined,
       })
+    }
+
+    // --- Mode 4: Demand post embedding (M4.7) ---
+    if (body.type === 'DEMAND') {
+      const record = body.record
+      if (!record?.id || !record?.text?.trim()) {
+        return json({ error: 'Missing demand record id or text' }, 400)
+      }
+
+      const embedding = await callHuggingFace(record.text)
+      if (!embedding) {
+        return json({ error: 'HF embedding failed for demand post' }, 500)
+      }
+
+      const { error } = await supabase
+        .from('demand_posts')
+        .update({ embedding })
+        .eq('id', record.id)
+
+      if (error) {
+        console.error('Supabase update error (demand_posts):', error)
+        return json({ error: error.message }, 500)
+      }
+      return json({ success: true, demand_post_id: record.id })
     }
 
     // --- Mode 1: Database Webhook (product INSERT/UPDATE) ---

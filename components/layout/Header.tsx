@@ -85,6 +85,9 @@ export function Header() {
           >
             Categorías
           </Link>
+          <Link href="/busco" className="text-sm font-medium transition-colors hover:text-primary">
+            Busco
+          </Link>
           <Button asChild size="sm">
             <Link href="/publicar">Publicar Gratis</Link>
           </Button>
@@ -148,7 +151,7 @@ export function Header() {
           <>
             {/* Backdrop */}
             <div
-              className="fixed inset-0 z-[60] bg-black/50 md:hidden"
+              className="fixed inset-0 z-50 bg-black/50 md:hidden"
               onClick={() => closeMenu()}
               aria-hidden="true"
             />
@@ -156,7 +159,7 @@ export function Header() {
             <div
               ref={menuRef}
               id="mobile-nav-dialog"
-              className="fixed inset-y-0 right-0 z-[70] w-[280px] md:hidden bg-background shadow-2xl"
+              className="fixed inset-y-0 right-0 z-50 w-[280px] md:hidden bg-background shadow-2xl"
               role="dialog"
               aria-label="Menú de navegación"
               aria-modal="true"
@@ -271,6 +274,28 @@ export function Header() {
                     </svg>
                     Categorías
                   </Link>
+                  <Link
+                    href="/busco"
+                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                    onClick={() => closeMenu(false)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Busco / Necesito
+                  </Link>
 
                   {/* Divider */}
                   <div className="py-2">
@@ -323,6 +348,28 @@ export function Header() {
                           <path d="M12 22V12" />
                         </svg>
                         Mis Publicaciones
+                      </Link>
+                      <Link
+                        href="/perfil/demandas"
+                        className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => closeMenu(false)}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden
+                        >
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        Mis Solicitudes
                       </Link>
                       <Link
                         href="/mensajes"
