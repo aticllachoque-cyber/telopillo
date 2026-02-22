@@ -1,14 +1,12 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+import { runAxeAudit, assertNoHorizontalScroll, TEST_DATA } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. Registration Form - Structure and Fields
 // ---------------------------------------------------------------------------
 test.describe('Auth - Registration Form', () => {
   test('Registration page loads with form and heading', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { level: 1, name: /crear cuenta/i })).toBeVisible()
@@ -16,7 +14,7 @@ test.describe('Auth - Registration Form', () => {
   })
 
   test('All required form fields are visible', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByLabel(/nombre completo/i)).toBeVisible()
@@ -26,7 +24,7 @@ test.describe('Auth - Registration Form', () => {
   })
 
   test('OAuth buttons (Google, Facebook) are visible', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()
@@ -36,7 +34,7 @@ test.describe('Auth - Registration Form', () => {
   test('Form accepts valid input and submits without client-side validation error', async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     const timestamp = Date.now()
@@ -70,7 +68,7 @@ test.describe('Auth - Registration Form', () => {
 // ---------------------------------------------------------------------------
 test.describe('Auth - Registration Errors', () => {
   test('Empty form shows validation errors', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await page.getByRole('button', { name: /crear cuenta/i }).click()
@@ -84,7 +82,7 @@ test.describe('Auth - Registration Errors', () => {
   })
 
   test('Invalid email format is rejected by validation', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/nombre completo/i).fill('Juan Pérez')
@@ -105,7 +103,7 @@ test.describe('Auth - Registration Errors', () => {
   })
 
   test('Short password shows validation error', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/nombre completo/i).fill('Juan Pérez')
@@ -124,7 +122,7 @@ test.describe('Auth - Registration Errors', () => {
   })
 
   test('Mismatched passwords show validation error', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/nombre completo/i).fill('Juan Pérez')
@@ -141,11 +139,11 @@ test.describe('Auth - Registration Errors', () => {
   })
 
   test('Duplicate email shows error or does not show success', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/nombre completo/i).fill('Juan Pérez')
-    await page.getByLabel(/^email$/i).fill('dev@telopillo.test')
+    await page.getByLabel(/^email$/i).fill(TEST_DATA.email)
     await page
       .getByLabel(/^contraseña$/i)
       .first()
@@ -165,7 +163,7 @@ test.describe('Auth - Registration Errors', () => {
   })
 
   test('SQL injection in name does not cause server error', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     const timestamp = Date.now()
@@ -194,30 +192,14 @@ test.describe('Auth - Registration Errors', () => {
 // ---------------------------------------------------------------------------
 test.describe('Auth - Registration Accessibility', () => {
   test('Registration page passes axe-core WCAG 2.2 AA audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-
-    if (critical.length > 0 || serious.length > 0) {
-      console.log('Accessibility violations:')
-      ;[...critical, ...serious].forEach((v) => {
-        console.log(`  [${v.impact?.toUpperCase()}] ${v.id}: ${v.description}`)
-        v.nodes.forEach((n) => console.log(`    → ${n.html.substring(0, 80)}`))
-      })
-    }
-
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Tab order flows through form fields correctly', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     // Tab order: Name → Email → Password → Confirm Password → Business toggle → Submit
@@ -243,16 +225,14 @@ test.describe('Auth - Registration Mobile (375x812)', () => {
   test.use({ viewport: { width: 375, height: 812 } })
 
   test('No horizontal scroll on registration page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
-    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth)
-    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 5)
+    await assertNoHorizontalScroll(page)
   })
 
   test('Form fields are full width and visible', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     const fullNameInput = page.getByLabel(/nombre completo/i)
@@ -263,7 +243,7 @@ test.describe('Auth - Registration Mobile (375x812)', () => {
   })
 
   test('OAuth buttons stack and fit viewport', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()

@@ -1,21 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-
-// ---------------------------------------------------------------------------
-// Helper: Login
-// ---------------------------------------------------------------------------
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
+import { login } from '../../helpers'
 
 // Create a minimal valid PNG (1x1 pixel)
 function createValidPngBuffer(): Buffer {
@@ -105,7 +89,7 @@ function createPdfLikeBuffer(): Buffer {
 test.describe('Account Management - Avatar Upload', () => {
   test('Avatar section is visible on profile edit page', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile/edit`)
+    await page.goto('/profile/edit')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByText(/foto de perfil/i)).toBeVisible()
@@ -114,7 +98,7 @@ test.describe('Account Management - Avatar Upload', () => {
 
   test('Upload valid image and verify avatar displays', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile/edit`)
+    await page.goto('/profile/edit')
     await page.waitForLoadState('networkidle')
 
     const fileInput = page.getByLabel(/seleccionar imagen de avatar/i)
@@ -145,7 +129,7 @@ test.describe('Account Management - Avatar Upload', () => {
 
   test('Non-image file shows error', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile/edit`)
+    await page.goto('/profile/edit')
     await page.waitForLoadState('networkidle')
 
     const fileInput = page.getByLabel(/seleccionar imagen de avatar/i)
@@ -165,7 +149,7 @@ test.describe('Account Management - Avatar Upload', () => {
 
   test('Oversized file shows error', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile/edit`)
+    await page.goto('/profile/edit')
     await page.waitForLoadState('networkidle')
 
     const fileInput = page.getByLabel(/seleccionar imagen de avatar/i)

@@ -1,17 +1,12 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-// Known test data (from seeded database)
-const BUSINESS_SLUG = 'usuario-de-desarrollo'
-const BUSINESS_SELLER_ID = '9b8794bb-d357-499a-8c10-d5413b6a7ccb'
+import { TEST_DATA } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // Helper: navigate to the first available product detail page
 // ---------------------------------------------------------------------------
 async function navigateToProductDetail(page: import('@playwright/test').Page) {
   // Use a broad search to maximise chance of finding products
-  await page.goto(`${BASE_URL}/buscar?q=`)
+  await page.goto('/buscar?q=')
   await page.waitForLoadState('networkidle')
 
   const productLink = page.locator('a[href^="/productos/"]').first()
@@ -222,7 +217,7 @@ test.describe('Buyer Journey - Contact Seller from Product Detail', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Contact Business from Storefront', () => {
   test('Business storefront shows WhatsApp contact button', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     const whatsappButton = page.getByRole('link', { name: /contactar por whatsapp/i })
@@ -249,7 +244,7 @@ test.describe('Buyer Journey - Contact Business from Storefront', () => {
   })
 
   test('Business storefront shows phone number with tel: link', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     const phoneLink = page.locator('a[href^="tel:"]')
@@ -271,7 +266,7 @@ test.describe('Buyer Journey - Contact Business from Storefront', () => {
   })
 
   test('Business storefront sidebar shows location info', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     // Location card header
@@ -285,7 +280,7 @@ test.describe('Buyer Journey - Contact Business from Storefront', () => {
   })
 
   test('Business storefront sidebar shows business hours', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     const hoursHeading = page.getByRole('heading', { name: /horario de atención/i })
@@ -307,7 +302,7 @@ test.describe('Buyer Journey - Contact Business from Storefront', () => {
   })
 
   test('Business storefront social links open in new tab', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     // Check for any external social links
@@ -365,7 +360,7 @@ test.describe('Buyer Journey - Contact Works Without Auth', () => {
   test('Unauthenticated user can view seller profile', async ({ page }) => {
     await page.context().clearCookies()
 
-    await page.goto(`${BASE_URL}/vendedor/${BUSINESS_SELLER_ID}`)
+    await page.goto(`/vendedor/${TEST_DATA.businessSellerId}`)
     await page.waitForLoadState('networkidle')
 
     // Not redirected to login
@@ -381,7 +376,7 @@ test.describe('Buyer Journey - Contact Works Without Auth', () => {
   test('Unauthenticated user can view business storefront and contact info', async ({ page }) => {
     await page.context().clearCookies()
 
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     // Not redirected to login
@@ -431,7 +426,7 @@ test.describe('Buyer Journey - Contact Mobile', () => {
   })
 
   test('Business storefront WhatsApp button is tappable on mobile', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     const whatsappButton = page.getByRole('link', { name: /contactar por whatsapp/i })

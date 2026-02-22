@@ -1,19 +1,14 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-// Known test data
-const BUSINESS_SLUG = 'usuario-de-desarrollo'
-const BUSINESS_SELLER_ID = '9b8794bb-d357-499a-8c10-d5413b6a7ccb'
+import { TEST_DATA } from '../../helpers'
 
 async function navigateToProductDetail(page: import('@playwright/test').Page): Promise<boolean> {
-  await page.goto(`${BASE_URL}/buscar?q=samsung`)
+  await page.goto('/buscar?q=samsung')
   await page.waitForLoadState('networkidle')
   await page.waitForTimeout(2000)
 
   let productLink = page.locator('a[href^="/productos/"]').first()
   if ((await productLink.count()) === 0) {
-    await page.goto(`${BASE_URL}/buscar`)
+    await page.goto('/buscar')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
     productLink = page.locator('a[href^="/productos/"]').first()
@@ -31,7 +26,7 @@ async function navigateToProductDetail(page: import('@playwright/test').Page): P
 // ---------------------------------------------------------------------------
 test.describe('Cross-Cutting - SEO & Metadata', () => {
   test('Homepage - title contains Telopillo, og:title, og:description', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/`)
+    const response = await page.goto('/')
     expect(response?.status()).toBe(200)
 
     const title = await page.title()
@@ -72,7 +67,7 @@ test.describe('Cross-Cutting - SEO & Metadata', () => {
   // 3. Seller Profile SEO
   // ---------------------------------------------------------------------------
   test('Seller profile - JSON-LD Person, title contains seller name', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/vendedor/${BUSINESS_SELLER_ID}`)
+    const response = await page.goto(`/vendedor/${TEST_DATA.businessSellerId}`)
     expect(response?.status()).toBe(200)
 
     const title = await page.title()
@@ -90,14 +85,14 @@ test.describe('Cross-Cutting - SEO & Metadata', () => {
   // 4. Business Storefront SEO
   // ---------------------------------------------------------------------------
   test('Business storefront - JSON-LD LocalBusiness, title, canonical URL', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    const response = await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     expect(response?.status()).toBe(200)
 
     const title = await page.title()
     expect(title.toLowerCase()).toContain('telopillo')
 
     const canonical = await page.getAttribute('link[rel="canonical"]', 'href')
-    expect(canonical).toContain(`/negocio/${BUSINESS_SLUG}`)
+    expect(canonical).toContain(`/negocio/${TEST_DATA.businessSlug}`)
 
     const jsonLd = await page.evaluate(() => {
       const scripts = document.querySelectorAll('script[type="application/ld+json"]')
@@ -119,7 +114,7 @@ test.describe('Cross-Cutting - SEO & Metadata', () => {
   // 5. Search Results SEO
   // ---------------------------------------------------------------------------
   test('Search results - appropriate title', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=samsung`)
+    await page.goto('/buscar?q=samsung')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
 
@@ -132,7 +127,7 @@ test.describe('Cross-Cutting - SEO & Metadata', () => {
   // 6. Categories SEO
   // ---------------------------------------------------------------------------
   test('Categories page - title contains Categorías', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/categorias`)
+    const response = await page.goto('/categorias')
     expect(response?.status()).toBe(200)
 
     const title = await page.title()

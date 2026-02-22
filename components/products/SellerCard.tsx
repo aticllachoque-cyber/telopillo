@@ -110,7 +110,11 @@ export function SellerCard({ seller, productTitle, business }: SellerCardProps) 
 
         {/* Contact Button */}
         {hasPhone ? (
-          <Button asChild className="w-full bg-green-700 hover:bg-green-800 text-white" size="lg">
+          <Button
+            asChild
+            className="w-full min-h-[44px] bg-green-700 hover:bg-green-800 text-white"
+            size="lg"
+          >
             <a
               href={getWhatsAppLink()}
               target="_blank"
@@ -132,7 +136,7 @@ export function SellerCard({ seller, productTitle, business }: SellerCardProps) 
               </p>
             </div>
             {/* Make "Ver perfil" the primary CTA when no phone */}
-            <Button asChild className="w-full" size="lg">
+            <Button asChild className="w-full min-h-[44px]" size="lg">
               <Link
                 href={`/vendedor/${seller.id}`}
                 className="flex items-center justify-center gap-2"

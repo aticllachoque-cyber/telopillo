@@ -1,6 +1,6 @@
 # Telopillo.bo - Project Status
 
-**Last Updated:** February 17, 2026  
+**Last Updated:** February 19, 2026  
 **Project Start:** February 12, 2026
 
 ---
@@ -17,13 +17,13 @@ M4.5: Account Types & Minimal KYC ███████████████�
 M4.6: Share Profile Link          ████████████████████ 100% ✅
 E2E:  Test Infrastructure         ████████████████████ 100% ✅
 LPQ:  Landing Page Quality Fixes  ████████████████████ 100% ✅
-M4.7: Demand-Side "Busco"          ░░░░░░░░░░░░░░░░░░░░   0% ⏳ (NEXT)
-M5:   Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+M4.7: Demand-Side "Busco"         ████████████████████ 100% ✅
+M5:   Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳ (NEXT)
 M6:   Ratings & Reviews           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M7:   Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 M8:   Payments & Orders           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 
-Overall Project: █████████████░░░░░░░ 63%
+Overall Project: ██████████████░░░░░░ 71%
 ```
 
 ---
@@ -293,26 +293,38 @@ Overall Project: █████████████░░░░░░░ 63
 
 ---
 
-## Pending Milestones
+### ✅ M4.7: Demand-Side Posting — "Busco/Necesito" (COMPLETE)
 
-### ⏳ M4.7: Demand-Side Posting — "Busco/Necesito" (NEXT)
+**Status:** 100% Complete  
+**Started:** February 18, 2026  
+**Completed:** February 19, 2026  
+**Actual Duration:** ~6 hours
 
-**Status:** 0% Complete  
-**Estimated Duration:** 12-16 days  
-**Dependencies:** M1 (Auth) ✅, M2 (Products) ✅, M3 (Search) ✅, M4 (Semantic Search) ✅
+**Overview:** Buyers can now post what they need and receive offers from sellers. Full end-to-end flow with hybrid search, UX polish, and accessibility hardening.
 
-**Planned Features:**
-- Buyers post what they need ("Busco" posts)
-- Sellers browse/search demand posts by category and location
-- Sellers offer their products to demand posts
-- WhatsApp contact between buyer and seller
-- Post expiration (30 days) with renewal
-- Semantic search on demand posts (reuse embeddings)
-- "¿No encontraste?" CTA on search results
+**Phases (6/6 complete):**
+1. Database Schema & Types — `demand_posts` + `demand_offers` tables, RLS policies, indexes, triggers, `search_demands_hybrid` RPC
+2. Create Demand Post — `/busco/publicar` with auth guard, rate limiting (5/day), Zod validation
+3. List & Search — `/busco` with hybrid search (FTS + semantic), category/department/sort filters, pagination
+4. Detail & Offer Flow — `/busco/[id]` with buyer info sidebar, offer list, `OfferProductModal`, WhatsApp contact
+5. Dashboard & CTA Integration — `/perfil/demandas` with tabs (Active/Found/Expired), mark-as-found, renew, delete; demand CTA on `/buscar` no-results and results-bottom
+6. Testing & UX Polish — 5 E2E test files, UX audit (text-balance/text-pretty, structural skeletons, empty state CTAs, 2x2 grid filters), accessibility audit (aria-labels, keyboard nav, focus management), monkey testing (no crashes, XSS-safe, responsive)
 
-**Documentation:** [M4.7 README](../milestones/M4.7-demand-side-busco/README.md)
+**Key Deliverables:**
+- `demand_posts` and `demand_offers` tables with full RLS and hybrid search RPC
+- `generate-embedding` Edge Function extended with DEMAND mode
+- 4 pages: `/busco`, `/busco/[id]`, `/busco/publicar`, `/perfil/demandas`
+- 6 components: DemandPostCard, DemandPostDetail, DemandPostForm, DemandPostFilters, DemandStatusBadge, OfferProductModal
+- Zod validation schemas (`demandPostSchema`, `demandOfferSchema`)
+- Navigation: "Busco" in header (desktop + mobile), "Mis Solicitudes" in authenticated menu
+- 5 E2E test files covering create, search, offer, lifecycle, accessibility
+- UX/a11y hardening: skeletons, text-balance, aria-labels, 44px touch targets, z-index fix
+
+**Documentation:** [M4.7 PROGRESS](../milestones/M4.7-demand-side-busco/PROGRESS.md) | [M4.7 PRD](../milestones/M4.7-demand-side-busco/PRD.md)
 
 ---
+
+## Pending Milestones
 
 ### ⏳ M5: Chat & Messaging
 
@@ -390,15 +402,16 @@ Overall Project: █████████████░░░░░░░ 63
 | M4.6: Share Profile Link | 1-2 days | ~2 hours | ✅ Complete |
 | E2E: Test Infrastructure | 2-3 days | ~4 hours | ✅ Complete |
 | Landing Page Quality Fixes | — | ~1 hour | ✅ Complete |
-| **Total** | **~60 days** | **~58.6 hours** | **63% complete** |
+| M4.7: Demand-Side "Busco" | 12-16 days | ~6 hours | ✅ Complete |
+| **Total** | **~75 days** | **~64.6 hours** | **71% complete** |
 
 ### Code Statistics
 
-- **Source files (TS/TSX):** 86
-- **Database migrations (SQL):** 12
-- **Test spec files:** 40 (29 organized in `tests/e2e/` + 11 legacy in `tests/`)
-- **Total lines of source code:** ~14,900+
-- **Documentation pages:** 51+
+- **Source files (TS/TSX):** 100+
+- **Database migrations (SQL):** 13
+- **Test spec files:** 45 (34 organized in `tests/e2e/` + 11 legacy in `tests/`)
+- **Total lines of source code:** ~18,700+
+- **Documentation pages:** 55+
 - **AI subagents:** 10 (`.cursor/agents/`)
 
 ### Quality Metrics
@@ -407,7 +420,7 @@ Overall Project: █████████████░░░░░░░ 63
 - **ESLint errors:** 0 ✅
 - **Prettier issues:** 0 ✅
 - **WCAG 2.2 AA:** Compliant ✅
-- **Playwright E2E tests:** 229 test cases across 29 spec files (organized by business flow)
+- **Playwright E2E tests:** 229+ test cases across 34 spec files (organized by business flow)
 - **Legacy E2E tests:** 75+ test cases across 11 spec files (pre-reorganization)
 - **404 handling:** Custom Spanish 404 page; all footer links resolve to placeholder pages
 
@@ -419,6 +432,8 @@ Overall Project: █████████████░░░░░░░ 63
 | `products` | M2 | Product listings with FTS + embeddings |
 | `business_profiles` | M4.5 | Business profile add-on |
 | `app_config` | M4 | Feature flags and configuration |
+| `demand_posts` | M4.7 | Buyer demand posts with expiration, FTS + embeddings |
+| `demand_offers` | M4.7 | Seller offers on demand posts (junction table) |
 
 ### Storage Buckets
 
@@ -432,7 +447,7 @@ Overall Project: █████████████░░░░░░░ 63
 
 | Function | Purpose |
 |----------|---------|
-| `generate-embedding` | Auto-generate product embeddings via Hugging Face API |
+| `generate-embedding` | Auto-generate embeddings for products and demand posts via Hugging Face API |
 
 ### Key Routes
 
@@ -450,7 +465,12 @@ Overall Project: █████████████░░░░░░░ 63
 | `/productos/[id]/editar` | Protected | Edit product listing |
 | `/profile/edit` | Protected | Edit user profile |
 | `/perfil/mis-productos` | Protected | My products management |
-| `/api/search` | API | Search endpoint (keyword + semantic) |
+| `/busco` | Public | Browse demand posts |
+| `/busco/[id]` | Public | Demand post detail page |
+| `/busco/publicar` | Protected | Create new demand post |
+| `/perfil/demandas` | Protected | My demand posts management |
+| `/api/search` | API | Product search endpoint (keyword + semantic) |
+| `/api/search-demands` | API | Demand search endpoint (keyword + semantic) |
 | `/acerca` | Public | About page (placeholder) |
 | `/contacto` | Public | Contact page (placeholder) |
 | `/ayuda` | Public | Help center (placeholder) |
@@ -465,20 +485,19 @@ Overall Project: █████████████░░░░░░░ 63
 
 ### Immediate
 
-1. **Decide next milestone priority:**
-   - M4.7 (Demand-Side "Busco") — buyer demand posts; next on the roadmap
+1. **Deploy M4.7 migration** — Run `npx supabase db push` to apply `demand_posts` and `demand_offers` tables
+2. **Decide next milestone priority:**
    - M5 (Chat & Messaging) — enables buyer-seller real-time communication
    - M6 (Ratings & Reviews) — builds trust, leverages existing seller profiles
-2. **Consider PRD for next milestone** — Analyze with PM agent before implementation
-3. **Fix remaining known UI issues** found by E2E tests:
-   - Product detail page horizontal overflow at 375px (~12px)
-   - Business storefront WhatsApp button touch target (40px vs 44px WCAG)
+3. **Consider PRD for next milestone** — Analyze with PM agent before implementation
 
 ### Short-term
 
-1. Implement shared fixtures and helpers (`tests/fixtures/`, `tests/helpers/`) to reduce test duplication
-2. Decide on legacy test files in `tests/` root (keep, migrate, or remove)
-3. Complete next milestone (M4.7, M5, or M6)
+1. Fix remaining known UI issues:
+   - Product detail page horizontal overflow at 375px (~12px)
+   - Business storefront WhatsApp button touch target (40px vs 44px WCAG)
+2. Implement shared fixtures and helpers (`tests/fixtures/`, `tests/helpers/`) to reduce test duplication
+3. Decide on legacy test files in `tests/` root (keep, migrate, or remove)
 
 ### Medium-term
 
@@ -498,7 +517,7 @@ Overall Project: █████████████░░░░░░░ 63
 | **Search** | Hybrid: Keyword FTS + Semantic (embeddings) with RRF fusion |
 | **Embeddings** | Hugging Face Inference API (`paraphrase-multilingual-MiniLM-L12-v2`) |
 | **Auth** | Supabase Auth (Email, Google OAuth, Facebook OAuth) |
-| **Testing** | Playwright 1.58+ (E2E + accessibility via axe-core), 229 test cases |
+| **Testing** | Playwright 1.58+ (E2E + accessibility via axe-core), 229+ test cases |
 | **Dev Tools** | ESLint, Prettier, Husky, lint-staged, Hatch |
 | **AI Agents** | 9 custom Cursor subagents (quality-gate, code-reviewer, e2e-test-planner, etc.) |
 | **Hosting** | Vercel (planned), Supabase Cloud |
@@ -529,6 +548,7 @@ Overall Project: █████████████░░░░░░░ 63
 - [M4 Documentation](../milestones/M4-search-semantic/)
 - [M4.5 Documentation](../milestones/M4.5-account-types-kyc/)
 - [M4.6 Documentation](../milestones/M4.6-share-profile/)
+- [M4.7 Documentation](../milestones/M4.7-demand-side-busco/)
 
 ---
 
@@ -547,6 +567,7 @@ Overall Project: █████████████░░░░░░░ 63
 9. **Hybrid Search:** Keyword FTS + Semantic embeddings merged via Reciprocal Rank Fusion
 10. **Share Profile (M4.6):** Web Share API detection at invocation time (not on mount) — avoids hydration mismatches; clipboard fallback for desktop and unsupported browsers
 11. **Static Pages:** Footer links use `app/(static)/` route group with "Coming Soon" placeholders — avoids 404s while keeping real content deferred
+12. **Demand-Side (M4.7):** WhatsApp-first contact (no M5 dependency); 30-day expiration with manual renewal; reuse existing embedding model and search infra; rate limit 5 posts/day
 
 ### Challenges & Lessons Learned
 
@@ -566,8 +587,12 @@ Overall Project: █████████████░░░░░░░ 63
 14. **E2E:** Real mobile/responsive issues found by 375px viewport tests (product detail overflow)
 15. **M4.6:** Web Share API detection must happen at invocation time (not `useEffect`) to avoid React hydration mismatches and lint warnings about synchronous state in effects
 16. **Quality:** Monkey-testing the landing page catches real UX/reliability issues (broken 404s, empty search submits, stale token noise) that structured E2E tests miss
+17. **M4.7:** Structural skeletons outperform spinner-based loading states for perceived performance
+18. **M4.7:** `text-balance` on headings and `text-pretty` on body text significantly improve typography
+19. **M4.7:** 2x2 grid layout for mobile filters with 44px touch targets is better UX than stacked selects
+20. **M4.7:** Linux `inotify` limits (`max_user_instances`, `max_user_watches`) need increasing for large Next.js projects
 
 ---
 
-**Last Updated:** February 17, 2026  
-**Next Review:** After next milestone decision
+**Last Updated:** February 19, 2026  
+**Next Review:** After next milestone decision (M5 or M6)

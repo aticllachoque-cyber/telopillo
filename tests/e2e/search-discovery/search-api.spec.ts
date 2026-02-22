@@ -12,14 +12,12 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
 // ---------------------------------------------------------------------------
 // 1. Search API — Happy Path
 // ---------------------------------------------------------------------------
 test.describe('Search API - Happy Path', () => {
   test('GET /api/search?q=samsung returns valid JSON with products array', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/search?q=samsung`)
+    const response = await request.get('/api/search?q=samsung')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -33,7 +31,7 @@ test.describe('Search API - Happy Path', () => {
   })
 
   test('GET /api/search?category=electronics returns filtered results', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/search?category=electronics`)
+    const response = await request.get('/api/search?category=electronics')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -49,7 +47,7 @@ test.describe('Search API - Happy Path', () => {
   test('GET /api/search?q=samsung&category=electronics returns combined results', async ({
     request,
   }) => {
-    const response = await request.get(`${BASE_URL}/api/search?q=samsung&category=electronics`)
+    const response = await request.get('/api/search?q=samsung&category=electronics')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -62,7 +60,7 @@ test.describe('Search API - Happy Path', () => {
   })
 
   test('GET /api/search?sellerType=business returns filtered results', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/search?sellerType=business`)
+    const response = await request.get('/api/search?sellerType=business')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -77,7 +75,7 @@ test.describe('Search API - Happy Path', () => {
   })
 
   test('GET /api/search with empty query returns all products or empty', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/search`)
+    const response = await request.get('/api/search')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -93,7 +91,7 @@ test.describe('Search API - Happy Path', () => {
 // ---------------------------------------------------------------------------
 test.describe('Search API - Product Shape', () => {
   test('Each product has required fields', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/search?q=samsung&limit=5`)
+    const response = await request.get('/api/search?q=samsung&limit=5')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -119,7 +117,7 @@ test.describe('Search API - Product Shape', () => {
 // ---------------------------------------------------------------------------
 test.describe('Search API - Error Scenarios', () => {
   test('Invalid page number is handled', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/search?q=samsung&page=-1`)
+    const response = await request.get('/api/search?q=samsung&page=-1')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -131,9 +129,7 @@ test.describe('Search API - Error Scenarios', () => {
 
   test('SQL injection in query is sanitized', async ({ request }) => {
     const maliciousQuery = "'; DROP TABLE products; --"
-    const response = await request.get(
-      `${BASE_URL}/api/search?q=${encodeURIComponent(maliciousQuery)}`
-    )
+    const response = await request.get(`/api/search?q=${encodeURIComponent(maliciousQuery)}`)
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -144,7 +140,7 @@ test.describe('Search API - Error Scenarios', () => {
 
   test('Extremely long query is handled', async ({ request }) => {
     const longQuery = 'a'.repeat(2000)
-    const response = await request.get(`${BASE_URL}/api/search?q=${encodeURIComponent(longQuery)}`)
+    const response = await request.get(`/api/search?q=${encodeURIComponent(longQuery)}`)
     // Should not return 500; may return 400 or empty results
     expect([200, 400]).toContain(response.status())
 

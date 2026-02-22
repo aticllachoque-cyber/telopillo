@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Shield } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getAuthErrorMessage } from '@/lib/utils'
 import { resetPasswordSchema, type ResetPasswordInput } from '@/lib/validations/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,7 +45,7 @@ export default function ResetPasswordPage() {
 
       setSuccess(true)
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al actualizar contraseña')
+      setError(getAuthErrorMessage(error, 'Error al actualizar la contraseña'))
     } finally {
       setIsLoading(false)
     }
@@ -152,7 +153,7 @@ export default function ResetPasswordPage() {
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full h-11" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />

@@ -1,19 +1,5 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
+import { login, runAxeAudit } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. My Products Page
@@ -24,7 +10,7 @@ test.describe('Manage Products - My Products Page', () => {
   })
 
   test('My products page loads with header and filters', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: /mis productos/i })).toBeVisible()
@@ -37,7 +23,7 @@ test.describe('Manage Products - My Products Page', () => {
   test('Shows product cards with title, price, and status when user has products', async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const productCards = page.locator('a[href^="/productos/"]')
@@ -57,7 +43,7 @@ test.describe('Manage Products - My Products Page', () => {
   })
 
   test('Empty state shown when filtering by status with no matching products', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/estado/i).click()
@@ -72,7 +58,7 @@ test.describe('Manage Products - My Products Page', () => {
   })
 
   test('Publicar Nuevo button navigates to /publicar', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     await page.getByRole('link', { name: /publicar nuevo/i }).click()
@@ -82,7 +68,7 @@ test.describe('Manage Products - My Products Page', () => {
   })
 
   test('Product count displays correctly', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const countSection = page.locator('text=/\\d+ producto(s)?/')
@@ -101,24 +87,10 @@ test.describe('Manage Products - Accessibility', () => {
   })
 
   test('My products page passes axe-core audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    if (critical.length > 0 || serious.length > 0) {
-      console.log('Accessibility violations:')
-      ;[...critical, ...serious].forEach((v) => {
-        console.log(`  [${v.impact?.toUpperCase()}] ${v.id}: ${v.description}`)
-        v.nodes.forEach((n) => console.log(`    → ${n.html.substring(0, 80)}`))
-      })
-    }
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 })
 
@@ -133,7 +105,7 @@ test.describe('Manage Products - Mobile Responsive (375x812)', () => {
   })
 
   test('No horizontal scroll on my products page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
@@ -142,7 +114,7 @@ test.describe('Manage Products - Mobile Responsive (375x812)', () => {
   })
 
   test('Product cards stack vertically on mobile', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const grid = page.locator('.grid')

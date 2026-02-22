@@ -13,15 +13,13 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
 // ---------------------------------------------------------------------------
 // 1. Filters — Category
 // ---------------------------------------------------------------------------
 test.describe('Filters - Category', () => {
   test('Apply category filter (Electrónica) updates URL and filters results', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/buscar?q=samsung`)
+    await page.goto('/buscar?q=samsung')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -48,7 +46,7 @@ test.describe('Filters - Category', () => {
 
   test('Clear filter restores all results', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/buscar?q=samsung&category=electronics`)
+    await page.goto('/buscar?q=samsung&category=electronics')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -78,7 +76,7 @@ test.describe('Filters - Category', () => {
 test.describe('Filters - Sort', () => {
   test('Sort by price ascending', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/buscar?q=samsung`)
+    await page.goto('/buscar?q=samsung')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -102,7 +100,7 @@ test.describe('Filters - Sort', () => {
   })
 
   test('Sort by newest first', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=samsung`)
+    await page.goto('/buscar?q=samsung')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -130,7 +128,7 @@ test.describe('Filters - Sort', () => {
 test.describe('Filters - Combine Filter and Sort', () => {
   test('Apply category filter and sort together', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/buscar?q=samsung`)
+    await page.goto('/buscar?q=samsung')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -165,7 +163,7 @@ test.describe('Filters - Combine Filter and Sort', () => {
 test.describe('Filters - URL State Persistence', () => {
   test('Filters persist on page reload', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/buscar?q=samsung&category=electronics&sort=price_asc`)
+    await page.goto('/buscar?q=samsung&category=electronics&sort=price_asc')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -193,7 +191,7 @@ test.describe('Filters - URL State Persistence', () => {
 // ---------------------------------------------------------------------------
 test.describe('Filters - Error Scenarios', () => {
   test('Category with no products shows empty state', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=xyznonexistent123&category=electronics`)
+    await page.goto('/buscar?q=xyznonexistent123&category=electronics')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -211,7 +209,7 @@ test.describe('Filters - Error Scenarios', () => {
   })
 
   test('Invalid category in URL is handled gracefully', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=samsung&category=invalid-category-xyz`)
+    await page.goto('/buscar?q=samsung&category=invalid-category-xyz')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })

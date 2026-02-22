@@ -1,22 +1,5 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-
-// ---------------------------------------------------------------------------
-// Helper: Login
-// ---------------------------------------------------------------------------
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
+import { login, runAxeAudit, assertNoHorizontalScroll } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. Product Management - Happy Path
@@ -24,7 +7,7 @@ async function login(page: import('@playwright/test').Page) {
 test.describe('Account Management - Product Management', () => {
   test('Page loads with header and product grid or empty state', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: /mis productos/i })).toBeVisible()
@@ -35,7 +18,7 @@ test.describe('Account Management - Product Management', () => {
     page,
   }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
@@ -53,7 +36,7 @@ test.describe('Account Management - Product Management', () => {
 
   test('Click edit on product navigates to edit page', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
@@ -76,7 +59,7 @@ test.describe('Account Management - Product Management', () => {
 
   test('Click view on product navigates to product detail page', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
@@ -103,7 +86,7 @@ test.describe('Account Management - Product Management', () => {
 test.describe('Account Management - Product Management (Errors)', () => {
   test('Empty state shows CTA when user has no products', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
@@ -118,7 +101,7 @@ test.describe('Account Management - Product Management (Errors)', () => {
   })
 
   test('Unauthenticated visit redirects to login', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     // Client-side redirect after auth check (useEffect)
@@ -135,31 +118,15 @@ test.describe('Account Management - Product Management (Errors)', () => {
 test.describe('Account Management - Product Management (Accessibility)', () => {
   test('Page passes WCAG 2.2 AA accessibility audit', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-
-    if (critical.length > 0 || serious.length > 0) {
-      console.log('Accessibility violations:')
-      ;[...critical, ...serious].forEach((v) => {
-        console.log(`  [${v.impact?.toUpperCase()}] ${v.id}: ${v.description}`)
-        v.nodes.forEach((n) => console.log(`    → ${n.html.substring(0, 80)}`))
-      })
-    }
-
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Product cards are keyboard navigable', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
@@ -184,17 +151,15 @@ test.describe('Account Management - Product Management (Mobile 375x812)', () => 
 
   test('Cards stack, no horizontal scroll', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
-    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth)
-    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 5)
+    await assertNoHorizontalScroll(page)
   })
 
   test('Touch targets are >= 44px', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const buttons = page.locator('button, a[href], input, [role="button"]')

@@ -1,44 +1,14 @@
-import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-// Known test data
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-const BUSINESS_SLUG = 'usuario-de-desarrollo'
-const BUSINESS_SELLER_ID = '9b8794bb-d357-499a-8c10-d5413b6a7ccb'
-
-function logViolations(label: string, results: Awaited<ReturnType<AxeBuilder['analyze']>>) {
-  const critical = results.violations.filter((v) => v.impact === 'critical')
-  const serious = results.violations.filter((v) => v.impact === 'serious')
-  if (critical.length > 0 || serious.length > 0) {
-    console.log(`\n=== ${label} ===`)
-    console.log(`Violations: ${results.violations.length}`)
-    ;[...critical, ...serious].forEach((v) => {
-      console.log(`  [${v.impact?.toUpperCase()}] ${v.id}: ${v.description}`)
-      v.nodes.slice(0, 3).forEach((n) => console.log(`    → ${n.html.substring(0, 80)}`))
-    })
-  }
-}
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
+import { test } from '@playwright/test'
+import { login, runAxeAudit, TEST_DATA } from '../../helpers'
 
 async function navigateToProductDetail(page: import('@playwright/test').Page): Promise<boolean> {
-  await page.goto(`${BASE_URL}/buscar?q=samsung`)
+  await page.goto('/buscar?q=samsung')
   await page.waitForLoadState('networkidle')
   await page.waitForTimeout(2000)
 
   let productLink = page.locator('a[href^="/productos/"]').first()
   if ((await productLink.count()) === 0) {
-    await page.goto(`${BASE_URL}/buscar`)
+    await page.goto('/buscar')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
     productLink = page.locator('a[href^="/productos/"]').first()
@@ -56,132 +26,67 @@ async function navigateToProductDetail(page: import('@playwright/test').Page): P
 // ---------------------------------------------------------------------------
 test.describe('Cross-Cutting - Accessibility Audit (Public Pages)', () => {
   test('Homepage - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Homepage (/)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Login page - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/login`)
+    await page.goto('/login')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Login (/login)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Register page - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Register (/register)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Register page with business expanded - no critical/serious a11y issues', async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     const toggle = page.getByRole('button', { name: /negocio.*opcional|tienes un negocio/i })
     await toggle.click()
     await page.waitForTimeout(500)
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .exclude('[data-slot="select-value"]')
-      .analyze()
-
-    logViolations('Register (business expanded)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page, { exclude: ['[data-slot="select-value"]'] })
   })
 
   test('Forgot password page - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Forgot Password (/forgot-password)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Search results (samsung) - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=samsung`)
+    await page.goto('/buscar?q=samsung')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Search (/buscar?q=samsung)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Search empty state (nonexistent) - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=nonexistent`)
+    await page.goto('/buscar?q=nonexistent')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Search empty state (/buscar?q=nonexistent)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Categories page - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/categorias`)
+    await page.goto('/categorias')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Categories (/categorias)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Product detail page - no critical/serious a11y issues', async ({ page }) => {
@@ -191,45 +96,21 @@ test.describe('Cross-Cutting - Accessibility Audit (Public Pages)', () => {
       return
     }
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('Product Detail (/productos/[id])', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Seller profile page - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/vendedor/${BUSINESS_SELLER_ID}`)
+    await page.goto(`/vendedor/${TEST_DATA.businessSellerId}`)
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations(`Seller Profile (/vendedor/${BUSINESS_SELLER_ID})`, results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Business storefront page - no critical/serious a11y issues', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations(`Business Storefront (/negocio/${BUSINESS_SLUG})`, results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 })
 
@@ -239,73 +120,39 @@ test.describe('Cross-Cutting - Accessibility Audit (Public Pages)', () => {
 test.describe('Cross-Cutting - Accessibility Audit (Auth Pages)', () => {
   test('Profile page - no critical/serious a11y issues', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile`)
+    await page.goto('/profile')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .exclude('[data-slot="avatar-fallback"]')
-      .analyze()
-
-    logViolations('Profile (/profile)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page, { exclude: ['[data-slot="avatar-fallback"]'] })
   })
 
   test('Profile edit page - no critical/serious a11y issues', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile/edit`)
+    await page.goto('/profile/edit')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(3000)
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .exclude('[data-slot="avatar-fallback"]')
-      .exclude('[data-slot="select-value"]')
-      .analyze()
-
-    logViolations('Profile Edit (/profile/edit)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page, {
+      exclude: ['[data-slot="avatar-fallback"]', '[data-slot="select-value"]'],
+    })
   })
 
   test('My products page - no critical/serious a11y issues', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    logViolations('My Products (/perfil/mis-productos)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Publish page - no critical/serious a11y issues', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .exclude('[data-slot="select-value"]')
-      .analyze()
-
-    logViolations('Publish (/publicar)', results)
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page, { exclude: ['[data-slot="select-value"]'] })
   })
 })

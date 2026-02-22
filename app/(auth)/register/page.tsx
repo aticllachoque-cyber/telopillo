@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Shield, Store, ChevronDown, ChevronUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getAuthErrorMessage } from '@/lib/utils'
 import { registerSchema, type RegisterInput } from '@/lib/validations/auth'
 import { BUSINESS_CATEGORIES } from '@/lib/validations/business-profile'
 import { Button } from '@/components/ui/button'
@@ -84,7 +85,7 @@ export default function RegisterPage() {
 
       setSuccess(true)
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al registrarse')
+      setError(getAuthErrorMessage(error, 'Error al crear la cuenta'))
     } finally {
       setIsLoading(false)
     }

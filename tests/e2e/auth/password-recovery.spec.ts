@@ -1,14 +1,12 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+import { runAxeAudit, assertNoHorizontalScroll, TEST_DATA } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. Password Recovery Flow
 // ---------------------------------------------------------------------------
 test.describe('Auth - Password Recovery Flow', () => {
   test('Forgot password page loads with form and heading', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
     await expect(
@@ -23,10 +21,10 @@ test.describe('Auth - Password Recovery Flow', () => {
   test('Valid email submission shows success or sends request without validation error', async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
-    await page.getByLabel(/email/i).fill('dev@telopillo.test')
+    await page.getByLabel(/email/i).fill(TEST_DATA.email)
     await page.getByRole('button', { name: /enviar link de restablecimiento/i }).click()
 
     // Verify the button shows loading state (form was submitted, no client-side validation error)
@@ -53,7 +51,7 @@ test.describe('Auth - Password Recovery Flow', () => {
 // ---------------------------------------------------------------------------
 test.describe('Auth - Password Recovery Errors', () => {
   test('Empty email shows validation error', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
     await page.getByRole('button', { name: /enviar link de restablecimiento/i }).click()
@@ -62,7 +60,7 @@ test.describe('Auth - Password Recovery Errors', () => {
   })
 
   test('Invalid email format is rejected by validation', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/email/i).fill('not-valid')
@@ -78,7 +76,7 @@ test.describe('Auth - Password Recovery Errors', () => {
   })
 
   test('Non-existent email shows same success message (no info leak)', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/email/i).fill('ghost@telopillo.test')
@@ -96,26 +94,10 @@ test.describe('Auth - Password Recovery Errors', () => {
 // ---------------------------------------------------------------------------
 test.describe('Auth - Password Recovery Accessibility', () => {
   test('Forgot password page passes axe-core WCAG 2.2 AA audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-
-    if (critical.length > 0 || serious.length > 0) {
-      console.log('Accessibility violations:')
-      ;[...critical, ...serious].forEach((v) => {
-        console.log(`  [${v.impact?.toUpperCase()}] ${v.id}: ${v.description}`)
-        v.nodes.forEach((n) => console.log(`    → ${n.html.substring(0, 80)}`))
-      })
-    }
-
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 })
 
@@ -126,16 +108,14 @@ test.describe('Auth - Password Recovery Mobile (375x812)', () => {
   test.use({ viewport: { width: 375, height: 812 } })
 
   test('No horizontal scroll on forgot password page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
-    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth)
-    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 5)
+    await assertNoHorizontalScroll(page)
   })
 
   test('Form fills viewport and back to login link is visible', async ({ page }) => {
-    await page.goto(`${BASE_URL}/forgot-password`)
+    await page.goto('/forgot-password')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('link', { name: /volver a iniciar sesión/i })).toBeVisible()

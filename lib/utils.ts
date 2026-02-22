@@ -5,6 +5,30 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+const AUTH_ERROR_MAP: Record<string, string> = {
+  'Invalid login credentials': 'Email o contraseña incorrectos',
+  'Email not confirmed': 'Debes confirmar tu email antes de iniciar sesión',
+  'User already registered': 'Este email ya está registrado',
+  'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres',
+  'Email rate limit exceeded': 'Demasiados intentos. Intenta de nuevo en unos minutos',
+  'For security purposes, you can only request this after 60 seconds':
+    'Por seguridad, espera 60 segundos antes de intentar de nuevo',
+  'User not found': 'No se encontró una cuenta con ese email',
+  'New password should be different from the old password':
+    'La nueva contraseña debe ser diferente a la anterior',
+  'Auth session missing': 'Tu sesión ha expirado. Inicia sesión de nuevo',
+  'Token has expired or is invalid': 'El enlace ha expirado. Solicita uno nuevo',
+}
+
+/**
+ * Maps Supabase auth error messages to user-friendly Spanish equivalents.
+ * Falls back to `fallback` for unmapped errors.
+ */
+export function getAuthErrorMessage(error: unknown, fallback: string): string {
+  const message = error instanceof Error ? error.message : String(error)
+  return AUTH_ERROR_MAP[message] ?? fallback
+}
+
 /**
  * Deterministic avatar color palette.
  * Each entry is [background, text] Tailwind classes.

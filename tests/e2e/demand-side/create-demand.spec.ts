@@ -10,12 +10,11 @@
  * Run: npx playwright test tests/e2e/demand-side/create-demand.spec.ts
  */
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+import { login } from '../../helpers'
 
 test.describe('Create Demand Post', () => {
   test('Unauthenticated user is redirected to login', async ({ page }) => {
-    await page.goto(`${BASE_URL}/busco/publicar`)
+    await page.goto('/busco/publicar')
     await page.waitForURL(/\/login/, { timeout: 10000 })
     expect(page.url()).toContain('/login')
     expect(page.url()).toContain('redirect=%2Fbusco%2Fpublicar')
@@ -24,13 +23,9 @@ test.describe('Create Demand Post', () => {
   test('Page renders correctly for authenticated user', async ({ page }) => {
     test.skip(!process.env.TEST_USER_EMAIL, 'Requires test user credentials')
 
-    await page.goto(`${BASE_URL}/login`)
-    await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL!)
-    await page.fill('input[name="password"]', process.env.TEST_USER_PASSWORD!)
-    await page.click('button[type="submit"]')
-    await page.waitForURL('**/*', { timeout: 10000 })
+    await login(page, process.env.TEST_USER_EMAIL!, process.env.TEST_USER_PASSWORD!)
 
-    await page.goto(`${BASE_URL}/busco/publicar`)
+    await page.goto('/busco/publicar')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: /publica lo que buscas/i })).toBeVisible()
@@ -42,13 +37,9 @@ test.describe('Create Demand Post', () => {
   test('Form shows validation errors on empty submit', async ({ page }) => {
     test.skip(!process.env.TEST_USER_EMAIL, 'Requires test user credentials')
 
-    await page.goto(`${BASE_URL}/login`)
-    await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL!)
-    await page.fill('input[name="password"]', process.env.TEST_USER_PASSWORD!)
-    await page.click('button[type="submit"]')
-    await page.waitForURL('**/*', { timeout: 10000 })
+    await login(page, process.env.TEST_USER_EMAIL!, process.env.TEST_USER_PASSWORD!)
 
-    await page.goto(`${BASE_URL}/busco/publicar`)
+    await page.goto('/busco/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.click('button:has-text("Publicar solicitud")')
@@ -60,13 +51,9 @@ test.describe('Create Demand Post', () => {
   test('Form validates minimum character lengths', async ({ page }) => {
     test.skip(!process.env.TEST_USER_EMAIL, 'Requires test user credentials')
 
-    await page.goto(`${BASE_URL}/login`)
-    await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL!)
-    await page.fill('input[name="password"]', process.env.TEST_USER_PASSWORD!)
-    await page.click('button[type="submit"]')
-    await page.waitForURL('**/*', { timeout: 10000 })
+    await login(page, process.env.TEST_USER_EMAIL!, process.env.TEST_USER_PASSWORD!)
 
-    await page.goto(`${BASE_URL}/busco/publicar`)
+    await page.goto('/busco/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.fill('#title', 'ab')

@@ -11,8 +11,6 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
 // ---------------------------------------------------------------------------
 // 1. Semantic Search — Concept Queries
 // ---------------------------------------------------------------------------
@@ -20,7 +18,7 @@ test.describe('Semantic Search - Concept Queries', () => {
   test('Search "algo para llamar" (concept: phone) returns phones', async ({ page }) => {
     test.setTimeout(60_000)
 
-    await page.goto(`${BASE_URL}/buscar?q=algo+para+llamar`)
+    await page.goto('/buscar?q=algo+para+llamar')
     await page.waitForLoadState('networkidle')
 
     await page.getByText(/buscando productos/i).waitFor({ state: 'hidden', timeout: 15000 })
@@ -49,7 +47,7 @@ test.describe('Semantic Search - Concept Queries', () => {
   test('Search "ropa de invierno" returns jackets/clothing', async ({ page }) => {
     test.setTimeout(60_000)
 
-    await page.goto(`${BASE_URL}/buscar?q=ropa+de+invierno`)
+    await page.goto('/buscar?q=ropa+de+invierno')
     await page.waitForLoadState('networkidle')
 
     await page.getByText(/buscando productos/i).waitFor({ state: 'hidden', timeout: 15000 })
@@ -81,7 +79,7 @@ test.describe('Semantic Search - Cross-Language', () => {
   test('Search "cheap phone" (English) returns Spanish products', async ({ page }) => {
     test.setTimeout(60_000)
 
-    await page.goto(`${BASE_URL}/buscar?q=cheap+phone`)
+    await page.goto('/buscar?q=cheap+phone')
     await page.waitForLoadState('networkidle')
 
     await page.getByText(/buscando productos/i).waitFor({ state: 'hidden', timeout: 15000 })
@@ -106,7 +104,7 @@ test.describe('Semantic Search - Cross-Language', () => {
 // ---------------------------------------------------------------------------
 test.describe('Semantic Search - API Metadata', () => {
   test('GET /api/search returns searchMode and latencyMs', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/search?q=laptop`)
+    const response = await request.get('/api/search?q=laptop')
     expect(response.ok()).toBeTruthy()
 
     const data = await response.json()
@@ -125,7 +123,7 @@ test.describe('Semantic Search - API Metadata', () => {
 // ---------------------------------------------------------------------------
 test.describe('Semantic Search - Error Scenarios', () => {
   test('Very short query "a" is handled', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=a`)
+    await page.goto('/buscar?q=a')
     await page.waitForLoadState('networkidle')
 
     await page.getByText(/buscando productos/i).waitFor({ state: 'hidden', timeout: 15000 })

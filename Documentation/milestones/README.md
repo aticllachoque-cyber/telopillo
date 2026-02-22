@@ -12,33 +12,37 @@ Each milestone has its own folder with a README containing:
 - Dependencies
 - Implementation notes
 
-## Overall Progress: 0/11 Milestones (0%)
+## Overall Progress: 10/15 Milestones Complete (67%)
 
 ```
-[░░░░░░░░░░░░░░░░░░░░] 0%
+[█████████████░░░░░░░] 67%
 ```
 
 ## Milestone Roadmap
 
-### Phase 1: MVP Development (Week 1-16)
+### Phase 1: MVP Development
 
-| Milestone | Duration | Status | Progress |
-|-----------|----------|--------|----------|
-| [M0: Foundation & Setup](./M0-foundation-setup/) | Week 1 | 📅 Not Started | 0/8 |
-| [M1: Authentication & Profiles](./M1-authentication-profiles/) | Week 2-3 | 📅 Not Started | 0/13 |
-| [M2: Product Listings](./M2-product-listings/) | Week 4-5 | 📅 Not Started | 0/16 |
-| [M3: Search - Keyword](./M3-search-keyword/) | Week 6 | 📅 Not Started | 0/11 |
-| [M4: Search - Semantic](./M4-search-semantic/) | Week 7 | 📅 Not Started | 0/10 |
-| [M4.6: Share Profile Link](./M4.6-share-profile/) | 1-2 days | 📅 Not Started | 0/10 |
-| [M5: Real-time Chat](./M5-realtime-chat/) | Week 8-9 | 📅 Not Started | 0/19 |
-| [M6: Favorites & Ratings](./M6-favorites-ratings/) | Week 10 | 📅 Not Started | 0/13 |
-| [M7: Geolocation & Maps](./M7-geolocation-maps/) | Week 11 | 📅 Not Started | 0/13 |
-| [M8: Home & Discovery](./M8-home-discovery/) | Week 12 | 📅 Not Started | 0/11 |
-| [M9: Content Moderation](./M9-content-moderation/) | Week 13 | 📅 Not Started | 0/11 |
-| [M10: Polish & Optimization](./M10-polish-optimization/) | Week 14-15 | 📅 Not Started | 0/21 |
-| [M11: Deployment & Launch](./M11-deployment-launch/) | Week 16 | 📅 Not Started | 0/18 |
+| Milestone | Duration | Status | Notes |
+|-----------|----------|--------|-------|
+| [M0: Foundation & Setup](./M0-foundation-setup/) | ~7.5h | ✅ Completed | Feb 12, 2026 |
+| [M1: Authentication & Profiles](./M1-authentication-profiles/) | ~14h | ✅ Code Complete | Feb 13, 2026 (OAuth manual testing pending) |
+| [M2: Product Listings](./M2-product-listings/) | ~12h | ✅ Completed | Feb 14, 2026 |
+| [M3: Search - Keyword](./M3-search-keyword/) | ~2.1h | ✅ Completed | Feb 14, 2026 |
+| [M4: Search - Semantic](./M4-search-semantic/) | ~6h | ✅ Completed | Feb 14, 2026 |
+| [M4.5: Account Types & KYC](./M4.5-account-types-kyc/) | ~10h | ✅ Completed | Feb 15, 2026 |
+| [M4.6: Share Profile Link](./M4.6-share-profile/) | ~2h | ✅ Completed | Feb 15, 2026 |
+| E2E Test Infrastructure | ~4h | ✅ Completed | Feb 16, 2026 |
+| Landing Page Quality Fixes | ~1h | ✅ Completed | Feb 17, 2026 |
+| [M4.7: Demand-Side "Busco"](./M4.7-demand-side-busco/) | ~6h | ✅ Completed | Feb 19, 2026 |
+| [M5: Real-time Chat](./M5-realtime-chat/) | TBD | ⏳ Next | — |
+| [M6: Favorites & Ratings](./M6-favorites-ratings/) | TBD | 📅 Not Started | — |
+| [M7: Geolocation & Maps](./M7-geolocation-maps/) | TBD | 📅 Not Started | — |
+| [M8: Home & Discovery](./M8-home-discovery/) | TBD | 📅 Not Started | — |
+| [M9: Content Moderation](./M9-content-moderation/) | TBD | 📅 Not Started | — |
+| [M10: Polish & Optimization](./M10-polish-optimization/) | TBD | 📅 Not Started | — |
+| [M11: Deployment & Launch](./M11-deployment-launch/) | TBD | 📅 Not Started | — |
 
-**Total MVP Tasks:** 164
+**Total development time so far:** ~64.6 hours
 
 ### Phase 2: Post-MVP (Week 17+)
 

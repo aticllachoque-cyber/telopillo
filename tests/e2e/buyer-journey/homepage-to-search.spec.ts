@@ -1,13 +1,11 @@
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
 // ---------------------------------------------------------------------------
 // 1. Homepage Hero and Search
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Homepage to Search', () => {
   test('Homepage loads with hero section and search bar', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/`)
+    const response = await page.goto('/')
     expect(response?.status()).toBe(200)
     await page.waitForLoadState('networkidle')
 
@@ -27,7 +25,7 @@ test.describe('Buyer Journey - Homepage to Search', () => {
   })
 
   test('Search from hero redirects to /buscar with query', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     const hero = page.getByRole('region', { name: /lo que buscás|telopillo/i })
@@ -41,7 +39,7 @@ test.describe('Buyer Journey - Homepage to Search', () => {
   })
 
   test('Search results page shows product cards and retains query', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     // Page heading
@@ -68,7 +66,7 @@ test.describe('Buyer Journey - Homepage to Search', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Search Error Scenarios', () => {
   test('Empty search from homepage lands on buscar with empty state', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     // Submit hero form with empty input (form submits to /buscar)
@@ -85,7 +83,7 @@ test.describe('Buyer Journey - Search Error Scenarios', () => {
   })
 
   test('Non-existent product search shows no results message', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=xyznonexistent123`)
+    await page.goto('/buscar?q=xyznonexistent123')
     await page.waitForLoadState('networkidle')
 
     // Status shows no results
@@ -99,7 +97,7 @@ test.describe('Buyer Journey - Search Error Scenarios', () => {
 
   test('Special characters and XSS attempt do not break search', async ({ page }) => {
     const xssQuery = '<script>alert(1)</script>'
-    const response = await page.goto(`${BASE_URL}/buscar?q=${encodeURIComponent(xssQuery)}`)
+    const response = await page.goto(`/buscar?q=${encodeURIComponent(xssQuery)}`)
     expect(response?.status()).toBe(200)
     await page.waitForLoadState('networkidle')
 

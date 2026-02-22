@@ -1,29 +1,14 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-// Known test data
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-const BUSINESS_SELLER_ID = '9b8794bb-d357-499a-8c10-d5413b6a7ccb'
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
+import { login } from '../../helpers'
 
 async function navigateToProductDetail(page: import('@playwright/test').Page): Promise<boolean> {
-  await page.goto(`${BASE_URL}/buscar?q=samsung`)
+  await page.goto('/buscar?q=samsung')
   await page.waitForLoadState('networkidle')
   await page.waitForTimeout(2000)
 
   let productLink = page.locator('a[href^="/productos/"]').first()
   if ((await productLink.count()) === 0) {
-    await page.goto(`${BASE_URL}/buscar`)
+    await page.goto('/buscar')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(2000)
     productLink = page.locator('a[href^="/productos/"]').first()
@@ -41,7 +26,7 @@ async function navigateToProductDetail(page: import('@playwright/test').Page): P
 // ---------------------------------------------------------------------------
 test.describe('Cross-Cutting - Navigation & Layout', () => {
   test('Header on homepage - logo, search, nav links present', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     const header = page.getByRole('banner')
@@ -51,7 +36,7 @@ test.describe('Cross-Cutting - Navigation & Layout', () => {
   })
 
   test('Header on search page - same structure as homepage', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar`)
+    await page.goto('/buscar')
     await page.waitForLoadState('networkidle')
 
     const logo = page.locator('header a[href="/"]').first()
@@ -75,7 +60,7 @@ test.describe('Cross-Cutting - Navigation & Layout', () => {
   // 2. Footer Consistency
   // ---------------------------------------------------------------------------
   test('Footer on homepage - links and copyright present', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     const footer = page.getByRole('contentinfo')
@@ -86,7 +71,7 @@ test.describe('Cross-Cutting - Navigation & Layout', () => {
   })
 
   test('Footer on search page - same structure', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar`)
+    await page.goto('/buscar')
     await page.waitForLoadState('networkidle')
 
     const footer = page.getByRole('contentinfo')
@@ -98,7 +83,7 @@ test.describe('Cross-Cutting - Navigation & Layout', () => {
   // 3. Skip Link
   // ---------------------------------------------------------------------------
   test('Skip link present and links to main content', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     const skipLink = page.getByRole('link', { name: /saltar al contenido principal/i }).first()
@@ -112,7 +97,7 @@ test.describe('Cross-Cutting - Navigation & Layout', () => {
   // ---------------------------------------------------------------------------
   test('Authenticated header - avatar/user menu replaces login/register', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(3000)
 
@@ -144,7 +129,7 @@ test.describe('Cross-Cutting - Navigation & Layout', () => {
   test('404 page - nonexistent route shows helpful message, navigation present', async ({
     page,
   }) => {
-    const response = await page.goto(`${BASE_URL}/this-page-does-not-exist`)
+    const response = await page.goto('/this-page-does-not-exist')
     expect(response?.status()).toBe(404)
 
     await page.waitForLoadState('load')

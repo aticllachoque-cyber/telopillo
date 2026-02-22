@@ -1,14 +1,12 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+import { runAxeAudit, assertNoHorizontalScroll } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. Product Detail - Navigation and Content
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Product Detail', () => {
   test('Navigate from search to product detail page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     // Click first product link
@@ -30,13 +28,13 @@ test.describe('Buyer Journey - Product Detail', () => {
     page,
   }) => {
     // Go to search first to get a real product ID
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     const firstProductLink = page.locator('a[href^="/productos/"]').first()
     const count = await firstProductLink.count()
     if (count === 0) {
-      await page.goto(`${BASE_URL}/buscar`)
+      await page.goto('/buscar')
       await page.waitForLoadState('networkidle')
       const anyProduct = page.locator('a[href^="/productos/"]').first()
       const anyCount = await anyProduct.count()
@@ -76,7 +74,7 @@ test.describe('Buyer Journey - Product Detail', () => {
   })
 
   test('Click seller profile link from seller card navigates to seller page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     const firstProductLink = page.locator('a[href^="/productos/"]').first()
@@ -106,12 +104,12 @@ test.describe('Buyer Journey - Product Detail', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Product Detail Errors', () => {
   test('Returns 404 for non-existent product ID', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/productos/00000000-0000-0000-0000-000000000000`)
+    const response = await page.goto('/productos/00000000-0000-0000-0000-000000000000')
     expect(response?.status()).toBe(404)
   })
 
   test('Returns 404 for malformed product ID', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/productos/not-a-valid-uuid-xyz`)
+    const response = await page.goto('/productos/not-a-valid-uuid-xyz')
     expect(response?.status()).toBe(404)
   })
 })
@@ -121,13 +119,13 @@ test.describe('Buyer Journey - Product Detail Errors', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Product Detail Accessibility', () => {
   test('Product detail page passes WCAG 2.2 AA accessibility audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     const firstProductLink = page.locator('a[href^="/productos/"]').first()
     const count = await firstProductLink.count()
     if (count === 0) {
-      await page.goto(`${BASE_URL}/buscar`)
+      await page.goto('/buscar')
       await page.waitForLoadState('networkidle')
       const anyProduct = page.locator('a[href^="/productos/"]').first()
       if ((await anyProduct.count()) === 0) {
@@ -142,27 +140,11 @@ test.describe('Buyer Journey - Product Detail Accessibility', () => {
     await page.waitForURL(/\/productos\/[a-f0-9-]+/, { timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-
-    if (critical.length > 0 || serious.length > 0) {
-      console.log('Accessibility violations:')
-      ;[...critical, ...serious].forEach((v) => {
-        console.log(`  [${v.impact?.toUpperCase()}] ${v.id}: ${v.description}`)
-        v.nodes.forEach((n) => console.log(`    → ${n.html.substring(0, 80)}`))
-      })
-    }
-
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Product images have alt text', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     const firstProductLink = page.locator('a[href^="/productos/"]').first()
@@ -191,12 +173,12 @@ test.describe('Buyer Journey - Product Detail Mobile', () => {
   test.use({ viewport: { width: 375, height: 812 } })
 
   test('No horizontal scroll on product detail page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     const firstProductLink = page.locator('a[href^="/productos/"]').first()
     if ((await firstProductLink.count()) === 0) {
-      await page.goto(`${BASE_URL}/buscar`)
+      await page.goto('/buscar')
       await page.waitForLoadState('networkidle')
       const anyProduct = page.locator('a[href^="/productos/"]').first()
       if ((await anyProduct.count()) === 0) {
@@ -211,13 +193,11 @@ test.describe('Buyer Journey - Product Detail Mobile', () => {
     await page.waitForURL(/\/productos\/[a-f0-9-]+/, { timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
-    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth)
-    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 5)
+    await assertNoHorizontalScroll(page)
   })
 
   test('Touch targets are >= 44px on product detail page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=celular`)
+    await page.goto('/buscar?q=celular')
     await page.waitForLoadState('networkidle')
 
     const firstProductLink = page.locator('a[href^="/productos/"]').first()

@@ -125,7 +125,11 @@ export function SellerProfileHeader({
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3">
         {profile.phone && (
-          <Button asChild size="lg" className="bg-green-700 hover:bg-green-800 text-white">
+          <Button
+            asChild
+            size="lg"
+            className="min-h-[44px] bg-green-700 hover:bg-green-800 text-white"
+          >
             <a
               href={getWhatsAppLink(profile.phone)}
               target="_blank"
@@ -142,7 +146,7 @@ export function SellerProfileHeader({
         )}
 
         {businessSlug && (
-          <Button asChild variant="outline" size="lg">
+          <Button asChild variant="outline" size="lg" className="min-h-[44px]">
             <Link href={`/negocio/${businessSlug}`} className="flex items-center gap-2">
               <Store className="size-5" aria-hidden />
               Visitar tienda

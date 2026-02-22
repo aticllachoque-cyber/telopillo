@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getAuthErrorMessage } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FcGoogle } from 'react-icons/fc'
 import { FaFacebook } from 'react-icons/fa'
@@ -24,7 +25,7 @@ export function OAuthButtons() {
       if (error) throw error
     } catch (error) {
       console.error('OAuth error:', error)
-      setError(error instanceof Error ? error.message : 'Error al iniciar sesión')
+      setError(getAuthErrorMessage(error, 'Error al iniciar sesión'))
       setIsLoading(null)
     }
   }
@@ -44,7 +45,7 @@ export function OAuthButtons() {
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        className="w-full min-h-[44px]"
         onClick={() => handleOAuth('google')}
         disabled={isLoading !== null}
         aria-label="Continuar con Google"
@@ -56,7 +57,7 @@ export function OAuthButtons() {
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        className="w-full min-h-[44px]"
         onClick={() => handleOAuth('facebook')}
         disabled={isLoading !== null}
         aria-label="Continuar con Facebook"

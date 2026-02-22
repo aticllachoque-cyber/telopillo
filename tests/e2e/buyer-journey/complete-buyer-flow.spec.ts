@@ -1,16 +1,14 @@
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
 // ---------------------------------------------------------------------------
 // 1. Complete End-to-End Buyer Journey
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Complete Flow', () => {
   test('Full flow: homepage → search → product → seller → browse products', async ({ page }) => {
     // Step 1: Land on homepage
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
-    expect(page.url()).toBe(`${BASE_URL}/`)
+    expect(page.url()).toMatch(/\/$/)
 
     await expect(page.getByRole('heading', { level: 1, name: /telopillo/i })).toBeVisible()
 
@@ -31,7 +29,7 @@ test.describe('Buyer Journey - Complete Flow', () => {
     const productCount = await firstProductLink.count()
     if (productCount === 0) {
       // No products - try without query to get all products
-      await page.goto(`${BASE_URL}/buscar`)
+      await page.goto('/buscar')
       await page.waitForLoadState('networkidle')
       const anyProduct = page.locator('a[href^="/productos/"]').first()
       if ((await anyProduct.count()) === 0) {
@@ -79,7 +77,7 @@ test.describe('Buyer Journey - Complete Flow', () => {
   })
 
   test('Complete flow executes without errors', async ({ page }) => {
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     // Search
@@ -97,7 +95,7 @@ test.describe('Buyer Journey - Complete Flow', () => {
 
     const firstProduct = page.locator('a[href^="/productos/"]').first()
     if ((await firstProduct.count()) === 0) {
-      await page.goto(`${BASE_URL}/buscar`)
+      await page.goto('/buscar')
       await page.waitForLoadState('networkidle')
     }
 

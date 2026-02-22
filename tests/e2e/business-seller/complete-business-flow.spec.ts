@@ -1,12 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-// Known test data (from seeded database)
-const BUSINESS_SLUG = 'usuario-de-desarrollo'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
+import { login, TEST_DATA } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. Complete Business Seller End-to-End Flow
@@ -16,15 +9,10 @@ test.describe('Business Seller - Complete E2E Flow', () => {
     page,
   }) => {
     // Step 1: Login
-    await page.goto(`${BASE_URL}/login`)
-    await page.waitForLoadState('networkidle')
-    await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-    await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-    await page.locator('#main-content button[type="submit"]').click()
-    await page.waitForURL('**/*', { timeout: 15000 })
+    await login(page)
 
     // Step 2: Visit profile edit and verify business section
-    await page.goto(`${BASE_URL}/profile/edit`)
+    await page.goto('/profile/edit')
     await page.waitForLoadState('networkidle')
     await expect(page.getByText(/cargando perfil/i)).not.toBeVisible({ timeout: 5000 })
     await page.waitForTimeout(4000) // Allow BusinessProfileForm to load from Supabase
@@ -33,7 +21,7 @@ test.describe('Business Seller - Complete E2E Flow', () => {
     await expect(page.getByLabel(/nombre del negocio/i)).toBeVisible({ timeout: 5000 })
 
     // Step 3: Visit storefront
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${TEST_DATA.businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     // Step 4: Verify storefront structure

@@ -3,6 +3,7 @@ import type { NextConfig } from 'next'
 const SUPABASE_HOSTNAME = 'apwpsjjzcbytnvtnmmru.supabase.co'
 
 const nextConfig: NextConfig = {
+  turbopack: {},
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {
@@ -65,9 +66,11 @@ const nextConfig: NextConfig = {
               // TODO: Remove 'unsafe-inline' once we implement nonce-based CSP
               // For now, it's needed for inline styles in shadcn/ui and Tailwind
               "style-src 'self' 'unsafe-inline'",
-              // NOTE: 'unsafe-inline' needed for Next.js inline scripts
-              // 'unsafe-eval' removed for better security (not required for Next.js 13+)
-              "script-src 'self' 'unsafe-inline'",
+              // 'unsafe-inline' needed for Next.js inline scripts
+              // 'unsafe-eval' needed in dev for React Hot Reload; stripped in production
+              process.env.NODE_ENV === 'production'
+                ? "script-src 'self' 'unsafe-inline'"
+                : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "font-src 'self'",
               "frame-ancestors 'none'",
             ].join('; '),

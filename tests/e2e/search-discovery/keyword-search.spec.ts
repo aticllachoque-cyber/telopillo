@@ -10,8 +10,6 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
 // ---------------------------------------------------------------------------
 // 1. Keyword Search — Happy Path
 // ---------------------------------------------------------------------------
@@ -20,7 +18,7 @@ test.describe('Keyword Search - Happy Path', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     // Header SearchBar (desktop) - same pattern as m3-search
@@ -63,7 +61,7 @@ test.describe('Keyword Search - Happy Path', () => {
 
   test('Search from results page with new query', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/buscar?q=samsung`)
+    await page.goto('/buscar?q=samsung')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -95,7 +93,7 @@ test.describe('Keyword Search - Happy Path', () => {
 // ---------------------------------------------------------------------------
 test.describe('Keyword Search - Error Scenarios', () => {
   test('Non-existent query shows empty state', async ({ page }) => {
-    await page.goto(`${BASE_URL}/buscar?q=xyznonexistent123`)
+    await page.goto('/buscar?q=xyznonexistent123')
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 20000 })
@@ -113,7 +111,7 @@ test.describe('Keyword Search - Error Scenarios', () => {
 
   test('Empty search does not submit from SearchBar', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/buscar`)
+    await page.goto('/buscar')
     await page.waitForLoadState('networkidle')
 
     // SearchBar: submit button is disabled when query is empty
@@ -123,7 +121,7 @@ test.describe('Keyword Search - Error Scenarios', () => {
 
   test('Empty search from hero form shows empty state', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto(`${BASE_URL}/`)
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     // Hero form: submit with empty input - native form may submit to /buscar
@@ -148,7 +146,7 @@ test.describe('Keyword Search - Error Scenarios', () => {
 
   test('Long query (500+ chars) is handled gracefully', async ({ page }) => {
     const longQuery = 'a'.repeat(500)
-    await page.goto(`${BASE_URL}/buscar?q=${encodeURIComponent(longQuery)}`)
+    await page.goto(`/buscar?q=${encodeURIComponent(longQuery)}`)
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -165,7 +163,7 @@ test.describe('Keyword Search - Error Scenarios', () => {
 
   test('Special characters in query are handled', async ({ page }) => {
     const specialQuery = 'samsung & "galaxy" <test>'
-    await page.goto(`${BASE_URL}/buscar?q=${encodeURIComponent(specialQuery)}`)
+    await page.goto(`/buscar?q=${encodeURIComponent(specialQuery)}`)
     await page.waitForLoadState('networkidle')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })

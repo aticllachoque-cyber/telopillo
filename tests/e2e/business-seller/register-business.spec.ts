@@ -1,11 +1,5 @@
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-// Test account for login (not used in registration)
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-
 // Unique email for registration tests (avoids conflicts)
 // Note: Registration signup tests require Supabase to allow signups for the test domain.
 // If signups are restricted, the full-registration tests will fail at the success assertion.
@@ -18,7 +12,7 @@ test.describe('Business Seller - Register with Business Profile', () => {
   test('Navigate to register, fill personal fields, expand business section, fill business data, submit', async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     // Fill personal fields
@@ -54,7 +48,7 @@ test.describe('Business Seller - Register with Business Profile', () => {
 // ---------------------------------------------------------------------------
 test.describe('Business Seller - Business Section Toggle', () => {
   test('Business section toggle has correct aria-expanded state', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     const businessToggle = page.getByRole('button', { name: /negocio.*opcional/i })
@@ -77,7 +71,7 @@ test.describe('Business Seller - Business Section Toggle', () => {
 // ---------------------------------------------------------------------------
 test.describe('Business Seller - Registration Errors', () => {
   test('Expand business but leave name empty shows validation error', async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     // Fill personal fields
@@ -105,7 +99,7 @@ test.describe('Business Seller - Registration Errors', () => {
   test('Expand then collapse then submit - personal-only registration succeeds', async ({
     page,
   }) => {
-    await page.goto(`${BASE_URL}/register`)
+    await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     // Fill personal fields

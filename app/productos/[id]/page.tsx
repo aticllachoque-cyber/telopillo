@@ -120,25 +120,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8 overflow-x-hidden">
       <div className="container max-w-7xl">
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-6">
-          <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-            <li>
+          <ol className="flex items-center gap-2 text-sm text-muted-foreground overflow-hidden">
+            <li className="shrink-0">
               <Link href="/" className="hover:text-foreground">
                 Inicio
               </Link>
             </li>
-            <li aria-hidden="true">/</li>
-            <li>
+            <li aria-hidden="true" className="shrink-0">
+              /
+            </li>
+            <li className="shrink-0">
               <Link href={`/categorias/${product.category}`} className="hover:text-foreground">
                 {categoryName}
               </Link>
             </li>
-            <li aria-hidden="true">/</li>
-            <li aria-current="page">
-              <span className="text-foreground truncate">{product.title}</span>
+            <li aria-hidden="true" className="shrink-0">
+              /
+            </li>
+            <li aria-current="page" className="min-w-0">
+              <span className="text-foreground truncate block">{product.title}</span>
             </li>
           </ol>
         </nav>
@@ -179,8 +183,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <CardContent className="p-6 space-y-6">
                 {/* Title and Price */}
                 <div>
-                  <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
-                  <p className="text-4xl font-bold text-primary">
+                  <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-balance break-words">
+                    {product.title}
+                  </h1>
+                  <p className="text-3xl sm:text-4xl font-bold text-primary">
                     Bs {product.price.toLocaleString('es-BO')}
                   </p>
                 </div>

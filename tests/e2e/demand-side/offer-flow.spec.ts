@@ -11,11 +11,9 @@
  */
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
 test.describe('Offer Flow', () => {
   test('Detail page renders post information', async ({ page }) => {
-    await page.goto(`${BASE_URL}/busco`)
+    await page.goto('/busco')
     await page.waitForLoadState('networkidle')
 
     const firstLink = page.locator('a[href*="/busco/"]').first()
@@ -35,7 +33,7 @@ test.describe('Offer Flow', () => {
   })
 
   test('Unauthenticated user sees login CTA on detail page', async ({ page }) => {
-    await page.goto(`${BASE_URL}/busco`)
+    await page.goto('/busco')
     await page.waitForLoadState('networkidle')
 
     const firstLink = page.locator('a[href*="/busco/"]').first()

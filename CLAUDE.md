@@ -2,7 +2,7 @@
 
 **Project:** Telopillo.bo - Bolivian Online Marketplace
 **Version:** MVP Development Phase
-**Last Updated:** February 16, 2026
+**Last Updated:** February 19, 2026
 
 ---
 
@@ -11,8 +11,8 @@
 Telopillo.bo is a Bolivian marketplace platform that connects buyers and sellers. The key differentiator is **semantic search** that understands Bolivian Spanish, synonyms, typos, and natural language queries.
 
 ### Current State
-- **Milestone M4.5 Complete**: Account types, business profiles, seller pages, E2E testing
-- **Active Development**: Authentication, product listings, semantic search
+- **Milestone M4.7 Complete**: Demand-side posting ("Busco/Necesito"), UX polish, accessibility hardening
+- **Previous Milestones**: M0–M4.6 complete (auth, products, search, business profiles, share links)
 - **Next Up**: Real-time chat (M5), favorites/ratings (M6)
 
 ### Tech Stack
@@ -32,21 +32,26 @@ telopillo.com/
 ├── app/                         # Next.js App Router
 │   ├── (auth)/                 # Auth pages (login, register, callback)
 │   ├── (marketplace)/          # Main marketplace pages
-│   ├── api/                    # API routes
+│   ├── api/                    # API routes (search, search-demands)
 │   ├── auth/callback/          # OAuth callback handler
+│   ├── busco/                  # Demand-side pages (M4.7)
+│   │   ├── page.tsx            # Browse demands
+│   │   ├── [id]/page.tsx       # Demand detail
+│   │   └── publicar/page.tsx   # Create demand post
 │   ├── layout.tsx              # Root layout
 │   ├── page.tsx                # Home page
-│   └── perfil/                 # Profile pages
+│   └── perfil/                 # Profile pages (mis-productos, demandas)
 ├── components/
 │   ├── ui/                     # shadcn/ui components
 │   ├── layout/                 # Header, Footer, UserMenu
 │   ├── products/               # Product-related components
+│   ├── demand/                 # Demand-side components (M4.7)
 │   ├── auth/                   # Auth forms
 │   ├── profile/                # Profile components
 │   └── providers/              # React context providers
 ├── lib/
 │   ├── supabase/              # Supabase clients (client, server, admin)
-│   ├── validations/           # Zod schemas + sanitization
+│   ├── validations/           # Zod schemas (product, demand, sanitize)
 │   ├── utils/                 # Utility functions
 │   └── constants.ts           # App constants
 ├── types/                      # TypeScript type definitions
@@ -55,6 +60,8 @@ telopillo.com/
 │   ├── functions/             # Edge Functions (Deno runtime)
 │   └── config.toml            # Supabase configuration
 ├── tests/                      # E2E tests (Playwright)
+│   └── e2e/                   # Organized by business flow
+│       └── demand-side/       # Demand-side tests (M4.7)
 ├── Documentation/
 │   ├── milestones/            # Detailed milestone docs
 │   └── PRD.md                 # Product Requirements
@@ -223,6 +230,8 @@ CREATE TRIGGER set_updated_at
 - `profiles`: User profiles (1:1 with auth.users)
 - `business_profiles`: Business account info (optional, 1:1 with profiles)
 - `products`: Product listings (many:1 with profiles)
+- `demand_posts`: Buyer demand posts with expiration (many:1 with profiles)
+- `demand_offers`: Seller offers on demand posts (junction: demand_posts × products × profiles)
 - `app_config`: Global app configuration (singleton table)
 
 ---
@@ -245,6 +254,7 @@ CREATE TRIGGER set_updated_at
 - **Location**: `supabase/functions/generate-embedding/index.ts`
 - **Model**: `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
 - **API**: Hugging Face Inference API (free tier: 30K requests/month)
+- **Modes**: Product INSERT/UPDATE (webhook), manual query, backfill, demand post (M4.7)
 - **CORS**: Currently set to `*` - should be restricted to production domain
 
 ---

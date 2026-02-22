@@ -1,23 +1,10 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
+import { login } from '../../helpers'
 
 const MINIMAL_PNG_BUFFER = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
   'base64'
 )
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
 
 // ---------------------------------------------------------------------------
 // 1. Complete Seller Flow - Full Lifecycle
@@ -32,7 +19,7 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
     await login(page)
 
     // Step 1: Create product via wizard
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/título del producto/i).fill(productTitle)
@@ -76,21 +63,21 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
     expect(productId).toBeTruthy()
 
     // Step 2: Verify in my products
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByText(productTitle)).toBeVisible()
     await expect(page.getByText(/Bs\s*2[,.]?500/)).toBeVisible()
 
     // Step 3: Verify in search
-    await page.goto(`${BASE_URL}/buscar?q=${encodeURIComponent(productTitle)}`)
+    await page.goto(`/buscar?q=${encodeURIComponent(productTitle)}`)
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByText(productTitle).first()).toBeVisible({ timeout: 10000 })
     await expect(page.getByText(/Bs\s*2[,.]?500/)).toBeVisible()
 
     // Step 4: Edit price
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const productCard = page.locator(`a[href*="/productos/${productId}"]`).first()
@@ -122,7 +109,7 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
     ).toBeVisible()
 
     // Step 6: Mark as sold (if UI exists)
-    await page.goto(`${BASE_URL}/productos/${productId}`)
+    await page.goto(`/productos/${productId}`)
     await page.waitForLoadState('networkidle')
 
     const markSoldBtn = page.getByRole('button', { name: /marcar como vendido/i })
@@ -137,7 +124,7 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
     }
 
     // Step 7: Cleanup - delete product
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const ourProductCard = page.locator(`a[href*="/productos/${productId}"]`).first()

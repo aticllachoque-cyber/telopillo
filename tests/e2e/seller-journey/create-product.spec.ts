@@ -1,25 +1,11 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
+import { login, runAxeAudit } from '../../helpers'
 
 // Minimal 1x1 PNG for image upload tests
 const MINIMAL_PNG_BUFFER = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
   'base64'
 )
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
 
 // ---------------------------------------------------------------------------
 // 1. Create Product - Wizard Flow
@@ -30,7 +16,7 @@ test.describe('Create Product - Wizard Flow', () => {
   })
 
   test('Wizard Step 1 is visible after navigating to /publicar', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: /publicar producto/i })).toBeVisible()
@@ -41,7 +27,7 @@ test.describe('Create Product - Wizard Flow', () => {
   })
 
   test('Completes full wizard and publishes product', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     // Step 1: Basic Info
@@ -108,7 +94,7 @@ test.describe('Create Product - Validation Errors', () => {
   })
 
   test('Step 1 shows error when title is empty', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
@@ -122,7 +108,7 @@ test.describe('Create Product - Validation Errors', () => {
   })
 
   test('Step 1 shows error when category is not selected', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB')
@@ -133,7 +119,7 @@ test.describe('Create Product - Validation Errors', () => {
   })
 
   test('Step 2 shows error for negative price', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     // Complete Step 1
@@ -159,7 +145,7 @@ test.describe('Create Product - Validation Errors', () => {
   })
 
   test('Step 2 shows error for zero price', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB')
@@ -184,7 +170,7 @@ test.describe('Create Product - Validation Errors', () => {
   })
 
   test('Data is preserved when navigating back and forth between steps', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     const title = 'Test Product Title for Data Preservation'
@@ -226,28 +212,14 @@ test.describe('Create Product - Accessibility', () => {
   })
 
   test('Step 1 passes axe-core audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    if (critical.length > 0 || serious.length > 0) {
-      console.log('Accessibility violations:')
-      ;[...critical, ...serious].forEach((v) => {
-        console.log(`  [${v.impact?.toUpperCase()}] ${v.id}: ${v.description}`)
-        v.nodes.forEach((n) => console.log(`    → ${n.html.substring(0, 80)}`))
-      })
-    }
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Step 2 passes axe-core audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
@@ -258,18 +230,11 @@ test.describe('Create Product - Accessibility', () => {
 
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Step 3 passes axe-core audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
@@ -291,18 +256,11 @@ test.describe('Create Product - Accessibility', () => {
     await page.getByRole('button', { name: /siguiente/i }).click()
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 
   test('Step 4 passes axe-core audit', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
@@ -334,14 +292,7 @@ test.describe('Create Product - Accessibility', () => {
     await page.getByRole('button', { name: /siguiente/i }).click()
     await page.waitForLoadState('networkidle')
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa'])
-      .analyze()
-
-    const critical = results.violations.filter((v) => v.impact === 'critical')
-    const serious = results.violations.filter((v) => v.impact === 'serious')
-    expect(critical.length).toBe(0)
-    expect(serious.length).toBe(0)
+    await runAxeAudit(page)
   })
 })
 
@@ -356,7 +307,7 @@ test.describe('Create Product - Mobile Responsive (375x812)', () => {
   })
 
   test('Wizard fits viewport with no horizontal scroll', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
@@ -365,7 +316,7 @@ test.describe('Create Product - Mobile Responsive (375x812)', () => {
   })
 
   test('Touch targets are at least 44px', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     const buttons = page.locator('button, a[href], input:not([type="hidden"]), [role="button"]')
@@ -379,7 +330,7 @@ test.describe('Create Product - Mobile Responsive (375x812)', () => {
   })
 
   test('Next button is visible and full-width on mobile', async ({ page }) => {
-    await page.goto(`${BASE_URL}/publicar`)
+    await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     const nextBtn = page.getByRole('button', { name: /siguiente/i })

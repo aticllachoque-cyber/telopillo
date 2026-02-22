@@ -1,21 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-
-// ---------------------------------------------------------------------------
-// Helper: Login
-// ---------------------------------------------------------------------------
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
+import { login } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. View Profile - Authenticated
@@ -23,7 +7,7 @@ async function login(page: import('@playwright/test').Page) {
 test.describe('Account Management - View Profile', () => {
   test('Login, navigate to /profile and verify profile data', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile`)
+    await page.goto('/profile')
     await page.waitForLoadState('networkidle')
 
     // Verify user name (heading)
@@ -56,7 +40,7 @@ test.describe('Account Management - View Profile', () => {
 
   test('Edit profile link navigates to /profile/edit', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile`)
+    await page.goto('/profile')
     await page.waitForLoadState('networkidle')
 
     const editLink = page.getByRole('link', { name: /editar/i })
@@ -70,7 +54,7 @@ test.describe('Account Management - View Profile', () => {
 
   test('Sign out button is visible', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile`)
+    await page.goto('/profile')
     await page.waitForLoadState('networkidle')
 
     const signOutButton = page.getByRole('button', { name: /salir/i })
@@ -79,7 +63,7 @@ test.describe('Account Management - View Profile', () => {
 
   test('Member since date is displayed', async ({ page }) => {
     await login(page)
-    await page.goto(`${BASE_URL}/profile`)
+    await page.goto('/profile')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByText(/miembro desde/i)).toBeVisible()
@@ -91,7 +75,7 @@ test.describe('Account Management - View Profile', () => {
 // ---------------------------------------------------------------------------
 test.describe('Account Management - View Profile (Unauthenticated)', () => {
   test('Visit /profile unauthenticated redirects to /login', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/profile`)
+    await page.goto('/profile')
     await page.waitForLoadState('networkidle')
 
     // Client-side redirect happens after load

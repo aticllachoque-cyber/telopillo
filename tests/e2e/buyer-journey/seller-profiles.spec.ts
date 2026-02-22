@@ -1,18 +1,14 @@
 import { test, expect } from '@playwright/test'
+import { TEST_DATA } from '../../helpers'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-// Known test data (from seeded database)
-const BUSINESS_SLUG = 'usuario-de-desarrollo'
-const BUSINESS_SELLER_ID = '9b8794bb-d357-499a-8c10-d5413b6a7ccb'
-const PERSONAL_SELLER_ID = '09a4ef63-b8ec-4931-9885-e4d785e79643'
+const { businessSlug, businessSellerId, personalSellerId } = TEST_DATA
 
 // ---------------------------------------------------------------------------
 // 1. Personal Seller Profile
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Seller Profiles', () => {
   test('Personal seller profile shows name, products, and badge', async ({ page }) => {
-    await page.goto(`${BASE_URL}/vendedor/${PERSONAL_SELLER_ID}`)
+    await page.goto(`/vendedor/${personalSellerId}`)
     await page.waitForLoadState('networkidle')
 
     // Seller name in heading
@@ -34,12 +30,12 @@ test.describe('Buyer Journey - Seller Profiles', () => {
   })
 
   test('Business seller profile shows Visitar tienda link', async ({ page }) => {
-    await page.goto(`${BASE_URL}/vendedor/${BUSINESS_SELLER_ID}`)
+    await page.goto(`/vendedor/${businessSellerId}`)
     await page.waitForLoadState('networkidle')
 
     const visitStoreLink = page.getByRole('link', { name: /visitar tienda/i })
     await expect(visitStoreLink).toBeVisible()
-    expect(await visitStoreLink.getAttribute('href')).toContain(`/negocio/${BUSINESS_SLUG}`)
+    expect(await visitStoreLink.getAttribute('href')).toContain(`/negocio/${businessSlug}`)
   })
 })
 
@@ -48,7 +44,7 @@ test.describe('Buyer Journey - Seller Profiles', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Business Storefront', () => {
   test('Business storefront shows header, info, hours, and products', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     // Business name in header
@@ -75,7 +71,7 @@ test.describe('Buyer Journey - Business Storefront', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Seller Cross-Navigation', () => {
   test('Storefront to seller profile and back', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     // Click seller profile link in header (shows full name or "Ver vendedor")
@@ -91,8 +87,8 @@ test.describe('Buyer Journey - Seller Cross-Navigation', () => {
     await expect(visitStoreLink).toBeVisible()
     await visitStoreLink.click()
 
-    await page.waitForURL(new RegExp(`/negocio/${BUSINESS_SLUG}`), { timeout: 10000 })
-    expect(page.url()).toContain(`/negocio/${BUSINESS_SLUG}`)
+    await page.waitForURL(new RegExp(`/negocio/${businessSlug}`), { timeout: 10000 })
+    expect(page.url()).toContain(`/negocio/${businessSlug}`)
   })
 })
 
@@ -101,7 +97,7 @@ test.describe('Buyer Journey - Seller Cross-Navigation', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Seller SEO', () => {
   test('Seller profile has Person JSON-LD structured data', async ({ page }) => {
-    await page.goto(`${BASE_URL}/vendedor/${PERSONAL_SELLER_ID}`)
+    await page.goto(`/vendedor/${personalSellerId}`)
     await page.waitForLoadState('networkidle')
 
     const jsonLd = await page.evaluate(() => {
@@ -115,7 +111,7 @@ test.describe('Buyer Journey - Seller SEO', () => {
   })
 
   test('Business storefront has LocalBusiness JSON-LD structured data', async ({ page }) => {
-    await page.goto(`${BASE_URL}/negocio/${BUSINESS_SLUG}`)
+    await page.goto(`/negocio/${businessSlug}`)
     await page.waitForLoadState('networkidle')
 
     const jsonLd = await page.evaluate(() => {
@@ -135,12 +131,12 @@ test.describe('Buyer Journey - Seller SEO', () => {
 // ---------------------------------------------------------------------------
 test.describe('Buyer Journey - Seller Profile Errors', () => {
   test('Returns 404 for non-existent seller', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/vendedor/00000000-0000-0000-0000-000000000000`)
+    const response = await page.goto('/vendedor/00000000-0000-0000-0000-000000000000')
     expect(response?.status()).toBe(404)
   })
 
   test('Returns 404 for non-existent business slug', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/negocio/non-existent-slug-xyz-123`)
+    const response = await page.goto('/negocio/non-existent-slug-xyz-123')
     expect(response?.status()).toBe(404)
   })
 })

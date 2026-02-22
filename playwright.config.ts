@@ -12,7 +12,22 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'auth-setup',
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['auth-setup'],
+    },
+    {
+      name: 'mobile',
+      use: { ...devices['iPhone 13'] },
+      dependencies: ['auth-setup'],
+    },
+  ],
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',

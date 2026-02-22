@@ -10,6 +10,7 @@ export const PRODUCT_CATEGORIES = [
   'construction',
   'sports',
   'baby',
+  'toys',
   'beauty',
   'books',
 ] as const
@@ -110,7 +111,8 @@ export const CATEGORY_LABELS: Record<(typeof PRODUCT_CATEGORIES)[number], string
   fashion: 'Moda y Accesorios',
   construction: 'Construcción',
   sports: 'Deportes',
-  baby: 'Bebés y Niños',
+  baby: 'Para Bebés y Niños',
+  toys: 'Juguetes y Juegos',
   beauty: 'Belleza y Salud',
   books: 'Libros y Educación',
 }
@@ -123,7 +125,8 @@ export const CATEGORY_DESCRIPTIONS: Record<(typeof PRODUCT_CATEGORIES)[number], 
   fashion: 'Ropa, zapatos, bolsos y accesorios',
   construction: 'Materiales, herramientas y equipos',
   sports: 'Equipos deportivos, ropa y accesorios',
-  baby: 'Ropa, juguetes, coches y accesorios para bebés',
+  baby: 'Ropa, coches y accesorios para bebés y niños',
+  toys: 'Muñecas, juegos de mesa, puzzles, coleccionables y más',
   beauty: 'Cosméticos, cuidado personal y salud',
   books: 'Libros, cursos, material educativo',
 }
@@ -137,6 +140,7 @@ export const CATEGORY_ICONS: Record<(typeof PRODUCT_CATEGORIES)[number], string>
   construction: 'Hammer',
   sports: 'Dumbbell',
   baby: 'Baby',
+  toys: 'Gamepad2',
   beauty: 'Sparkles',
   books: 'BookOpen',
 }

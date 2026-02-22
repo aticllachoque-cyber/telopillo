@@ -1,18 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-
-const TEST_USER_EMAIL = 'dev@telopillo.test'
-const TEST_USER_PASSWORD = 'DevTest123'
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto(`${BASE_URL}/login`)
-  await page.waitForLoadState('networkidle')
-  await page.getByLabel(/email/i).fill(TEST_USER_EMAIL)
-  await page.getByLabel(/contraseña/i).fill(TEST_USER_PASSWORD)
-  await page.locator('#main-content button[type="submit"]').click()
-  await page.waitForURL('**/*', { timeout: 15000 })
-}
+import { login } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. Edit Product Flow
@@ -23,7 +10,7 @@ test.describe('Edit Product - Flow', () => {
   })
 
   test('Edit form is pre-filled with product data', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const productLink = page.locator('a[href^="/productos/"]').first()
@@ -54,7 +41,7 @@ test.describe('Edit Product - Flow', () => {
   })
 
   test('Modifying title and price saves successfully', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const productLink = page.locator('a[href^="/productos/"]').first()
@@ -92,7 +79,7 @@ test.describe('Edit Product - Flow', () => {
   })
 
   test('Changes are visible on product detail page after save', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const productLink = page.locator('a[href^="/productos/"]').first()
@@ -143,7 +130,7 @@ test.describe('Edit Product - Validation Errors', () => {
   })
 
   test('Shows validation error when clearing required title', async ({ page }) => {
-    await page.goto(`${BASE_URL}/perfil/mis-productos`)
+    await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
     const productLink = page.locator('a[href^="/productos/"]').first()
@@ -179,7 +166,7 @@ test.describe('Edit Product - Error Scenarios', () => {
   })
 
   test('Shows error for non-existent product ID', async ({ page }) => {
-    await page.goto(`${BASE_URL}/productos/00000000-0000-0000-0000-000000000000/editar`)
+    await page.goto('/productos/00000000-0000-0000-0000-000000000000/editar')
     await page.waitForLoadState('networkidle')
 
     await expect(

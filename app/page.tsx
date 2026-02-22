@@ -8,7 +8,7 @@ import {
   ChevronRight,
   Smartphone,
   MapPin,
-  Upload,
+  Megaphone,
   ShieldCheck,
   MoreHorizontal,
 } from 'lucide-react'
@@ -40,11 +40,12 @@ const HOMEPAGE_CATEGORY_IDS = [
   'sports',
   'construction',
   'baby',
+  'toys',
 ]
 
 const features = [
   {
-    Icon: Upload,
+    Icon: Megaphone,
     title: 'Publicá Gratis',
     description: 'Sin costo ni comisiones. Llegá a compradores en toda Bolivia.',
   },
@@ -89,7 +90,7 @@ export default function Home() {
             {/* Trust badge */}
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-sm text-muted-foreground shadow-sm">
               <MapPin className="size-4 text-primary" aria-hidden />
-              <span>100% boliviano • 9 departamentos • Sin comisiones</span>
+              <span>Marketplace 100% boliviano</span>
             </p>
 
             <h1
@@ -144,7 +145,7 @@ export default function Home() {
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="/publicar" className="flex items-center gap-1">
-                  <Upload className="size-4" aria-hidden />
+                  <Megaphone className="size-4" aria-hidden />
                   Publicá gratis
                 </Link>
               </Button>

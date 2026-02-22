@@ -11,6 +11,7 @@
 /test-results
 /playwright-report
 /tests/screenshots
+/tests/.auth
 /.playwright-mcp
 
 # next.js
