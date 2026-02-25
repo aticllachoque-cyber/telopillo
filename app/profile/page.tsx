@@ -64,7 +64,7 @@ export default function ProfilePage() {
         .from('business_profiles')
         .select('slug, business_name')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       if (business) {
         setBusinessSlug(business.slug || null)

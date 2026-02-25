@@ -12,9 +12,9 @@ import { ArrowLeft, Package } from 'lucide-react'
 // ---------------------------------------------------------------------------
 
 interface SellerPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 interface SellerProfile {
@@ -52,7 +52,11 @@ async function getSellerProfile(id: string) {
 async function getBusinessSlug(userId: string): Promise<string | null> {
   const supabase = await createClient()
 
-  const { data } = await supabase.from('business_profiles').select('slug').eq('id', userId).single()
+  const { data } = await supabase
+    .from('business_profiles')
+    .select('slug')
+    .eq('id', userId)
+    .maybeSingle()
 
   return data?.slug ?? null
 }

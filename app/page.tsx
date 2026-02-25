@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CtaStrip } from '@/components/home/CtaStrip'
+import { OnboardingGate } from '@/components/onboarding/OnboardingGate'
 import Link from 'next/link'
 import {
   Search,
@@ -11,6 +12,7 @@ import {
   Megaphone,
   ShieldCheck,
   MoreHorizontal,
+  Target,
 } from 'lucide-react'
 import { CATEGORIES, CATEGORY_ICONS } from '@/lib/data/categories'
 
@@ -78,6 +80,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      <OnboardingGate />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -85,7 +88,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-muted/30" aria-labelledby="hero-heading">
-        <div className="container px-4 py-16 sm:py-20 md:py-24">
+        <div className="container px-4 py-12 sm:py-16 md:py-20">
           <div className="mx-auto max-w-4xl text-center">
             {/* Trust badge */}
             <p className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-sm text-muted-foreground shadow-sm">
@@ -135,21 +138,17 @@ export default function Home() {
               </div>
             </form>
 
-            {/* Secondary CTAs */}
-            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
-              <Button size="lg" variant="ghost" asChild>
-                <Link href="/categorias" className="flex items-center gap-1">
-                  Explorar categorías
-                  <ChevronRight className="size-4" aria-hidden />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/publicar" className="flex items-center gap-1">
-                  <Megaphone className="size-4" aria-hidden />
-                  Publicá gratis
-                </Link>
-              </Button>
-            </div>
+            {/* Seller entry point */}
+            <p className="mt-4 text-center">
+              <Link
+                href="/busco"
+                className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary min-h-[44px] py-2 touch-manipulation"
+              >
+                <Target className="size-4 shrink-0" aria-hidden />
+                <span className="text-pretty">¿Vendés? Encontrá qué buscan los compradores</span>
+                <ChevronRight className="size-4 shrink-0" aria-hidden />
+              </Link>
+            </p>
           </div>
         </div>
       </section>
@@ -207,35 +206,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="border-y bg-muted/30 py-16 md:py-20" aria-labelledby="features-heading">
-        <div className="container px-4">
-          <h2
-            id="features-heading"
-            className="text-balance text-center text-3xl font-bold sm:text-4xl"
-          >
-            ¿Por qué Telopillo.bo?
-          </h2>
-
-          <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
-            {features.map((feature) => (
-              <div key={feature.title} className="flex flex-col items-center gap-3 text-center">
-                <div
-                  className="flex size-12 items-center justify-center rounded-xl bg-primary/10"
-                  aria-hidden
-                >
-                  <feature.Icon className="size-6 text-primary" />
-                </div>
-                <h3 className="text-balance font-semibold">{feature.title}</h3>
-                <p className="text-pretty text-sm text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Trust Section */}
-      <section className="py-12 md:py-16" aria-labelledby="trust-heading">
+      <section className="border-y bg-muted/30 py-12 md:py-16" aria-labelledby="trust-heading">
         <div className="container px-4">
           <div className="mx-auto max-w-4xl">
             <h2 id="trust-heading" className="sr-only">
@@ -261,6 +233,33 @@ export default function Home() {
                 <span className="text-sm text-muted-foreground">Disponible siempre</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 md:py-20" aria-labelledby="features-heading">
+        <div className="container px-4">
+          <h2
+            id="features-heading"
+            className="text-balance text-center text-3xl font-bold sm:text-4xl"
+          >
+            ¿Por qué Telopillo.bo?
+          </h2>
+
+          <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
+            {features.map((feature) => (
+              <div key={feature.title} className="flex flex-col items-center gap-3 text-center">
+                <div
+                  className="flex size-12 items-center justify-center rounded-xl bg-primary/10"
+                  aria-hidden
+                >
+                  <feature.Icon className="size-6 text-primary" />
+                </div>
+                <h3 className="text-balance font-semibold">{feature.title}</h3>
+                <p className="text-pretty text-sm text-muted-foreground">{feature.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

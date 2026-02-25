@@ -15,10 +15,9 @@ CREATE EXTENSION IF NOT EXISTS pg_net;
 -- -----------------------------------------------------------------------------
 INSERT INTO public.app_config (key, value)
 VALUES
-  ('supabase_url', current_setting('app.settings.supabase_url', true)),
-  ('service_role_key', current_setting('app.settings.service_role_key', true))
-ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
-WHERE EXCLUDED.value IS NOT NULL AND EXCLUDED.value != '';
+  ('supabase_url', COALESCE(NULLIF(current_setting('app.settings.supabase_url', true), ''), 'http://127.0.0.1:54321')),
+  ('service_role_key', COALESCE(NULLIF(current_setting('app.settings.service_role_key', true), ''), 'not-configured'))
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();
 
 -- -----------------------------------------------------------------------------
 -- 3. Function: call Edge Function to generate embedding asynchronously

@@ -80,3 +80,18 @@ Fixes "Database error querying schema" error during login.
 
 **Reference:**
 - GitHub Issue: https://github.com/supabase/auth/issues/1940
+
+---
+
+## Other scripts
+
+| Script | Purpose |
+|--------|---------|
+| `set-test-passwords.mjs` | Set standard test password (TestPassword123) for seller1/seller2 via Auth Admin API. Run: `node scripts/set-test-passwords.mjs`. |
+| `set-seller-password.sql` | Alternative: set seller1 password via psql (see tests/playwright-cli/README.md). |
+| `seed-business-storefront.sql` | Seed a business profile + slug for visitor flow 06. |
+| `seed-demand-posts.sql` | Seed demand posts for /busco. |
+| `seed-products-and-offers.sql` | Seed products and offers. |
+| `backfill-embeddings.sh` | Backfill search embeddings. |
+| `playwright-cli-visitor-mobile.sh` | Run visitor flows on mobile viewport (headed). |
+| `playwright-cli-seller-mobile.sh` | Run seller flows 16–19 on mobile (manual login then Enter). |

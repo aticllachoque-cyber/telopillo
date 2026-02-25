@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next'
 
-const SUPABASE_HOSTNAME = 'apwpsjjzcbytnvtnmmru.supabase.co'
+const SUPABASE_CLOUD_HOSTNAME = 'apwpsjjzcbytnvtnmmru.supabase.co'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? `https://${SUPABASE_CLOUD_HOSTNAME}`
+const supabaseOrigin = supabaseUrl.startsWith('http') ? supabaseUrl : `https://${supabaseUrl}`
 
 const nextConfig: NextConfig = {
   turbopack: {},
@@ -24,10 +26,22 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: SUPABASE_HOSTNAME,
+        hostname: SUPABASE_CLOUD_HOSTNAME,
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '54321',
+        pathname: '/storage/v1/object/public/**',
+      },
+      ...(process.env.NODE_ENV === 'development'
+        ? [
+            { protocol: 'https' as const, hostname: 'picsum.photos' },
+            { protocol: 'https' as const, hostname: 'fastly.picsum.photos' },
+          ]
+        : []),
     ],
   },
 
@@ -61,8 +75,8 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `img-src 'self' data: https://${SUPABASE_HOSTNAME}`,
-              `connect-src 'self' https://${SUPABASE_HOSTNAME}`,
+              `img-src 'self' data: https://${SUPABASE_CLOUD_HOSTNAME} http://127.0.0.1:54321${process.env.NODE_ENV === 'development' ? ' https://picsum.photos https://fastly.picsum.photos' : ''}`,
+              `connect-src 'self' ${supabaseOrigin}`,
               // TODO: Remove 'unsafe-inline' once we implement nonce-based CSP
               // For now, it's needed for inline styles in shadcn/ui and Tailwind
               "style-src 'self' 'unsafe-inline'",

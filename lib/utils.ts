@@ -10,7 +10,7 @@ const AUTH_ERROR_MAP: Record<string, string> = {
   'Email not confirmed': 'Debes confirmar tu email antes de iniciar sesión',
   'User already registered': 'Este email ya está registrado',
   'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres',
-  'Email rate limit exceeded': 'Demasiados intentos. Intenta de nuevo en unos minutos',
+  'Email rate limit exceeded': 'Demasiados intentos. Intentá de nuevo en unos minutos',
   'For security purposes, you can only request this after 60 seconds':
     'Por seguridad, espera 60 segundos antes de intentar de nuevo',
   'User not found': 'No se encontró una cuenta con ese email',
@@ -20,13 +20,23 @@ const AUTH_ERROR_MAP: Record<string, string> = {
   'Token has expired or is invalid': 'El enlace ha expirado. Solicita uno nuevo',
 }
 
+const RATE_LIMIT_MSG = 'Demasiados intentos. Intentá de nuevo en unos minutos'
+
 /**
  * Maps Supabase auth error messages to user-friendly Spanish equivalents.
  * Falls back to `fallback` for unmapped errors.
  */
 export function getAuthErrorMessage(error: unknown, fallback: string): string {
   const message = error instanceof Error ? error.message : String(error)
-  return AUTH_ERROR_MAP[message] ?? fallback
+
+  if (AUTH_ERROR_MAP[message]) return AUTH_ERROR_MAP[message]
+
+  const lower = message.toLowerCase()
+  if (lower.includes('rate') || lower.includes('too many') || lower.includes('429')) {
+    return RATE_LIMIT_MSG
+  }
+
+  return fallback
 }
 
 /**

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { stripHtml } from './sanitize'
 import { PRODUCT_CATEGORIES, BOLIVIA_DEPARTMENTS } from './product'
+import { isPlaceholderDescription } from '@/lib/utils/demand'
 
 export const demandPostSchema = z
   .object({
@@ -16,7 +17,10 @@ export const demandPostSchema = z
       .min(20, 'La descripción debe tener al menos 20 caracteres')
       .max(1000, 'La descripción no puede exceder 1000 caracteres')
       .trim()
-      .transform(stripHtml),
+      .transform(stripHtml)
+      .refine((val) => !isPlaceholderDescription(val), {
+        message: 'Por favor escribí una descripción más específica de lo que buscás',
+      }),
 
     category: z.enum(PRODUCT_CATEGORIES, {
       message: 'Selecciona una categoría',

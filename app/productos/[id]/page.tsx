@@ -15,9 +15,9 @@ import { CONDITION_LABELS } from '@/lib/validations/product'
 import { getCategoryName } from '@/lib/data/categories'
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 // Generate metadata for SEO
@@ -91,7 +91,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .from('business_profiles')
     .select('business_name, slug')
     .eq('id', product.user_id)
-    .single()
+    .maybeSingle()
 
   // Only show active products to non-owners
   const {
@@ -105,7 +105,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   // Increment views count (server-side)
   if (!isOwner) {
-    await supabase.rpc('increment_product_views', { product_id: params.id })
+    await supabase.rpc('increment_product_views', { product_id: id })
   }
 
   const categoryName = getCategoryName(product.category)

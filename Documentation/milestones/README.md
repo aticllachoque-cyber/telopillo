@@ -12,10 +12,10 @@ Each milestone has its own folder with a README containing:
 - Dependencies
 - Implementation notes
 
-## Overall Progress: 10/15 Milestones Complete (67%)
+## Overall Progress: 10/16 Milestones Complete (63%)
 
 ```
-[█████████████░░░░░░░] 67%
+[████████████░░░░░░░░] 63%
 ```
 
 ## Milestone Roadmap
@@ -34,13 +34,15 @@ Each milestone has its own folder with a README containing:
 | E2E Test Infrastructure | ~4h | ✅ Completed | Feb 16, 2026 |
 | Landing Page Quality Fixes | ~1h | ✅ Completed | Feb 17, 2026 |
 | [M4.7: Demand-Side "Busco"](./M4.7-demand-side-busco/) | ~6h | ✅ Completed | Feb 19, 2026 |
+| [M4.8: Deploy MVP (current state)](./M4.8-deploy-mvp/) | ~1–2 days | 📅 Not Started | Follow-up: deploy through M4.7 to production |
 | [M5: Real-time Chat](./M5-realtime-chat/) | TBD | ⏳ Next | — |
 | [M6: Favorites & Ratings](./M6-favorites-ratings/) | TBD | 📅 Not Started | — |
-| [M7: Geolocation & Maps](./M7-geolocation-maps/) | TBD | 📅 Not Started | — |
-| [M8: Home & Discovery](./M8-home-discovery/) | TBD | 📅 Not Started | — |
-| [M9: Content Moderation](./M9-content-moderation/) | TBD | 📅 Not Started | — |
-| [M10: Polish & Optimization](./M10-polish-optimization/) | TBD | 📅 Not Started | — |
-| [M11: Deployment & Launch](./M11-deployment-launch/) | TBD | 📅 Not Started | — |
+| [M7: Trust & Verification](./M7-trust-verification/) | TBD | 📅 Not Started | Post-launch: voluntary email verification as trust badge |
+| [M8: Geolocation & Maps](./M8-geolocation-maps/) | TBD | 📅 Not Started | — |
+| [M9: Home & Discovery](./M9-home-discovery/) | TBD | 📅 Not Started | — |
+| [M10: Content Moderation](./M10-content-moderation/) | TBD | 📅 Not Started | — |
+| [M11: Polish & Optimization](./M11-polish-optimization/) | TBD | 📅 Not Started | — |
+| [M12: Deployment & Launch](./M12-deployment-launch/) | TBD | 📅 Not Started | — |
 
 **Total development time so far:** ~64.6 hours
 
@@ -80,7 +82,8 @@ Each milestone has its own folder with a README containing:
 | M4 | Search quality | >80% relevant results |
 | M5 | Messages sent | 50+ conversations |
 | M6 | Favorites added | 100+ favorites |
-| M11 | Launch metrics | 1K users, 500 products |
+| M7 | Verified users | 10%+ email verified |
+| M12 | Launch metrics | 1K users, 500 products |
 
 ## Cost Projection
 

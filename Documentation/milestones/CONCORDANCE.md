@@ -141,7 +141,7 @@ This document maps features from the PRD and Architecture to specific milestones
 
 ---
 
-### 6.6 Geolocation (PRD) → M7: Geolocation & Maps
+### 6.6 Geolocation (PRD) → M8: Geolocation & Maps
 
 | PRD Feature | Milestone Task | Status |
 |-------------|----------------|--------|
@@ -149,7 +149,7 @@ This document maps features from the PRD and Architecture to specific milestones
 | City selection | M7: City dropdown | ✅ Mapped |
 | Optional GPS coordinates | M7: GPS capture from browser | ✅ Mapped |
 | Manual location selection | M7: Manual dropdowns (default) | ✅ Mapped |
-| IP geolocation fallback | M7: IP geolocation | ✅ Mapped |
+| IP geolocation fallback | M8: IP geolocation | ✅ Mapped |
 | Distance-based search | M7: Proximity search | ✅ Mapped |
 | Radius options (5km, 10km, etc.) | M7: Filter by distance radius | ✅ Mapped |
 | Privacy (city-level only) | M7: Never show exact coordinates | ✅ Mapped |
@@ -159,7 +159,7 @@ This document maps features from the PRD and Architecture to specific milestones
 
 ---
 
-### 6.7 Content Moderation (PRD) → M9: Content Moderation
+### 6.7 Content Moderation (PRD) → M10: Content Moderation
 
 | PRD Feature | Milestone Task | Status |
 |-------------|----------------|--------|
@@ -167,7 +167,7 @@ This document maps features from the PRD and Architecture to specific milestones
 | Report reasons | M9: Report form with reasons | ✅ Mapped |
 | Admin review workflow | M9: Admin panel | ✅ Mapped |
 | Ban users/products | M9: Ban/delete actions | ✅ Mapped |
-| Audit trail | M9: Log moderation actions | ✅ Mapped |
+| Audit trail | M10: Log moderation actions | ✅ Mapped |
 
 **Architecture Reference**: Section 6.2 (Database Schema - reports table)
 
@@ -207,7 +207,7 @@ This document maps features from the PRD and Architecture to specific milestones
 | Supabase Storage | Image upload & CDN | M2 | ✅ Mapped |
 | Supabase Realtime | WebSocket chat | M5 | ✅ Mapped |
 | Edge Functions | Embedding generation | M4 | ✅ Mapped |
-| PostgREST | Auto-generated API | M0-M11 | ✅ Mapped |
+| PostgREST | Auto-generated API | M0-M12 | ✅ Mapped |
 | Row Level Security | Database-level security | M1-M9 | ✅ Mapped |
 
 ### Search Architecture (Architecture Section 8) → M3 + M4
@@ -232,8 +232,8 @@ This document maps features from the PRD and Architecture to specific milestones
 | Tailwind CSS | Styling | M0 | ✅ Mapped |
 | shadcn/ui | Component library | M0 | ✅ Mapped |
 | Supabase | Backend BaaS | M0 | ✅ Mapped |
-| Vercel | Frontend hosting | M11 | ✅ Mapped |
-| Resend | Email service | M11 | ✅ Mapped |
+| Vercel | Frontend hosting | M12 | ✅ Mapped |
+| Resend | Email service | M12 | ✅ Mapped |
 
 ---
 
@@ -243,15 +243,15 @@ This document maps features from the PRD and Architecture to specific milestones
 
 | Service | Free Tier Limit | Milestone | Status |
 |---------|-----------------|-----------|--------|
-| Supabase Database | 500MB | M0-M11 | ✅ Mapped |
+| Supabase Database | 500MB | M0-M12 | ✅ Mapped |
 | Supabase Storage | 1GB | M2 | ✅ Mapped |
-| Supabase Bandwidth | 2GB/month | M0-M11 | ✅ Mapped |
+| Supabase Bandwidth | 2GB/month | M0-M12 | ✅ Mapped |
 | Edge Functions | 500K invocations/month | M4 | ✅ Mapped |
 | Hugging Face API | 30K requests/month | M4 | ✅ Mapped |
-| Vercel | 100GB bandwidth | M11 | ✅ Mapped |
-| Resend | 3K emails/month | M11 | ✅ Mapped |
+| Vercel | 100GB bandwidth | M12 | ✅ Mapped |
+| Resend | 3K emails/month | M12 | ✅ Mapped |
 
-**Total MVP Cost**: $0/month (all milestones M0-M11)
+**Total MVP Cost**: $0/month (all milestones M0-M12)
 
 ---
 
@@ -333,7 +333,7 @@ These features are in the PRD but planned as Phase 2 (Post-Launch):
 - ✅ 9 departments + major cities (M7)
 - ✅ BOB currency (M2)
 - ✅ Low-bandwidth optimization (M10)
-- ✅ Mobile-first design (M0-M11)
+- ✅ Mobile-first design (M0-M12)
 
 ---
 
@@ -364,7 +364,7 @@ These features are in the PRD but planned as Phase 2 (Post-Launch):
 
 ## Conclusion
 
-✅ **All PRD features (Section 6 - MVP) are mapped to milestones M0-M11**  
+✅ **All PRD features (Section 6 - MVP) are mapped to milestones M0-M12**  
 ✅ **All Architecture components are implemented across milestones**  
 ✅ **Technology stack is consistent (Supabase-first)**  
 ✅ **Cost structure maintained ($0/month for MVP)**  

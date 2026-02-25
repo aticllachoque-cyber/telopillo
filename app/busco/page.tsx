@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Search } from 'lucide-react'
+import { Loader2, Plus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DemandPostCard } from '@/components/demand/DemandPostCard'
@@ -24,7 +24,7 @@ export default function BuscoPage() {
   const q = searchParams.get('q') || ''
   const category = searchParams.get('category') || 'all'
   const department = searchParams.get('department') || 'all'
-  const sort = searchParams.get('sort') || 'newest'
+  const sort = searchParams.get('sort') || (q ? 'relevance' : 'newest')
   const page = parseInt(searchParams.get('page') || '1', 10)
 
   const [searchInput, setSearchInput] = useState(q)
@@ -84,24 +84,24 @@ export default function BuscoPage() {
   return (
     <div className="min-h-dvh bg-background py-8">
       <div className="container px-4 sm:px-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-balance">Busco / Necesito</h1>
-            <p className="text-muted-foreground mt-1 text-pretty">
-              Solicitudes de compradores buscando productos
-            </p>
+        <div className="mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-balance">Busco / Necesito</h1>
+              <p className="text-muted-foreground mt-1 text-pretty">
+                Solicitudes de compradores buscando productos
+              </p>
+            </div>
+            <Button asChild size="lg" className="hidden sm:inline-flex min-h-[44px] shrink-0">
+              <Link href="/busco/publicar">
+                <Plus className="mr-2 h-4 w-4" aria-hidden />
+                Publicar solicitud
+              </Link>
+            </Button>
           </div>
-          <Button asChild size="lg" className="min-h-[44px] shrink-0">
-            <Link href="/busco/publicar">
-              <Plus className="mr-2 h-4 w-4" aria-hidden />
-              Publicar solicitud
-            </Link>
-          </Button>
         </div>
 
-        {/* Search */}
-        <form onSubmit={handleSearch} className="mb-6">
+        <form onSubmit={handleSearch} className="mb-4">
           <div className="relative max-w-lg">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
@@ -119,6 +119,13 @@ export default function BuscoPage() {
           </div>
         </form>
 
+        <Button asChild size="lg" className="sm:hidden w-full min-h-[44px] mb-4">
+          <Link href="/busco/publicar">
+            <Plus className="mr-2 h-4 w-4" aria-hidden />
+            Publicar solicitud
+          </Link>
+        </Button>
+
         {/* Filters */}
         <div className="mb-6">
           <DemandPostFilters
@@ -133,28 +140,35 @@ export default function BuscoPage() {
 
         {/* Results */}
         {isLoading ? (
-          <div
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            aria-busy="true"
-            aria-label="Cargando solicitudes"
-          >
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-lg border p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="h-5 w-20 rounded bg-muted animate-pulse" />
-                  <div className="h-4 w-12 rounded bg-muted animate-pulse" />
+          <div aria-busy="true" aria-label="Cargando solicitudes">
+            <div className="flex items-center gap-2 mb-4">
+              <Loader2
+                className="h-4 w-4 text-muted-foreground motion-safe:animate-spin"
+                aria-hidden
+              />
+              <p className="text-muted-foreground text-sm" role="status" aria-live="polite">
+                Buscando solicitudes...
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-lg border p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="h-5 w-20 rounded bg-muted animate-pulse" />
+                    <div className="h-4 w-12 rounded bg-muted animate-pulse" />
+                  </div>
+                  <div className="h-5 w-3/4 rounded bg-muted animate-pulse" />
+                  <div className="space-y-1.5">
+                    <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                    <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
+                  </div>
+                  <div className="flex items-center justify-between pt-1 border-t">
+                    <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+                    <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+                  </div>
                 </div>
-                <div className="h-5 w-3/4 rounded bg-muted animate-pulse" />
-                <div className="space-y-1.5">
-                  <div className="h-4 w-full rounded bg-muted animate-pulse" />
-                  <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
-                </div>
-                <div className="flex items-center justify-between pt-1 border-t">
-                  <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-                  <div className="h-4 w-16 rounded bg-muted animate-pulse" />
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ) : error ? (
           <div className="text-center py-16">
@@ -198,10 +212,11 @@ export default function BuscoPage() {
                   disabled={page <= 1}
                   onClick={() => updateParams({ page: String(page - 1) })}
                   className="min-h-[44px] min-w-[44px]"
+                  aria-label={page <= 1 ? 'Página anterior (no disponible)' : 'Página anterior'}
                 >
                   Anterior
                 </Button>
-                <span className="text-sm text-muted-foreground px-2">
+                <span className="text-sm text-muted-foreground px-2 tabular-nums">
                   Página {page} de {totalPages}
                 </span>
                 <Button
@@ -210,6 +225,9 @@ export default function BuscoPage() {
                   disabled={page >= totalPages}
                   onClick={() => updateParams({ page: String(page + 1) })}
                   className="min-h-[44px] min-w-[44px]"
+                  aria-label={
+                    page >= totalPages ? 'Página siguiente (no disponible)' : 'Página siguiente'
+                  }
                 >
                   Siguiente
                 </Button>

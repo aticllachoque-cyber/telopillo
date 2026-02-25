@@ -1,5 +1,7 @@
+// Public route: product search does not require authentication
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { expandQuery } from '@/lib/search/synonyms'
 
 export const dynamic = 'force-dynamic'
 
@@ -127,7 +129,9 @@ export async function GET(request: NextRequest) {
       condition: searchParams.get('condition') || undefined,
       sellerType: (searchParams.get('sellerType') as SearchParams['sellerType']) || undefined,
       status: searchParams.get('status') || 'active',
-      sort: (searchParams.get('sort') as SearchParams['sort']) || 'relevance',
+      sort:
+        (searchParams.get('sort') as SearchParams['sort']) ||
+        (searchParams.get('q')?.trim() ? 'relevance' : 'newest'),
       page: searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1,
       limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 24,
     }
@@ -136,8 +140,12 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(100, Math.max(1, params.limit || 24))
     const offset = (page - 1) * limit
 
+    // Pass expanded FTS query in search_query (PostgREST ignores fts_query param).
+    // SQL detects tsquery format (contains " | " or " & ") and uses to_tsquery.
+    const searchQueryForRpc = params.q ? (expandQuery(params.q.trim()) ?? params.q.trim()) : null
+
     const rpcParams = {
-      search_query: params.q || null,
+      search_query: searchQueryForRpc,
       category_filter: params.category || null,
       price_min: params.priceMin || null,
       price_max: params.priceMax || null,
@@ -159,14 +167,8 @@ export async function GET(request: NextRequest) {
     let embeddingCached = false
 
     if (useHybrid) {
-      const embeddingStartMs = Date.now()
       const { embedding, cached } = await getQueryEmbedding(params.q!.trim())
-      const embeddingMs = Date.now() - embeddingStartMs
       embeddingCached = cached
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[search] embedding: ${embeddingMs}ms (${cached ? 'cached' : 'api'})`)
-      }
 
       if (embedding) {
         searchMode = 'hybrid'
@@ -188,6 +190,14 @@ export async function GET(request: NextRequest) {
           error = null
         }
       } else {
+        console.warn(
+          JSON.stringify({
+            event: 'embedding_failure',
+            type: 'products',
+            query: params.q,
+            reason: 'hf_api_error',
+          })
+        )
         const result = await supabase.rpc('search_products', rpcParams)
         data = result.data
         error = result.error
@@ -211,11 +221,19 @@ export async function GET(request: NextRequest) {
     const totalCount = result.total_count || 0
     const totalMs = Date.now() - searchStartMs
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(
-        `[search] mode=${searchMode} q="${params.q || ''}" results=${totalCount} total=${totalMs}ms`
-      )
-    }
+    console.log(
+      JSON.stringify({
+        event: 'search',
+        type: 'products',
+        query: params.q ?? null,
+        mode: searchMode,
+        results: totalCount,
+        latencyMs: totalMs,
+        embeddingCached,
+        embeddingFailed: searchMode === 'keyword' && semanticEnabled && !!params.q,
+        zeroResults: totalCount === 0 && !!params.q,
+      })
+    )
 
     return NextResponse.json({
       products,

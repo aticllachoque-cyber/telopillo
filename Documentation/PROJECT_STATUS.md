@@ -1,598 +1,74 @@
-# Telopillo.bo - Project Status
+# Telopillo.bo – Project Status Assessment
 
-**Last Updated:** February 19, 2026  
-**Project Start:** February 12, 2026
-
----
-
-## Overall Progress
-
-```
-M0:   Foundation & Setup          ████████████████████ 100% ✅
-M1:   Authentication & Profiles   ███████████████████░  93% ✅ (Code Complete)
-M2:   Product Listings            ████████████████████ 100% ✅
-M3:   Search & Discovery          ████████████████████ 100% ✅
-M4:   Semantic Search             ████████████████████ 100% ✅
-M4.5: Account Types & Minimal KYC ████████████████████ 100% ✅
-M4.6: Share Profile Link          ████████████████████ 100% ✅
-E2E:  Test Infrastructure         ████████████████████ 100% ✅
-LPQ:  Landing Page Quality Fixes  ████████████████████ 100% ✅
-M4.7: Demand-Side "Busco"         ████████████████████ 100% ✅
-M5:   Chat & Messaging            ░░░░░░░░░░░░░░░░░░░░   0% ⏳ (NEXT)
-M6:   Ratings & Reviews           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M7:   Admin Dashboard             ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-M8:   Payments & Orders           ░░░░░░░░░░░░░░░░░░░░   0% ⏳
-
-Overall Project: ██████████████░░░░░░ 71%
-```
+**Date:** February 2026  
+**Purpose:** Snapshot of where the project is (milestones, testing, local setup, blockers).
 
 ---
 
-## Completed Milestones
+## 1. Product & Milestones
 
-### ✅ M0: Foundation & Setup (COMPLETE)
+| Area | Status |
+|------|--------|
+| **MVP core** | M0–M4.7 done: auth, profiles, products, hybrid search (FTS + semantic), account types, share links, demand-side “Busco”. |
+| **Next milestones** | M4.8 Deploy MVP (deploy current state to production); then M5 Real-time chat. |
+| **Later** | M6 Favorites/ratings, M7–M12 (trust, maps, discovery, moderation, polish, launch). |
+| **Progress** | 10/16 milestones complete (~63% of roadmap). |
 
-**Status:** 100% Complete  
-**Duration:** ~7.5 hours (estimated 5-7 days)  
-**Completed:** February 12, 2026
-
-**Achievements:**
-- Next.js 14 with TypeScript, Tailwind CSS v4, shadcn/ui
-- Supabase integration (client, server, middleware)
-- Development tools (ESLint, Prettier, Husky, lint-staged)
-- Base layout with responsive Header and Footer
-- Landing page with search-first hero
-- Accessibility (WCAG 2.2 AA compliant)
-- Mobile UX (slide-in drawer menu, accordion footer)
-
-**Documentation:** [M0 README](../milestones/M0-foundation-setup/README.md)
+**Tech stack:** Next.js 16 (App Router), React 19, TypeScript, Tailwind v4, shadcn/ui, Supabase (Postgres, Auth, Storage, Edge Functions), hybrid search (pgvector + Hugging Face).
 
 ---
 
-### ✅ M1: Authentication & User Profiles (CODE COMPLETE)
+## 2. Testing
 
-**Status:** 93% Complete (All code done, manual OAuth testing pending)  
-**Started:** February 13, 2026  
-**Completed:** February 13, 2026 (Code)  
-**Actual Duration:** ~14 hours
-
-**Phases (7/7 complete):**
-1. Database Setup - `profiles` table, RLS, triggers, `avatars` storage bucket
-2. OAuth Configuration - Google & Facebook OAuth
-3. Authentication Pages - Login, Register, Forgot/Reset Password (Zod + react-hook-form)
-4. Profile Management - Profile Edit/View, LocationSelector (Bolivia departments/cities)
-5. Avatar Upload - Upload to Supabase Storage, compression, validation
-6. Protected Routes - Middleware, UserMenu, auth bypass for dev
-7. Testing & Polish - 45/45 automated tests passed, manual OAuth pending
-
-**Key Deliverables:**
-- 6 database migrations (profiles, avatars)
-- Authentication pages (login, register, forgot-password, reset-password)
-- Profile management (edit, view)
-- Protected route middleware
-- 45 automated test cases passed
-
-**Documentation:** [M1 README](../milestones/M1-authentication-profiles/README.md)
+| Layer | Status |
+|-------|--------|
+| **Playwright CLI plans** | 22 flows documented under `tests/playwright-cli/`: visitor (01–09), account (10–13), buyer (14–15), seller (16–19), cross-cutting (20–22). |
+| **Visitor flows** | All 9 executed and passed (see `tests/playwright-cli/visitor/VISITOR_REPORT.md`). Business storefront (06) needs seed: `scripts/seed-business-storefront.sql`. |
+| **Seller flows** | Plans 16–19 in place. Mobile script: `scripts/playwright-cli-seller-mobile.sh` (375×812). Login in script is manual (run-code login fails with current Playwright CLI). |
+| **Local test password** | Standard: `TestPassword123`. Set via `node scripts/set-test-passwords.mjs` (Auth Admin API) or Supabase Studio → Auth → Users. |
+| **E2E (Playwright test)** | Auth, profile, demand-side, accessibility specs exist under `tests/e2e/`. |
 
 ---
 
-### ✅ M2: Product Listings (COMPLETE)
+## 3. Local Development (Docker / Supabase)
 
-**Status:** 100% Complete  
-**Started:** February 13, 2026  
-**Completed:** February 14, 2026  
-**Actual Duration:** ~12 hours
+| Item | Value |
+|------|--------|
+| **Supabase** | `npx supabase start`. API: `http://127.0.0.1:54321`, DB: `127.0.0.1:54322` (user `postgres`). |
+| **App** | `npm run dev` → http://localhost:3000. `.env.local`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (local). |
+| **Test users** | seller1@test.com, seller2@test.com (from seed). Password set via `set-test-passwords.mjs` or Studio. |
 
-**Phases (7/7 complete):**
-1. Database Schema - `products` table, 7 indexes, 4 RLS policies, `product-images` storage
-2. Image Upload - Multi-image drag-and-drop, WebP compression, Supabase Storage integration
-3. Product Creation Form - `/publicar` page, 8 categories with subcategories, Zod validation
-4. Product Detail Page - `/productos/[id]`, image gallery, SellerCard, WhatsApp contact, SEO metadata
-5. Product Listing Page - `/perfil/mis-productos`, status filters, sort options, quick actions
-6. Product Management - Edit page, Mark as Sold/Inactive, Delete with confirmation, AlertDialog
-7. Testing & Polish - UX/Accessibility review, 28 test cases, axe-core audit (0 violations)
-
-**Key Deliverables:**
-- Products database schema with full-text search support
-- ImageUpload component (drag-and-drop, reorder, WebP compression)
-- ProductForm (create + edit modes)
-- ProductGallery with navigation
-- SellerCard with WhatsApp integration
-- ProductCard, ProductGrid, ProductActions components
-- ShareButton, ToastProvider for accessible notifications
-- 28 automated test cases, 0 axe-core violations
-
-**Documentation:** [M2 PROGRESS](../milestones/M2-product-listings/PROGRESS.md)
+**Known issue:** GoTrue (Auth) can return “Database error finding/loading user” for `listUsers` / `updateUserById` in some environments. Workaround: set passwords in Supabase Studio (http://127.0.0.1:54323) → Auth → Users.
 
 ---
 
-### ✅ M3: Search & Discovery - Keyword (COMPLETE)
+## 4. Scripts & Automation
 
-**Status:** 100% Complete  
-**Started:** February 14, 2026  
-**Completed:** February 14, 2026  
-**Actual Duration:** ~2 hours 10 minutes
-
-**Phases (7/7 complete):**
-1. Database Schema (FTS) - `search_vector` TSVECTOR column, GIN index, `search_products` RPC
-2. Search API - `/api/search` route with filters, sort, pagination
-3. Search Bar Component - Integrated into Header (desktop + mobile), URL sync
-4. Search Results Page - `/buscar` with loading/error/empty states
-5. Filters & Sort - Category, condition, department, price range, relevance/price/date sort
-6. Category Browsing - `/categorias` page with 9 categories and icons
-7. Empty States & Testing - All empty states, 8 test cases passed
-
-**Key Deliverables:**
-- PostgreSQL Full-Text Search with Spanish config and weighted ranking
-- `search_products()` RPC function with all filters
-- SearchBar, SearchFilters, SearchSort components
-- `/buscar` search results page with responsive filters
-- `/categorias` category browsing page
-
-**Documentation:** [M3 PROGRESS](../milestones/M3-search-keyword/PROGRESS.md)
+| Script | Purpose |
+|--------|---------|
+| `scripts/set-test-passwords.mjs` | Set `TestPassword123` for seller1/seller2 via Auth Admin API; fallback to known IDs if listUsers fails. |
+| `scripts/set-seller-password.sql` | Alternative: set password in `auth.users` via psql (login may still 500 if GoTrue rejects hash). |
+| `scripts/seed-business-storefront.sql` | Ensure a business profile + slug for visitor flow 06. |
+| `scripts/playwright-cli-visitor-mobile.sh` | Run visitor flows on mobile viewport (headed). |
+| `scripts/playwright-cli-seller-mobile.sh` | Run seller flows 16–19 on mobile; manual login then Enter to continue. |
 
 ---
 
-### ✅ M4: Semantic Search - Embeddings (COMPLETE)
+## 5. Open Items / Blockers
 
-**Status:** 100% Complete  
-**Started:** February 14, 2026  
-**Completed:** February 14, 2026  
-**Actual Duration:** ~6 hours
-
-**Phases (9/9 complete):**
-1. Database (pgvector) - `embedding vector(384)` column, HNSW index
-2. Feature Flag System - `app_config` table, env var + DB toggle
-3. Edge Function (HF) - `generate-embedding` with Hugging Face API, retry logic
-4. Hybrid Search RPC (RRF) - `search_products_semantic()` with adaptive RRF weights (k=60)
-5. API Route + Fallback - Hybrid search with transparent fallback to keyword-only
-6. Auto-embed + Backfill - PostgreSQL trigger via `pg_net`, backfill script
-7. Performance Optimizations - In-memory embedding cache (5min TTL, 2.8x speedup)
-8. Search Quality Tuning - Title boost, adaptive RRF, 10/10 ranking accuracy
-9. E2E Testing - 5 Playwright tests, all passing
-
-**Key Deliverables:**
-- pgvector extension with HNSW cosine index
-- `generate-embedding` Supabase Edge Function (Deno)
-- Hybrid search: keyword FTS top 50 + semantic top 50, merged via RRF
-- Feature flag system (env var priority over DB)
-- Auto-embedding trigger on product insert/update
-- Embedding cache (340ms cached vs 940ms uncached)
-- 10/10 search quality on test suite (Spanish + English queries)
-
-**Documentation:** [M4 PROGRESS](../milestones/M4-search-semantic/PROGRESS.md)
+1. **Seller login in automation:** Playwright CLI `run-code` for fill/click login fails (`TypeError: (intermediate value) is not a function`). Seller mobile script uses manual login + Enter.
+2. **GoTrue DB errors (optional):** If `set-test-passwords.mjs` fails with “Database error”, set passwords in Studio.
+3. **Ruff:** User rule: run ruff before git add/commit; no skipping.
 
 ---
 
-### ✅ M4.5: Account Types & Minimal KYC (COMPLETE)
+## 6. Suggested Next Steps
 
-**Status:** 100% Complete  
-**Started:** February 15, 2026  
-**Completed:** February 15, 2026  
-**Actual Duration:** ~10 hours
-
-**Architecture:** "Business as Add-on" model - all users have a base personal profile, business profile is an optional, non-mutually-exclusive extension.
-
-**Phases (9/9 complete):**
-1. Database Schema & Types - `business_profiles` table, `verification_level`, `phone_verified` on profiles
-2. Registration Flow - Single-step form with optional collapsible business section
-3. Profile Edit & Trust Badge - VerificationBadge component, business profile management
-4. Business Storefront Page - `/negocio/[slug]` with SEO, JSON-LD, breadcrumbs
-5. Personal Seller Profile - `/vendedor/[id]` with SEO, JSON-LD, cross-navigation
-6. Search & Product Integration (6a + 6b) - Seller info in search RPC, SellerCard updates
-7. Testing & Polish - UX/Accessibility audit, 42 E2E tests (28 functional + 7 a11y + 7 mobile)
-
-**Key Architectural Decisions:**
-- Business profile = add-on (not mutually exclusive with personal)
-- `business_profiles` row existence is source of truth (not `account_type` enum)
-- Minimal KYC: email (Level 0), phone (Level 1), descriptive badges (no gating)
-- Strong KYC deferred to future milestone
-
-**Key Deliverables:**
-- `business_profiles` table with RLS, `business-logos` storage bucket
-- VerificationBadge with accessible tooltip (keyboard + hover)
-- Business storefront (`/negocio/[slug]`) with BusinessHeader, BusinessInfoSidebar
-- Personal seller profile (`/vendedor/[id]`) with SellerProfileHeader
-- BusinessProfileForm with BusinessHoursEditor, logo upload
-- Updated search RPCs with seller info (full_name, avatar, business_name)
-- Cross-navigation between business storefront and personal profile
-- 42 Playwright tests: 0 failures, 0 WCAG 2.2 AA violations
-- i18n: Spanish user-facing strings, English code/documentation
-
-**Documentation:** [M4.5 PROGRESS](../milestones/M4.5-account-types-kyc/PROGRESS.md) | [M4.5 PRD](../milestones/M4.5-account-types-kyc/PRD.md)
+1. **Feature:** Start M5 (real-time chat) when ready.
+2. **Testing:** Once seller login works (Studio or fixed script), run seller flows 16–19 end-to-end and capture results (e.g. SELLER_REPORT.md).
+3. **Stability:** If GoTrue DB errors persist locally, capture Auth/Postgres logs once to identify root cause.
+4. **Docs:** Keep `Documentation/milestones/README.md` and this file updated as milestones and scripts change.
 
 ---
 
-### ✅ M4.6: Share Profile Link (COMPLETE)
-
-**Status:** 100% Complete  
-**Started:** February 15, 2026  
-**Completed:** February 15, 2026  
-**Actual Duration:** ~2 hours
-
-**Overview:** Sellers can now discover and share their public profile URL directly from their dashboard. On mobile, the Web Share API enables one-tap sharing to WhatsApp, Facebook, and other apps.
-
-**Phases (3/3 complete):**
-1. Core Component — `ShareProfile.tsx` with `card` and `compact` variants, clipboard copy, Web Share API with fallback
-2. Profile Page Integration — Fetch business slug in `/profile`, add ShareProfile card between header and "Mis Publicaciones"
-3. Product Management Integration — Compact ShareProfile on `/perfil/mis-productos`; product-level sharing in ProductActions dropdown
-
-**Key Deliverables:**
-- `ShareProfile.tsx` client component (card + compact variants)
-- URL logic: business accounts → `/negocio/{slug}`, personal accounts → `/vendedor/{id}`
-- `navigator.share()` with clipboard fallback; AbortError silenced
-- Product-level sharing added to `ProductActions.tsx` (extension beyond original scope)
-- WCAG 2.2 AA compliant, no new dependencies
-
-**Documentation:** [M4.6 README](../milestones/M4.6-share-profile/README.md) | [M4.6 PRD](../milestones/M4.6-share-profile/PRD.md)
-
----
-
-### ✅ E2E Test Infrastructure (COMPLETE)
-
-**Status:** 100% Complete  
-**Started:** February 15, 2026  
-**Completed:** February 16, 2026  
-**Actual Duration:** ~4 hours
-
-**Architecture:** Organized E2E test suite by business flows, with structured plans consumable by automation agents.
-
-**What was built:**
-1. **E2E Test Planner subagent** — Custom Cursor subagent (`.cursor/agents/e2e-test-planner.md`) that produces structured test plans for other agents to automate
-2. **Folder structure** — 7 test domains organized by complete business flows
-3. **29 spec files** — 229 test cases covering all implemented routes and flows
-4. **Test plans** — Machine-readable PLAN.md per folder with step-by-step selectors, assertions, and error scenarios
-5. **Shared fixture/helper designs** — Plans for reusable auth, test data, and a11y helpers (implementation pending)
-
-**Test Suite Structure:**
-
-| Folder | Files | Tests | Coverage |
-|--------|-------|-------|----------|
-| `auth/` | 3 | 39 | Registration, login, password recovery, redirects |
-| `buyer-journey/` | 5 | 44 | Homepage → search → product → seller → contact |
-| `seller-journey/` | 4 | 28 | Create → manage → edit → sell/delete products |
-| `business-seller/` | 3 | 16 | Business registration, storefront, complete flow |
-| `search-discovery/` | 5 | 35 | Keyword, semantic, filters, categories, API |
-| `account-management/` | 4 | 31 | Profile view/edit, avatar, product management |
-| `cross-cutting/` | 5 | 48 | Accessibility, mobile, navigation, SEO, errors |
-| **Total** | **29** | **229** | **All implemented routes covered** |
-
-**Known Issues Found:**
-- Product detail page has ~12px horizontal overflow at 375px viewport (responsive bug)
-- Business storefront WhatsApp button is 40px height vs 44px WCAG touch target recommendation
-
-**Legacy Tests:** 11 older spec files remain in `tests/` root from M1–M4.5 (pre-reorganization).
-
----
-
-### ✅ Landing Page Quality Fixes (COMPLETE)
-
-**Status:** 100% Complete  
-**Completed:** February 17, 2026  
-**Actual Duration:** ~1 hour  
-**Trigger:** Monkey-test audit of the landing page and search results
-
-**Issues resolved (8/8):**
-
-| # | Issue | Fix |
-|---|-------|-----|
-| 1 | 7 footer links returning 404 | Created `app/(static)/` route group with placeholder pages for `/acerca`, `/contacto`, `/ayuda`, `/seguridad`, `/terminos`, `/privacidad`, `/cookies` |
-| 2 | Default 404 page in English | Created `app/not-found.tsx` with Spanish "Página no encontrada" message, links to home and search |
-| 3 | Duplicate "Saltar al contenido principal" skip links | Removed duplicate skip link from `app/page.tsx`; canonical link in `app/layout.tsx` retained |
-| 4 | Hero search allows empty submit | Added `required` attribute to hero search input |
-| 5 | LCP product image missing `priority` | `ProductGrid` passes `priority={index === 0}` to the first `ProductCard`; forwarded to Next.js `<Image priority>` |
-| 6 | No `maxLength` on search inputs | Added `maxLength={200}` to both hero input (`app/page.tsx`) and `SearchBar.tsx` |
-| 7 | Inconsistent hero vs header search behavior | Resolved by issue #4 (`required` attribute matches header's empty-query guard) |
-| 8 | Repeated `AuthApiError: Invalid Refresh Token` in terminal | `lib/supabase/middleware.ts` now catches `refresh_token_not_found` errors, clears stale `sb-*` cookies, and lets the request proceed silently |
-
-**Key Deliverables:**
-- 7 static placeholder pages under `app/(static)/` (each with proper `metadata` export)
-- Custom Spanish 404 page (`app/not-found.tsx`)
-- Hardened search inputs (empty-submit prevention + length cap)
-- Silent stale-token recovery in middleware
-
----
-
-### ✅ M4.7: Demand-Side Posting — "Busco/Necesito" (COMPLETE)
-
-**Status:** 100% Complete  
-**Started:** February 18, 2026  
-**Completed:** February 19, 2026  
-**Actual Duration:** ~6 hours
-
-**Overview:** Buyers can now post what they need and receive offers from sellers. Full end-to-end flow with hybrid search, UX polish, and accessibility hardening.
-
-**Phases (6/6 complete):**
-1. Database Schema & Types — `demand_posts` + `demand_offers` tables, RLS policies, indexes, triggers, `search_demands_hybrid` RPC
-2. Create Demand Post — `/busco/publicar` with auth guard, rate limiting (5/day), Zod validation
-3. List & Search — `/busco` with hybrid search (FTS + semantic), category/department/sort filters, pagination
-4. Detail & Offer Flow — `/busco/[id]` with buyer info sidebar, offer list, `OfferProductModal`, WhatsApp contact
-5. Dashboard & CTA Integration — `/perfil/demandas` with tabs (Active/Found/Expired), mark-as-found, renew, delete; demand CTA on `/buscar` no-results and results-bottom
-6. Testing & UX Polish — 5 E2E test files, UX audit (text-balance/text-pretty, structural skeletons, empty state CTAs, 2x2 grid filters), accessibility audit (aria-labels, keyboard nav, focus management), monkey testing (no crashes, XSS-safe, responsive)
-
-**Key Deliverables:**
-- `demand_posts` and `demand_offers` tables with full RLS and hybrid search RPC
-- `generate-embedding` Edge Function extended with DEMAND mode
-- 4 pages: `/busco`, `/busco/[id]`, `/busco/publicar`, `/perfil/demandas`
-- 6 components: DemandPostCard, DemandPostDetail, DemandPostForm, DemandPostFilters, DemandStatusBadge, OfferProductModal
-- Zod validation schemas (`demandPostSchema`, `demandOfferSchema`)
-- Navigation: "Busco" in header (desktop + mobile), "Mis Solicitudes" in authenticated menu
-- 5 E2E test files covering create, search, offer, lifecycle, accessibility
-- UX/a11y hardening: skeletons, text-balance, aria-labels, 44px touch targets, z-index fix
-
-**Documentation:** [M4.7 PROGRESS](../milestones/M4.7-demand-side-busco/PROGRESS.md) | [M4.7 PRD](../milestones/M4.7-demand-side-busco/PRD.md)
-
----
-
-## Pending Milestones
-
-### ⏳ M5: Chat & Messaging
-
-**Status:** 0% Complete  
-**Estimated Duration:** 10-12 days  
-**Dependencies:** M1 (Auth) ✅, M2 (Products) ✅
-
-**Planned Features:**
-- Real-time chat (Supabase Realtime WebSocket)
-- Conversation list with unread counts
-- Chat interface with message bubbles
-- Typing indicators and presence
-- Push notifications (future)
-- Read receipts
-
----
-
-### ⏳ M6: Ratings & Reviews
-
-**Status:** 0% Complete  
-**Estimated Duration:** 7-10 days  
-**Dependencies:** M1 (Auth) ✅, M2 (Products) ✅
-
-**Planned Features:**
-- 1-5 star ratings with comments
-- Seller reputation system
-- Auto-update rating_average/rating_count on profiles
-- Review moderation
-- Display on seller profiles and product pages
-
----
-
-### ⏳ M7: Admin Dashboard
-
-**Status:** 0% Complete  
-**Estimated Duration:** 10-14 days  
-**Dependencies:** All previous milestones
-
-**Planned Features:**
-- Admin panel for content moderation
-- User management
-- Product moderation (approve, flag, remove)
-- Reports system
-- Analytics dashboard
-
----
-
-### ⏳ M8: Payments & Orders
-
-**Status:** 0% Complete  
-**Estimated Duration:** 14-21 days  
-**Dependencies:** M5 (Chat) ✅, M6 (Ratings) ✅
-
-**Planned Features:**
-- Payment gateway integration
-- Order tracking
-- Transaction history
-- Escrow system (future)
-- Premium seller features
-
----
-
-## Project Metrics
-
-### Time Tracking
-
-| Milestone | Estimated | Actual | Status |
-|-----------|-----------|--------|--------|
-| M0: Foundation & Setup | 5-7 days | ~7.5 hours | ✅ Complete |
-| M1: Authentication & Profiles | 10 days | ~14 hours | ✅ Code Complete |
-| M2: Product Listings | 10-12 days | ~12 hours | ✅ Complete |
-| M3: Search & Discovery (Keyword) | 10-12 days | ~2.1 hours | ✅ Complete |
-| M4: Semantic Search (Embeddings) | 7-10 days | ~6 hours | ✅ Complete |
-| M4.5: Account Types & KYC | 5-7 days | ~10 hours | ✅ Complete |
-| M4.6: Share Profile Link | 1-2 days | ~2 hours | ✅ Complete |
-| E2E: Test Infrastructure | 2-3 days | ~4 hours | ✅ Complete |
-| Landing Page Quality Fixes | — | ~1 hour | ✅ Complete |
-| M4.7: Demand-Side "Busco" | 12-16 days | ~6 hours | ✅ Complete |
-| **Total** | **~75 days** | **~64.6 hours** | **71% complete** |
-
-### Code Statistics
-
-- **Source files (TS/TSX):** 100+
-- **Database migrations (SQL):** 13
-- **Test spec files:** 45 (34 organized in `tests/e2e/` + 11 legacy in `tests/`)
-- **Total lines of source code:** ~18,700+
-- **Documentation pages:** 55+
-- **AI subagents:** 10 (`.cursor/agents/`)
-
-### Quality Metrics
-
-- **TypeScript errors:** 0 ✅ (excluding stale `.next` cache references)
-- **ESLint errors:** 0 ✅
-- **Prettier issues:** 0 ✅
-- **WCAG 2.2 AA:** Compliant ✅
-- **Playwright E2E tests:** 229+ test cases across 34 spec files (organized by business flow)
-- **Legacy E2E tests:** 75+ test cases across 11 spec files (pre-reorganization)
-- **404 handling:** Custom Spanish 404 page; all footer links resolve to placeholder pages
-
-### Database Tables
-
-| Table | Milestone | Purpose |
-|-------|-----------|---------|
-| `profiles` | M1 | User profiles (extends auth.users) |
-| `products` | M2 | Product listings with FTS + embeddings |
-| `business_profiles` | M4.5 | Business profile add-on |
-| `app_config` | M4 | Feature flags and configuration |
-| `demand_posts` | M4.7 | Buyer demand posts with expiration, FTS + embeddings |
-| `demand_offers` | M4.7 | Seller offers on demand posts (junction table) |
-
-### Storage Buckets
-
-| Bucket | Access | Purpose |
-|--------|--------|---------|
-| `avatars` | Private | User profile avatars |
-| `product-images` | Public | Product listing images |
-| `business-logos` | Public | Business profile logos |
-
-### Supabase Edge Functions
-
-| Function | Purpose |
-|----------|---------|
-| `generate-embedding` | Auto-generate embeddings for products and demand posts via Hugging Face API |
-
-### Key Routes
-
-| Route | Type | Description |
-|-------|------|-------------|
-| `/` | Public | Landing page with search hero |
-| `/login` | Public | Login page (email + OAuth) |
-| `/register` | Public | Registration with optional business |
-| `/buscar` | Public | Search results with filters |
-| `/categorias` | Public | Category browsing |
-| `/productos/[id]` | Public | Product detail page |
-| `/negocio/[slug]` | Public | Business storefront page |
-| `/vendedor/[id]` | Public | Personal seller profile |
-| `/publicar` | Protected | Create new product listing |
-| `/productos/[id]/editar` | Protected | Edit product listing |
-| `/profile/edit` | Protected | Edit user profile |
-| `/perfil/mis-productos` | Protected | My products management |
-| `/busco` | Public | Browse demand posts |
-| `/busco/[id]` | Public | Demand post detail page |
-| `/busco/publicar` | Protected | Create new demand post |
-| `/perfil/demandas` | Protected | My demand posts management |
-| `/api/search` | API | Product search endpoint (keyword + semantic) |
-| `/api/search-demands` | API | Demand search endpoint (keyword + semantic) |
-| `/acerca` | Public | About page (placeholder) |
-| `/contacto` | Public | Contact page (placeholder) |
-| `/ayuda` | Public | Help center (placeholder) |
-| `/seguridad` | Public | Safety info (placeholder) |
-| `/terminos` | Public | Terms and conditions (placeholder) |
-| `/privacidad` | Public | Privacy policy (placeholder) |
-| `/cookies` | Public | Cookie policy (placeholder) |
-
----
-
-## Next Actions
-
-### Immediate
-
-1. **Deploy M4.7 migration** — Run `npx supabase db push` to apply `demand_posts` and `demand_offers` tables
-2. **Decide next milestone priority:**
-   - M5 (Chat & Messaging) — enables buyer-seller real-time communication
-   - M6 (Ratings & Reviews) — builds trust, leverages existing seller profiles
-3. **Consider PRD for next milestone** — Analyze with PM agent before implementation
-
-### Short-term
-
-1. Fix remaining known UI issues:
-   - Product detail page horizontal overflow at 375px (~12px)
-   - Business storefront WhatsApp button touch target (40px vs 44px WCAG)
-2. Implement shared fixtures and helpers (`tests/fixtures/`, `tests/helpers/`) to reduce test duplication
-3. Decide on legacy test files in `tests/` root (keep, migrate, or remove)
-
-### Medium-term
-
-1. Admin Dashboard (M7) for content moderation
-2. Production deployment to Vercel
-3. User testing with real users in Bolivia
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | Next.js 16.1.6 (App Router), React 19.2.3, TypeScript 5+, Tailwind CSS v4, shadcn/ui |
-| **Backend (BaaS)** | Supabase (PostgreSQL, Auth, Storage, Realtime, Edge Functions) |
-| **Database** | PostgreSQL 15 + pgvector + Full-Text Search (Spanish) |
-| **Search** | Hybrid: Keyword FTS + Semantic (embeddings) with RRF fusion |
-| **Embeddings** | Hugging Face Inference API (`paraphrase-multilingual-MiniLM-L12-v2`) |
-| **Auth** | Supabase Auth (Email, Google OAuth, Facebook OAuth) |
-| **Testing** | Playwright 1.58+ (E2E + accessibility via axe-core), 229+ test cases |
-| **Dev Tools** | ESLint, Prettier, Husky, lint-staged, Hatch |
-| **AI Agents** | 9 custom Cursor subagents (quality-gate, code-reviewer, e2e-test-planner, etc.) |
-| **Hosting** | Vercel (planned), Supabase Cloud |
-
----
-
-## Quick Links
-
-### Live App
-
-- **Development:** http://localhost:3000
-- **Production:** TBD
-
-### Supabase
-
-- **Dashboard:** https://supabase.com/dashboard
-- **Project Ref:** apwpsjjzcbytnvtnmmru
-
-### Documentation
-
-- [Project README](../README.md)
-- [Architecture](./ARCHITECTURE.md)
-- [PRD](./PRD.md)
-- [M0 Documentation](../milestones/M0-foundation-setup/)
-- [M1 Documentation](../milestones/M1-authentication-profiles/)
-- [M2 Documentation](../milestones/M2-product-listings/)
-- [M3 Documentation](../milestones/M3-search-keyword/)
-- [M4 Documentation](../milestones/M4-search-semantic/)
-- [M4.5 Documentation](../milestones/M4.5-account-types-kyc/)
-- [M4.6 Documentation](../milestones/M4.6-share-profile/)
-- [M4.7 Documentation](../milestones/M4.7-demand-side-busco/)
-
----
-
-## Notes
-
-### Key Decisions
-
-1. **Supabase BaaS:** $0/month MVP, PostgreSQL + pgvector for hybrid search
-2. **TypeScript strict mode:** Type safety across entire codebase
-3. **shadcn/ui:** Accessible, customizable component library
-4. **Mobile-first:** All components designed for mobile first
-5. **WCAG 2.2 AA:** Accessibility compliance from M0 onward
-6. **Business as Add-on (M4.5):** Business profiles are non-mutually-exclusive extensions of personal profiles
-7. **Minimal KYC (M4.5):** Phone collection for trust signals, strong KYC deferred
-8. **i18n Policy:** Spanish for user-facing text, English for code and documentation
-9. **Hybrid Search:** Keyword FTS + Semantic embeddings merged via Reciprocal Rank Fusion
-10. **Share Profile (M4.6):** Web Share API detection at invocation time (not on mount) — avoids hydration mismatches; clipboard fallback for desktop and unsupported browsers
-11. **Static Pages:** Footer links use `app/(static)/` route group with "Coming Soon" placeholders — avoids 404s while keeping real content deferred
-12. **Demand-Side (M4.7):** WhatsApp-first contact (no M5 dependency); 30-day expiration with manual renewal; reuse existing embedding model and search infra; rate limit 5 posts/day
-
-### Challenges & Lessons Learned
-
-1. **M0:** Port conflict (3000 in use) - switched to 3003, later back to 3000
-2. **M0:** Mobile menu CSS stacking context - fixed with React Portal
-3. **M1:** Supabase CLI global install unsupported - installed as dev dependency
-4. **M2:** React controlled/uncontrolled input warnings - resolved with useEffect sync
-5. **M3:** Search vector auto-update required careful trigger design
-6. **M4:** Hugging Face API URL migration (api-inference -> router.huggingface.co)
-7. **M4:** Adaptive RRF weights needed for cross-language queries (English -> Spanish)
-8. **M4.5:** Mutually exclusive account types refactored to add-on model after PM review
-9. **M4.5:** PostgREST join limitations required separate queries for business_profiles
-10. **M4.5:** Playwright test stability - dev server warm-up and client-side navigation handling
-11. **Testing:** UX and accessibility reviews catch real issues early - always audit before polish
-12. **E2E:** Organizing tests by business flow (not by page) makes coverage gaps obvious
-13. **E2E:** AI subagents (e2e-test-planner) accelerate test plan creation — structured plans enable other agents to automate
-14. **E2E:** Real mobile/responsive issues found by 375px viewport tests (product detail overflow)
-15. **M4.6:** Web Share API detection must happen at invocation time (not `useEffect`) to avoid React hydration mismatches and lint warnings about synchronous state in effects
-16. **Quality:** Monkey-testing the landing page catches real UX/reliability issues (broken 404s, empty search submits, stale token noise) that structured E2E tests miss
-17. **M4.7:** Structural skeletons outperform spinner-based loading states for perceived performance
-18. **M4.7:** `text-balance` on headings and `text-pretty` on body text significantly improve typography
-19. **M4.7:** 2x2 grid layout for mobile filters with 44px touch targets is better UX than stacked selects
-20. **M4.7:** Linux `inotify` limits (`max_user_instances`, `max_user_watches`) need increasing for large Next.js projects
-
----
-
-**Last Updated:** February 19, 2026  
-**Next Review:** After next milestone decision (M5 or M6)
+*Last updated: February 2026.*

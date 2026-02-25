@@ -13,6 +13,10 @@
 /tests/screenshots
 /tests/.auth
 /.playwright-mcp
+/.playwright-cli
+
+# Playwright CLI skills (local agent tooling)
+.claude/skills/playwright-cli/
 
 # next.js
 /.next/
@@ -49,6 +53,8 @@ next-env.d.ts
 /*.png
 /*.jpg
 /*.jpeg
+/*.webm
+/demo-*.jpg
 /test-images/
 /test-screenshots/
 /test-results/

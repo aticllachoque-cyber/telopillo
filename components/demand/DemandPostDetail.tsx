@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DemandStatusBadge, getDemandDisplayStatus } from './DemandStatusBadge'
 import { OfferProductModal } from './OfferProductModal'
 import { getCategoryName } from '@/lib/data/categories'
+import { isPlaceholderDescription } from '@/lib/utils/demand'
 import { MapPin, MessageSquare, Calendar, Clock, CheckCircle2, Phone, Loader2 } from 'lucide-react'
 
 interface DemandPostDetailProps {
@@ -169,12 +170,18 @@ export function DemandPostDetail({
 
         <Separator />
 
-        {/* Description */}
         <div>
           <h2 className="font-semibold mb-2 text-balance">Descripción</h2>
-          <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed text-pretty">
-            {post.description}
-          </p>
+          {isPlaceholderDescription(post.description) ? (
+            <p className="text-muted-foreground italic text-pretty">
+              El comprador no agregó más detalles. Puedes contactarlo directamente para más
+              información.
+            </p>
+          ) : (
+            <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed text-pretty">
+              {post.description}
+            </p>
+          )}
         </div>
 
         {/* Price range */}
@@ -298,7 +305,25 @@ export function DemandPostDetail({
         )}
       </div>
 
-      {/* Offer modal */}
+      {/* Mobile sticky CTA bar */}
+      {canOffer && (
+        <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden z-40">
+          <Button onClick={() => setShowOfferModal(true)} className="w-full min-h-[48px]">
+            Ofrecer mi producto
+          </Button>
+        </div>
+      )}
+      {!canOffer && whatsappUrl && !isOwner && (
+        <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden z-40">
+          <Button asChild variant="outline" className="w-full min-h-[48px]">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <Phone className="mr-2 h-4 w-4" aria-hidden />
+              Contactar por WhatsApp
+            </a>
+          </Button>
+        </div>
+      )}
+
       {showOfferModal && currentUserId && (
         <OfferProductModal
           demandPostId={post.id}

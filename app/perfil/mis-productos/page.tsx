@@ -73,7 +73,7 @@ export default function MisProductosPage() {
         .from('business_profiles')
         .select('slug')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       if (business?.slug) {
         setBusinessSlug(business.slug)

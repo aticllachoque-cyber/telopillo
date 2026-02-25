@@ -9,6 +9,7 @@ interface Profile {
   id: string
   full_name: string
   avatar_url: string | null
+  onboarding_completed: boolean
 }
 
 interface AuthContextValue {
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, avatar_url')
+      .select('id, full_name, avatar_url, onboarding_completed')
       .eq('id', userId)
       .maybeSingle()
 

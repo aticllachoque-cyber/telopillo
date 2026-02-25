@@ -94,7 +94,7 @@ export default function PublicarDemandaPage() {
           </Link>
           <h1 className="text-3xl font-bold text-balance">Publica lo que buscas</h1>
           <p className="text-muted-foreground mt-2 text-pretty">
-            Describe lo que necesitas y los vendedores te contactarán con ofertas.
+            Completá el formulario y los vendedores podrán contactarte con lo que necesitás.
           </p>
         </div>
 

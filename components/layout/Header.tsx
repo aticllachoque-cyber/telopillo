@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Menu } from 'lucide-react'
+import { Menu, Search, X } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { UserMenu } from './UserMenu'
@@ -12,11 +12,23 @@ import { useAuth } from '@/components/providers/AuthProvider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getAvatarColor } from '@/lib/utils'
 
+const MENU_BASE =
+  'flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground'
+const MENU_ACTIVE = 'bg-accent/60 text-accent-foreground'
+
+function menuClass(pathname: string, href: string) {
+  const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
+  return `${MENU_BASE} ${isActive ? MENU_ACTIVE : ''}`
+}
+
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const { user, profile, isAuthenticated, signOut } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const menuRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
 
   const closeMenu = useCallback((restoreFocus = true) => {
@@ -26,17 +38,39 @@ export function Header() {
     }
   }, [])
 
-  // Escape key to close menu (WCAG 2.4.3 - Focus Order)
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false)
+    requestAnimationFrame(() => previousActiveElement.current?.focus())
+  }, [])
+
+  // Escape key to close menu or search overlay
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        closeMenu()
-        previousActiveElement.current?.focus()
+      if (e.key === 'Escape') {
+        if (searchOpen) {
+          closeSearch()
+        } else if (mobileMenuOpen) {
+          closeMenu()
+          previousActiveElement.current?.focus()
+        }
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [mobileMenuOpen, closeMenu])
+  }, [mobileMenuOpen, searchOpen, closeMenu, closeSearch])
+
+  // Close search overlay on route change
+  useEffect(() => {
+    if (searchOpen) setSearchOpen(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
+
+  // Autofocus search input when overlay opens
+  useEffect(() => {
+    if (searchOpen) {
+      requestAnimationFrame(() => searchInputRef.current?.focus())
+    }
+  }, [searchOpen])
 
   // Focus first focusable element when menu opens (WCAG 2.1.2 - No Keyboard Trap)
   useEffect(() => {
@@ -49,9 +83,9 @@ export function Header() {
     }
   }, [mobileMenuOpen])
 
-  // Body scroll lock when menu is open
+  // Body scroll lock when menu or search overlay is open
   useEffect(() => {
-    if (mobileMenuOpen) {
+    if (mobileMenuOpen || searchOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -59,7 +93,7 @@ export function Header() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, searchOpen])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -76,26 +110,31 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav
-          className="hidden md:flex items-center space-x-4 shrink-0"
+          className="hidden md:flex items-center space-x-3 shrink-0"
           aria-label="Navegación principal"
         >
-          <Link
-            href="/categorias"
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
-            Categorías
-          </Link>
-          <Link href="/busco" className="text-sm font-medium transition-colors hover:text-primary">
-            Busco
-          </Link>
           <Button asChild size="sm">
             <Link href="/publicar">Publicar Gratis</Link>
           </Button>
           <UserMenu />
         </nav>
 
-        {/* Mobile controls: avatar/login + hamburger */}
-        <div className="flex md:hidden items-center gap-2">
+        {/* Mobile controls: search + avatar/login + hamburger */}
+        <div className="flex md:hidden items-center gap-1">
+          {/* Mobile Search Icon */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="min-h-[44px] min-w-[44px] touch-manipulation"
+            onClick={() => {
+              previousActiveElement.current = document.activeElement as HTMLElement | null
+              setSearchOpen(true)
+            }}
+            aria-label="Buscar"
+          >
+            <Search className="h-5 w-5" aria-hidden />
+          </Button>
+
           {!isAuthenticated ? (
             <Button asChild size="sm">
               <Link href="/login">Ingresar</Link>
@@ -197,7 +236,7 @@ export function Header() {
                   size="icon"
                   onClick={() => closeMenu()}
                   aria-label="Cerrar menú"
-                  className="size-10 shrink-0 touch-manipulation"
+                  className="size-11 min-h-[44px] min-w-[44px] shrink-0 touch-manipulation"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -222,15 +261,26 @@ export function Header() {
                 className="flex flex-col h-[calc(100%-64px)] overflow-y-auto"
                 aria-label="Navegación principal"
               >
-                {/* Mobile Search Bar */}
-                <div className="px-4 pt-4 pb-2">
-                  <SearchBar placeholder="Buscar productos..." />
-                </div>
+                {/* Sign-up banner for logged-out users */}
+                {!isAuthenticated && (
+                  <div className="mx-4 mt-4 rounded-lg border bg-primary/5 p-4">
+                    <p className="text-sm font-semibold">Creá tu cuenta gratis</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Publicá, ofertá y contactá vendedores
+                    </p>
+                    <Button asChild size="sm" className="w-full mt-3 min-h-[40px]">
+                      <Link href="/register" onClick={() => closeMenu(false)}>
+                        Crear Cuenta
+                      </Link>
+                    </Button>
+                  </div>
+                )}
 
                 <div className="flex-1 px-4 py-4 space-y-1">
                   <Link
-                    href="/buscar"
-                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                    href="/"
+                    className={menuClass(pathname, '/')}
+                    aria-current={pathname === '/' ? 'page' : undefined}
                     onClick={() => closeMenu(false)}
                   >
                     <svg
@@ -245,14 +295,39 @@ export function Header() {
                       strokeLinejoin="round"
                       aria-hidden
                     >
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.3-4.3" />
+                      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      <polyline points="9 22 9 12 15 12 15 22" />
                     </svg>
-                    Buscar
+                    Inicio
+                  </Link>
+                  <Link
+                    href="/buscar"
+                    className={menuClass(pathname, '/buscar')}
+                    aria-current={pathname.startsWith('/buscar') ? 'page' : undefined}
+                    onClick={() => closeMenu(false)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                      <path d="M3 6h18" />
+                      <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    Productos
                   </Link>
                   <Link
                     href="/categorias"
-                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className={menuClass(pathname, '/categorias')}
+                    aria-current={pathname.startsWith('/categorias') ? 'page' : undefined}
                     onClick={() => closeMenu(false)}
                   >
                     <svg
@@ -276,7 +351,8 @@ export function Header() {
                   </Link>
                   <Link
                     href="/busco"
-                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className={menuClass(pathname, '/busco')}
+                    aria-current={pathname.startsWith('/busco') ? 'page' : undefined}
                     onClick={() => closeMenu(false)}
                   >
                     <svg
@@ -294,7 +370,7 @@ export function Header() {
                       <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
-                    Busco / Necesito
+                    Se busca
                   </Link>
 
                   {/* Divider */}
@@ -306,7 +382,8 @@ export function Header() {
                     <>
                       <Link
                         href="/profile"
-                        className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        className={menuClass(pathname, '/profile')}
+                        aria-current={pathname.startsWith('/profile') ? 'page' : undefined}
                         onClick={() => closeMenu(false)}
                       >
                         <svg
@@ -328,7 +405,10 @@ export function Header() {
                       </Link>
                       <Link
                         href="/perfil/mis-productos"
-                        className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        className={menuClass(pathname, '/perfil/mis-productos')}
+                        aria-current={
+                          pathname.startsWith('/perfil/mis-productos') ? 'page' : undefined
+                        }
                         onClick={() => closeMenu(false)}
                       >
                         <svg
@@ -343,6 +423,7 @@ export function Header() {
                           strokeLinejoin="round"
                           aria-hidden
                         >
+                          <path d="m7.5 4.27 9 5.15" />
                           <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
                           <path d="m3.3 7 8.7 5 8.7-5" />
                           <path d="M12 22V12" />
@@ -351,7 +432,8 @@ export function Header() {
                       </Link>
                       <Link
                         href="/perfil/demandas"
-                        className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        className={menuClass(pathname, '/perfil/demandas')}
+                        aria-current={pathname.startsWith('/perfil/demandas') ? 'page' : undefined}
                         onClick={() => closeMenu(false)}
                       >
                         <svg
@@ -366,14 +448,19 @@ export function Header() {
                           strokeLinejoin="round"
                           aria-hidden
                         >
-                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                          <circle cx="12" cy="12" r="3" />
+                          <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+                          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                          <path d="M12 11h4" />
+                          <path d="M12 16h4" />
+                          <path d="M8 11h.01" />
+                          <path d="M8 16h.01" />
                         </svg>
                         Mis Solicitudes
                       </Link>
                       <Link
                         href="/mensajes"
-                        className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        className={menuClass(pathname, '/mensajes')}
+                        aria-current={pathname.startsWith('/mensajes') ? 'page' : undefined}
                         onClick={() => closeMenu(false)}
                       >
                         <svg
@@ -393,7 +480,7 @@ export function Header() {
                         Mensajes
                       </Link>
                       <button
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground text-left"
+                        className={`${MENU_BASE} w-full text-left`}
                         onClick={async () => {
                           closeMenu()
                           await signOut()
@@ -423,7 +510,8 @@ export function Header() {
                   ) : (
                     <Link
                       href="/login"
-                      className="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                      className={menuClass(pathname, '/login')}
+                      aria-current={pathname.startsWith('/login') ? 'page' : undefined}
                       onClick={() => closeMenu(false)}
                     >
                       <svg
@@ -449,13 +537,83 @@ export function Header() {
 
                 {/* Menu Footer - CTA */}
                 <div className="border-t p-4">
-                  <Button asChild className="w-full" size="lg">
-                    <Link href="/publicar" onClick={() => closeMenu(false)}>
-                      Publicar Gratis
-                    </Link>
-                  </Button>
+                  {isAuthenticated ? (
+                    <Button asChild className="w-full" size="lg">
+                      <Link href="/publicar" onClick={() => closeMenu(false)}>
+                        Publicar Gratis
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button asChild className="w-full" size="lg">
+                      <Link href="/register" onClick={() => closeMenu(false)}>
+                        Crear Cuenta
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </nav>
+            </div>
+          </>,
+          document.body
+        )}
+      {/* Mobile Search Overlay */}
+      {searchOpen &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 z-50 bg-black/50 md:hidden"
+              onClick={closeSearch}
+              aria-hidden="true"
+            />
+            <div
+              className="fixed inset-x-0 top-0 z-50 md:hidden bg-background shadow-lg"
+              role="dialog"
+              aria-label="Buscar productos"
+              aria-modal="true"
+            >
+              <div className="container flex items-center gap-2 h-16">
+                <form
+                  className="flex flex-1 items-center gap-2"
+                  role="search"
+                  aria-label="Buscar productos"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const input = searchInputRef.current
+                    const q = input?.value.trim()
+                    if (!q) return
+                    router.push(`/buscar?q=${encodeURIComponent(q)}`)
+                    setSearchOpen(false)
+                  }}
+                >
+                  <div className="relative flex-1">
+                    <Search
+                      className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <input
+                      ref={searchInputRef}
+                      type="search"
+                      placeholder="Buscar productos..."
+                      autoComplete="off"
+                      maxLength={200}
+                      className="flex h-11 w-full rounded-md border border-input bg-background pl-9 pr-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      aria-label="Buscar productos"
+                    />
+                  </div>
+                  <Button type="submit" size="icon" className="min-h-[44px] min-w-[44px] shrink-0">
+                    <Search className="h-4 w-4" aria-hidden />
+                  </Button>
+                </form>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={closeSearch}
+                  aria-label="Cerrar búsqueda"
+                  className="min-h-[44px] min-w-[44px] shrink-0 touch-manipulation"
+                >
+                  <X className="h-5 w-5" aria-hidden />
+                </Button>
+              </div>
             </div>
           </>,
           document.body

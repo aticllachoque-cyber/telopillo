@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import { SlidersHorizontal } from 'lucide-react'
 import { CATEGORY_LABELS, BOLIVIA_DEPARTMENTS } from '@/lib/validations/product'
 import {
   Select,
@@ -9,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 
 interface DemandPostFiltersProps {
   category: string
@@ -33,7 +36,13 @@ export function DemandPostFilters({
   onDepartmentChange,
   onSortChange,
 }: DemandPostFiltersProps) {
-  return (
+  const [isOpen, setIsOpen] = useState(false)
+
+  const activeCount = [category !== 'all', department !== 'all', sort !== 'newest'].filter(
+    Boolean
+  ).length
+
+  const filterContent = (
     <div
       className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 sm:items-end"
       role="group"
@@ -107,5 +116,35 @@ export function DemandPostFilters({
         </Select>
       </div>
     </div>
+  )
+
+  return (
+    <>
+      {/* Mobile: collapsible toggle */}
+      <div className="sm:hidden">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsOpen(!isOpen)}
+          className="min-h-[44px] w-full justify-between"
+          aria-expanded={isOpen}
+          aria-controls="demand-filters-mobile"
+        >
+          <span className="flex items-center gap-2">
+            <SlidersHorizontal className="size-4" aria-hidden />
+            Filtros{activeCount > 0 ? ` (${activeCount})` : ''}
+          </span>
+          <span className="text-xs text-muted-foreground">{isOpen ? 'Ocultar' : 'Mostrar'}</span>
+        </Button>
+        {isOpen && (
+          <div id="demand-filters-mobile" className="mt-3">
+            {filterContent}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: always visible */}
+      <div className="hidden sm:block">{filterContent}</div>
+    </>
   )
 }

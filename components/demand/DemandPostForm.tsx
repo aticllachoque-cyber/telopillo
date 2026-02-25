@@ -116,13 +116,19 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
         <Label htmlFor="description">Describe lo que necesitas *</Label>
         <Textarea
           id="description"
-          placeholder="Incluye detalles como marca, modelo, estado, color, características importantes..."
+          placeholder="Ej: Busco Samsung Galaxy A52 en buen estado, color negro, con caja original si es posible. Presupuesto flexible."
           className="min-h-[120px] resize-y"
           maxLength={1000}
           aria-invalid={!!errors.description}
-          aria-describedby={errors.description ? 'description-error' : undefined}
+          aria-describedby={errors.description ? 'description-error' : 'description-hint'}
           {...register('description')}
         />
+        {!errors.description && (
+          <p id="description-hint" className="text-xs text-muted-foreground">
+            Incluí marca, modelo, estado y detalles que ayuden a los vendedores a encontrar lo que
+            buscás.
+          </p>
+        )}
         {errors.description && (
           <p id="description-error" className="text-sm text-destructive" role="alert">
             {errors.description.message}

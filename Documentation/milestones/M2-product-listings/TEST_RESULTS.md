@@ -145,7 +145,7 @@
 | `lib/validations/product.ts` | Zod v4 API compatibility |
 | `app/publicar/page.tsx` | Mobile padding, remove gradient |
 | `app/productos/[id]/editar/page.tsx` | Mobile padding, type safety |
-| `scripts/browser-wizard-screenshots.ts` | Remove unused variable |
+| `scripts/browser-wizard-screenshots.ts` | Removed (obsolete one-off script) |
 | `tests/manual-wizard-test-plan.spec.ts` | Remove unused variable |
 | `tests/accessibility-audit.spec.ts` | NEW - axe-core automated audit |
 

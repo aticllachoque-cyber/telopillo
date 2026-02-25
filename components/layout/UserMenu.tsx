@@ -43,16 +43,9 @@ export function UserMenu() {
     if (isOnAuthPage) return null
 
     return (
-      <div className="flex items-center gap-2">
-        <Link href="/login">
-          <Button variant="ghost" size="sm">
-            Iniciar Sesión
-          </Button>
-        </Link>
-        <Link href="/register">
-          <Button size="sm">Registrarse</Button>
-        </Link>
-      </div>
+      <Button asChild variant="outline" size="sm">
+        <Link href="/login">Ingresar</Link>
+      </Button>
     )
   }
 

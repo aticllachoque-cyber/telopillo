@@ -12,6 +12,50 @@ interface DemandPageProps {
   }>
 }
 
+interface RawOffer {
+  id: string
+  message: string | null
+  created_at: string
+  product_id: string | null
+  seller_id: string
+  products:
+    | {
+        id: string
+        title: string
+        price: number
+        images: string[]
+        status: string
+        location_city: string
+        location_department: string
+      }
+    | {
+        id: string
+        title: string
+        price: number
+        images: string[]
+        status: string
+        location_city: string
+        location_department: string
+      }[]
+    | null
+  seller:
+    | {
+        id: string
+        full_name: string | null
+        avatar_url: string | null
+        phone: string | null
+        verification_level: number
+      }
+    | {
+        id: string
+        full_name: string | null
+        avatar_url: string | null
+        phone: string | null
+        verification_level: number
+      }[]
+    | null
+}
+
 export async function generateMetadata({ params }: DemandPageProps): Promise<Metadata> {
   const supabase = await createClient()
   const { id } = await params
@@ -60,7 +104,7 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
     .from('profiles')
     .select('id, full_name, avatar_url, phone, verification_level')
     .eq('id', post.user_id)
-    .single()
+    .maybeSingle()
 
   const { data: posterBusiness } = await supabase
     .from('business_profiles')
@@ -88,8 +132,7 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
     .eq('demand_post_id', id)
     .order('created_at', { ascending: false })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const offers = (rawOffers ?? []).map((o: any) => ({
+  const offers = ((rawOffers ?? []) as RawOffer[]).map((o) => ({
     ...o,
     products: Array.isArray(o.products) ? (o.products[0] ?? null) : o.products,
     seller: Array.isArray(o.seller) ? (o.seller[0] ?? null) : o.seller,
@@ -100,7 +143,7 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
   } = await supabase.auth.getUser()
 
   return (
-    <div className="min-h-dvh bg-background py-8">
+    <div className="min-h-dvh bg-background py-8 pb-24 lg:pb-8">
       <div className="container px-4 sm:px-6">
         <Link
           href="/busco"

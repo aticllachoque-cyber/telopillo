@@ -32,11 +32,13 @@ import type { DemandPost } from '@/types/database'
 
 type TabKey = 'active' | 'found' | 'expired'
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'active', label: 'Activas' },
-  { key: 'found', label: 'Encontradas' },
-  { key: 'expired', label: 'Expiradas' },
-]
+const TAB_LABELS: Record<TabKey, string> = {
+  active: 'Activas',
+  found: 'Encontradas',
+  expired: 'Expiradas',
+}
+
+type TabCounts = Record<TabKey, number | null>
 
 export default function DemandDashboardPage() {
   const router = useRouter()
@@ -45,6 +47,11 @@ export default function DemandDashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabKey>('active')
   const [posts, setPosts] = useState<DemandPost[]>([])
+  const [tabCounts, setTabCounts] = useState<TabCounts>({
+    active: null,
+    found: null,
+    expired: null,
+  })
   const [isLoadingPosts, setIsLoadingPosts] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -77,6 +84,40 @@ export default function DemandDashboardPage() {
     }
   }
 
+  const fetchTabCounts = useCallback(async () => {
+    if (!userId) return
+    const now = new Date().toISOString()
+    try {
+      const [activeRes, foundRes, expiredRes] = await Promise.all([
+        supabase
+          .from('demand_posts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'active')
+          .gt('expires_at', now),
+        supabase
+          .from('demand_posts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'found'),
+        supabase
+          .from('demand_posts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'active')
+          .lt('expires_at', now),
+      ])
+      setTabCounts({
+        active: activeRes.count ?? 0,
+        found: foundRes.count ?? 0,
+        expired: expiredRes.count ?? 0,
+      })
+    } catch (err) {
+      console.error('Error fetching tab counts:', err)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
+
   const fetchPosts = useCallback(async () => {
     if (!userId) return
     setIsLoadingPosts(true)
@@ -105,11 +146,15 @@ export default function DemandDashboardPage() {
     } finally {
       setIsLoadingPosts(false)
     }
-  }, [userId, activeTab, supabase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, activeTab])
 
   useEffect(() => {
-    if (userId) fetchPosts()
-  }, [userId, activeTab, fetchPosts])
+    if (userId) {
+      fetchPosts()
+      fetchTabCounts()
+    }
+  }, [userId, activeTab, fetchPosts, fetchTabCounts])
 
   const handleDelete = async () => {
     if (!deleteTarget || !userId) return
@@ -124,6 +169,7 @@ export default function DemandDashboardPage() {
 
       if (error) throw error
       setPosts((prev) => prev.filter((p) => p.id !== deleteTarget))
+      fetchTabCounts()
     } catch (err) {
       console.error('Error deleting post:', err)
     } finally {
@@ -166,6 +212,7 @@ export default function DemandDashboardPage() {
 
       if (error) throw error
       setPosts((prev) => prev.filter((p) => p.id !== postId))
+      fetchTabCounts()
     } catch (err) {
       console.error('Error marking as found:', err)
     } finally {
@@ -235,23 +282,31 @@ export default function DemandDashboardPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b mb-6" role="tablist" aria-label="Estado de solicitudes">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              role="tab"
-              aria-selected={activeTab === tab.key}
-              aria-controls={`tabpanel-${tab.key}`}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors min-h-[44px] ${
-                activeTab === tab.key
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div
+          className="flex gap-1 border-b mb-4 sm:mb-6"
+          role="tablist"
+          aria-label="Estado de solicitudes"
+        >
+          {(Object.keys(TAB_LABELS) as TabKey[]).map((key) => {
+            const count = tabCounts[key]
+            return (
+              <button
+                key={key}
+                role="tab"
+                aria-selected={activeTab === key}
+                aria-controls={`tabpanel-${key}`}
+                onClick={() => setActiveTab(key)}
+                className={`px-3 sm:px-4 py-2 text-sm font-medium border-b-2 transition-colors min-h-[44px] ${
+                  activeTab === key
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {TAB_LABELS[key]}
+                {count !== null && <span className="ml-1.5 tabular-nums text-xs">({count})</span>}
+              </button>
+            )
+          })}
         </div>
 
         {/* Tab panel */}
@@ -302,43 +357,48 @@ export default function DemandDashboardPage() {
               )}
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {posts.map((post) => {
                 const display = getDemandDisplayStatus(post.status, post.expires_at)
+                const hasOffers = post.offers_count > 0
 
                 return (
                   <Card key={post.id}>
-                    <CardContent className="py-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <DemandStatusBadge status={display} />
-                            <Badge variant="outline" className="text-xs">
-                              <MessageSquare className="h-3 w-3 mr-1" aria-hidden />
-                              {post.offers_count}
-                            </Badge>
-                          </div>
-                          <Link
-                            href={`/busco/${post.id}`}
-                            className="font-medium hover:text-primary line-clamp-1"
+                    <CardContent className="py-3 sm:py-4">
+                      <div className="min-w-0">
+                        {/* Badges + title + description */}
+                        <div className="flex items-center gap-2 mb-1">
+                          {activeTab !== 'active' && <DemandStatusBadge status={display} />}
+                          <Badge
+                            variant={hasOffers ? 'default' : 'outline'}
+                            className={`text-xs ${hasOffers ? 'bg-primary/15 text-primary border-primary/30' : ''}`}
+                            aria-label={`${post.offers_count} ${post.offers_count === 1 ? 'oferta' : 'ofertas'}`}
                           >
-                            {post.title}
-                          </Link>
-                          <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
-                            {post.description}
-                          </p>
+                            <MessageSquare className="h-3 w-3 mr-1" aria-hidden />
+                            {post.offers_count} {post.offers_count === 1 ? 'oferta' : 'ofertas'}
+                          </Badge>
                         </div>
+                        <Link
+                          href={`/busco/${post.id}`}
+                          className="font-medium hover:text-primary line-clamp-2"
+                        >
+                          {post.title}
+                        </Link>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                          {post.description}
+                        </p>
 
-                        <div className="flex items-center gap-1 shrink-0">
+                        {/* Actions row — full width on mobile */}
+                        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
                           <Button
                             variant="ghost"
                             size="sm"
                             asChild
-                            className="min-h-[44px] min-w-[44px]"
-                            aria-label={`Ver solicitud: ${post.title}`}
+                            className="min-h-[40px] gap-1.5 text-xs"
                           >
                             <Link href={`/busco/${post.id}`}>
                               <Eye className="h-4 w-4" aria-hidden />
+                              <span>Ver</span>
                             </Link>
                           </Button>
 
@@ -348,7 +408,7 @@ export default function DemandDashboardPage() {
                               size="sm"
                               onClick={() => handleMarkFound(post.id)}
                               disabled={isMarkingFound === post.id}
-                              className="min-h-[44px] min-w-[44px]"
+                              className="min-h-[40px] gap-1.5 text-xs"
                               aria-label={`Marcar como encontrado: ${post.title}`}
                             >
                               {isMarkingFound === post.id ? (
@@ -356,6 +416,7 @@ export default function DemandDashboardPage() {
                               ) : (
                                 <CheckCircle2 className="h-4 w-4" aria-hidden />
                               )}
+                              <span>Encontrado</span>
                             </Button>
                           )}
 
@@ -365,7 +426,7 @@ export default function DemandDashboardPage() {
                               size="sm"
                               onClick={() => handleRenew(post.id)}
                               disabled={isRenewing === post.id}
-                              className="min-h-[44px] min-w-[44px]"
+                              className="min-h-[40px] gap-1.5 text-xs"
                               aria-label={`Renovar solicitud: ${post.title}`}
                             >
                               {isRenewing === post.id ? (
@@ -373,18 +434,22 @@ export default function DemandDashboardPage() {
                               ) : (
                                 <RefreshCw className="h-4 w-4" aria-hidden />
                               )}
+                              <span>Renovar</span>
                             </Button>
                           )}
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteTarget(post.id)}
-                            className="min-h-[44px] min-w-[44px] text-destructive hover:text-destructive"
-                            aria-label={`Eliminar solicitud: ${post.title}`}
-                          >
-                            <Trash2 className="h-4 w-4" aria-hidden />
-                          </Button>
+                          <div className="ml-auto">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteTarget(post.id)}
+                              className="min-h-[40px] gap-1.5 text-xs text-destructive hover:text-destructive"
+                              aria-label={`Eliminar solicitud: ${post.title}`}
+                            >
+                              <Trash2 className="h-4 w-4" aria-hidden />
+                              <span>Eliminar</span>
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </CardContent>

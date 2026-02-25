@@ -1,5 +1,7 @@
+// Public route: demand search does not require authentication
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { expandQuery } from '@/lib/search/synonyms'
 
 export const dynamic = 'force-dynamic'
 
@@ -81,7 +83,7 @@ export async function GET(request: NextRequest) {
   const q = searchParams.get('q')?.trim() || undefined
   const category = searchParams.get('category') || undefined
   const department = searchParams.get('department') || undefined
-  const sort = searchParams.get('sort') || 'newest'
+  const sort = searchParams.get('sort') || (q ? 'relevance' : 'newest')
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '12', 10)))
   const offset = (page - 1) * limit
@@ -93,9 +95,11 @@ export async function GET(request: NextRequest) {
     let embeddingCached = false
     let queryEmbedding: number[] | null = null
 
+    let semanticEnabled = false
+
     if (q) {
       searchMode = 'keyword'
-      const semanticEnabled = await isSemanticSearchEnabled(supabase)
+      semanticEnabled = await isSemanticSearchEnabled(supabase)
 
       if (semanticEnabled) {
         const { embedding, cached } = await getQueryEmbedding(q)
@@ -103,13 +107,26 @@ export async function GET(request: NextRequest) {
         if (embedding) {
           queryEmbedding = embedding
           searchMode = 'hybrid'
+        } else {
+          console.warn(
+            JSON.stringify({
+              event: 'embedding_failure',
+              type: 'demands',
+              query: q,
+              reason: 'hf_api_error',
+            })
+          )
         }
       }
     }
 
+    // Pass expanded FTS query in search_query (PostgREST ignores fts_query param).
+    // SQL detects tsquery format (contains " | " or " & ") and uses to_tsquery.
+    const searchQueryForRpc = q ? (expandQuery(q) ?? q) : null
+
     const rpcParams: Record<string, unknown> = {
-      search_query: q || null,
-      query_embedding: queryEmbedding ? JSON.stringify(queryEmbedding) : null,
+      search_query: searchQueryForRpc,
+      query_embedding: queryEmbedding ?? null,
       category_filter: category || null,
       department_filter: department || null,
       sort_by: sort,
@@ -127,6 +144,21 @@ export async function GET(request: NextRequest) {
     const row = Array.isArray(data) ? data[0] : data
     const demands = row?.demands ?? []
     const totalCount = row?.total_count ?? 0
+    const totalMs = Date.now() - startMs
+
+    console.log(
+      JSON.stringify({
+        event: 'search',
+        type: 'demands',
+        query: q ?? null,
+        mode: searchMode,
+        results: totalCount,
+        latencyMs: totalMs,
+        embeddingCached,
+        embeddingFailed: searchMode === 'keyword' && semanticEnabled && !!q,
+        zeroResults: totalCount === 0 && !!q,
+      })
+    )
 
     return NextResponse.json({
       demands,
@@ -137,7 +169,7 @@ export async function GET(request: NextRequest) {
       hasMore: page * limit < totalCount,
       searchMode,
       embeddingCached,
-      latencyMs: Date.now() - startMs,
+      latencyMs: totalMs,
     })
   } catch (err) {
     console.error('[search-demands] Error:', err)

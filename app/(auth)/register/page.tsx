@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, Shield, Store, ChevronDown, ChevronUp } from 'lucide-react'
+import { Loader2, Shield, Store, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getAuthErrorMessage } from '@/lib/utils'
 import { registerSchema, type RegisterInput } from '@/lib/validations/auth'
@@ -24,10 +25,12 @@ import { Logo } from '@/components/ui/logo'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
   const [showBusiness, setShowBusiness] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -83,50 +86,17 @@ export default function RegisterPage() {
 
       if (error) throw error
 
-      setSuccess(true)
+      router.push('/')
     } catch (error) {
-      setError(getAuthErrorMessage(error, 'Error al crear la cuenta'))
+      setError(
+        getAuthErrorMessage(
+          error,
+          'No se pudo crear la cuenta. Verificá tu email e intentá de nuevo.'
+        )
+      )
     } finally {
       setIsLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="container mx-auto flex min-h-screen items-center justify-center px-4">
-        <div className="w-full max-w-md space-y-8 text-center">
-          <div className="rounded-lg bg-green-50 p-8 dark:bg-green-950">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-              <svg
-                className="h-6 w-6 text-green-600 dark:text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h2 className="mb-2 text-2xl font-bold">¡Registro Exitoso!</h2>
-            <p className="mb-2 text-muted-foreground">
-              Te hemos enviado un email de verificación. Revisa tu bandeja de entrada.
-            </p>
-            <p className="mb-4 text-sm text-muted-foreground">
-              <span aria-hidden="true">💡</span> <strong>Tip:</strong> Si no lo ves, revisa tu
-              carpeta de spam o correo no deseado.
-            </p>
-            <Button asChild className="w-full">
-              <Link href="/login">Ir a Iniciar Sesión</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -196,19 +166,34 @@ export default function RegisterPage() {
             {/* Password */}
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                className="h-11"
-                autoComplete="new-password"
-                aria-invalid={!!errors.password}
-                aria-describedby={
-                  errors.password ? 'password-error password-hint' : 'password-hint'
-                }
-                {...register('password')}
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="h-11 pr-10"
+                  autoComplete="new-password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={
+                    errors.password ? 'password-error password-hint' : 'password-hint'
+                  }
+                  {...register('password')}
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" aria-hidden />
+                  ) : (
+                    <Eye className="size-4" aria-hidden />
+                  )}
+                </button>
+              </div>
               {errors.password && (
                 <p id="password-error" className="text-sm text-destructive" role="alert">
                   {errors.password.message}
@@ -222,17 +207,32 @@ export default function RegisterPage() {
             {/* Confirm Password */}
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                className="h-11"
-                autoComplete="new-password"
-                aria-invalid={!!errors.confirmPassword}
-                aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
-                {...register('confirmPassword')}
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="h-11 pr-10"
+                  autoComplete="new-password"
+                  aria-invalid={!!errors.confirmPassword}
+                  aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
+                  {...register('confirmPassword')}
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="size-4" aria-hidden />
+                  ) : (
+                    <Eye className="size-4" aria-hidden />
+                  )}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p id="confirmPassword-error" className="text-sm text-destructive" role="alert">
                   {errors.confirmPassword.message}
