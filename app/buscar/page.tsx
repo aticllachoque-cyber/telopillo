@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchBar } from '@/components/search/SearchBar'
 import { SearchFilters } from '@/components/search/SearchFilters'
@@ -52,7 +52,28 @@ interface SearchResponse {
   hasMore: boolean
 }
 
-export default function BuscarPage() {
+function BuscarPageSkeleton() {
+  return (
+    <div className="container px-4 sm:px-6 py-8">
+      <h1 className="text-2xl font-bold mb-4">Buscar Productos</h1>
+      <div className="flex gap-2 mb-6">
+        <Skeleton className="h-11 flex-1 max-w-xl" />
+        <Skeleton className="h-11 w-24" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="space-y-3">
+            <Skeleton className="aspect-square rounded-lg" />
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="h-6 w-1/4" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function BuscarPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const query = searchParams?.get('q') || ''
@@ -384,5 +405,13 @@ export default function BuscarPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BuscarPage() {
+  return (
+    <Suspense fallback={<BuscarPageSkeleton />}>
+      <BuscarPageContent />
+    </Suspense>
   )
 }

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Menu, Search, X } from 'lucide-react'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { UserMenu } from './UserMenu'
 import { SearchBar } from '@/components/search/SearchBar'
@@ -103,9 +103,11 @@ export function Header() {
           <span className="text-2xl font-bold text-primary">Telopillo.bo</span>
         </Link>
 
-        {/* Desktop Search Bar */}
+        {/* Desktop Search Bar (Suspense required for useSearchParams during static generation) */}
         <div className="hidden md:flex flex-1 max-w-xl">
-          <SearchBar className="w-full" />
+          <Suspense fallback={<div className="w-full min-h-10" />}>
+            <SearchBar className="w-full" />
+          </Suspense>
         </div>
 
         {/* Desktop Navigation */}

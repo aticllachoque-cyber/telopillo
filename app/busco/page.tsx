@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Loader2, Plus, Search } from 'lucide-react'
@@ -12,7 +12,30 @@ import type { SearchDemandPost } from '@/types/database'
 
 const PAGE_SIZE = 12
 
-export default function BuscoPage() {
+function BuscoPageSkeleton() {
+  return (
+    <div className="min-h-dvh bg-background py-8">
+      <div className="container px-4 sm:px-6">
+        <div className="h-10 w-48 rounded bg-muted animate-pulse mb-4" />
+        <div className="h-6 w-96 rounded bg-muted animate-pulse mb-6" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-lg border p-4 space-y-3">
+              <div className="flex justify-between">
+                <div className="h-5 w-20 rounded bg-muted animate-pulse" />
+                <div className="h-4 w-12 rounded bg-muted animate-pulse" />
+              </div>
+              <div className="h-5 w-3/4 rounded bg-muted animate-pulse" />
+              <div className="h-4 w-full rounded bg-muted animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BuscoPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -237,5 +260,13 @@ export default function BuscoPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function BuscoPage() {
+  return (
+    <Suspense fallback={<BuscoPageSkeleton />}>
+      <BuscoPageContent />
+    </Suspense>
   )
 }

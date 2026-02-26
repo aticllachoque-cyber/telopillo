@@ -290,7 +290,7 @@ test.describe('Onboarding Monkey - Welcome Dialog Chaos', () => {
   })
 
   test('12. Network failure simulation - offline during Supabase update', async ({ page }) => {
-    const { consoleErrors, networkErrors } = attachErrorMonitors(page)
+    const { consoleErrors, networkErrors: _networkErrors } = attachErrorMonitors(page)
     await registerFreshUser(page, 12)
     await waitForOnboardingDialog(page)
 

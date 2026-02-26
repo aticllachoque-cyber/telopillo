@@ -132,11 +132,13 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
     .eq('demand_post_id', id)
     .order('created_at', { ascending: false })
 
-  const offers = ((rawOffers ?? []) as RawOffer[]).map((o) => ({
+  const mapped = ((rawOffers ?? []) as RawOffer[]).map((o) => ({
     ...o,
     products: Array.isArray(o.products) ? (o.products[0] ?? null) : o.products,
     seller: Array.isArray(o.seller) ? (o.seller[0] ?? null) : o.seller,
   }))
+  // Only pass offers with a valid product_id (OfferRow requires it)
+  const offers = mapped.filter((o): o is typeof o & { product_id: string } => o.product_id != null)
 
   const {
     data: { user },

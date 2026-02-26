@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Shield, Store, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { getAuthErrorMessage } from '@/lib/utils'
-import { registerSchema, type RegisterInput } from '@/lib/validations/auth'
+import { registerSchema, type RegisterFormInput } from '@/lib/validations/auth'
 import { BUSINESS_CATEGORIES } from '@/lib/validations/business-profile'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,7 +42,7 @@ export default function RegisterPage() {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<RegisterInput>({
+  } = useForm<RegisterFormInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       wantsBusiness: false,
@@ -61,7 +61,7 @@ export default function RegisterPage() {
     }
   }
 
-  const onSubmit = async (data: RegisterInput) => {
+  const onSubmit = async (data: RegisterFormInput) => {
     try {
       setIsLoading(true)
       setError(null)

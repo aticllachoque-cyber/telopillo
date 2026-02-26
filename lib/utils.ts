@@ -74,6 +74,8 @@ export function getAvatarColor(seed: string): string {
     hash = seed.charCodeAt(i) + ((hash << 5) - hash)
   }
   const index = Math.abs(hash) % AVATAR_COLORS.length
-  const [bg, text] = AVATAR_COLORS[index]
+  const pair: [string, string] = AVATAR_COLORS[index] ??
+    AVATAR_COLORS[0] ?? ['bg-gray-100 dark:bg-gray-800', 'text-gray-700 dark:text-gray-300']
+  const [bg, text] = pair
   return `${bg} ${text}`
 }

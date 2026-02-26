@@ -65,7 +65,7 @@ interface OfferRow {
   } | null
   seller: {
     id: string
-    full_name: string
+    full_name: string | null
     avatar_url: string | null
     phone: string | null
     verification_level: number
@@ -378,12 +378,15 @@ function OfferCard({ offer }: { offer: OfferRow }) {
 
             <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
               <Avatar className="h-5 w-5">
-                <AvatarImage src={seller.avatar_url || undefined} alt={seller.full_name} />
+                <AvatarImage
+                  src={seller.avatar_url || undefined}
+                  alt={seller.full_name ?? undefined}
+                />
                 <AvatarFallback className="text-[10px]">
-                  {seller.full_name.charAt(0).toUpperCase()}
+                  {(seller.full_name ?? 'U').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span>{seller.full_name}</span>
+              <span>{seller.full_name ?? 'Usuario'}</span>
               <span className="flex items-center gap-1">
                 <MapPin className="h-3 w-3" aria-hidden />
                 {product.location_city}

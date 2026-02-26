@@ -96,6 +96,7 @@ test.describe('Create Sample Demands', () => {
 
     for (let i = 0; i < DEMANDS.length; i++) {
       const d = DEMANDS[i]
+      if (!d) continue
       try {
         await page.goto(`${BASE_URL}/busco/publicar`)
         await page.waitForLoadState('networkidle')

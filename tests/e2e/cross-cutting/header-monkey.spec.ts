@@ -31,17 +31,6 @@ const VIEWPORTS = [
   { width: 1440, height: 900 },
 ]
 
-const KEYBOARD_KEYS = [
-  'Tab',
-  'Escape',
-  'Enter',
-  'Space',
-  'ArrowUp',
-  'ArrowDown',
-  'ArrowLeft',
-  'ArrowRight',
-]
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -78,7 +67,8 @@ async function randomClickStorm(page: Page, iterations: number = 30) {
   ]
 
   for (let i = 0; i < iterations; i++) {
-    const selector = interactiveSelectors[Math.floor(Math.random() * interactiveSelectors.length)]
+    const selector =
+      interactiveSelectors[Math.floor(Math.random() * interactiveSelectors.length)] ?? 'button'
     const elements = page.locator(selector).first()
     try {
       if ((await elements.count()) > 0) {
