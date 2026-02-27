@@ -134,7 +134,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               /
             </li>
             <li className="shrink-0">
-              <Link href={`/categorias/${product.category}`} className="hover:text-foreground">
+              <Link href={`/buscar?category=${product.category}`} className="hover:text-foreground">
                 {categoryName}
               </Link>
             </li>
