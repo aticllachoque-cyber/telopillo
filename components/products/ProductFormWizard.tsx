@@ -571,7 +571,7 @@ export function ProductFormWizard({
                 Estado del Producto <span className="text-destructive">*</span>
               </Label>
               <RadioGroup
-                value={watch('condition')}
+                value={watch('condition') ?? ''}
                 onValueChange={(value) => setValue('condition', value as ProductInput['condition'])}
                 aria-required="true"
                 aria-invalid={errors.condition ? 'true' : 'false'}
@@ -621,7 +621,7 @@ export function ProductFormWizard({
                     Departamento <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={watch('location_department')}
+                    value={watch('location_department') ?? ''}
                     onValueChange={(value) =>
                       setValue('location_department', value as ProductInput['location_department'])
                     }

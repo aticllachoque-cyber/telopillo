@@ -75,8 +75,10 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `img-src 'self' data: https://${SUPABASE_CLOUD_HOSTNAME} http://127.0.0.1:54321${process.env.NODE_ENV === 'development' ? ' https://picsum.photos https://fastly.picsum.photos' : ''}`,
+              `img-src 'self' data: blob: https://${SUPABASE_CLOUD_HOSTNAME} http://127.0.0.1:54321${process.env.NODE_ENV === 'development' ? ' https://picsum.photos https://fastly.picsum.photos' : ''}`,
               `connect-src 'self' ${supabaseOrigin}`,
+              // worker-src allows blob: workers (e.g. browser-image-compression) when script-src does not
+              "worker-src 'self' blob:",
               // TODO: Remove 'unsafe-inline' once we implement nonce-based CSP
               // For now, it's needed for inline styles in shadcn/ui and Tailwind
               "style-src 'self' 'unsafe-inline'",
