@@ -84,9 +84,10 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               // 'unsafe-inline' needed for Next.js inline scripts
               // 'unsafe-eval' needed in dev for React Hot Reload; stripped in production
+              // cdn.jsdelivr.net: browser-image-compression loads its web worker script from here when useWebWorker is true
               process.env.NODE_ENV === 'production'
-                ? "script-src 'self' 'unsafe-inline'"
-                : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+                ? "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net"
+                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
               "font-src 'self'",
               "frame-ancestors 'none'",
             ].join('; '),
