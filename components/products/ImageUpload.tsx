@@ -88,37 +88,27 @@ export function ImageUpload({
     setPreviews((prev) => [...prev, ...newPreviews])
     setUploadingCount(fileArray.length)
 
-    // Upload each file
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i]!
-      const previewIndex = previews.length + i
+    const baseIndex = previews.length
+    const timestamp = Date.now()
 
+    // Run compress + upload in parallel for all files (faster than sequential)
+    const tasks = fileArray.map(async (file, i) => {
+      const previewIndex = baseIndex + i
       try {
-        // Compress image
         const compressedBlob = await compressImage(file)
-
-        // Generate storage path
-        const storagePath = getProductImagePath(userId, Date.now() + i)
-
-        // Upload to Supabase Storage
+        const storagePath = getProductImagePath(userId, timestamp + i)
         const { data, error: uploadError } = await supabase.storage
           .from('product-images')
           .upload(storagePath, compressedBlob, {
             contentType: 'image/webp',
             upsert: false,
           })
-
         if (uploadError) throw uploadError
-
-        // Get public URL
         const {
           data: { publicUrl },
         } = supabase.storage.from('product-images').getPublicUrl(data.path)
-
-        // Update preview with uploaded URL
         setPreviews((prev) => {
           const updated = [...prev]
-          // Revoke object URL
           const existing = updated[previewIndex]
           if (existing) revokeImagePreview(existing.url)
           updated[previewIndex] = {
@@ -146,7 +136,8 @@ export function ImageUpload({
         })
         setUploadingCount((c) => Math.max(0, c - 1))
       }
-    }
+    })
+    await Promise.allSettled(tasks)
   }
 
   // Handle drag and drop

@@ -14,14 +14,15 @@ export interface ImageValidationResult {
 }
 
 /**
- * Compression options for product images
+ * Compression options for product images.
+ * Balanced for speed: 1600px and 0.82 quality keep uploads fast while looking good.
  */
 const COMPRESSION_OPTIONS = {
-  maxSizeMB: 1, // Max 1MB after compression
-  maxWidthOrHeight: 1920, // Max dimension 1920px
-  useWebWorker: true, // Use web worker for better performance
-  fileType: 'image/webp', // Convert to WebP
-  initialQuality: 0.85, // 85% quality
+  maxSizeMB: 1,
+  maxWidthOrHeight: 1600, // Slightly lower than 1920 for faster encode; still good for product photos
+  useWebWorker: true,
+  fileType: 'image/webp',
+  initialQuality: 0.82,
 }
 
 /**
