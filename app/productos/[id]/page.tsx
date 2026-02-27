@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { ArrowLeft, MapPin, Eye, Flag, Calendar, Tag } from 'lucide-react'
-import { CONDITION_LABELS } from '@/lib/validations/product'
+import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
 import { getCategoryName } from '@/lib/data/categories'
 
 interface ProductPageProps {
@@ -110,7 +110,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const categoryName = getCategoryName(product.category)
   const conditionLabel = CONDITION_LABELS[product.condition as keyof typeof CONDITION_LABELS]
-  const location = `${product.location_city}, ${product.location_department}`
+  const location = formatProductLocationDisplay(product.location_city, product.location_department)
 
   // Format date
   const createdDate = new Date(product.created_at).toLocaleDateString('es-BO', {

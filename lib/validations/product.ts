@@ -18,6 +18,39 @@ export const PRODUCT_CATEGORIES = [
 // Product condition enum
 export const PRODUCT_CONDITIONS = ['new', 'used_like_new', 'used_good', 'used_fair'] as const
 
+/** City values treated as placeholders; rejected in create/edit and hidden in display */
+export const LOCATION_CITY_PLACEHOLDERS = [
+  'test',
+  'asdf',
+  'fasdfa',
+  'xxx',
+  'asd',
+  'qwe',
+  'abc',
+  'sample',
+  'ejemplo',
+] as const
+
+function isPlaceholderCity(value: string): boolean {
+  const normalized = value.toLowerCase().trim()
+  return LOCATION_CITY_PLACEHOLDERS.some((p) => normalized === p)
+}
+
+/**
+ * Format city + department for display; hides placeholder city values.
+ * Use for product location only. Empty or placeholder city shows department only
+ * or "Ciudad no especificada, {department}".
+ */
+export function formatProductLocationDisplay(city: string, department: string): string {
+  const trimmedCity = (city || '').trim()
+  const trimmedDept = (department || '').trim()
+  if (!trimmedCity) return trimmedDept || ''
+  if (isPlaceholderCity(trimmedCity)) {
+    return trimmedDept ? `Ciudad no especificada, ${trimmedDept}` : 'Ciudad no especificada'
+  }
+  return trimmedDept ? `${trimmedCity}, ${trimmedDept}` : trimmedCity
+}
+
 // Bolivia departments
 export const BOLIVIA_DEPARTMENTS = [
   'La Paz',
@@ -72,7 +105,10 @@ export const productSchema = z.object({
     .string()
     .min(1, 'La ciudad es requerida')
     .max(100, 'El nombre de la ciudad es demasiado largo')
-    .trim(),
+    .trim()
+    .refine((val) => !isPlaceholderCity(val), {
+      message: 'Ingresá el nombre real de la ciudad (ej: La Paz, Cochabamba)',
+    }),
 
   images: z
     .array(z.string().url('URL de imagen inválida'))

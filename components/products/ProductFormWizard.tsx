@@ -12,6 +12,7 @@ import {
   CONDITION_DESCRIPTIONS,
   PRODUCT_CONDITIONS,
   BOLIVIA_DEPARTMENTS,
+  formatProductLocationDisplay,
 } from '@/lib/validations/product'
 import { CATEGORIES, getSubcategories, CATEGORY_ICONS } from '@/lib/data/categories'
 import { ImageUpload } from '@/components/products/ImageUpload'
@@ -752,7 +753,10 @@ export function ProductFormWizard({
                   <MapPin className="h-4 w-4" aria-hidden />
                   <span>
                     {watchAll.location_city && watchAll.location_department
-                      ? `${watchAll.location_city}, ${watchAll.location_department}`
+                      ? formatProductLocationDisplay(
+                          watchAll.location_city,
+                          watchAll.location_department
+                        )
                       : 'Sin ubicación'}
                   </span>
                 </div>

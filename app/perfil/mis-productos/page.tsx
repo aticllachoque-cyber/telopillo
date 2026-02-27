@@ -143,7 +143,7 @@ export default function MisProductosPage() {
         {/* Header */}
         <div className="mb-6">
           <Link
-            href="/profile"
+            href="/perfil"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 min-h-[44px] py-2"
             aria-label="Volver al perfil"
           >
@@ -191,7 +191,7 @@ export default function MisProductosPage() {
                   size="sm"
                   onClick={() => setStatusFilter(value)}
                   aria-pressed={statusFilter === value}
-                  className="shrink-0 min-h-[36px]"
+                  className="shrink-0 min-h-[44px]"
                 >
                   {label}
                 </Button>
@@ -227,7 +227,9 @@ export default function MisProductosPage() {
               aria-live="polite"
               aria-atomic="true"
             >
-              {products.length} producto{products.length !== 1 ? 's' : ''}
+              {statusFilter !== 'all'
+                ? `Mostrando ${products.length} producto${products.length !== 1 ? 's' : ''}`
+                : `${products.length} producto${products.length !== 1 ? 's' : ''}`}
             </p>
           </div>
         </div>

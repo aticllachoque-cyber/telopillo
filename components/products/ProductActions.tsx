@@ -189,7 +189,7 @@ export function ProductActions({
           <Button
             variant="secondary"
             size="icon"
-            className="size-10 sm:size-8 shadow-md touch-manipulation"
+            className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:h-8 sm:w-8 shadow-md touch-manipulation"
             disabled={isProcessing}
           >
             {isProcessing ? (

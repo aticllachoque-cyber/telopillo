@@ -1,9 +1,13 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Eye, MapPin, Package, Store, User } from 'lucide-react'
 import { ProductActions } from './ProductActions'
+import { formatProductLocationDisplay } from '@/lib/validations/product'
 
 interface ProductCardProps {
   product: {
@@ -38,6 +42,8 @@ export function ProductCard({
   priority = false,
   showStatusBadge = true,
 }: ProductCardProps) {
+  const [imageError, setImageError] = useState(false)
+
   const statusConfig = {
     active: { label: 'Activo', variant: 'default' as const, color: 'bg-green-500' },
     sold: { label: 'Vendido', variant: 'secondary' as const, color: 'bg-blue-500' },
@@ -46,8 +52,8 @@ export function ProductCard({
   }
 
   const status = statusConfig[product.status as keyof typeof statusConfig] || statusConfig.active
-  const imageUrl = product.images[0] || null
-  const location = `${product.location_city}, ${product.location_department}`
+  const imageUrl = !imageError && product.images[0] ? product.images[0] : null
+  const location = formatProductLocationDisplay(product.location_city, product.location_department)
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow group focus-within:shadow-lg">
@@ -66,9 +72,14 @@ export function ProductCard({
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={priority}
+              onError={() => setImageError(true)}
             />
           ) : (
-            <div className="flex size-full items-center justify-center" aria-label={product.title}>
+            <div
+              className="flex size-full items-center justify-center"
+              role="img"
+              aria-label={product.title}
+            >
               <Package className="size-12 text-muted-foreground/50" aria-hidden />
             </div>
           )}
@@ -76,7 +87,7 @@ export function ProductCard({
 
         {/* Status Badge */}
         {showStatusBadge && (
-          <div className="absolute top-2 left-2 pointer-events-none" role="status">
+          <div className="absolute top-2 left-2 pointer-events-none">
             <Badge variant={status.variant} className="shadow-md">
               {status.label}
             </Badge>
