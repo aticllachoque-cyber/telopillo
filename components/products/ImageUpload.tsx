@@ -46,6 +46,7 @@ export function ImageUpload({
   const [uploadingCount, setUploadingCount] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
+  const uploadInProgressRef = useRef(false)
   const supabase = createClient()
   const { showToast } = useToast()
 
@@ -59,6 +60,11 @@ export function ImageUpload({
   // Handle file selection
   const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return
+
+    if (uploadInProgressRef.current) {
+      showToast('Espera a que terminen las subidas actuales', 'warning')
+      return
+    }
 
     const fileArray = Array.from(files)
     const remainingSlots = maxImages - previews.length
@@ -77,6 +83,8 @@ export function ImageUpload({
       }
     }
 
+    uploadInProgressRef.current = true
+
     // Create previews and start uploading
     const newPreviews: ImagePreview[] = fileArray.map((file) => ({
       url: createImagePreview(file),
@@ -91,53 +99,57 @@ export function ImageUpload({
     const baseIndex = previews.length
     const timestamp = Date.now()
 
-    // Run compress + upload in parallel for all files (faster than sequential)
-    const tasks = fileArray.map(async (file, i) => {
-      const previewIndex = baseIndex + i
-      try {
-        const compressedBlob = await compressImage(file)
-        const storagePath = getProductImagePath(userId, timestamp + i)
-        const { data, error: uploadError } = await supabase.storage
-          .from('product-images')
-          .upload(storagePath, compressedBlob, {
-            contentType: 'image/webp',
-            upsert: false,
-          })
-        if (uploadError) throw uploadError
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('product-images').getPublicUrl(data.path)
-        setPreviews((prev) => {
-          const updated = [...prev]
-          const existing = updated[previewIndex]
-          if (existing) revokeImagePreview(existing.url)
-          updated[previewIndex] = {
-            url: publicUrl,
-            uploading: false,
-            uploaded: true,
-          }
-          return updated
-        })
-        setUploadingCount((c) => Math.max(0, c - 1))
-      } catch (err) {
-        console.error('Error uploading image:', err)
-        setPreviews((prev) => {
-          const updated = [...prev]
-          const existing = updated[previewIndex]
-          if (existing) {
+    try {
+      // Run compress + upload in parallel for all files (faster than sequential)
+      const tasks = fileArray.map(async (file, i) => {
+        const previewIndex = baseIndex + i
+        try {
+          const compressedBlob = await compressImage(file)
+          const storagePath = getProductImagePath(userId, timestamp + i)
+          const { data, error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(storagePath, compressedBlob, {
+              contentType: 'image/webp',
+              upsert: false,
+            })
+          if (uploadError) throw uploadError
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from('product-images').getPublicUrl(data.path)
+          setPreviews((prev) => {
+            const updated = [...prev]
+            const existing = updated[previewIndex]
+            if (existing) revokeImagePreview(existing.url)
             updated[previewIndex] = {
-              ...existing,
+              url: publicUrl,
               uploading: false,
-              uploaded: false,
-              error: err instanceof Error ? err.message : 'Error al subir imagen',
+              uploaded: true,
             }
-          }
-          return updated
-        })
-        setUploadingCount((c) => Math.max(0, c - 1))
-      }
-    })
-    await Promise.allSettled(tasks)
+            return updated
+          })
+          setUploadingCount((c) => Math.max(0, c - 1))
+        } catch (err) {
+          console.error('Error uploading image:', err)
+          setPreviews((prev) => {
+            const updated = [...prev]
+            const existing = updated[previewIndex]
+            if (existing) {
+              updated[previewIndex] = {
+                ...existing,
+                uploading: false,
+                uploaded: false,
+                error: err instanceof Error ? err.message : 'Error al subir imagen',
+              }
+            }
+            return updated
+          })
+          setUploadingCount((c) => Math.max(0, c - 1))
+        }
+      })
+      await Promise.allSettled(tasks)
+    } finally {
+      uploadInProgressRef.current = false
+    }
   }
 
   // Handle drag and drop
