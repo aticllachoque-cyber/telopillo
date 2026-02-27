@@ -34,6 +34,21 @@ export function validateImageFile(file: File): ImageValidationResult {
     return { valid: false, error: 'No se seleccionó ningún archivo' }
   }
 
+  // Reject HEIC (common from iOS camera); most browsers can't compress it and it can hang
+  const lowerType = file.type.toLowerCase()
+  const lowerName = (file.name || '').toLowerCase()
+  if (
+    lowerType === 'image/heic' ||
+    lowerType === 'image/heic-sequence' ||
+    lowerName.endsWith('.heic')
+  ) {
+    return {
+      valid: false,
+      error:
+        'Formato HEIC no soportado. Usá JPG o PNG (en Ajustes de cámara podés cambiar el formato).',
+    }
+  }
+
   // Check file type
   const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
   if (!validTypes.includes(file.type)) {

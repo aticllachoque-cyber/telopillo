@@ -30,6 +30,24 @@ interface ImagePreview {
   error?: string
 }
 
+const UPLOAD_TASK_TIMEOUT_MS = 30_000 // 30s per image so mobile camera/compress never hangs "Subiendo..."
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(message)), ms)
+    promise.then(
+      (v) => {
+        clearTimeout(t)
+        resolve(v)
+      },
+      (e) => {
+        clearTimeout(t)
+        reject(e)
+      }
+    )
+  })
+}
+
 export function ImageUpload({
   userId,
   value = [],
@@ -96,6 +114,10 @@ export function ImageUpload({
     setPreviews((prev) => [...prev, ...newPreviews])
     setUploadingCount(fileArray.length)
 
+    // Reset file inputs so mobile camera can trigger onChange again on next capture
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    if (cameraInputRef.current) cameraInputRef.current.value = ''
+
     const baseIndex = previews.length
     const timestamp = Date.now()
 
@@ -103,15 +125,40 @@ export function ImageUpload({
       // Run compress + upload in parallel for all files (faster than sequential)
       const tasks = fileArray.map(async (file, i) => {
         const previewIndex = baseIndex + i
+        const setError = (message: string) => {
+          setPreviews((prev) => {
+            const updated = [...prev]
+            const existing = updated[previewIndex]
+            if (existing) {
+              updated[previewIndex] = {
+                ...existing,
+                uploading: false,
+                uploaded: false,
+                error: message,
+              }
+            }
+            return updated
+          })
+          setUploadingCount((c) => Math.max(0, c - 1))
+        }
         try {
-          const compressedBlob = await compressImage(file)
+          const compressedBlob = await withTimeout(
+            compressImage(file),
+            UPLOAD_TASK_TIMEOUT_MS,
+            'La compresión tardó demasiado. Probá con otra foto o formato JPG/PNG.'
+          )
           const storagePath = getProductImagePath(userId, timestamp + i)
-          const { data, error: uploadError } = await supabase.storage
+          const uploadPromise = supabase.storage
             .from('product-images')
             .upload(storagePath, compressedBlob, {
               contentType: 'image/webp',
               upsert: false,
             })
+          const { data, error: uploadError } = await withTimeout(
+            uploadPromise,
+            UPLOAD_TASK_TIMEOUT_MS,
+            'La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.'
+          )
           if (uploadError) throw uploadError
           const {
             data: { publicUrl },
@@ -130,20 +177,7 @@ export function ImageUpload({
           setUploadingCount((c) => Math.max(0, c - 1))
         } catch (err) {
           console.error('Error uploading image:', err)
-          setPreviews((prev) => {
-            const updated = [...prev]
-            const existing = updated[previewIndex]
-            if (existing) {
-              updated[previewIndex] = {
-                ...existing,
-                uploading: false,
-                uploaded: false,
-                error: err instanceof Error ? err.message : 'Error al subir imagen',
-              }
-            }
-            return updated
-          })
-          setUploadingCount((c) => Math.max(0, c - 1))
+          setError(err instanceof Error ? err.message : 'Error al subir imagen')
         }
       })
       await Promise.allSettled(tasks)
