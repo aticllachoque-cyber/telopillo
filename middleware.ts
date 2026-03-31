@@ -70,30 +70,26 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    return await updateSession(request)
+    const { response } = await updateSession(request)
+    return response
   }
 
-  // Normal auth flow
-  const response = await updateSession(request)
+  // Normal auth flow: single Supabase call inside updateSession (skipped in dev when Supabase is local; pages enforce auth)
+  const { response, user, sessionCheckSkipped } = await updateSession(request)
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // Redirect to login if not authenticated
-  if (isProtectedRoute(request.nextUrl.pathname) && !user) {
+  // Redirect to login if not authenticated (skip when session check was skipped, e.g. local dev + Edge cannot reach Supabase)
+  if (!sessionCheckSkipped && isProtectedRoute(request.nextUrl.pathname) && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('redirect', request.nextUrl.pathname)
     return NextResponse.redirect(url)
   }
 
-  // Auth routes - redirect authenticated users away
+  // Auth routes — redirect authenticated users away
   const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
   const isAuthRoute = authRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
 
-  if (isAuthRoute && user) {
+  if (isAuthRoute && user && !sessionCheckSkipped) {
     // Check if there's a redirect parameter
     const redirect = request.nextUrl.searchParams.get('redirect')
     if (redirect) {

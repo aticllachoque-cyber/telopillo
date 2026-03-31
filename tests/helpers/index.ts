@@ -16,7 +16,7 @@ export async function login(
   await page.goto('/login')
   await page.waitForLoadState('networkidle')
   await page.getByLabel(/email/i).fill(email)
-  await page.getByLabel(/contraseña/i).fill(password)
+  await page.locator('#main-content input[type="password"]').fill(password)
   await page.locator('#main-content button[type="submit"]').click()
   await page.waitForURL((url) => !url.pathname.startsWith('/login'), {
     timeout: 15_000,

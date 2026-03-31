@@ -1,11 +1,25 @@
 import type { NextConfig } from 'next'
 
+// Single place for dev vs prod: local Supabase, dev origins, and CSP differ by NODE_ENV
 const SUPABASE_CLOUD_HOSTNAME = 'apwpsjjzcbytnvtnmmru.supabase.co'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? `https://${SUPABASE_CLOUD_HOSTNAME}`
 const supabaseOrigin = supabaseUrl.startsWith('http') ? supabaseUrl : `https://${supabaseUrl}`
 
+const isDev = process.env.NODE_ENV === 'development'
+
 const nextConfig: NextConfig = {
   turbopack: {},
+  // Dev only: allow dev server from other origins (e.g. phone at 192.168.1.12). Key must be present for Next to apply.
+  allowedDevOrigins: isDev
+    ? [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://192.168.1.12:3000',
+        'https://localhost:3000',
+        'https://127.0.0.1:3000',
+        'https://192.168.1.12:3000',
+      ]
+    : [],
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {
@@ -30,13 +44,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
-      {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '54321',
-        pathname: '/storage/v1/object/public/**',
-      },
-      ...(process.env.NODE_ENV === 'development'
+      // Local Supabase (dev only)
+      ...(isDev
+        ? [
+            {
+              protocol: 'http' as const,
+              hostname: '127.0.0.1',
+              port: '54321',
+              pathname: '/storage/v1/object/public/**',
+            },
+          ]
+        : []),
+      ...(isDev
         ? [
             { protocol: 'https' as const, hostname: 'picsum.photos' },
             { protocol: 'https' as const, hostname: 'fastly.picsum.photos' },
@@ -75,7 +94,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `img-src 'self' data: blob: https://${SUPABASE_CLOUD_HOSTNAME} http://127.0.0.1:54321${process.env.NODE_ENV === 'development' ? ' https://picsum.photos https://fastly.picsum.photos' : ''}`,
+              `img-src 'self' data: blob: https://${SUPABASE_CLOUD_HOSTNAME}${isDev ? ' http://127.0.0.1:54321 https://picsum.photos https://fastly.picsum.photos' : ''}`,
               `connect-src 'self' ${supabaseOrigin}`,
               // worker-src allows blob: workers (e.g. browser-image-compression) when script-src does not
               "worker-src 'self' blob:",
@@ -85,9 +104,9 @@ const nextConfig: NextConfig = {
               // 'unsafe-inline' needed for Next.js inline scripts
               // 'unsafe-eval' needed in dev for React Hot Reload; stripped in production
               // cdn.jsdelivr.net: browser-image-compression loads its web worker script from here when useWebWorker is true
-              process.env.NODE_ENV === 'production'
-                ? "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net"
-                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
+              isDev
+                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net"
+                : "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
               "font-src 'self'",
               "frame-ancestors 'none'",
             ].join('; '),

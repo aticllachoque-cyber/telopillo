@@ -30,7 +30,10 @@ interface ImagePreview {
   error?: string
 }
 
-const UPLOAD_TASK_TIMEOUT_MS = 30_000 // 30s per image so mobile camera/compress never hangs "Subiendo..."
+const COMPRESS_TIMEOUT_MS = 30_000 // 30s so compress never hangs
+const UPLOAD_TIMEOUT_MS = 60_000 // 60s for upload; mobile/slow networks can need more than 30s
+
+const LOG_PREFIX = '[ImageUpload]'
 
 function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -103,6 +106,15 @@ export function ImageUpload({
 
     uploadInProgressRef.current = true
 
+    console.log(LOG_PREFIX, 'start', {
+      fileCount: fileArray.length,
+      files: fileArray.map((f) => ({
+        name: f.name,
+        type: f.type,
+        sizeKB: Math.round(f.size / 1024),
+      })),
+    })
+
     // Create previews and start uploading
     const newPreviews: ImagePreview[] = fileArray.map((file) => ({
       url: createImagePreview(file),
@@ -142,12 +154,24 @@ export function ImageUpload({
           setUploadingCount((c) => Math.max(0, c - 1))
         }
         try {
+          const compressStart = Date.now()
+          console.log(LOG_PREFIX, `[${i}] compress start`, {
+            name: file.name,
+            sizeKB: Math.round(file.size / 1024),
+          })
           const compressedBlob = await withTimeout(
             compressImage(file),
-            UPLOAD_TASK_TIMEOUT_MS,
+            COMPRESS_TIMEOUT_MS,
             'La compresión tardó demasiado. Probá con otra foto o formato JPG/PNG.'
           )
+          const compressMs = Date.now() - compressStart
+          console.log(LOG_PREFIX, `[${i}] compress done`, {
+            compressMs,
+            outputSizeKB: Math.round(compressedBlob.size / 1024),
+          })
           const storagePath = getProductImagePath(userId, timestamp + i)
+          const uploadStart = Date.now()
+          console.log(LOG_PREFIX, `[${i}] upload start`, { path: storagePath })
           const uploadPromise = supabase.storage
             .from('product-images')
             .upload(storagePath, compressedBlob, {
@@ -156,10 +180,15 @@ export function ImageUpload({
             })
           const { data, error: uploadError } = await withTimeout(
             uploadPromise,
-            UPLOAD_TASK_TIMEOUT_MS,
+            UPLOAD_TIMEOUT_MS,
             'La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.'
           )
-          if (uploadError) throw uploadError
+          const uploadMs = Date.now() - uploadStart
+          if (uploadError) {
+            console.warn(LOG_PREFIX, `[${i}] upload error`, { uploadMs, error: uploadError })
+            throw uploadError
+          }
+          console.log(LOG_PREFIX, `[${i}] upload done`, { uploadMs, path: data.path })
           const {
             data: { publicUrl },
           } = supabase.storage.from('product-images').getPublicUrl(data.path)
@@ -176,11 +205,18 @@ export function ImageUpload({
           })
           setUploadingCount((c) => Math.max(0, c - 1))
         } catch (err) {
-          console.error('Error uploading image:', err)
-          setError(err instanceof Error ? err.message : 'Error al subir imagen')
+          const msg = err instanceof Error ? err.message : 'Error al subir imagen'
+          console.error(LOG_PREFIX, `[${i}] failed`, {
+            error: msg,
+            isTimeout: msg.includes('tardó demasiado'),
+          })
+          setError(msg)
         }
       })
-      await Promise.allSettled(tasks)
+      const results = await Promise.allSettled(tasks)
+      const succeeded = results.filter((r) => r.status === 'fulfilled').length
+      const failed = results.filter((r) => r.status === 'rejected').length
+      console.log(LOG_PREFIX, 'batch done', { succeeded, failed, total: fileArray.length })
     } finally {
       uploadInProgressRef.current = false
     }

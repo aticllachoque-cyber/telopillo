@@ -75,11 +75,22 @@ export function validateImageFile(file: File): ImageValidationResult {
  * Reduces file size while maintaining quality
  */
 export async function compressImage(file: File): Promise<Blob> {
+  const start = Date.now()
+  console.log('[compressImage] start', {
+    name: file.name,
+    type: file.type,
+    sizeKB: Math.round(file.size / 1024),
+  })
   try {
     const compressedFile = await imageCompression(file, COMPRESSION_OPTIONS)
+    const ms = Date.now() - start
+    console.log('[compressImage] done', {
+      ms,
+      outputSizeKB: Math.round(compressedFile.size / 1024),
+    })
     return compressedFile
   } catch (error) {
-    console.error('Error compressing image:', error)
+    console.error('[compressImage] error', { ms: Date.now() - start, error })
     // Fallback: return original file if compression fails
     return file
   }

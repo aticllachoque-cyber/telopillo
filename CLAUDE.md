@@ -160,10 +160,13 @@ npm install
 cp .env.example .env.local
 # Edit .env.local with your Supabase credentials
 
-# Link to Supabase project
-npx supabase link --project-ref your-project-ref
+# Local development: Supabase runs in Docker (required for this version)
+# Start the local Supabase stack (Postgres, Auth, API, etc.) — uses Docker
+npx supabase start
+# Then set in .env.local: NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 and keys from `npx supabase status`
 
-# Run migrations
+# Or use Supabase Cloud: link project and push migrations
+npx supabase link --project-ref your-project-ref
 npx supabase db push
 
 # Start dev server
