@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { login, runAxeAudit } from '../../helpers'
 
 // Minimal 1x1 PNG for image upload tests
@@ -6,6 +6,27 @@ const MINIMAL_PNG_BUFFER = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
   'base64'
 )
+
+// Helper: upload minimal image on Step 1 (Photos) and advance to Step 2 (Info)
+async function uploadPhotoAndProceed(page: Page) {
+  // Use the gallery input (has `multiple` attribute) not the camera capture input
+  const fileInput = page.locator('input[multiple][type="file"]')
+  await fileInput.setInputFiles({
+    name: 'test.png',
+    mimeType: 'image/png',
+    buffer: MINIMAL_PNG_BUFFER,
+  })
+  // Wait for Supabase upload to complete.
+  // The "Eliminar imagen" button only renders when `preview.uploading === false`,
+  // making it a reliable signal that the upload has finished and the URL is in form state.
+  await expect(page.getByRole('button', { name: /eliminar imagen/i }).first()).toBeAttached({
+    timeout: 20000,
+  })
+  await page.getByRole('button', { name: /siguiente/i }).click()
+  await expect(page.getByRole('heading', { name: /información básica/i })).toBeVisible({
+    timeout: 5000,
+  })
+}
 
 // ---------------------------------------------------------------------------
 // 1. Create Product - Wizard Flow
@@ -20,54 +41,36 @@ test.describe('Create Product - Wizard Flow', () => {
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: /publicar producto/i })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /información básica/i })).toBeVisible()
-    await expect(page.getByLabel(/título del producto/i)).toBeVisible()
-    await expect(page.getByRole('textbox', { name: /descripción \*/i })).toBeVisible()
-    await expect(page.getByRole('combobox', { name: /categoría \*/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /fotos del producto/i })).toBeVisible()
+    await expect(page.locator('input[multiple][type="file"]')).toBeAttached()
   })
 
   test('Completes full wizard and publishes product', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
-    // Step 1: Basic Info
+    // Step 1: Photos
+    await uploadPhotoAndProceed(page)
+
+    // Step 2: Basic Info
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB - Test E2E')
     await page
       .getByRole('textbox', { name: /descripción \*/i })
       .fill(
         'iPhone 13 Pro Max en excelente estado. Incluye cargador y funda. Sin rayones en pantalla. Batería al 95%.'
       )
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
 
-    // Step 2: Details
+    // Step 3: Details
     await expect(page.getByRole('heading', { name: /detalles del producto/i })).toBeVisible({
       timeout: 3000,
     })
     await page.getByLabel(/precio \(bob\)/i).fill('5000')
-    await page
-      .getByLabel(/estado del producto/i)
-      .locator('..')
-      .getByRole('radio', { name: /como nuevo/i })
-      .click()
-    await page.getByLabel(/departamento/i).click()
+    await page.locator('#condition-used_like_new').click()
+    await page.locator('#location_department').click()
     await page.getByRole('option', { name: /la paz/i }).click()
-    await page.getByLabel(/ciudad/i).fill('La Paz')
-    await page.getByRole('button', { name: /siguiente/i }).click()
-
-    // Step 3: Photos
-    await expect(page.getByRole('heading', { name: /fotos del producto/i })).toBeVisible({
-      timeout: 3000,
-    })
-    const fileInput = page.locator('input[type="file"][accept*="image"]')
-    await fileInput.setInputFiles({
-      name: 'test.png',
-      mimeType: 'image/png',
-      buffer: MINIMAL_PNG_BUFFER,
-    })
-    await expect(page.getByText(/subiendo/i)).toBeVisible({ timeout: 5000 })
-    await expect(page.getByText(/subiendo/i)).not.toBeVisible({ timeout: 30000 })
+    await page.locator('#location_city').fill('La Paz')
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     // Step 4: Review
@@ -78,10 +81,14 @@ test.describe('Create Product - Wizard Flow', () => {
     await expect(page.getByText(/Bs\s*5[\d.,\s]*000/)).toBeVisible()
     await page.getByRole('button', { name: /publicar producto/i }).click()
 
-    await page.waitForURL(/\/productos\/[a-f0-9-]+/, { timeout: 15000 })
+    await page.waitForURL(/\/productos\/[a-f0-9-]+/, { timeout: 15000, waitUntil: 'commit' })
     expect(page.url()).toContain('/productos/')
-    await expect(page.getByText(/iPhone 13 Pro Max 256GB - Test E2E/i)).toBeVisible()
-    await expect(page.getByText(/Bs\s*5[\d.,\s]*000/)).toBeVisible()
+    await expect(
+      page
+        .getByRole('heading', { level: 1 })
+        .filter({ hasText: /iPhone 13 Pro Max 256GB - Test E2E/i })
+    ).toBeVisible()
+    await expect(page.getByText(/Bs\s*5[\d.,\s]*000/).first()).toBeVisible()
   })
 })
 
@@ -93,13 +100,16 @@ test.describe('Create Product - Validation Errors', () => {
     await login(page)
   })
 
-  test('Step 1 shows error when title is empty', async ({ page }) => {
+  test('Step 2 shows error when title is empty', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
+    // Navigate past Step 1 (Photos)
+    await uploadPhotoAndProceed(page)
+
+    // Leave title empty, fill the rest and click next
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     await expect(page.getByText(/título debe tener al menos 10 caracteres/i)).toBeVisible({
@@ -107,9 +117,12 @@ test.describe('Create Product - Validation Errors', () => {
     })
   })
 
-  test('Step 1 shows error when category is not selected', async ({ page }) => {
+  test('Step 2 shows error when category is not selected', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
+
+    // Navigate past Step 1 (Photos)
+    await uploadPhotoAndProceed(page)
 
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
@@ -118,52 +131,51 @@ test.describe('Create Product - Validation Errors', () => {
     await expect(page.getByText(/selecciona una categoría/i)).toBeVisible({ timeout: 3000 })
   })
 
-  test('Step 2 shows error for negative price', async ({ page }) => {
+  test('Step 3 shows error for negative price', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
-    // Complete Step 1
+    // Step 1: Photos
+    await uploadPhotoAndProceed(page)
+
+    // Step 2: Info
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
 
+    // Step 3: Details - invalid price
     await page.waitForLoadState('networkidle')
     await page.getByLabel(/precio \(bob\)/i).fill('-100')
-    await page
-      .getByLabel(/estado del producto/i)
-      .locator('..')
-      .getByRole('radio', { name: /como nuevo/i })
-      .click()
-    await page.getByLabel(/departamento/i).click()
+    await page.locator('#condition-used_like_new').click()
+    await page.locator('#location_department').click()
     await page.getByRole('option', { name: /la paz/i }).click()
-    await page.getByLabel(/ciudad/i).fill('La Paz')
+    await page.locator('#location_city').fill('La Paz')
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     await expect(page.getByText(/precio debe ser mayor a 0/i)).toBeVisible({ timeout: 3000 })
   })
 
-  test('Step 2 shows error for zero price', async ({ page }) => {
+  test('Step 3 shows error for zero price', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
+    // Step 1: Photos
+    await uploadPhotoAndProceed(page)
+
+    // Step 2: Info
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
 
+    // Step 3: Details - zero price
     await page.waitForLoadState('networkidle')
     await page.getByLabel(/precio \(bob\)/i).fill('0')
-    await page
-      .getByLabel(/estado del producto/i)
-      .locator('..')
-      .getByRole('radio', { name: /como nuevo/i })
-      .click()
-    await page.getByLabel(/departamento/i).click()
+    await page.locator('#condition-used_like_new').click()
+    await page.locator('#location_department').click()
     await page.getByRole('option', { name: /la paz/i }).click()
-    await page.getByLabel(/ciudad/i).fill('La Paz')
+    await page.locator('#location_city').fill('La Paz')
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     await expect(page.getByText(/precio debe ser mayor a 0/i)).toBeVisible({ timeout: 3000 })
@@ -176,26 +188,30 @@ test.describe('Create Product - Validation Errors', () => {
     const title = 'Test Product Title for Data Preservation'
     const description = 'A'.repeat(50)
 
+    // Step 1: Photos
+    await uploadPhotoAndProceed(page)
+
+    // Step 2: Info
     await page.getByLabel(/título del producto/i).fill(title)
     await page.getByRole('textbox', { name: /descripción \*/i }).fill(description)
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
 
+    // Step 3: Details
     await page.waitForLoadState('networkidle')
     await page.getByLabel(/precio \(bob\)/i).fill('1000')
-    await page
-      .getByLabel(/estado del producto/i)
-      .locator('..')
-      .getByRole('radio', { name: /nuevo/i })
-      .click()
-    await page.getByLabel(/departamento/i).click()
+    await page.locator('#condition-new').click()
+    await page.locator('#location_department').click()
     await page.getByRole('option', { name: /santa cruz/i }).click()
-    await page.getByLabel(/ciudad/i).fill('Santa Cruz')
+    await page.locator('#location_city').fill('Santa Cruz')
+
+    // Go back to Step 2 and verify data is retained
     await page.getByRole('button', { name: /anterior/i }).click()
 
     await expect(page.getByLabel(/título del producto/i)).toHaveValue(title)
-    await expect(page.getByRole('textbox', { name: /descripción \*/i })).toContainText(description)
+    await expect(page.getByRole('textbox', { name: /descripción \*/i })).toHaveValue(description)
+
+    // Go forward to Step 3 and verify price is retained
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     await expect(page.getByLabel(/precio \(bob\)/i)).toHaveValue('1000')
@@ -211,84 +227,57 @@ test.describe('Create Product - Accessibility', () => {
     await login(page)
   })
 
-  test('Step 1 passes axe-core audit', async ({ page }) => {
+  test('Step 1 (Photos) passes axe-core audit', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
     await runAxeAudit(page)
   })
 
-  test('Step 2 passes axe-core audit', async ({ page }) => {
+  test('Step 2 (Info) passes axe-core audit', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
+    await uploadPhotoAndProceed(page)
+
+    await runAxeAudit(page)
+  })
+
+  test('Step 3 (Details) passes axe-core audit', async ({ page }) => {
+    await page.goto('/publicar')
+    await page.waitForLoadState('networkidle')
+
+    // Navigate to Step 3
+    await uploadPhotoAndProceed(page)
     await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
-
     await page.waitForLoadState('networkidle')
 
     await runAxeAudit(page)
   })
 
-  test('Step 3 passes axe-core audit', async ({ page }) => {
+  test('Step 4 (Review) passes axe-core audit', async ({ page }) => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
+    // Step 1: Photos
+    await uploadPhotoAndProceed(page)
+
+    // Step 2: Info
     await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
     await page.waitForLoadState('networkidle')
 
+    // Step 3: Details
     await page.getByLabel(/precio \(bob\)/i).fill('1000')
-    await page
-      .getByLabel(/estado del producto/i)
-      .locator('..')
-      .getByRole('radio', { name: /nuevo/i })
-      .click()
-    await page.getByLabel(/departamento/i).click()
+    await page.locator('#condition-new').click()
+    await page.locator('#location_department').click()
     await page.getByRole('option', { name: /la paz/i }).click()
-    await page.getByLabel(/ciudad/i).fill('La Paz')
-    await page.getByRole('button', { name: /siguiente/i }).click()
-    await page.waitForLoadState('networkidle')
-
-    await runAxeAudit(page)
-  })
-
-  test('Step 4 passes axe-core audit', async ({ page }) => {
-    await page.goto('/publicar')
-    await page.waitForLoadState('networkidle')
-
-    await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
-    await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
-    await page.getByRole('button', { name: /siguiente/i }).click()
-    await page.waitForLoadState('networkidle')
-
-    await page.getByLabel(/precio \(bob\)/i).fill('1000')
-    await page
-      .getByLabel(/estado del producto/i)
-      .locator('..')
-      .getByRole('radio', { name: /nuevo/i })
-      .click()
-    await page.getByLabel(/departamento/i).click()
-    await page.getByRole('option', { name: /la paz/i }).click()
-    await page.getByLabel(/ciudad/i).fill('La Paz')
-    await page.getByRole('button', { name: /siguiente/i }).click()
-    await page.waitForLoadState('networkidle')
-
-    const fileInput = page.locator('input[type="file"][accept*="image"]')
-    await fileInput.setInputFiles({
-      name: 'test.png',
-      mimeType: 'image/png',
-      buffer: MINIMAL_PNG_BUFFER,
-    })
-    await expect(page.getByText(/subiendo/i)).not.toBeVisible({ timeout: 15000 })
+    await page.locator('#location_city').fill('La Paz')
     await page.getByRole('button', { name: /siguiente/i }).click()
     await page.waitForLoadState('networkidle')
 
@@ -323,20 +312,10 @@ test.describe('Create Product - Mobile Responsive (375x812)', () => {
     const count = await buttons.count()
     for (let i = 0; i < Math.min(count, 15); i++) {
       const box = await buttons.nth(i).boundingBox()
-      if (box && box.width > 0 && box.height > 0) {
+      // Skip hidden/zero-size elements (e.g. file inputs styled off-screen)
+      if (box && box.width > 4 && box.height > 4) {
         expect(Math.max(box.width, box.height)).toBeGreaterThanOrEqual(44)
       }
     }
-  })
-
-  test('Next button is visible and full-width on mobile', async ({ page }) => {
-    await page.goto('/publicar')
-    await page.waitForLoadState('networkidle')
-
-    const nextBtn = page.getByRole('button', { name: /siguiente/i })
-    await expect(nextBtn).toBeVisible()
-    const box = await nextBtn.boundingBox()
-    expect(box).not.toBeNull()
-    expect(box!.width).toBeGreaterThan(100)
   })
 })

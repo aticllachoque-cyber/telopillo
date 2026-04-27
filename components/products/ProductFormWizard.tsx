@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useToast } from '@/components/ui/toast'
+import type { FieldErrors } from 'react-hook-form'
 import {
   Loader2,
   AlertCircle,
@@ -177,6 +178,20 @@ export function ProductFormWizard({
     }
     setCurrentStep(step)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Handle validation errors on final submit: navigate to first step with errors
+  const handleSubmitError = (fieldErrors: FieldErrors<ProductInput>) => {
+    const errorFields = Object.keys(fieldErrors) as (keyof ProductInput)[]
+    for (let s = 1; s <= 3; s++) {
+      const fields = STEP_FIELDS[s] ?? []
+      if (fields.some((f) => errorFields.includes(f))) {
+        setCurrentStep(s)
+        requestAnimationFrame(focusFirstInvalidField)
+        break
+      }
+    }
+    setError('Por favor corregí los errores marcados en el formulario')
   }
 
   const onSubmit = async (data: ProductInput) => {
@@ -385,7 +400,7 @@ export function ProductFormWizard({
 
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-sm space-y-2">
               <p className="font-medium">Tips para buenas fotos:</p>
-              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <ul className="list-disc list-inside space-y-1 text-foreground/80">
                 <li>Usá buena iluminación natural</li>
                 <li>Mostrá el producto desde varios ángulos</li>
                 <li>Incluí fotos de detalles o imperfecciones</li>
@@ -831,7 +846,7 @@ export function ProductFormWizard({
             <Button
               type="button"
               disabled={isSubmitting}
-              onClick={handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit, handleSubmitError)}
               className="gap-2 min-w-[180px] min-h-[44px] touch-manipulation sm:min-h-0"
             >
               {isSubmitting ? (

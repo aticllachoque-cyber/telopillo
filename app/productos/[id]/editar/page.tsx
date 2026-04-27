@@ -152,7 +152,7 @@ export default function EditProductPage() {
             title: productData.title,
             description: productData.description,
             category: productData.category as ProductInput['category'],
-            subcategory: productData.subcategory,
+            subcategory: productData.subcategory ?? undefined,
             price: productData.price,
             condition: productData.condition as ProductInput['condition'],
             location_department:

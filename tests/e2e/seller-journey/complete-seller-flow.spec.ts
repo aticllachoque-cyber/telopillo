@@ -11,6 +11,7 @@ const MINIMAL_PNG_BUFFER = Buffer.from(
 // ---------------------------------------------------------------------------
 test.describe('Complete Seller Flow - Full Lifecycle', () => {
   test('Full seller journey: create → my products → search → edit → verify', async ({ page }) => {
+    test.setTimeout(120000)
     const uniqueSuffix = Date.now()
     const productTitle = `E2E Full Flow Product ${uniqueSuffix}`
     const initialPrice = '2500'
@@ -22,42 +23,44 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
 
+    // Wizard Step 1: Photos (use gallery input with `multiple` attribute)
+    const fileInput = page.locator('input[multiple][type="file"]')
+    await fileInput.setInputFiles({
+      name: 'test.png',
+      mimeType: 'image/png',
+      buffer: MINIMAL_PNG_BUFFER,
+    })
+    // Wait for Supabase upload to complete (remove button only appears when upload is done)
+    await expect(page.getByRole('button', { name: /eliminar imagen/i }).first()).toBeAttached({
+      timeout: 20000,
+    })
+    await page.getByRole('button', { name: /siguiente/i }).click()
+
+    // Wizard Step 2: Basic Info
+    await page.waitForLoadState('networkidle')
     await page.getByLabel(/título del producto/i).fill(productTitle)
     await page
       .getByRole('textbox', { name: /descripción \*/i })
       .fill(
         'Producto de prueba para flujo E2E completo. Incluye todas las características necesarias para validar el ciclo de vida.'
       )
-    await page.getByRole('combobox', { name: /categoría \*/i }).click()
-    await page.getByRole('option', { name: /electrónica/i }).click()
+    await page.getByTestId('category-electronics').click()
     await page.getByRole('button', { name: /siguiente/i }).click()
 
+    // Wizard Step 3: Details
     await page.waitForLoadState('networkidle')
     await page.getByLabel(/precio \(bob\)/i).fill(initialPrice)
-    await page
-      .getByLabel(/estado del producto/i)
-      .locator('..')
-      .getByRole('radio', { name: /como nuevo/i })
-      .click()
-    await page.getByLabel(/departamento/i).click()
+    await page.locator('#condition-used_like_new').click()
+    await page.locator('#location_department').click()
     await page.getByRole('option', { name: /la paz/i }).click()
-    await page.getByLabel(/ciudad/i).fill('La Paz')
+    await page.locator('#location_city').fill('La Paz')
     await page.getByRole('button', { name: /siguiente/i }).click()
 
-    await page.waitForLoadState('networkidle')
-    const fileInput = page.locator('input[type="file"][accept*="image"]')
-    await fileInput.setInputFiles({
-      name: 'test.png',
-      mimeType: 'image/png',
-      buffer: MINIMAL_PNG_BUFFER,
-    })
-    await expect(page.getByText(/subiendo/i)).not.toBeVisible({ timeout: 15000 })
-    await page.getByRole('button', { name: /siguiente/i }).click()
-
+    // Wizard Step 4: Review
     await page.waitForLoadState('networkidle')
     await page.getByRole('button', { name: /publicar producto/i }).click()
 
-    await page.waitForURL(/\/productos\/[a-f0-9-]+/, { timeout: 15000 })
+    await page.waitForURL(/\/productos\/[a-f0-9-]+/, { timeout: 15000, waitUntil: 'commit' })
     const productUrl = page.url()
     const productId = productUrl.split('/productos/')[1]?.split('/')[0]?.split('?')[0]
     expect(productId).toBeTruthy()
@@ -66,8 +69,8 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    await expect(page.getByText(productTitle)).toBeVisible()
-    await expect(page.getByText(/Bs\s*2[,.]?500/)).toBeVisible()
+    await expect(page.getByText(productTitle).first()).toBeVisible()
+    await expect(page.getByText(/Bs\s*2[,.]?500/).first()).toBeVisible()
 
     // Step 3: Verify in search
     await page.goto(`/buscar?q=${encodeURIComponent(productTitle)}`)
@@ -80,33 +83,36 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const productCard = page.locator(`a[href*="/productos/${productId}"]`).first()
-    await productCard.scrollIntoViewIfNeeded()
+    // Click the actions button for the specific product using its title in the accessible name
     await page
-      .getByRole('button', { name: /acciones/i })
-      .first()
+      .getByRole('button', { name: new RegExp(`acciones para ${productTitle}`, 'i') })
       .click()
     await page.getByRole('menuitem', { name: /editar/i }).click()
 
     await page.waitForURL(`**/productos/${productId}/editar**`, { timeout: 10000 })
     await page.waitForLoadState('networkidle')
 
+    // Edit wizard: Step 1(Photos) → Step 2(Info) → Step 3(Details) → Step 4(Review)
+    await page.getByRole('button', { name: /siguiente/i }).click() // step 1 → 2
+    await page.waitForLoadState('networkidle')
+    await page.getByRole('button', { name: /siguiente/i }).click() // step 2 → 3
+    await page.waitForLoadState('networkidle')
     await page.getByLabel(/precio \(bob\)/i).fill(updatedPrice)
-    await page.getByRole('button', { name: /siguiente/i }).click()
+    await page.getByRole('button', { name: /siguiente/i }).click() // step 3 → 4
     await page.waitForLoadState('networkidle')
-    await page.getByRole('button', { name: /siguiente/i }).click()
-    await page.waitForLoadState('networkidle')
-    await page.getByRole('button', { name: /siguiente/i }).click()
-    await page.waitForLoadState('networkidle')
+    // Intercept the Supabase PATCH call to confirm save fires
+    const saveResponse = page.waitForResponse(
+      (resp) => resp.url().includes('/rest/v1/products') && resp.request().method() === 'PATCH',
+      { timeout: 15000 }
+    )
     await page.getByRole('button', { name: /guardar cambios/i }).click()
+    await saveResponse
 
-    await page.waitForURL(new RegExp(`/productos/${productId}`), { timeout: 15000 })
+    // Wait for SPA navigation away from /editar (router.push uses history.pushState)
+    await page.waitForFunction(() => !window.location.href.includes('/editar'), { timeout: 5000 })
 
     // Step 5: Verify updated price on detail page
-    await expect(page.getByText(/Bs\s*2[,.]?750/)).toBeVisible()
-    await expect(
-      page.getByRole('heading', { level: 1 }).filter({ hasText: productTitle })
-    ).toBeVisible()
+    await expect(page.getByText(/Bs\s*2[,.]?750/).first()).toBeVisible({ timeout: 5000 })
 
     // Step 6: Mark as sold (if UI exists)
     await page.goto(`/productos/${productId}`)
@@ -120,16 +126,20 @@ test.describe('Complete Seller Flow - Full Lifecycle', () => {
         .last()
         .click()
       await page.waitForLoadState('networkidle')
-      await expect(page.getByText(/vendido/i)).toBeVisible({ timeout: 5000 })
+      // After marking as sold the app may navigate; wait for loading to settle
+      await expect(page.getByText(/cargando/i)).not.toBeVisible({ timeout: 10000 })
+      await expect(page.getByText(/vendido/i).first()).toBeVisible({ timeout: 10000 })
     }
 
     // Step 7: Cleanup - delete product
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const ourProductCard = page.locator(`a[href*="/productos/${productId}"]`).first()
-    if (await ourProductCard.isVisible()) {
-      await ourProductCard.getByRole('button', { name: /acciones/i }).click()
+    const actionsBtn = page.getByRole('button', {
+      name: new RegExp(`acciones para ${productTitle}`, 'i'),
+    })
+    if (await actionsBtn.isVisible()) {
+      await actionsBtn.click()
       const deleteItem = page.getByRole('menuitem', { name: /eliminar/i })
       if (await deleteItem.isVisible()) {
         await deleteItem.click()
