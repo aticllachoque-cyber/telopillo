@@ -123,7 +123,7 @@ test.describe('Account Management - Avatar Upload', () => {
     await expect(errorAlert).not.toBeVisible()
 
     // Verify avatar area has image (img element with src containing blob or avatars)
-    const avatarImg = page.locator('img[alt="Avatar preview"]')
+    const avatarImg = page.locator('img[alt="Vista previa de tu foto de perfil"]')
     await expect(avatarImg).toBeVisible({ timeout: 5000 })
   })
 

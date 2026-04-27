@@ -59,7 +59,7 @@ export default function ProfileEditPage() {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        router.push('/login')
+        router.push('/login?redirect=/profile/edit')
         return
       }
 
@@ -176,7 +176,7 @@ export default function ProfileEditPage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || !userId) {
     return (
       <div className="container mx-auto flex min-h-dvh items-center justify-center">
         <div className="flex items-center gap-2" role="status" aria-live="polite">

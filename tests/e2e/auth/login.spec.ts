@@ -11,7 +11,7 @@ test.describe('Auth - Login Flow', () => {
 
     await expect(page.getByRole('heading', { level: 1, name: /iniciar sesión/i })).toBeVisible()
     await expect(page.getByLabel(/email/i)).toBeVisible()
-    await expect(page.getByLabel(/contraseña/i)).toBeVisible()
+    await expect(page.locator('#main-content input[type="password"]')).toBeVisible()
   })
 
   test('Successful login redirects to home and shows user menu', async ({ page }) => {
@@ -29,10 +29,10 @@ test.describe('Auth - Login Errors', () => {
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/email/i).fill(TEST_DATA.email)
-    await page.getByLabel(/contraseña/i).fill('WrongPass123')
+    await page.locator('#main-content input[type="password"]').fill('WrongPass123')
     await page.locator('#main-content button[type="submit"]').click()
 
-    await expect(page.getByText(/invalid login credentials|error al iniciar sesión/i)).toBeVisible({
+    await expect(page.getByText(/email o contraseña incorrectos/i)).toBeVisible({
       timeout: 5000,
     })
   })
@@ -42,10 +42,10 @@ test.describe('Auth - Login Errors', () => {
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/email/i).fill('ghost@telopillo.test')
-    await page.getByLabel(/contraseña/i).fill('SomePass123')
+    await page.locator('#main-content input[type="password"]').fill('SomePass123')
     await page.locator('#main-content button[type="submit"]').click()
 
-    await expect(page.getByText(/invalid login credentials|error al iniciar sesión/i)).toBeVisible({
+    await expect(page.getByText(/email o contraseña incorrectos/i)).toBeVisible({
       timeout: 5000,
     })
   })
@@ -81,7 +81,7 @@ test.describe('Auth - Login Errors', () => {
 test.describe('Auth - Protected Route Redirects', () => {
   test('Unauthenticated visit to /profile/edit redirects to /login', async ({ page }) => {
     await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/login**', { timeout: 10_000 })
 
     expect(page.url()).toContain('/login')
     expect(page.url()).toContain('redirect=')
@@ -89,14 +89,14 @@ test.describe('Auth - Protected Route Redirects', () => {
 
   test('Unauthenticated visit to /publicar redirects to /login', async ({ page }) => {
     await page.goto('/publicar')
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/login**', { timeout: 10_000 })
 
     expect(page.url()).toContain('/login')
   })
 
   test('Unauthenticated visit to /perfil/mis-productos redirects to /login', async ({ page }) => {
     await page.goto('/perfil/mis-productos')
-    await page.waitForLoadState('networkidle')
+    await page.waitForURL('**/login**', { timeout: 10_000 })
 
     expect(page.url()).toContain('/login')
   })
@@ -141,9 +141,10 @@ test.describe('Auth - Login Accessibility', () => {
     await page.waitForLoadState('networkidle')
 
     await page.getByLabel(/email/i).focus()
-    await page.keyboard.press('Tab')
-    await page.keyboard.press('Tab')
-    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab') // → password input
+    await page.keyboard.press('Tab') // → show-password toggle button
+    await page.keyboard.press('Tab') // → forgot-password link
+    await page.keyboard.press('Tab') // → submit button
 
     const submitButton = page.locator('#main-content button[type="submit"]')
     await expect(submitButton).toBeFocused()

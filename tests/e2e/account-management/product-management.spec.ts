@@ -21,7 +21,7 @@ test.describe('Account Management - Product Management', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
+    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i).first()
     const hasEmptyState = await emptyState.isVisible()
 
     if (hasEmptyState) {
@@ -39,7 +39,7 @@ test.describe('Account Management - Product Management', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
+    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i).first()
     if (await emptyState.isVisible()) {
       test.skip()
       return
@@ -62,7 +62,7 @@ test.describe('Account Management - Product Management', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
+    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i).first()
     if (await emptyState.isVisible()) {
       test.skip()
       return
@@ -89,7 +89,7 @@ test.describe('Account Management - Product Management (Errors)', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
+    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i).first()
     const ctaLink = page.getByRole('link', { name: /publicar producto/i })
 
     if (await emptyState.isVisible()) {
@@ -129,7 +129,7 @@ test.describe('Account Management - Product Management (Accessibility)', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i)
+    const emptyState = page.getByText(/no tienes productos|aún no has publicado/i).first()
     if (await emptyState.isVisible()) {
       test.skip()
       return
@@ -166,7 +166,8 @@ test.describe('Account Management - Product Management (Mobile 375x812)', () => 
     const count = await buttons.count()
     for (let i = 0; i < Math.min(count, 10); i++) {
       const box = await buttons.nth(i).boundingBox()
-      if (box) {
+      // Skip hidden/zero-size elements (e.g. file inputs, off-screen elements)
+      if (box && box.width > 4 && box.height > 4) {
         expect(Math.max(box.width, box.height)).toBeGreaterThanOrEqual(44)
       }
     }

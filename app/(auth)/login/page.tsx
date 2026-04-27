@@ -25,6 +25,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     document.title = 'Iniciar Sesión - Telopillo.bo'
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) router.replace('/')
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const {

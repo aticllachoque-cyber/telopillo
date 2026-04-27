@@ -57,7 +57,7 @@ test.describe('Account Management - View Profile', () => {
     await page.goto('/profile')
     await page.waitForLoadState('networkidle')
 
-    const signOutButton = page.getByRole('button', { name: /salir/i })
+    const signOutButton = page.getByRole('button', { name: /cerrar sesión/i })
     await expect(signOutButton).toBeVisible()
   })
 

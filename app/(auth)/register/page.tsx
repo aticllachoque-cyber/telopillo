@@ -35,6 +35,10 @@ export default function RegisterPage() {
 
   useEffect(() => {
     document.title = 'Crear Cuenta - Telopillo.bo'
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) router.replace('/')
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const {

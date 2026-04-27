@@ -60,9 +60,7 @@ export default function MisProductosPage() {
         error: authError,
       } = await supabase.auth.getUser()
 
-      if (authError) throw authError
-
-      if (!user) {
+      if (authError || !user) {
         router.push('/login?redirect=/perfil/mis-productos')
         return
       }
@@ -113,6 +111,10 @@ export default function MisProductosPage() {
       setProducts(data || [])
     } catch (err) {
       console.error('Error loading products:', err)
+      if (!userId) {
+        router.push('/login?redirect=/perfil/mis-productos')
+        return
+      }
       setError(err instanceof Error ? err.message : 'Error al cargar productos')
     } finally {
       setIsLoading(false)
@@ -124,7 +126,7 @@ export default function MisProductosPage() {
     checkAuthAndLoadProducts()
   }
 
-  if (isLoading) {
+  if (isLoading || !userId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

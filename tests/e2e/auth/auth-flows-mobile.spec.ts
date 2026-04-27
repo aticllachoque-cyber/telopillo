@@ -117,7 +117,7 @@ test.describe('Auth Flows - Mobile 375x812', () => {
       await page.waitForLoadState('networkidle')
 
       await page.getByLabel(/email/i).fill('test@bad.com')
-      await page.getByLabel(/contraseña/i).fill('wrongpass')
+      await page.locator('#main-content input[type="password"]').fill('wrongpass')
       await page.locator('#main-content button[type="submit"]').click()
 
       // Error appears in role="alert" - must be Spanish, not raw "Invalid login credentials"
@@ -132,7 +132,7 @@ test.describe('Auth Flows - Mobile 375x812', () => {
       await page.goto('/login')
       await page.waitForLoadState('networkidle')
       await page.getByLabel(/email/i).fill('test@bad.com')
-      await page.getByLabel(/contraseña/i).fill('wrongpass')
+      await page.locator('#main-content input[type="password"]').fill('wrongpass')
       await page.locator('#main-content button[type="submit"]').click()
       await page.waitForTimeout(1000)
       await page.screenshot({ path: 'test-results/mobile-login-errors.png' })
@@ -210,7 +210,7 @@ test.describe('Auth Flows - Mobile 375x812', () => {
 
     test('20. /profile/edit redirects to login', async ({ page }) => {
       await page.goto('/profile/edit')
-      await page.waitForLoadState('networkidle')
+      await page.waitForURL('**/login**', { timeout: 10_000 })
 
       expect(page.url()).toContain('/login')
       await assertNoHorizontalScroll(page)
@@ -218,7 +218,7 @@ test.describe('Auth Flows - Mobile 375x812', () => {
 
     test('21. /perfil/mis-productos redirects to login', async ({ page }) => {
       await page.goto('/perfil/mis-productos')
-      await page.waitForLoadState('networkidle')
+      await page.waitForURL('**/login**', { timeout: 10_000 })
 
       expect(page.url()).toContain('/login')
       await assertNoHorizontalScroll(page)

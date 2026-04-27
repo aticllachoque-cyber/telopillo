@@ -53,7 +53,7 @@ test.describe('Account Management - Edit Profile', () => {
     await page.getByRole('button', { name: /guardar cambios/i }).click()
 
     // Success feedback
-    await expect(page.getByText(/perfil actualizado|guardada exitosamente/i)).toBeVisible({
+    await expect(page.getByText(/perfil actualizado|guardada exitosamente/i).first()).toBeVisible({
       timeout: 5000,
     })
   })
@@ -86,7 +86,7 @@ test.describe('Account Management - Edit Profile', () => {
     }
 
     await page.getByRole('button', { name: /guardar cambios/i }).click()
-    await expect(page.getByText(/perfil actualizado|guardada exitosamente/i)).toBeVisible({
+    await expect(page.getByText(/perfil actualizado|guardada exitosamente/i).first()).toBeVisible({
       timeout: 5000,
     })
 
@@ -162,7 +162,7 @@ test.describe('Account Management - Edit Profile (Validation)', () => {
     }
 
     await page.getByRole('button', { name: /guardar cambios/i }).click()
-    await expect(page.getByText(/perfil actualizado|guardada exitosamente/i)).toBeVisible({
+    await expect(page.getByText(/perfil actualizado|guardada exitosamente/i).first()).toBeVisible({
       timeout: 5000,
     })
 
@@ -253,7 +253,8 @@ test.describe('Account Management - Edit Profile (Mobile 375x812)', () => {
     const count = await buttons.count()
     for (let i = 0; i < Math.min(count, 10); i++) {
       const box = await buttons.nth(i).boundingBox()
-      if (box) {
+      // Skip hidden/zero-size elements (e.g. file inputs, off-screen elements)
+      if (box && box.width > 4 && box.height > 4) {
         expect(Math.max(box.width, box.height)).toBeGreaterThanOrEqual(44)
       }
     }

@@ -84,7 +84,7 @@ test.describe('Flow 2.2 - Login Form', () => {
   test('2.2.10-11: Login page has Email and Contraseña', async ({ page }) => {
     await page.goto('/login')
     await expect(page.getByLabel(/email/i)).toBeVisible()
-    await expect(page.getByLabel(/contraseña/i)).toBeVisible()
+    await expect(page.locator('#main-content input[type="password"]')).toBeVisible()
   })
 
   test('2.2.12-13: Submit and OAuth buttons have correct height', async ({ page }) => {
@@ -110,7 +110,7 @@ test.describe('Flow 2.2 - Login Form', () => {
   test('2.2.15-17: Wrong credentials show Spanish error (not English)', async ({ page }) => {
     await page.goto('/login')
     await page.getByLabel(/email/i).fill('test@bad.com')
-    await page.getByLabel(/contraseña/i).fill('wrongpass')
+    await page.locator('#main-content input[type="password"]').fill('wrongpass')
     await page.locator('#main-content button[type="submit"]').click()
 
     await expect(page.getByText(/email o contraseña incorrectos/i)).toBeVisible({ timeout: 5000 })
@@ -146,7 +146,9 @@ test.describe('Flow 2.3 - Forgot Password', () => {
     await page.getByRole('button', { name: /enviar link/i }).click()
 
     // Supabase sends email; success UI shows "Email Enviado" or "Revisa tu email"
-    await expect(page.getByText(/email enviado|revisa tu email/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/email enviado|revisa tu email/i).first()).toBeVisible({
+      timeout: 10000,
+    })
 
     await page.screenshot({ path: 'tests/screenshots/mobile-forgot-password.png' })
   })
@@ -197,7 +199,7 @@ test.describe('Flow 2.5 - Protected Redirects', () => {
   for (const { path, name } of protectedRoutes) {
     test(`2.5: ${name} redirects to /login with redirect param`, async ({ page }) => {
       await page.goto(path)
-      await page.waitForLoadState('networkidle')
+      await page.waitForURL('**/login**', { timeout: 10_000 })
 
       expect(page.url()).toContain('/login')
       expect(page.url()).toContain('redirect=')
