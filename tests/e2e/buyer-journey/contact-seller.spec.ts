@@ -85,12 +85,11 @@ test.describe('Buyer Journey - Contact Seller from Product Detail', () => {
     const href = await whatsappLink.getAttribute('href')
     expect(href).toBeTruthy()
 
-    // The href should contain a ?text= parameter with product-related message
-    expect(href).toContain('text=')
-
-    // Decode and verify it mentions the product
-    const textParam = decodeURIComponent(href!.split('text=')[1] || '')
-    expect(textParam.toLowerCase()).toContain('interesado')
+    const waUrl = new URL(href!)
+    const textParam = decodeURIComponent(waUrl.searchParams.get('text') || '')
+    expect(textParam.toLowerCase()).toMatch(/interes/)
+    expect(textParam.toLowerCase()).toContain('telopillo')
+    expect(textParam).toMatch(/productos\/|ver publicación/i)
   })
 
   test('WhatsApp link uses Bolivia country code (591)', async ({ page }) => {

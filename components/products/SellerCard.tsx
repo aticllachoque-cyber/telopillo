@@ -1,10 +1,11 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
 import { getAvatarColor } from '@/lib/utils'
-import { MapPin, Store, User } from 'lucide-react'
+import { MapPin, Package, Store, User } from 'lucide-react'
 
 interface SellerProfile {
   id: string
@@ -21,13 +22,42 @@ interface BusinessInfo {
   slug: string
 }
 
+interface ProductContactPreview {
+  /** First listing image URL, or null to show placeholder */
+  imageUrl: string | null
+  price: number
+  /** Canonical product page URL (included in WhatsApp message) */
+  productPageUrl: string
+}
+
 interface SellerCardProps {
   seller: SellerProfile
   productTitle: string
   business?: BusinessInfo | null
+  /** Summary shown above contact actions; also used to build the WhatsApp message */
+  productContact?: ProductContactPreview | null
+  /** When true, hides preview and WhatsApp (e.g. product owner viewing own listing) */
+  hideContactActions?: boolean
 }
 
-export function SellerCard({ seller, productTitle, business }: SellerCardProps) {
+function buildWhatsAppMessage(productTitle: string, price: number, productPageUrl: string): string {
+  const priceLabel = `Bs ${price.toLocaleString('es-BO')}`
+  return [
+    'Hola! Me interesa este producto en Telopillo:',
+    '',
+    productTitle,
+    `Precio: ${priceLabel}`,
+    `Ver publicación: ${productPageUrl}`,
+  ].join('\n')
+}
+
+export function SellerCard({
+  seller,
+  productTitle,
+  business,
+  productContact,
+  hideContactActions = false,
+}: SellerCardProps) {
   // Get seller initials for avatar fallback
   const getInitials = (name: string | null): string => {
     if (!name) return 'U'
@@ -41,7 +71,11 @@ export function SellerCard({ seller, productTitle, business }: SellerCardProps) 
 
   // Generate WhatsApp link with pre-filled message
   const getWhatsAppLink = (): string => {
-    const message = encodeURIComponent(`Hola! Estoy interesado en tu producto: ${productTitle}`)
+    const body =
+      productContact != null
+        ? buildWhatsAppMessage(productTitle, productContact.price, productContact.productPageUrl)
+        : `Hola! Estoy interesado en tu producto: ${productTitle}`
+    const message = encodeURIComponent(body)
 
     // If seller has phone, use it (Bolivia country code: 591)
     if (seller.phone) {
@@ -108,8 +142,44 @@ export function SellerCard({ seller, productTitle, business }: SellerCardProps) 
           </div>
         )}
 
+        {/* Product preview for buyers — ties contact action to this listing */}
+        {!hideContactActions && productContact && (
+          <div
+            className="rounded-lg border border-border/80 bg-muted/40 p-3"
+            role="region"
+            aria-label="Resumen del producto para tu consulta"
+          >
+            <p className="text-xs font-medium text-muted-foreground mb-2">Tu consulta sobre</p>
+            <div className="flex gap-3">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
+                {productContact.imageUrl ? (
+                  <Image
+                    src={productContact.imageUrl}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center" aria-hidden>
+                    <Package className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-sm text-foreground line-clamp-2 text-pretty">
+                  {productTitle}
+                </p>
+                <p className="text-primary font-semibold text-sm tabular-nums">
+                  Bs {productContact.price.toLocaleString('es-BO')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Contact Button */}
-        {hasPhone ? (
+        {!hideContactActions && hasPhone ? (
           <Button
             asChild
             className="w-full min-h-[44px] bg-green-700 hover:bg-green-800 text-white"
@@ -128,7 +198,7 @@ export function SellerCard({ seller, productTitle, business }: SellerCardProps) 
               Contactar por WhatsApp
             </a>
           </Button>
-        ) : (
+        ) : !hideContactActions ? (
           <div className="space-y-3">
             <div className="text-center p-3 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
@@ -146,10 +216,10 @@ export function SellerCard({ seller, productTitle, business }: SellerCardProps) 
               </Link>
             </Button>
           </div>
-        )}
+        ) : null}
 
         {/* View Seller Profile Link (secondary when phone available) */}
-        {hasPhone && (
+        {!hideContactActions && hasPhone && (
           <Button asChild variant="outline" className="w-full" size="sm">
             <Link
               href={`/vendedor/${seller.id}`}
@@ -157,6 +227,19 @@ export function SellerCard({ seller, productTitle, business }: SellerCardProps) 
             >
               <User className="h-4 w-4" aria-hidden />
               Ver perfil del vendedor
+            </Link>
+          </Button>
+        )}
+
+        {/* Owner / no-contact: still link to public seller profile */}
+        {hideContactActions && (
+          <Button asChild variant="outline" className="w-full min-h-[44px]" size="sm">
+            <Link
+              href={`/vendedor/${seller.id}`}
+              className="flex items-center justify-center gap-2"
+            >
+              <User className="h-4 w-4" aria-hidden />
+              Ver perfil público
             </Link>
           </Button>
         )}

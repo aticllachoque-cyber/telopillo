@@ -272,6 +272,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 seller={product.profiles}
                 productTitle={product.title}
                 business={businessProfile}
+                hideContactActions={isOwner}
+                productContact={
+                  isOwner
+                    ? undefined
+                    : {
+                        imageUrl: product.images?.[0] ?? null,
+                        price: Number(product.price),
+                        productPageUrl: absoluteUrl(`/productos/${id}`),
+                      }
+                }
               />
             </div>
           </div>
