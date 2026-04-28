@@ -15,8 +15,8 @@ test.describe('Manage Products - My Products Page', () => {
 
     await expect(page.getByRole('heading', { name: /mis productos/i })).toBeVisible()
     await expect(page.getByText(/gestiona tus publicaciones/i)).toBeVisible()
-    await expect(page.getByRole('link', { name: /publicar nuevo/i })).toBeVisible()
-    await expect(page.getByLabel(/estado/i)).toBeVisible()
+    await expect(page.getByRole('link', { name: /publicar producto/i }).first()).toBeVisible()
+    await expect(page.getByRole('group', { name: /filtrar por estado/i })).toBeVisible()
     await expect(page.getByLabel(/ordenar por/i)).toBeVisible()
   })
 
@@ -75,11 +75,14 @@ test.describe('Manage Products - My Products Page', () => {
     await expect(emptyParagraph).toBeVisible({ timeout: 5000 })
   })
 
-  test('Publicar Nuevo button navigates to /publicar', async ({ page }) => {
+  test('Publicar producto link navigates to /publicar', async ({ page }) => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    await page.getByRole('link', { name: /publicar nuevo/i }).click()
+    await page
+      .getByRole('link', { name: /publicar producto/i })
+      .first()
+      .click()
     await page.waitForURL('**/publicar**', { timeout: 10000 })
     expect(page.url()).toContain('/publicar')
     await expect(page.getByRole('heading', { name: /publicar producto/i })).toBeVisible()
@@ -94,6 +97,28 @@ test.describe('Manage Products - My Products Page', () => {
     const isCount = await countSection.isVisible().catch(() => false)
     const isEmpty = await emptyHeading.isVisible().catch(() => false)
     expect(isCount || isEmpty).toBeTruthy()
+  })
+
+  test('Shows load error when products API fails; stays off login', async ({ page }) => {
+    await page.route('**/rest/v1/products**', (route) => {
+      if (route.request().method() !== 'GET') {
+        void route.continue()
+        return
+      }
+      void route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Internal Server Error' }),
+      })
+    })
+
+    await page.goto('/perfil/mis-productos')
+    const loadErrorAlert = page
+      .getByRole('alert')
+      .filter({ hasText: /error al cargar productos|conexión/i })
+    await expect(loadErrorAlert).toBeVisible({ timeout: 20000 })
+    await expect(page).not.toHaveURL(/\/login/)
+    await expect(page.getByRole('heading', { name: /mis productos/i })).toBeVisible()
   })
 })
 
@@ -136,11 +161,10 @@ test.describe('Manage Products - Mobile Responsive (375x812)', () => {
     await page.goto('/perfil/mis-productos')
     await page.waitForLoadState('networkidle')
 
-    const grid = page.locator('.grid')
-    const count = await grid.count()
+    const productGrid = page.locator('ul.grid')
+    const count = await productGrid.count()
     if (count > 0) {
-      const firstGrid = grid.first()
-      const classes = await firstGrid.getAttribute('class')
+      const classes = await productGrid.first().getAttribute('class')
       expect(classes).toContain('grid-cols-1')
     }
   })

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -32,6 +32,10 @@ type Product = {
 type StatusFilter = 'all' | 'active' | 'sold' | 'inactive'
 type SortOption = 'newest' | 'oldest' | 'price_asc' | 'price_desc'
 
+const ERROR_LOAD_PRODUCTS = 'Error al cargar productos. Comprueba tu conexión e inténtalo de nuevo.'
+const ERROR_SESSION_OR_PAGE =
+  'No se pudo verificar la sesión o cargar la página. Actualiza e inténtalo de nuevo.'
+
 export default function MisProductosPage() {
   const router = useRouter()
   const supabase = createClient()
@@ -44,7 +48,7 @@ export default function MisProductosPage() {
   const [businessSlug, setBusinessSlug] = useState<string | null>(null)
 
   useEffect(() => {
-    document.title = 'Mis Productos - Telopillo.bo'
+    document.title = 'Mis productos - Telopillo.bo'
     checkAuthAndLoadProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, sortOption])
@@ -53,8 +57,10 @@ export default function MisProductosPage() {
     setIsLoading(true)
     setError(null)
 
+    /** Set immediately after auth so catch does not rely on stale React state for redirects */
+    let authenticatedUserId: string | null = null
+
     try {
-      // Check auth
       const {
         data: { user },
         error: authError,
@@ -65,6 +71,7 @@ export default function MisProductosPage() {
         return
       }
 
+      authenticatedUserId = user.id
       setUserId(user.id)
 
       const { data: business } = await supabase
@@ -75,6 +82,8 @@ export default function MisProductosPage() {
 
       if (business?.slug) {
         setBusinessSlug(business.slug)
+      } else {
+        setBusinessSlug(null)
       }
 
       // Build query
@@ -111,11 +120,11 @@ export default function MisProductosPage() {
       setProducts(data || [])
     } catch (err) {
       console.error('Error loading products:', err)
-      if (!userId) {
-        router.push('/login?redirect=/perfil/mis-productos')
+      if (!authenticatedUserId) {
+        setError(ERROR_SESSION_OR_PAGE)
         return
       }
-      setError(err instanceof Error ? err.message : 'Error al cargar productos')
+      setError(ERROR_LOAD_PRODUCTS)
     } finally {
       setIsLoading(false)
     }
@@ -126,143 +135,195 @@ export default function MisProductosPage() {
     checkAuthAndLoadProducts()
   }
 
-  if (isLoading || !userId) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" aria-hidden />
-          <p className="text-muted-foreground mt-4" role="status" aria-live="polite">
-            Cargando productos...
-          </p>
+      <div className="flex min-h-dvh items-center justify-center bg-background px-4">
+        <div className="text-center" role="status" aria-live="polite">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" aria-hidden />
+          <p className="mt-4 text-pretty text-muted-foreground">Cargando productos...</p>
         </div>
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container max-w-7xl">
-        {/* Header */}
-        <div className="mb-6">
-          <Link
-            href="/perfil"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 min-h-[44px] py-2"
-            aria-label="Volver al perfil"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />
-            Volver al perfil
-          </Link>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Mis Productos</h1>
-              <p className="text-muted-foreground mt-2">Gestiona tus publicaciones</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
-              {userId && (
-                <ShareProfile profileId={userId} businessSlug={businessSlug} variant="compact" />
-              )}
-              <Button asChild className="flex-1 sm:flex-initial">
-                <Link href="/publicar">
-                  <Plus className="mr-2 h-4 w-4" aria-hidden />
-                  Publicar Nuevo
-                </Link>
+  if (error && !userId) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background px-4 py-8">
+        <Card className="w-full max-w-md border border-destructive/50 shadow-md" role="alert">
+          <CardContent className="space-y-4 p-6 text-center">
+            <p className="text-pretty text-destructive">{error}</p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+              <Button
+                variant="outline"
+                className="min-h-[44px] touch-manipulation sm:min-h-10"
+                asChild
+              >
+                <Link href="/perfil">Volver al perfil</Link>
+              </Button>
+              <Button className="min-h-[44px] touch-manipulation sm:min-h-10" asChild>
+                <Link href="/login?redirect=/perfil/mis-productos">Iniciar sesión</Link>
               </Button>
             </div>
-          </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!userId) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background px-4">
+        <div className="text-center" role="status" aria-live="polite">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" aria-hidden />
+          <p className="mt-4 text-pretty text-muted-foreground">Cargando productos...</p>
         </div>
+      </div>
+    )
+  }
 
-        {/* Filters and Sort */}
-        <div className="mb-6 space-y-3">
-          {/* Status pills */}
-          <div role="group" aria-labelledby="status-filter-label">
-            <span id="status-filter-label" className="sr-only">
-              Filtrar por estado
-            </span>
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
-              {(
-                [
-                  { value: 'all', label: 'Todos' },
-                  { value: 'active', label: 'Activos' },
-                  { value: 'sold', label: 'Vendidos' },
-                  { value: 'inactive', label: 'Inactivos' },
-                ] as const
-              ).map(({ value, label }) => (
-                <Button
-                  key={value}
-                  variant={statusFilter === value ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setStatusFilter(value)}
-                  aria-pressed={statusFilter === value}
-                  className="shrink-0 min-h-[44px]"
-                >
-                  {label}
-                </Button>
-              ))}
+  const hasProducts = products.length > 0
+
+  return (
+    <div className="min-h-dvh bg-background py-8">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6">
+        <Link
+          href="/perfil"
+          className="mb-4 inline-flex min-h-[44px] touch-manipulation items-center text-sm text-muted-foreground hover:text-foreground"
+          aria-label="Volver al perfil"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+          Volver al perfil
+        </Link>
+
+        <Card className="mb-6 border border-border/60 shadow-md">
+          <CardHeader className="pb-2">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-balance text-2xl font-bold sm:text-3xl">Mis productos</h1>
+                <p className="text-pretty mt-1 text-sm text-muted-foreground sm:text-base">
+                  Gestiona tus publicaciones
+                </p>
+              </div>
+              <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                {userId && (
+                  <ShareProfile profileId={userId} businessSlug={businessSlug} variant="compact" />
+                )}
+                {hasProducts && (
+                  <Button
+                    asChild
+                    className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
+                  >
+                    <Link href="/publicar" aria-label="Publicar producto, nueva publicación">
+                      <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+                      Publicar producto
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          </CardHeader>
+        </Card>
 
-          {/* Sort + product count */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="size-4 text-muted-foreground shrink-0" aria-hidden />
-              <Select
-                value={sortOption}
-                onValueChange={(value) => setSortOption(value as SortOption)}
+        <Card className="mb-6 gap-0 border border-border/60 py-0 shadow-md">
+          <CardContent className="space-y-4 py-6">
+            <div role="group" aria-labelledby="status-filter-label">
+              <span id="status-filter-label" className="sr-only">
+                Filtrar por estado
+              </span>
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-none">
+                {(
+                  [
+                    { value: 'all', label: 'Todos' },
+                    { value: 'active', label: 'Activos' },
+                    { value: 'sold', label: 'Vendidos' },
+                    { value: 'inactive', label: 'Inactivos' },
+                  ] as const
+                ).map(({ value, label }) => (
+                  <Button
+                    key={value}
+                    variant={statusFilter === value ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setStatusFilter(value)}
+                    aria-pressed={statusFilter === value}
+                    className="min-h-[44px] shrink-0 touch-manipulation sm:min-h-9"
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2">
+                <ArrowUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                <Select
+                  value={sortOption}
+                  onValueChange={(value) => setSortOption(value as SortOption)}
+                >
+                  <SelectTrigger
+                    id="sort-option"
+                    className="h-11 min-w-0 max-w-full touch-manipulation sm:h-9 sm:w-[min(100%,280px)]"
+                    aria-label="Ordenar por"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent side="bottom" sideOffset={4} collisionPadding={16}>
+                    <SelectItem value="newest">Más recientes</SelectItem>
+                    <SelectItem value="oldest">Más antiguos</SelectItem>
+                    <SelectItem value="price_desc">Precio: mayor a menor</SelectItem>
+                    <SelectItem value="price_asc">Precio: menor a mayor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <p
+                className="text-sm text-muted-foreground tabular-nums"
+                aria-live="polite"
+                aria-atomic="true"
               >
-                <SelectTrigger
-                  id="sort-option"
-                  className="w-auto gap-1 border-0 shadow-none px-1 text-sm text-muted-foreground hover:text-foreground focus:ring-offset-0"
-                  aria-label="Ordenar por"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent side="bottom" sideOffset={4} collisionPadding={16}>
-                  <SelectItem value="newest">Más recientes</SelectItem>
-                  <SelectItem value="oldest">Más antiguos</SelectItem>
-                  <SelectItem value="price_desc">Precio: Mayor a menor</SelectItem>
-                  <SelectItem value="price_asc">Precio: Menor a mayor</SelectItem>
-                </SelectContent>
-              </Select>
+                {statusFilter !== 'all' ? (
+                  <>
+                    Mostrando <span className="tabular-nums">{products.length}</span>{' '}
+                    {products.length !== 1 ? 'productos' : 'producto'}
+                  </>
+                ) : (
+                  <>
+                    <span className="tabular-nums">{products.length}</span>{' '}
+                    {products.length !== 1 ? 'productos' : 'producto'}
+                  </>
+                )}
+              </p>
             </div>
-            <p
-              className="text-sm text-muted-foreground tabular-nums"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {statusFilter !== 'all'
-                ? `Mostrando ${products.length} producto${products.length !== 1 ? 's' : ''}`
-                : `${products.length} producto${products.length !== 1 ? 's' : ''}`}
-            </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Error State */}
         {error && (
-          <Card className="mb-6 border-destructive" role="alert">
-            <CardContent className="p-4">
-              <p className="text-destructive">{error}</p>
+          <Card className="mb-6 border border-destructive/50 shadow-md" role="alert">
+            <CardContent className="p-6">
+              <p className="text-pretty text-destructive">{error}</p>
             </CardContent>
           </Card>
         )}
 
-        {/* Products Grid */}
         {products.length > 0 ? (
           <ProductGrid products={products} onUpdate={handleUpdate} showActions={true} />
         ) : (
-          /* Empty State */
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <Package className="h-16 w-16 text-muted-foreground mb-4" aria-hidden />
-              <h2 className="text-2xl font-semibold mb-2">No tienes productos</h2>
-              <p className="text-muted-foreground mb-6 max-w-md">
+          <Card className="border border-border/60 shadow-md">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center sm:py-16">
+              <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-muted">
+                <Package className="h-6 w-6 text-muted-foreground" aria-hidden />
+              </div>
+              <h2 className="mb-2 text-balance text-lg font-semibold sm:text-xl">
+                No tienes productos
+              </h2>
+              <p className="mx-auto mb-6 max-w-md text-pretty text-sm text-muted-foreground">
                 {statusFilter === 'all'
-                  ? 'Aún no has publicado ningún producto. ¡Publica tu primer producto ahora!'
+                  ? 'Aún no has publicado ningún producto. Publica tu primer artículo cuando quieras.'
                   : `No tienes productos ${statusFilter === 'active' ? 'activos' : statusFilter === 'sold' ? 'vendidos' : 'inactivos'}.`}
               </p>
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="min-h-[44px] touch-manipulation sm:min-h-10">
                 <Link href="/publicar">
-                  <Plus className="mr-2 h-5 w-5" aria-hidden />
-                  Publicar Producto
+                  <Plus className="mr-2 h-5 w-5 shrink-0" aria-hidden />
+                  Publicar producto
                 </Link>
               </Button>
             </CardContent>

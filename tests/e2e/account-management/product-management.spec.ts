@@ -26,10 +26,10 @@ test.describe('Account Management - Product Management', () => {
 
     if (hasEmptyState) {
       await expect(emptyState).toBeVisible()
-      await expect(page.getByRole('link', { name: /publicar producto/i })).toBeVisible()
+      await expect(page.getByRole('link', { name: /publicar producto/i }).first()).toBeVisible()
     } else {
       // Has products - verify card content (price, status badge)
-      await expect(page.getByText(/Bs\s+[\d.,]+/)).toBeVisible({ timeout: 5000 })
+      await expect(page.getByText(/Bs\s+[\d.,]+/).first()).toBeVisible({ timeout: 5000 })
       await expect(page.getByText(/activo|vendido|inactivo/i).first()).toBeVisible()
     }
   })
@@ -90,7 +90,7 @@ test.describe('Account Management - Product Management (Errors)', () => {
     await page.waitForLoadState('networkidle')
 
     const emptyState = page.getByText(/no tienes productos|aún no has publicado/i).first()
-    const ctaLink = page.getByRole('link', { name: /publicar producto/i })
+    const ctaLink = page.getByRole('link', { name: /^Publicar producto$/i })
 
     if (await emptyState.isVisible()) {
       await expect(emptyState).toBeVisible()
