@@ -109,8 +109,10 @@ export default function ProfilePage() {
   }
 
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
+    const trimmed = name.trim()
+    if (!trimmed) return 'U'
+    return trimmed
+      .split(/\s+/)
       .map((n) => n[0])
       .join('')
       .toUpperCase()
@@ -136,7 +138,7 @@ export default function ProfilePage() {
   if (error || !profile) {
     return (
       <div className="container mx-auto flex min-h-dvh items-center justify-center px-4">
-        <Card className="w-full max-w-md border-0 shadow-xl" role="alert">
+        <Card className="w-full max-w-md border border-border/60 shadow-md" role="alert">
           <CardContent className="p-6 text-center">
             <p className="text-destructive">{error || 'Perfil no encontrado'}</p>
             <Button className="mt-4 min-h-[44px]" onClick={() => router.push('/')}>
@@ -155,11 +157,11 @@ export default function ProfilePage() {
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="space-y-6">
         {/* Profile Header Card */}
-        <Card className="border-0 shadow-xl">
+        <Card className="border border-border/60 shadow-md">
           <CardHeader className="pb-4">
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-4">
+                <Avatar className="h-20 w-20 shrink-0">
                   <AvatarImage
                     src={profile.avatar_url || undefined}
                     alt={`Foto de perfil de ${profile.full_name}`}
@@ -168,11 +170,11 @@ export default function ProfilePage() {
                     {getInitials(profile.full_name)}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-bold">{profile.full_name}</h1>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-balance text-2xl font-bold">{profile.full_name}</h1>
                     {profile.is_verified && (
-                      <Badge variant="default" className="gap-1">
+                      <Badge variant="default" className="shrink-0 gap-1">
                         <svg
                           className="h-3 w-3"
                           fill="currentColor"
@@ -189,18 +191,18 @@ export default function ProfilePage() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-pretty text-sm text-muted-foreground">
                     Miembro desde {formatDate(profile.created_at)}
                   </p>
                 </div>
               </div>
               <Button
                 variant="outline"
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-0 touch-manipulation"
+                className="w-full min-h-[44px] touch-manipulation sm:w-auto sm:min-h-10"
                 asChild
               >
                 <Link href="/profile/edit">
-                  <Edit className="mr-2 h-4 w-4" aria-hidden />
+                  <Edit className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                   Editar perfil
                 </Link>
               </Button>
@@ -219,8 +221,8 @@ export default function ProfilePage() {
               )}
               {profile.phone && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" aria-hidden />
-                  <span>{profile.phone}</span>
+                  <Phone className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                  <span className="tabular-nums">{profile.phone}</span>
                 </div>
               )}
             </div>
@@ -229,12 +231,12 @@ export default function ProfilePage() {
             {profile.rating_count > 0 && (
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" aria-hidden />
-                  <span className="font-semibold">
+                  <Star className="h-5 w-5 shrink-0 fill-yellow-400 text-yellow-400" aria-hidden />
+                  <span className="font-semibold tabular-nums">
                     {profile.rating_average?.toFixed(1) || '0.0'}
                   </span>
                 </div>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-pretty text-sm text-muted-foreground">
                   ({profile.rating_count} {profile.rating_count === 1 ? 'reseña' : 'reseñas'})
                 </span>
               </div>
@@ -242,10 +244,13 @@ export default function ProfilePage() {
 
             {/* Incomplete Profile Warning */}
             {!isProfileComplete && (
-              <div className="rounded-md bg-yellow-50 p-4 dark:bg-yellow-950" role="alert">
+              <div
+                className="rounded-md border border-yellow-200/90 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-950"
+                role="alert"
+              >
                 <div className="flex items-start gap-3">
                   <svg
-                    className="h-5 w-5 text-yellow-600 dark:text-yellow-400"
+                    className="h-5 w-5 shrink-0 text-yellow-700 dark:text-yellow-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     aria-hidden="true"
@@ -256,14 +261,14 @@ export default function ProfilePage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
                       Completa tu perfil
                     </p>
-                    <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                      Agrega tu ubicación y más información para empezar a publicar productos.
+                    <p className="mt-1 text-pretty text-sm text-yellow-900/90 dark:text-yellow-100/90">
+                      Agrega ubicación y datos de contacto para publicar con confianza.
                     </p>
-                    <Button size="sm" className="mt-3" asChild>
+                    <Button className="mt-3 min-h-[44px] touch-manipulation sm:min-h-10" asChild>
                       <Link href="/profile/edit">Completar ahora</Link>
                     </Button>
                   </div>
@@ -278,30 +283,38 @@ export default function ProfilePage() {
 
         {/* Business Profile Section */}
         {businessName ? (
-          <Card className="border-0 shadow-xl">
+          <Card className="border border-border/60 shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Store className="h-5 w-5 text-primary" aria-hidden />
-                <h2 className="text-lg font-semibold">Mi Negocio</h2>
+                <Store className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+                <h2 className="text-balance text-lg font-semibold">Mi negocio</h2>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-pretty text-sm text-muted-foreground">
                 Tu negocio <span className="font-medium text-foreground">{businessName}</span> está
-                activo.
+                activo en Telopillo.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                 {businessSlug && (
-                  <Button variant="outline" className="flex-1" asChild>
+                  <Button
+                    variant="outline"
+                    className="min-h-[44px] flex-1 touch-manipulation sm:min-h-10"
+                    asChild
+                  >
                     <Link href={`/negocio/${businessSlug}`}>
-                      <Store className="mr-2 h-4 w-4" aria-hidden />
+                      <Store className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                       Ver mi tienda
                     </Link>
                   </Button>
                 )}
-                <Button variant="outline" className="flex-1" asChild>
+                <Button
+                  variant="outline"
+                  className="min-h-[44px] flex-1 touch-manipulation sm:min-h-10"
+                  asChild
+                >
                   <Link href="/profile/edit">
-                    <Edit className="mr-2 h-4 w-4" aria-hidden />
+                    <Edit className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                     Editar negocio
                   </Link>
                 </Button>
@@ -309,22 +322,21 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="border-0 shadow-xl">
-            <CardHeader className="text-center pb-3">
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <Card className="border border-border/60 shadow-md">
+            <CardHeader className="pb-3 text-center">
+              <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-muted">
                 <Store className="h-6 w-6 text-muted-foreground" aria-hidden />
               </div>
-              <h2 className="text-lg font-semibold">¿Tienes un negocio?</h2>
-              <p className="text-sm text-muted-foreground">
-                Crea tu perfil de negocio para tener una tienda virtual con logo, horarios, redes
-                sociales y más.
+              <h2 className="text-balance text-lg font-semibold">¿Tienes un negocio?</h2>
+              <p className="mx-auto max-w-md text-pretty text-sm text-muted-foreground">
+                Tienda virtual con logo, horarios y redes. Puedes activarla cuando quieras.
               </p>
             </CardHeader>
             <CardContent className="text-center">
               <Button
                 onClick={handleCreateBusiness}
                 disabled={isCreatingBusiness}
-                className="gap-2"
+                className="min-h-[44px] gap-2 touch-manipulation sm:min-h-10"
               >
                 {isCreatingBusiness ? (
                   <>
@@ -343,22 +355,26 @@ export default function ProfilePage() {
         )}
 
         {/* Listings quick actions */}
-        <Card className="border-0 shadow-xl">
+        <Card className="border border-border/60 shadow-md">
           <CardHeader>
-            <h2 className="text-xl font-semibold">Mis Publicaciones</h2>
+            <h2 className="text-balance text-xl font-semibold">Mis publicaciones</h2>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <Button variant="outline" className="flex-1" asChild>
+              <Button
+                variant="outline"
+                className="min-h-[44px] flex-1 touch-manipulation sm:min-h-10"
+                asChild
+              >
                 <Link href="/perfil/mis-productos">
-                  <Package className="mr-2 h-4 w-4" aria-hidden />
+                  <Package className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                   Ver mis publicaciones
                 </Link>
               </Button>
-              <Button className="flex-1" asChild>
+              <Button className="min-h-[44px] flex-1 touch-manipulation sm:min-h-10" asChild>
                 <Link href="/publicar">
-                  <Plus className="mr-2 h-4 w-4" aria-hidden />
-                  Crear Publicación
+                  <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+                  Crear publicación
                 </Link>
               </Button>
             </div>

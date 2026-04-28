@@ -10,6 +10,7 @@
     "test:auth:headed": "playwright test tests/auth-pages.spec.ts --headed",
     "test:e2e": "playwright test tests/e2e/",
     "test:e2e:headed": "playwright test tests/e2e/ --headed",
+    "test:e2e:auth:visual": "playwright test tests/e2e/auth/ -c playwright.visual.config.ts --project=chromium --headed",
     "test:e2e:mobile": "playwright test tests/e2e/ --project=mobile",
     "test:e2e:mobile:headed": "playwright test tests/e2e/ --project=mobile --headed",
     "test:buyer": "playwright test tests/e2e/buyer-journey/",

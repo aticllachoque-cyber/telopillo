@@ -12,6 +12,8 @@ interface AvatarUploadProps {
   currentAvatarUrl: string | null
   userInitials: string
   onUploadComplete: (url: string) => void
+  /** Sets `id` on the hidden file input so an external `<Label htmlFor>` can reference it */
+  fileInputId?: string
 }
 
 export function AvatarUpload({
@@ -19,6 +21,7 @@ export function AvatarUpload({
   currentAvatarUrl,
   userInitials,
   onUploadComplete,
+  fileInputId,
 }: AvatarUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl)
@@ -125,6 +128,7 @@ export function AvatarUpload({
 
         <div className="flex flex-col gap-2">
           <input
+            id={fileInputId}
             ref={fileInputRef}
             type="file"
             accept="image/*"
@@ -177,8 +181,8 @@ export function AvatarUpload({
         </p>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        JPG, PNG o WebP. Máximo 5MB. La imagen se redimensionará automáticamente.
+      <p className="text-pretty text-xs text-muted-foreground">
+        JPG, PNG o WebP · máx. 5MB · se optimiza al subir.
       </p>
     </div>
   )

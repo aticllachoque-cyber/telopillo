@@ -95,7 +95,7 @@ export default function ProfileEditPage() {
         .from('business_profiles')
         .select('id')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       setHasBusinessProfile(!!bizProfile)
     } catch (err) {
@@ -191,7 +191,7 @@ export default function ProfileEditPage() {
     return (
       <div className="container mx-auto flex min-h-dvh items-center justify-center px-4">
         <div className="w-full max-w-md text-center" role="status" aria-live="polite">
-          <div className="rounded-lg bg-green-50 p-8 dark:bg-green-950">
+          <div className="rounded-lg border border-green-200/80 bg-green-50 p-8 dark:border-green-800 dark:bg-green-950">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
               <svg
                 className="h-6 w-6 text-green-600 dark:text-green-400"
@@ -208,8 +208,10 @@ export default function ProfileEditPage() {
                 />
               </svg>
             </div>
-            <h2 className="mb-2 text-2xl font-bold">¡Perfil Actualizado!</h2>
-            <p className="text-muted-foreground">Tu información ha sido guardada exitosamente.</p>
+            <h2 className="mb-2 text-2xl font-bold text-balance">¡Perfil actualizado!</h2>
+            <p className="text-pretty text-muted-foreground">
+              Tu información se guardó correctamente.
+            </p>
           </div>
         </div>
       </div>
@@ -230,19 +232,22 @@ export default function ProfileEditPage() {
 
       <div className="space-y-6">
         {/* Personal Profile Card */}
-        <Card className="border-0 shadow-xl">
+        <Card className="border border-border/60 shadow-md">
           <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-3xl leading-none font-semibold">Editar Perfil</h1>
-                <CardDescription>
-                  Completa tu información para empezar a publicar y comprar
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="min-w-0 space-y-1">
+                <h1 className="text-2xl font-semibold leading-tight text-balance sm:text-3xl">
+                  Editar Perfil
+                </h1>
+                <CardDescription className="text-pretty">
+                  Completa tus datos básicos para publicar y comprar con confianza.
                 </CardDescription>
               </div>
               <VerificationBadge
                 hasBusinessProfile={hasBusinessProfile}
                 verificationLevel={verificationLevel}
-                showTeaser
+                showTeaser={false}
+                className="shrink-0 self-start"
               />
             </div>
           </CardHeader>
@@ -261,12 +266,13 @@ export default function ProfileEditPage() {
               {/* Avatar Upload Section */}
               {userId && (
                 <div className="space-y-2">
-                  <Label>Foto de Perfil</Label>
+                  <Label htmlFor="profile-avatar-file">Foto de perfil</Label>
                   <AvatarUpload
                     userId={userId}
                     currentAvatarUrl={avatarUrl}
                     userInitials={userInitials}
                     onUploadComplete={(url) => setAvatarUrl(url)}
+                    fileInputId="profile-avatar-file"
                   />
                 </div>
               )}
@@ -299,11 +305,12 @@ export default function ProfileEditPage() {
                   placeholder="7XXXXXXX"
                   className="h-11"
                   autoComplete="tel"
+                  aria-describedby="phone-hint"
                   {...register('phone')}
                   disabled={isSaving}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Tu número de contacto para compradores. Al agregarlo tu nivel de confianza sube.
+                <p id="phone-hint" className="text-pretty text-xs text-muted-foreground">
+                  Visible para compradores; ayuda a subir tu nivel de confianza.
                 </p>
               </div>
 
@@ -319,17 +326,21 @@ export default function ProfileEditPage() {
                 }}
               />
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 pt-4 sm:gap-4">
                 <Button
                   type="button"
                   variant="outline"
-                  className="flex-1"
+                  className="min-h-[44px] flex-1 touch-manipulation sm:min-h-11"
                   onClick={() => router.push('/profile')}
                   disabled={isSaving}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="flex-1" disabled={isSaving}>
+                <Button
+                  type="submit"
+                  className="min-h-[44px] flex-1 touch-manipulation sm:min-h-11"
+                  disabled={isSaving}
+                >
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
@@ -346,35 +357,37 @@ export default function ProfileEditPage() {
 
         {/* Business Profile Section - available to ALL users */}
         {userId && hasBusinessProfile ? (
-          <Card className="border-0 shadow-xl">
+          <Card className="border border-border/60 shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <Store className="h-5 w-5" aria-hidden />
-                Perfil de Negocio
+                <Store className="h-5 w-5 shrink-0" aria-hidden />
+                <span className="text-balance">Perfil de negocio</span>
               </CardTitle>
-              <CardDescription>Información de tu tienda visible para compradores</CardDescription>
+              <CardDescription className="text-pretty">
+                Datos de tu tienda visibles para compradores.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <BusinessProfileForm userId={userId} />
             </CardContent>
           </Card>
         ) : (
-          <Card className="border-0 shadow-xl">
+          <Card className="border border-border/60 shadow-md">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-muted">
                 <Store className="h-6 w-6 text-muted-foreground" aria-hidden />
               </div>
-              <CardTitle className="text-xl">¿Tienes un negocio?</CardTitle>
-              <CardDescription>
-                Activa tu perfil de negocio para tener una tienda virtual con logo, horarios, redes
-                sociales y más. Puedes hacerlo en cualquier momento.
+              <CardTitle className="text-balance text-xl">¿Tienes un negocio?</CardTitle>
+              <CardDescription className="mx-auto max-w-md text-pretty">
+                Activa tu tienda virtual con logo, horarios y redes. Puedes hacerlo en cualquier
+                momento.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <Button
                 onClick={handleCreateBusinessProfile}
                 disabled={isCreatingBusiness}
-                className="gap-2"
+                className="min-h-[44px] gap-2 touch-manipulation sm:min-h-10"
               >
                 {isCreatingBusiness ? (
                   <>

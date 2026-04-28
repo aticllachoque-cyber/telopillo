@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Copy, Check, Share2, Link as LinkIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -17,6 +17,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'
 export function ShareProfile({ profileId, businessSlug, variant = 'card' }: ShareProfileProps) {
   const { showToast } = useToast()
   const [copied, setCopied] = useState(false)
+  const publicUrlId = useId()
 
   const shareUrl = businessSlug
     ? `${BASE_URL}/negocio/${businessSlug}`
@@ -59,42 +60,40 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
   }
 
   return (
-    <Card className="border-0 shadow-xl">
+    <Card className="border border-border/60 shadow-md">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
-          <LinkIcon className="h-5 w-5 text-muted-foreground" aria-hidden />
-          <h2 className="text-lg font-semibold">Compartir mi perfil</h2>
+          <LinkIcon className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
+          <h2 className="text-balance text-lg font-semibold">Compartir mi perfil</h2>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div
+        <p
+          id={publicUrlId}
           className="truncate rounded-md bg-muted px-3 py-2 font-mono text-sm text-foreground"
           title={shareUrl}
-          role="textbox"
-          aria-readonly="true"
-          aria-label="Tu enlace público de perfil"
-          tabIndex={0}
         >
+          <span className="sr-only">Enlace público: </span>
           {shareUrl}
-        </div>
-        <div className="flex gap-3">
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
           <Button
             variant="default"
             onClick={handleShare}
-            className="gap-2 min-h-[44px] sm:min-h-0 touch-manipulation"
+            className="min-h-[44px] min-w-0 gap-2 touch-manipulation sm:min-h-10 sm:flex-1"
           >
-            <Share2 className="h-4 w-4" aria-hidden />
+            <Share2 className="h-4 w-4 shrink-0" aria-hidden />
             Compartir
           </Button>
           <Button
             variant="outline"
             onClick={handleCopy}
-            className="gap-2 min-h-[44px] sm:min-h-0 touch-manipulation"
+            className="min-h-[44px] min-w-0 gap-2 touch-manipulation sm:min-h-10 sm:flex-1"
           >
             {copied ? (
-              <Check className="h-4 w-4 text-green-600 dark:text-green-400" aria-hidden />
+              <Check className="h-4 w-4 shrink-0 text-green-600 dark:text-green-400" aria-hidden />
             ) : (
-              <Copy className="h-4 w-4" aria-hidden />
+              <Copy className="h-4 w-4 shrink-0" aria-hidden />
             )}
             <span aria-live="polite">{copied ? 'Copiado' : 'Copiar enlace'}</span>
           </Button>
