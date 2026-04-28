@@ -26,7 +26,7 @@ test.describe('Demand Side Accessibility', () => {
     await page.goto('/busco')
     await page.waitForLoadState('networkidle')
 
-    await expect(page.getByRole('heading', { name: /busco.*necesito/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /^Solicitudes$/i })).toBeVisible()
 
     const publishLink = page.getByRole('link', { name: /publicar solicitud/i })
     await expect(publishLink).toBeVisible()

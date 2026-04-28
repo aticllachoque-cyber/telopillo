@@ -73,10 +73,10 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
   const categoryName = getCategoryName(post.category)
 
   return {
-    title: `${post.title} - Busco en ${post.location_city} | Telopillo`,
+    title: `${post.title} - ${post.location_city} | Telopillo`,
     description: post.description.slice(0, 160),
     openGraph: {
-      title: `Busco: ${post.title}`,
+      title: `Solicitud: ${post.title}`,
       description: post.description.slice(0, 160),
       type: 'website',
     },

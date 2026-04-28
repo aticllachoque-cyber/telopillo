@@ -372,7 +372,7 @@ export default function DemandDashboardPage() {
                     variant="outline"
                     className="min-h-[44px] touch-manipulation sm:min-h-10"
                   >
-                    <Link href="/busco">Ver solicitudes en Busco</Link>
+                    <Link href="/busco">Ver todas las solicitudes</Link>
                   </Button>
                 )}
                 {activeTab === 'expired' && (

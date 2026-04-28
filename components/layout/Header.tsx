@@ -372,7 +372,7 @@ export function Header() {
                       <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
-                    Se busca
+                    Solicitudes
                   </Link>
 
                   {/* Divider */}
@@ -430,7 +430,7 @@ export function Header() {
                           <path d="m3.3 7 8.7 5 8.7-5" />
                           <path d="M12 22V12" />
                         </svg>
-                        Mis Publicaciones
+                        Mis productos
                       </Link>
                       <Link
                         href="/perfil/demandas"
@@ -457,7 +457,7 @@ export function Header() {
                           <path d="M8 11h.01" />
                           <path d="M8 16h.01" />
                         </svg>
-                        Mis Solicitudes
+                        Mis solicitudes
                       </Link>
                       <Link
                         href="/mensajes"

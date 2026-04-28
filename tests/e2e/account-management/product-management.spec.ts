@@ -11,7 +11,7 @@ test.describe('Account Management - Product Management', () => {
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: /mis productos/i })).toBeVisible()
-    await expect(page.getByText(/gestiona tus publicaciones/i)).toBeVisible()
+    await expect(page.getByText(/gestiona tus productos/i)).toBeVisible()
   })
 
   test('Product cards show title, price, status when products exist, or empty state', async ({

@@ -90,7 +90,7 @@ function BuscoPageContent() {
   }, [q, category, department, sort, page])
 
   useEffect(() => {
-    document.title = 'Busco / Necesito - Telopillo'
+    document.title = 'Solicitudes - Telopillo'
     fetchDemands()
   }, [fetchDemands])
 
@@ -123,7 +123,7 @@ function BuscoPageContent() {
           <CardHeader className="pb-2">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <h1 className="text-balance text-2xl font-bold sm:text-3xl">Busco / Necesito</h1>
+                <h1 className="text-balance text-2xl font-bold sm:text-3xl">Solicitudes</h1>
                 <p className="text-pretty mt-1 text-sm text-muted-foreground sm:text-base">
                   Solicitudes de compradores buscando productos
                 </p>

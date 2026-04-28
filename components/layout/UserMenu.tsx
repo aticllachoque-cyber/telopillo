@@ -93,7 +93,7 @@ export function UserMenu() {
         <DropdownMenuItem asChild>
           <Link href="/perfil/mis-productos" className="cursor-pointer">
             <Package className="mr-2 size-4" aria-hidden />
-            Mis Publicaciones
+            Mis productos
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

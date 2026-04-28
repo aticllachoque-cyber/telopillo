@@ -201,7 +201,7 @@ export default function MisProductosPage() {
               <div className="min-w-0">
                 <h1 className="text-balance text-2xl font-bold sm:text-3xl">Mis productos</h1>
                 <p className="text-pretty mt-1 text-sm text-muted-foreground sm:text-base">
-                  Gestiona tus publicaciones
+                  Gestiona tus productos
                 </p>
               </div>
               <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
@@ -213,7 +213,7 @@ export default function MisProductosPage() {
                     asChild
                     className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
                   >
-                    <Link href="/publicar" aria-label="Publicar producto, nueva publicación">
+                    <Link href="/publicar" aria-label="Publicar producto">
                       <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                       Publicar producto
                     </Link>

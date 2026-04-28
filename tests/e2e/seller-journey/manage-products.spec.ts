@@ -14,7 +14,7 @@ test.describe('Manage Products - My Products Page', () => {
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: /mis productos/i })).toBeVisible()
-    await expect(page.getByText(/gestiona tus publicaciones/i)).toBeVisible()
+    await expect(page.getByText(/gestiona tus productos/i)).toBeVisible()
     await expect(page.getByRole('link', { name: /publicar producto/i }).first()).toBeVisible()
     await expect(page.getByRole('group', { name: /filtrar por estado/i })).toBeVisible()
     await expect(page.getByLabel(/ordenar por/i)).toBeVisible()

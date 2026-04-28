@@ -17,7 +17,7 @@ test.describe('Browse Demands', () => {
     await page.goto('/busco')
     await page.waitForLoadState('networkidle')
 
-    await expect(page.getByRole('heading', { name: /busco.*necesito/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /^Solicitudes$/i })).toBeVisible()
     await expect(page.getByPlaceholder(/buscar solicitudes/i)).toBeVisible()
     await expect(page.getByRole('link', { name: /publicar solicitud/i })).toBeVisible()
   })

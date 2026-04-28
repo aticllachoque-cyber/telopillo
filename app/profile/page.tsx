@@ -357,7 +357,7 @@ export default function ProfilePage() {
         {/* Listings quick actions */}
         <Card className="border border-border/60 shadow-md">
           <CardHeader>
-            <h2 className="text-balance text-xl font-semibold">Mis publicaciones</h2>
+            <h2 className="text-balance text-xl font-semibold">Mis productos</h2>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
@@ -368,13 +368,13 @@ export default function ProfilePage() {
               >
                 <Link href="/perfil/mis-productos">
                   <Package className="mr-2 h-4 w-4 shrink-0" aria-hidden />
-                  Ver mis publicaciones
+                  Ver mis productos
                 </Link>
               </Button>
               <Button className="min-h-[44px] flex-1 touch-manipulation sm:min-h-10" asChild>
                 <Link href="/publicar">
                   <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
-                  Crear publicación
+                  Publicar producto
                 </Link>
               </Button>
             </div>
