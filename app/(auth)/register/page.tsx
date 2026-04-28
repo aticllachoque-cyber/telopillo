@@ -104,7 +104,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container mx-auto flex min-h-screen items-center justify-center px-4 py-8">
+    <div className="container mx-auto flex min-h-dvh items-center justify-center px-4 py-8">
       <Card className="w-full max-w-md border-0 shadow-xl">
         <CardHeader className="space-y-4 text-center">
           <Logo className="mx-auto" />

@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { ArrowLeft, MapPin, Eye, Flag, Calendar, Tag } from 'lucide-react'
 import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
 import { getCategoryName } from '@/lib/data/categories'
+import { absoluteUrl } from '@/lib/utils'
 
 interface ProductPageProps {
   params: Promise<{
@@ -40,19 +41,30 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const imageUrl = product.images?.[0] || '/og-image.png'
 
+  const rawDescription = (product.description ?? '').trim()
+  const ogDescription =
+    rawDescription.length > 0
+      ? rawDescription.slice(0, 160)
+      : `${product.title} — Publicado en Telopillo, marketplace boliviano.`
+
   return {
     title: `${product.title} - Bs ${product.price.toLocaleString('es-BO')} | Telopillo`,
-    description: product.description.slice(0, 160),
+    description: ogDescription,
+    alternates: {
+      canonical: `/productos/${id}`,
+    },
     openGraph: {
       title: product.title,
-      description: product.description.slice(0, 160),
+      description: ogDescription,
       images: [imageUrl],
       type: 'website',
+      siteName: 'Telopillo',
+      url: absoluteUrl(`/productos/${id}`),
     },
     twitter: {
       card: 'summary_large_image',
       title: product.title,
-      description: product.description.slice(0, 160),
+      description: ogDescription,
       images: [imageUrl],
     },
   }
@@ -120,8 +132,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8 overflow-x-hidden">
-      <div className="container max-w-7xl">
+    <div className="min-h-dvh bg-gradient-to-b from-background to-muted/20 py-8 overflow-x-hidden">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-6">
           <ol className="flex items-center gap-2 text-sm text-muted-foreground overflow-hidden">

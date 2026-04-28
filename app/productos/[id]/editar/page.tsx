@@ -89,7 +89,7 @@ export default function EditProductPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-dvh items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" aria-hidden />
           <p className="text-muted-foreground mt-4">Cargando producto...</p>
@@ -100,8 +100,8 @@ export default function EditProductPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container max-w-2xl px-4 sm:px-6">
+      <div className="min-h-dvh bg-background py-8">
+        <div className="container mx-auto max-w-2xl px-4 sm:px-6">
           <div className="bg-destructive/10 border border-destructive rounded-lg p-6 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" aria-hidden />
             <h1 className="text-2xl font-bold mb-2">Error</h1>
@@ -128,8 +128,8 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container max-w-4xl px-4 sm:px-6">
+    <div className="min-h-dvh bg-background py-8">
+      <div className="container mx-auto max-w-4xl px-4 sm:px-6">
         {/* Header */}
         <div className="mb-6">
           <Link

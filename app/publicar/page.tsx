@@ -60,8 +60,8 @@ export default function PublicarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container max-w-3xl px-4 sm:px-6">
+    <div className="min-h-dvh bg-background py-8">
+      <div className="container mx-auto max-w-3xl px-4 sm:px-6">
         {/* Header */}
         <div className="mb-8">
           <Link

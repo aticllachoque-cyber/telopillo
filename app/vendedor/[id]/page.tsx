@@ -6,6 +6,7 @@ import { SellerProfileHeader } from '@/components/profile/SellerProfileHeader'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, Package } from 'lucide-react'
+import { absoluteUrl } from '@/lib/utils'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -101,6 +102,8 @@ export async function generateMetadata({ params }: SellerPageProps): Promise<Met
       title: `${name} - Vendedor en Telopillo`,
       description,
       type: 'profile',
+      siteName: 'Telopillo',
+      url: absoluteUrl(`/vendedor/${id}`),
       ...(profile.avatar_url && { images: [profile.avatar_url] }),
     },
     twitter: {
@@ -109,7 +112,7 @@ export async function generateMetadata({ params }: SellerPageProps): Promise<Met
       description,
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://telopillo'}/vendedor/${id}`,
+      canonical: `/vendedor/${id}`,
     },
   }
 }
@@ -125,6 +128,7 @@ function buildJsonLd(profile: SellerProfile, productCount: number) {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: profile.full_name || 'Vendedor',
+    url: absoluteUrl(`/vendedor/${profile.id}`),
     ...(profile.avatar_url && { image: profile.avatar_url }),
     ...(location && {
       address: {
@@ -171,8 +175,8 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
-        <div className="container max-w-6xl px-4 sm:px-6">
+      <div className="min-h-dvh bg-gradient-to-b from-background to-muted/20 py-8">
+        <div className="container mx-auto max-w-6xl px-4 sm:px-6">
           {/* Back link */}
           <Link
             href="/"

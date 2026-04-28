@@ -79,3 +79,16 @@ export function getAvatarColor(seed: string): string {
   const [bg, text] = pair
   return `${bg} ${text}`
 }
+
+/** Trimmed public origin (no trailing slash). Uses NEXT_PUBLIC_APP_URL when set. */
+export function getSiteOrigin(): string {
+  const raw = process.env.NEXT_PUBLIC_APP_URL?.trim()
+  if (raw) return raw.replace(/\/$/, '')
+  return 'https://telopillo'
+}
+
+/** Absolute URL for SEO JSON-LD and Open Graph. `path` must start with `/`. */
+export function absoluteUrl(path: string): string {
+  const normalized = path.startsWith('/') ? path : `/${path}`
+  return `${getSiteOrigin()}${normalized}`
+}

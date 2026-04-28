@@ -7,11 +7,12 @@ import { BusinessInfoSidebar } from '@/components/business/BusinessInfoSidebar'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { Card, CardContent } from '@/components/ui/card'
 import { Package, Store } from 'lucide-react'
+import { absoluteUrl } from '@/lib/utils'
 
 interface StorefrontPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 // ---------------------------------------------------------------------------
@@ -76,20 +77,21 @@ export async function generateMetadata({ params }: StorefrontPageProps): Promise
     ? business.business_description.slice(0, 160)
     : `Visita la tienda de ${business.business_name} en Telopillo. Encuentra sus productos y ofertas.`
   const imageUrl = business.business_logo_url || '/og-image.png'
-  const canonicalUrl = `https://telopillo/negocio/${slug}`
+  const canonicalPath = `/negocio/${slug}`
 
   return {
     title,
     description,
     alternates: {
-      canonical: canonicalUrl,
+      canonical: canonicalPath,
     },
     openGraph: {
       title: business.business_name,
       description,
       images: [imageUrl],
       type: 'website',
-      url: canonicalUrl,
+      url: absoluteUrl(canonicalPath),
+      siteName: 'Telopillo',
     },
     twitter: {
       card: 'summary_large_image',
@@ -106,7 +108,7 @@ export async function generateMetadata({ params }: StorefrontPageProps): Promise
 
 function buildJsonLd(
   business: NonNullable<Awaited<ReturnType<typeof getBusinessBySlug>>>,
-  slug: string
+  storefrontUrl: string
 ) {
   const profile = business.profiles as {
     id: string
@@ -118,7 +120,7 @@ function buildJsonLd(
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: business.business_name,
-    url: `https://telopillo/negocio/${slug}`,
+    url: storefrontUrl,
   }
 
   if (business.business_description) {
@@ -174,7 +176,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
 
   const products = await getBusinessProducts(profile.id)
 
-  const jsonLd = buildJsonLd(business, slug)
+  const jsonLd = buildJsonLd(business, absoluteUrl(`/negocio/${slug}`))
 
   return (
     <>
@@ -184,8 +186,8 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
-        <div className="container max-w-7xl">
+      <div className="min-h-dvh bg-gradient-to-b from-background to-muted/20 py-8">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6">
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-muted-foreground">

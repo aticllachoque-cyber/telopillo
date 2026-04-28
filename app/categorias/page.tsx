@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
   PRODUCT_CATEGORIES,
@@ -6,15 +7,22 @@ import {
 } from '@/lib/validations/product'
 import { CATEGORY_ICONS } from '@/lib/data/categories'
 
-export const metadata = {
-  title: 'Categorías - Telopillo',
-  description: 'Explora productos por categoría en el marketplace boliviano',
+export const metadata: Metadata = {
+  title: 'Categorías',
+  description:
+    'Explorá categorías de productos en Telopillo: electrónica, vehículos, hogar, moda y más en Bolivia.',
+  openGraph: {
+    title: 'Categorías | Telopillo',
+    description: 'Navegá por categoría y encontrá productos en el marketplace 100% boliviano.',
+    siteName: 'Telopillo',
+    type: 'website',
+  },
 }
 
 export default function CategoriasPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container py-8 px-4 sm:px-6">
+    <div className="min-h-dvh bg-background">
+      <div className="container mx-auto max-w-6xl py-8 px-4 sm:px-6">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 text-balance">Categorías</h1>

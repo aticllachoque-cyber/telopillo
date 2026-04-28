@@ -54,7 +54,7 @@ interface SearchResponse {
 
 function BuscarPageSkeleton() {
   return (
-    <div className="container px-4 sm:px-6 py-8">
+    <div className="container mx-auto max-w-6xl px-4 sm:px-6 py-8">
       <h1 className="text-2xl font-bold mb-4">Buscar Productos</h1>
       <div className="flex gap-2 mb-6">
         <Skeleton className="h-11 flex-1 max-w-xl" />
@@ -159,8 +159,8 @@ function BuscarPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container py-8 px-4 sm:px-6">
+    <div className="min-h-dvh bg-background">
+      <div className="container mx-auto max-w-6xl py-8 px-4 sm:px-6">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4 text-balance">Buscar Productos</h1>
