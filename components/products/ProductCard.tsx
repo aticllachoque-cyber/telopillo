@@ -38,7 +38,7 @@ interface ProductCardProps {
 export function ProductCard({
   product,
   onUpdate,
-  showActions = true,
+  showActions = false,
   priority = false,
   showStatusBadge = true,
 }: ProductCardProps) {

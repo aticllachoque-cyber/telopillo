@@ -29,7 +29,7 @@ interface ProductGridProps {
 export function ProductGrid({
   products,
   onUpdate,
-  showActions = true,
+  showActions = false,
   showStatusBadge,
 }: ProductGridProps) {
   if (products.length === 0) {

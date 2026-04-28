@@ -348,7 +348,9 @@ function BuscarPageContent() {
                 )}
 
                 {/* Product Grid */}
-                {results.totalCount > 0 && <ProductGrid products={results.products} />}
+                {results.totalCount > 0 && (
+                  <ProductGrid products={results.products} showStatusBadge={true} />
+                )}
 
                 {/* C1: Pagination Controls */}
                 {results.totalPages > 1 && (
