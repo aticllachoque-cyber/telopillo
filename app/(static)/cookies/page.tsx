@@ -3,7 +3,7 @@ import { Construction } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Cookies',
-  description: 'Política de cookies de Telopillo.bo.',
+  description: 'Política de cookies de Telopillo.',
 }
 
 export default function CookiesPage() {

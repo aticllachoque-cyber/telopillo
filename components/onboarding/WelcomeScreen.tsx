@@ -17,7 +17,7 @@ interface WelcomeScreenProps {
 type DismissAction = 'explore' | 'profile' | null
 
 const VALUE_POINTS = [
-  { Icon: Search, text: 'Pillá lo que buscás o publicá gratis' },
+  { Icon: Search, text: 'Pillá lo buscás o publicá gratis' },
   { Icon: Target, text: 'Publicá lo que necesitás (Busco/Necesito)' },
   { Icon: Megaphone, text: 'Llegá a compradores en toda Bolivia' },
   { Icon: UserCircle, text: 'Completá tu perfil para más confianza' },

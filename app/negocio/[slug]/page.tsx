@@ -68,15 +68,15 @@ export async function generateMetadata({ params }: StorefrontPageProps): Promise
   const business = await getBusinessBySlug(slug)
 
   if (!business) {
-    return { title: 'Negocio no encontrado - Telopillo.bo' }
+    return { title: 'Negocio no encontrado - Telopillo' }
   }
 
   const title = business.business_name
   const description = business.business_description
     ? business.business_description.slice(0, 160)
-    : `Visita la tienda de ${business.business_name} en Telopillo.bo. Encuentra sus productos y ofertas.`
+    : `Visita la tienda de ${business.business_name} en Telopillo. Encuentra sus productos y ofertas.`
   const imageUrl = business.business_logo_url || '/og-image.png'
-  const canonicalUrl = `https://telopillo.bo/negocio/${slug}`
+  const canonicalUrl = `https://telopillo/negocio/${slug}`
 
   return {
     title,
@@ -118,7 +118,7 @@ function buildJsonLd(
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: business.business_name,
-    url: `https://telopillo.bo/negocio/${slug}`,
+    url: `https://telopillo/negocio/${slug}`,
   }
 
   if (business.business_description) {

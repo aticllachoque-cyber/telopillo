@@ -10,10 +10,12 @@ test.describe('Buyer Journey - Complete Flow', () => {
     await page.waitForLoadState('networkidle')
     expect(page.url()).toMatch(/\/$/)
 
-    await expect(page.getByRole('heading', { level: 1, name: /telopillo/i })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { level: 1, name: /lo buscás|te lo pillo/i })
+    ).toBeVisible()
 
     // Step 2: Search "celular" (use hero form - header also has search)
-    const hero = page.getByRole('region', { name: /lo que buscás|telopillo/i })
+    const hero = page.getByRole('region', { name: /lo buscás|te lo pillo/i })
     const searchInput = hero.getByLabel(/término de búsqueda/i)
     await searchInput.fill('celular')
     await hero.getByRole('button', { name: /buscar/i }).click()
@@ -81,7 +83,7 @@ test.describe('Buyer Journey - Complete Flow', () => {
     await page.waitForLoadState('networkidle')
 
     // Search
-    const hero = page.getByRole('region', { name: /lo que buscás|telopillo/i })
+    const hero = page.getByRole('region', { name: /lo buscás|te lo pillo/i })
     await hero.getByLabel(/término de búsqueda/i).fill('celular')
     await hero.getByRole('button', { name: /buscar/i }).click()
     await page.waitForURL(/\/buscar/, { timeout: 10000 })

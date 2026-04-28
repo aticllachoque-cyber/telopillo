@@ -1,5 +1,5 @@
 ---
-description: Language and internationalization policy for Telopillo.bo
+description: Language and internationalization policy for Telopillo
 globs: ["**/*.ts", "**/*.tsx"]
 ---
 

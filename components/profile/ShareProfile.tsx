@@ -12,7 +12,7 @@ interface ShareProfileProps {
   variant?: 'card' | 'compact'
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 
 export function ShareProfile({ profileId, businessSlug, variant = 'card' }: ShareProfileProps) {
   const { showToast } = useToast()
@@ -38,8 +38,8 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
     if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
       try {
         await navigator.share({
-          title: 'Mi perfil en Telopillo.bo',
-          text: 'Mira mis productos en Telopillo.bo',
+          title: 'Mi perfil en Telopillo',
+          text: 'Mira mis productos en Telopillo',
           url: shareUrl,
         })
         return

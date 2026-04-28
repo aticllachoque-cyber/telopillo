@@ -1,5 +1,5 @@
 /**
- * Monkey/Chaos testing for Telopillo.bo welcome onboarding interstitial dialog.
+ * Monkey/Chaos testing for Telopillo welcome onboarding interstitial dialog.
  * Tests: rapid clicks, ESC spam, backdrop clicks, scroll, tab navigation,
  * viewport resize, navigation away, refresh, network failure simulation.
  */

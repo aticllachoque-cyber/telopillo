@@ -28,7 +28,7 @@
 
 ### 1.1 Overview
 
-M2 implements the core product listing functionality for Telopillo.bo—the heart of the marketplace. Users create, view, edit, and manage product listings with multi-image upload, full validation, and mobile-first design. The architecture follows established M1 patterns: Supabase BaaS, RLS policies, Zod + React Hook Form, and serverless-first principles.
+M2 implements the core product listing functionality for Telopillo—the heart of the marketplace. Users create, view, edit, and manage product listings with multi-image upload, full validation, and mobile-first design. The architecture follows established M1 patterns: Supabase BaaS, RLS policies, Zod + React Hook Form, and serverless-first principles.
 
 ### 1.2 Key Architectural Decisions
 
@@ -216,7 +216,7 @@ CREATE TABLE IF NOT EXISTS public.products (
 );
 
 -- Add comment for documentation
-COMMENT ON TABLE public.products IS 'Product listings for Telopillo.bo marketplace. M2 scope.';
+COMMENT ON TABLE public.products IS 'Product listings for Telopillo marketplace. M2 scope.';
 COMMENT ON COLUMN public.products.images IS 'Array of public URLs from product-images bucket. 1-5 images.';
 COMMENT ON COLUMN public.products.expires_at IS 'Auto-expire for cleanup. M2: no trigger; M9+ adds cron job.';
 ```

@@ -102,7 +102,7 @@ function BuscarPageContent() {
   ].filter(Boolean).length
 
   useEffect(() => {
-    document.title = query ? `Buscar: ${query} - Telopillo.bo` : 'Buscar Productos - Telopillo.bo'
+    document.title = query ? `Buscar: ${query} - Telopillo` : 'Buscar Productos - Telopillo'
 
     // Always perform search (returns all products when no query/filters)
     performSearch()

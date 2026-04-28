@@ -31,7 +31,7 @@ export default function EditProductPage() {
   } | null>(null)
 
   useEffect(() => {
-    document.title = 'Editar Producto - Telopillo.bo'
+    document.title = 'Editar Producto - Telopillo'
     loadProductData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId])

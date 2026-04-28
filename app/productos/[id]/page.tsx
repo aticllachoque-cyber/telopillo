@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const imageUrl = product.images?.[0] || '/og-image.png'
 
   return {
-    title: `${product.title} - Bs ${product.price.toLocaleString('es-BO')} | Telopillo.bo`,
+    title: `${product.title} - Bs ${product.price.toLocaleString('es-BO')} | Telopillo`,
     description: product.description.slice(0, 160),
     openGraph: {
       title: product.title,

@@ -3,7 +3,7 @@ import { Construction } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Acerca de',
-  description: 'Conocé más sobre Telopillo.bo, el marketplace 100% boliviano.',
+  description: 'Conocé más sobre Telopillo, el marketplace 100% boliviano.',
 }
 
 export default function AboutPage() {
@@ -12,7 +12,7 @@ export default function AboutPage() {
       <Construction className="size-12 text-primary" aria-hidden />
       <h1 className="mt-4 text-balance text-2xl font-bold sm:text-3xl">Acerca de</h1>
       <p className="mt-2 max-w-md text-pretty text-muted-foreground">
-        Estamos preparando esta página. Pronto vas a poder conocer más sobre Telopillo.bo.
+        Estamos preparando esta página. Pronto vas a poder conocer más sobre Telopillo.
       </p>
     </div>
   )

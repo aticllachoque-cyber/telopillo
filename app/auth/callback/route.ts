@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_SITE_URL, // e.g., http://localhost:3003 in dev
   process.env.NEXT_PUBLIC_APP_URL, // Fallback app URL
-  'https://telopillo.bo', // Production domain
+  'https://telopillo', // Production domain
   // Allow common dev ports for convenience (remove in production via env check)
   ...(process.env.NODE_ENV === 'development'
     ? ['http://localhost:3000', 'http://localhost:3003']
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   // Validate the redirect origin to prevent open-redirect attacks
   const redirectUrl = ALLOWED_ORIGINS.includes(origin)
     ? `${origin}/`
-    : `${ALLOWED_ORIGINS[0] || 'https://telopillo.bo'}/`
+    : `${ALLOWED_ORIGINS[0] || 'https://telopillo'}/`
 
   return NextResponse.redirect(redirectUrl)
 }

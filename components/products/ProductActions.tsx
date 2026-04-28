@@ -24,7 +24,7 @@ import {
 import { useToast } from '@/components/ui/toast'
 import { Edit, MoreVertical, Loader2, Share2 } from 'lucide-react'
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 
 interface ProductActionsProps {
   productId: string
@@ -57,7 +57,7 @@ export function ProductActions({
 
   const handleShareProduct = async () => {
     const productUrl = `${BASE_URL}/productos/${productId}`
-    const shareTitle = productTitle || 'Producto en Telopillo.bo'
+    const shareTitle = productTitle || 'Producto en Telopillo'
     const shareText = `Mira este producto: ${shareTitle}`
 
     if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {

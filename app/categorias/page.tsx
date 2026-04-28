@@ -7,7 +7,7 @@ import {
 import { CATEGORY_ICONS } from '@/lib/data/categories'
 
 export const metadata = {
-  title: 'Categorías - Telopillo.bo',
+  title: 'Categorías - Telopillo',
   description: 'Explora productos por categoría en el marketplace boliviano',
 }
 

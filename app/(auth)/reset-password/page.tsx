@@ -21,7 +21,7 @@ export default function ResetPasswordPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    document.title = 'Nueva Contraseña - Telopillo.bo'
+    document.title = 'Nueva Contraseña - Telopillo'
   }, [])
 
   const {

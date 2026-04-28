@@ -349,7 +349,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="text-2xl font-bold text-primary">
-          Telopillo.bo
+          Telopillo
         </Link>
         <nav className="hidden md:flex items-center space-x-6">
           <Link href="/buscar">Buscar</Link>
@@ -377,9 +377,9 @@ export function Footer() {
       <div className="container py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-bold mb-3">Telopillo.bo</h3>
+            <h3 className="font-bold mb-3">Telopillo</h3>
             <p className="text-sm text-muted-foreground">
-              Lo que buscás, ¡telopillo!
+              Lo buscás, ¡te lo pillo!
             </p>
           </div>
           <div>
@@ -398,7 +398,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Telopillo.bo
+          © {new Date().getFullYear()} Telopillo
         </div>
       </div>
     </footer>
@@ -420,8 +420,8 @@ import { Footer } from '@/components/layout/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Telopillo.bo - Marketplace Boliviano',
-  description: 'Lo que buscás, ¡telopillo!',
+  title: 'Telopillo - Marketplace Boliviano',
+  description: 'Lo buscás, ¡te lo pillo!',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -452,7 +452,7 @@ export default function Home() {
     <div className="container py-12">
       <section className="text-center space-y-6 py-12">
         <h1 className="text-4xl font-bold sm:text-6xl">
-          Lo que buscás, <span className="text-primary">¡telopillo!</span>
+          Lo buscás, <span className="text-primary">¡te lo pillo!</span>
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           El marketplace boliviano donde comprás y vendés de todo.

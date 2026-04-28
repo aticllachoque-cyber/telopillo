@@ -1,6 +1,6 @@
 # Supabase Setup Guide
 
-This guide will help you set up Supabase for the Telopillo.bo project.
+This guide will help you set up Supabase for the Telopillo project.
 
 ## Step 1: Create Supabase Project
 

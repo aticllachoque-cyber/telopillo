@@ -24,7 +24,7 @@
 
 ### 1.1 Overview
 
-M2 implements the core product listing functionality for Telopillo.bo—the heart of the marketplace. Users will create, view, edit, and manage product listings with multi-image upload, full validation, and mobile-first design.
+M2 implements the core product listing functionality for Telopillo—the heart of the marketplace. Users will create, view, edit, and manage product listings with multi-image upload, full validation, and mobile-first design.
 
 ### 1.2 Key Metrics
 

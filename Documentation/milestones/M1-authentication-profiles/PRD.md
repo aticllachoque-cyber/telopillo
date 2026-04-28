@@ -11,7 +11,7 @@
 
 ## 1. Executive Summary
 
-This milestone implements the complete authentication and user profile management system for Telopillo.bo. It enables users to register, login (via email or OAuth), and manage their profiles, establishing the foundation for all user-specific features in the marketplace.
+This milestone implements the complete authentication and user profile management system for Telopillo. It enables users to register, login (via email or OAuth), and manage their profiles, establishing the foundation for all user-specific features in the marketplace.
 
 **Success means:** Users can securely create accounts, authenticate via multiple methods, and manage their profile information including avatar, location, and contact details.
 

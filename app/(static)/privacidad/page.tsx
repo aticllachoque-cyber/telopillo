@@ -3,7 +3,7 @@ import { Construction } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Privacidad',
-  description: 'Política de privacidad de Telopillo.bo.',
+  description: 'Política de privacidad de Telopillo.',
 }
 
 export default function PrivacyPage() {

@@ -10,10 +10,12 @@ test.describe('Buyer Journey - Homepage to Search', () => {
     await page.waitForLoadState('networkidle')
 
     // Hero heading
-    await expect(page.getByRole('heading', { level: 1, name: /telopillo/i })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { level: 1, name: /lo buscás|te lo pillo/i })
+    ).toBeVisible()
 
     // Search form in hero (scope to hero - header also has a search bar)
-    const hero = page.getByRole('region', { name: /lo que buscás|telopillo/i })
+    const hero = page.getByRole('region', { name: /lo buscás|te lo pillo/i })
     const searchForm = hero.getByRole('search', { name: /buscar productos/i })
     await expect(searchForm).toBeVisible()
 
@@ -28,7 +30,7 @@ test.describe('Buyer Journey - Homepage to Search', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const hero = page.getByRole('region', { name: /lo que buscás|telopillo/i })
+    const hero = page.getByRole('region', { name: /lo buscás|te lo pillo/i })
     const searchInput = hero.getByLabel(/término de búsqueda/i)
     await searchInput.fill('celular')
     await hero.getByRole('button', { name: /buscar/i }).click()
@@ -70,7 +72,7 @@ test.describe('Buyer Journey - Search Error Scenarios', () => {
     await page.waitForLoadState('networkidle')
 
     // Submit hero form with empty input (form submits to /buscar)
-    const hero = page.getByRole('region', { name: /lo que buscás|telopillo/i })
+    const hero = page.getByRole('region', { name: /lo buscás|te lo pillo/i })
     await hero.getByRole('button', { name: /buscar/i }).click()
 
     // With empty q, we get /buscar or /buscar?q=
@@ -86,10 +88,10 @@ test.describe('Buyer Journey - Search Error Scenarios', () => {
     await page.goto('/buscar?q=xyznonexistent123')
     await page.waitForLoadState('networkidle')
 
-    // Status shows no results
-    await expect(
-      page.getByText(/no se encontraron resultados|no encontramos productos/i)
-    ).toBeVisible({ timeout: 5000 })
+    // Empty state: status line and heading both mention no results; assert heading (unique)
+    await expect(page.getByRole('heading', { name: /no encontramos productos/i })).toBeVisible({
+      timeout: 5000,
+    })
 
     // Query retained in URL
     expect(page.url()).toContain('xyznonexistent123')

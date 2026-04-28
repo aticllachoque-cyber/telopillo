@@ -292,5 +292,5 @@ Choose your path:
 ---
 
 **Last Updated:** February 13, 2026
-**Maintained by:** Telopillo.bo Team
+**Maintained by:** Telopillo Team
 **Questions?** See [Getting Help](#-getting-help) section above

@@ -34,7 +34,7 @@ export default function ProfileEditPage() {
   const { showToast } = useToast()
 
   useEffect(() => {
-    document.title = 'Editar Perfil - Telopillo.bo'
+    document.title = 'Editar Perfil - Telopillo'
     loadProfile()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

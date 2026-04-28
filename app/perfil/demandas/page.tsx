@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   AlertDialog,
@@ -27,6 +27,7 @@ import {
   RefreshCw,
   Trash2,
   MessageSquare,
+  ClipboardList,
 } from 'lucide-react'
 import type { DemandPost } from '@/types/database'
 
@@ -59,7 +60,7 @@ export default function DemandDashboardPage() {
   const [isMarkingFound, setIsMarkingFound] = useState<string | null>(null)
 
   useEffect(() => {
-    document.title = 'Mis Solicitudes - Telopillo.bo'
+    document.title = 'Mis solicitudes - Telopillo'
     checkAuth()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -223,22 +224,25 @@ export default function DemandDashboardPage() {
   if (isLoading) {
     return (
       <div className="min-h-dvh bg-background py-8" aria-busy="true">
-        <div className="container max-w-3xl px-4 sm:px-6">
-          <div className="mb-6 space-y-3">
-            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-            <div className="flex items-center justify-between">
-              <div className="h-7 w-40 rounded bg-muted animate-pulse" />
-              <div className="h-10 w-36 rounded-md bg-muted animate-pulse" />
+        <div className="container mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mb-6 rounded-xl border border-border/60 bg-card p-6 shadow-md">
+            <div className="h-4 w-28 rounded bg-muted animate-pulse" />
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="h-8 w-48 rounded bg-muted animate-pulse" />
+              <div className="h-11 w-40 rounded-md bg-muted animate-pulse" />
             </div>
           </div>
-          <div className="flex gap-1 border-b mb-6">
+          <div className="mb-6 flex gap-1 rounded-xl border border-border/60 bg-card p-2 shadow-md">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-10 w-24 rounded bg-muted animate-pulse" />
+              <div key={i} className="h-10 flex-1 rounded bg-muted animate-pulse" />
             ))}
           </div>
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="rounded-lg border p-4 flex items-center gap-3">
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-md"
+              >
                 <div className="flex-1 space-y-2">
                   <div className="h-5 w-16 rounded bg-muted animate-pulse" />
                   <div className="h-5 w-3/4 rounded bg-muted animate-pulse" />
@@ -258,207 +262,239 @@ export default function DemandDashboardPage() {
 
   if (!userId) return null
 
+  const hideHeaderNewRequest = activeTab === 'active' && posts.length === 0 && !isLoadingPosts
+
   return (
     <div className="min-h-dvh bg-background py-8">
-      <div className="container max-w-3xl px-4 sm:px-6">
-        {/* Header */}
-        <div className="mb-6">
-          <Link
-            href="/perfil"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 min-h-[44px] -my-2 py-2 -ml-2 pl-2 pr-2 touch-manipulation"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />
-            Volver al perfil
-          </Link>
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-balance">Mis Solicitudes</h1>
-            <Button asChild className="min-h-[44px]">
-              <Link href="/busco/publicar">
-                <Plus className="mr-2 h-4 w-4" aria-hidden />
-                Nueva solicitud
-              </Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div
-          className="flex gap-1 border-b mb-4 sm:mb-6"
-          role="tablist"
-          aria-label="Estado de solicitudes"
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6">
+        <Link
+          href="/perfil"
+          className="mb-4 inline-flex min-h-[44px] touch-manipulation items-center text-sm text-muted-foreground hover:text-foreground"
+          aria-label="Volver al perfil"
         >
-          {(Object.keys(TAB_LABELS) as TabKey[]).map((key) => {
-            const count = tabCounts[key]
-            return (
-              <button
-                key={key}
-                role="tab"
-                aria-selected={activeTab === key}
-                aria-controls={`tabpanel-${key}`}
-                onClick={() => setActiveTab(key)}
-                className={`px-3 sm:px-4 py-2 text-sm font-medium border-b-2 transition-colors min-h-[44px] ${
-                  activeTab === key
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {TAB_LABELS[key]}
-                {count !== null && <span className="ml-1.5 tabular-nums text-xs">({count})</span>}
-              </button>
-            )
-          })}
-        </div>
+          <ArrowLeft className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+          Volver al perfil
+        </Link>
 
-        {/* Tab panel */}
-        <div role="tabpanel" id={`tabpanel-${activeTab}`}>
-          {isLoadingPosts ? (
-            <div className="space-y-3" aria-busy="true" aria-label="Cargando solicitudes">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="rounded-lg border p-4 flex items-center gap-3">
-                  <div className="flex-1 space-y-2">
-                    <div className="h-5 w-16 rounded bg-muted animate-pulse" />
-                    <div className="h-5 w-3/4 rounded bg-muted animate-pulse" />
-                    <div className="h-4 w-1/2 rounded bg-muted animate-pulse" />
+        <Card className="mb-6 border border-border/60 shadow-md">
+          <CardHeader className="pb-2">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-balance text-2xl font-bold sm:text-3xl">Mis solicitudes</h1>
+                <p className="text-pretty mt-1 text-sm text-muted-foreground sm:text-base">
+                  Revisa ofertas, renueva o marca como encontrado
+                </p>
+              </div>
+              {!hideHeaderNewRequest && (
+                <Button
+                  asChild
+                  className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
+                >
+                  <Link href="/busco/publicar" aria-label="Crear una nueva solicitud">
+                    <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+                    Nueva solicitud
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+        </Card>
+
+        <Card className="overflow-hidden border border-border/60 shadow-md">
+          <div
+            className="flex gap-1 border-b border-border/60 bg-muted/30 px-2 sm:px-4"
+            role="tablist"
+            aria-label="Estado de solicitudes"
+          >
+            {(Object.keys(TAB_LABELS) as TabKey[]).map((key) => {
+              const count = tabCounts[key]
+              return (
+                <button
+                  key={key}
+                  role="tab"
+                  aria-selected={activeTab === key}
+                  aria-controls={`tabpanel-${key}`}
+                  onClick={() => setActiveTab(key)}
+                  className={`min-h-[44px] touch-manipulation flex-1 px-2 py-2 text-center text-sm font-medium transition-colors sm:flex-none sm:px-4 ${
+                    activeTab === key
+                      ? 'border-b-2 border-primary text-primary'
+                      : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span className="text-balance">{TAB_LABELS[key]}</span>
+                  {count !== null && <span className="ml-1 tabular-nums text-xs">({count})</span>}
+                </button>
+              )
+            })}
+          </div>
+
+          <CardContent className="px-4 py-6 sm:px-6" role="tabpanel" id={`tabpanel-${activeTab}`}>
+            {isLoadingPosts ? (
+              <div className="space-y-3" aria-busy="true" aria-label="Cargando solicitudes">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-sm"
+                  >
+                    <div className="flex-1 space-y-2">
+                      <div className="h-5 w-16 rounded bg-muted animate-pulse" />
+                      <div className="h-5 w-3/4 rounded bg-muted animate-pulse" />
+                      <div className="h-4 w-1/2 rounded bg-muted animate-pulse" />
+                    </div>
+                    <div className="flex gap-1">
+                      <div className="size-10 rounded bg-muted animate-pulse" />
+                      <div className="size-10 rounded bg-muted animate-pulse" />
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <div className="size-10 rounded bg-muted animate-pulse" />
-                    <div className="size-10 rounded bg-muted animate-pulse" />
-                  </div>
+                ))}
+              </div>
+            ) : posts.length === 0 ? (
+              <div className="flex flex-col items-center py-10 text-center sm:py-14">
+                <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-muted">
+                  <ClipboardList className="h-6 w-6 text-muted-foreground" aria-hidden />
                 </div>
-              ))}
-            </div>
-          ) : posts.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground mb-4 text-pretty">
-                {activeTab === 'active' && 'No tienes solicitudes activas.'}
-                {activeTab === 'found' && 'No tienes solicitudes marcadas como encontradas.'}
-                {activeTab === 'expired' && 'No tienes solicitudes expiradas.'}
-              </p>
-              {activeTab === 'active' && (
-                <Button asChild className="min-h-[44px]">
-                  <Link href="/busco/publicar">
-                    <Plus className="mr-2 h-4 w-4" aria-hidden />
-                    Publicar solicitud
-                  </Link>
-                </Button>
-              )}
-              {activeTab === 'found' && (
-                <Button asChild variant="outline" className="min-h-[44px]">
-                  <Link href="/busco">Ver solicitudes activas</Link>
-                </Button>
-              )}
-              {activeTab === 'expired' && (
-                <Button asChild variant="outline" className="min-h-[44px]">
-                  <Link href="/busco/publicar">
-                    <Plus className="mr-2 h-4 w-4" aria-hidden />
-                    Publicar nueva solicitud
-                  </Link>
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2 sm:space-y-3">
-              {posts.map((post) => {
-                const display = getDemandDisplayStatus(post.status, post.expires_at)
-                const hasOffers = post.offers_count > 0
+                <p className="mx-auto mb-6 max-w-md text-pretty text-sm text-muted-foreground">
+                  {activeTab === 'active' && 'No tienes solicitudes activas.'}
+                  {activeTab === 'found' && 'No tienes solicitudes marcadas como encontradas.'}
+                  {activeTab === 'expired' && 'No tienes solicitudes expiradas.'}
+                </p>
+                {activeTab === 'active' && (
+                  <Button asChild size="lg" className="min-h-[44px] touch-manipulation sm:min-h-10">
+                    <Link href="/busco/publicar">
+                      <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+                      Publicar solicitud
+                    </Link>
+                  </Button>
+                )}
+                {activeTab === 'found' && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="min-h-[44px] touch-manipulation sm:min-h-10"
+                  >
+                    <Link href="/busco">Ver solicitudes en Busco</Link>
+                  </Button>
+                )}
+                {activeTab === 'expired' && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="min-h-[44px] touch-manipulation sm:min-h-10"
+                  >
+                    <Link href="/busco/publicar">
+                      <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+                      Publicar nueva solicitud
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2 sm:space-y-3">
+                {posts.map((post) => {
+                  const display = getDemandDisplayStatus(post.status, post.expires_at)
+                  const hasOffers = post.offers_count > 0
 
-                return (
-                  <Card key={post.id}>
-                    <CardContent className="py-3 sm:py-4">
-                      <div className="min-w-0">
-                        {/* Badges + title + description */}
-                        <div className="flex items-center gap-2 mb-1">
-                          {activeTab !== 'active' && <DemandStatusBadge status={display} />}
-                          <Badge
-                            variant={hasOffers ? 'default' : 'outline'}
-                            className={`text-xs ${hasOffers ? 'bg-primary/15 text-primary border-primary/30' : ''}`}
-                            aria-label={`${post.offers_count} ${post.offers_count === 1 ? 'oferta' : 'ofertas'}`}
+                  return (
+                    <Card
+                      key={post.id}
+                      className="border border-border/60 shadow-md transition-shadow hover:shadow-md"
+                    >
+                      <CardContent className="py-3 sm:py-4">
+                        <div className="min-w-0">
+                          {/* Badges + title + description */}
+                          <div className="flex items-center gap-2 mb-1">
+                            {activeTab !== 'active' && <DemandStatusBadge status={display} />}
+                            <Badge
+                              variant={hasOffers ? 'default' : 'outline'}
+                              className={`text-xs tabular-nums ${hasOffers ? 'border-primary/30 bg-primary/15 text-primary' : ''}`}
+                              aria-label={`${post.offers_count} ${post.offers_count === 1 ? 'oferta' : 'ofertas'}`}
+                            >
+                              <MessageSquare className="mr-1 h-3 w-3 shrink-0" aria-hidden />
+                              {post.offers_count} {post.offers_count === 1 ? 'oferta' : 'ofertas'}
+                            </Badge>
+                          </div>
+                          <Link
+                            href={`/busco/${post.id}`}
+                            className="line-clamp-2 font-medium text-balance hover:text-primary"
                           >
-                            <MessageSquare className="h-3 w-3 mr-1" aria-hidden />
-                            {post.offers_count} {post.offers_count === 1 ? 'oferta' : 'ofertas'}
-                          </Badge>
-                        </div>
-                        <Link
-                          href={`/busco/${post.id}`}
-                          className="font-medium hover:text-primary line-clamp-2"
-                        >
-                          {post.title}
-                        </Link>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
-                          {post.description}
-                        </p>
+                            {post.title}
+                          </Link>
+                          <p className="mt-0.5 line-clamp-2 text-pretty text-sm text-muted-foreground">
+                            {post.description}
+                          </p>
 
-                        {/* Actions row — full width on mobile */}
-                        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            asChild
-                            className="min-h-[40px] gap-1.5 text-xs"
-                          >
-                            <Link href={`/busco/${post.id}`}>
-                              <Eye className="h-4 w-4" aria-hidden />
-                              <span>Ver</span>
-                            </Link>
-                          </Button>
-
-                          {display === 'active' && (
+                          {/* Actions row — full width on mobile */}
+                          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleMarkFound(post.id)}
-                              disabled={isMarkingFound === post.id}
-                              className="min-h-[40px] gap-1.5 text-xs"
-                              aria-label={`Marcar como encontrado: ${post.title}`}
+                              asChild
+                              className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
                             >
-                              {isMarkingFound === post.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                              ) : (
-                                <CheckCircle2 className="h-4 w-4" aria-hidden />
-                              )}
-                              <span>Encontrado</span>
+                              <Link href={`/busco/${post.id}`}>
+                                <Eye className="h-4 w-4 shrink-0" aria-hidden />
+                                <span>Ver</span>
+                              </Link>
                             </Button>
-                          )}
 
-                          {display === 'expired' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRenew(post.id)}
-                              disabled={isRenewing === post.id}
-                              className="min-h-[40px] gap-1.5 text-xs"
-                              aria-label={`Renovar solicitud: ${post.title}`}
-                            >
-                              {isRenewing === post.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                              ) : (
-                                <RefreshCw className="h-4 w-4" aria-hidden />
-                              )}
-                              <span>Renovar</span>
-                            </Button>
-                          )}
+                            {display === 'active' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleMarkFound(post.id)}
+                                disabled={isMarkingFound === post.id}
+                                className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
+                                aria-label={`Marcar como encontrado: ${post.title}`}
+                              >
+                                {isMarkingFound === post.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                                ) : (
+                                  <CheckCircle2 className="h-4 w-4" aria-hidden />
+                                )}
+                                <span>Encontrado</span>
+                              </Button>
+                            )}
 
-                          <div className="ml-auto">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeleteTarget(post.id)}
-                              className="min-h-[40px] gap-1.5 text-xs text-destructive hover:text-destructive"
-                              aria-label={`Eliminar solicitud: ${post.title}`}
-                            >
-                              <Trash2 className="h-4 w-4" aria-hidden />
-                              <span>Eliminar</span>
-                            </Button>
+                            {display === 'expired' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRenew(post.id)}
+                                disabled={isRenewing === post.id}
+                                className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
+                                aria-label={`Renovar solicitud: ${post.title}`}
+                              >
+                                {isRenewing === post.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                                ) : (
+                                  <RefreshCw className="h-4 w-4" aria-hidden />
+                                )}
+                                <span>Renovar</span>
+                              </Button>
+                            )}
+
+                            <div className="ml-auto">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setDeleteTarget(post.id)}
+                                className="min-h-[44px] gap-1.5 touch-manipulation text-xs text-destructive hover:text-destructive sm:min-h-9"
+                                aria-label={`Eliminar solicitud: ${post.title}`}
+                              >
+                                <Trash2 className="h-4 w-4" aria-hidden />
+                                <span>Eliminar</span>
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
-          )}
-        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Delete confirmation dialog */}
         <AlertDialog open={!!deleteTarget} onOpenChange={(val) => !val && setDeleteTarget(null)}>

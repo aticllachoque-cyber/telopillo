@@ -1,14 +1,14 @@
-# Telopillo.bo
+# Telopillo
 
 **Marketplace de Compra y Venta para Bolivia**
 
-*"Lo que buscás, ¡telopillo!"*
+*"Lo buscás, ¡te lo pillo!"*
 
 ---
 
 ## 🚀 Sobre el Proyecto
 
-Telopillo.bo es un marketplace digital boliviano donde cualquier persona o negocio puede publicar productos para vender y buscar productos que necesita comprar. La plataforma conecta oferta y demanda de manera simple, rápida y con identidad local.
+Telopillo es un marketplace digital boliviano donde cualquier persona o negocio puede publicar productos para vender y buscar productos que necesita comprar. La plataforma conecta oferta y demanda de manera simple, rápida y con identidad local.
 
 ### 🎯 Diferenciador Principal
 

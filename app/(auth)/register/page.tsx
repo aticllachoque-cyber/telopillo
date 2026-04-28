@@ -34,7 +34,7 @@ export default function RegisterPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    document.title = 'Crear Cuenta - Telopillo.bo'
+    document.title = 'Crear Cuenta - Telopillo'
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) router.replace('/')
     })

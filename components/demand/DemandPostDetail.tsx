@@ -113,7 +113,7 @@ export function DemandPostDetail({
   const priceRange = formatPriceRange(post.price_min, post.price_max)
   const expiryDays = daysUntilExpiry(post.expires_at)
 
-  const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo.bo. Tengo algo que podría interesarte.`
+  const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
   const whatsappUrl = poster?.phone
     ? `https://wa.me/${poster.phone.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`
     : null

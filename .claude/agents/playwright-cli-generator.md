@@ -48,7 +48,7 @@ You are a Playwright Test Generator. You create **@playwright/test** `.spec.ts` 
 | `click [category-link]` | `page.getByRole('link', { name: /electrónica/i }).click()` |
 | `goto <url>` | `page.goto('/buscar')` or `page.goto(baseURL + '/buscar')` |
 | Verify URL | `expect(page).toHaveURL(/buscar\?q=celular/)` |
-| Verify text visible | `expect(page.getByText(/lo que buscás/i)).toBeVisible()` |
+| Verify text visible | `expect(page.getByText(/lo buscás|te lo pillo/i)).toBeVisible()` |
 
 ## Example Output
 
@@ -62,7 +62,7 @@ test.describe('Visitor Flow 01: Home Page', () => {
   test('homepage loads with hero, search, categories', async ({ page }) => {
     // 1. Open the home page
     await page.goto(baseURL)
-    await expect(page.getByRole('heading', { name: /lo que buscás/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /lo buscás|te lo pillo/i })).toBeVisible()
 
     // 2. Test hero search
     await page.getByRole('searchbox', { name: /término de búsqueda/i }).fill('celular')

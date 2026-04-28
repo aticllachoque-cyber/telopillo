@@ -3,7 +3,7 @@ import { Construction } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Seguridad',
-  description: 'Información sobre seguridad en Telopillo.bo.',
+  description: 'Información sobre seguridad en Telopillo.',
 }
 
 export default function SafetyPage() {

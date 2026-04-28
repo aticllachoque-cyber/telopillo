@@ -14,7 +14,7 @@ export default function PublicarPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    document.title = 'Publicar Producto - Telopillo.bo'
+    document.title = 'Publicar Producto - Telopillo'
     checkAuth()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -73,7 +73,7 @@ export default function PublicarPage() {
           </Link>
           <h1 className="text-3xl font-bold">Publicar Producto</h1>
           <p className="text-muted-foreground mt-2">
-            Completá los pasos para publicar tu producto en Telopillo.bo
+            Completá los pasos para publicar tu producto en Telopillo
           </p>
         </div>
 

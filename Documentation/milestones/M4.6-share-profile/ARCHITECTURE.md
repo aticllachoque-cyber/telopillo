@@ -76,7 +76,7 @@ Dependencies:
 
 ```
 baseUrl = process.env.NEXT_PUBLIC_APP_URL
-        || 'https://telopillo.bo'
+        || 'https://telopillo'
 
 if (businessSlug):
   shareUrl = `${baseUrl}/negocio/${businessSlug}`
@@ -153,8 +153,8 @@ await navigator.clipboard.writeText(url)
 
 ```typescript
 await navigator.share({
-  title: 'Mi perfil en Telopillo.bo',
-  text: 'Mira mis productos en Telopillo.bo',
+  title: 'Mi perfil en Telopillo',
+  text: 'Mira mis productos en Telopillo',
   url: shareUrl,
 })
 ```
@@ -174,7 +174,7 @@ await navigator.share({
 │  Compartir mi perfil                        │
 │                                             │
 │  ┌─────────────────────────────────────┐    │
-│  │ telopillo.bo/negocio/mi-tienda      │    │
+│  │ telopillo/negocio/mi-tienda      │    │
 │  └─────────────────────────────────────┘    │
 │                                             │
 │  [ 📋 Copiar enlace ]  [ 📤 Compartir ]    │

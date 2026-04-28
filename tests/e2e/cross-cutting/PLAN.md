@@ -14,7 +14,7 @@
 
 ## Flow 1: Accessibility Audit (All Pages)
 
-**User Story:** As a user with disabilities, I want to use Telopillo.bo with assistive technology.
+**User Story:** As a user with disabilities, I want to use Telopillo with assistive technology.
 **Standard:** WCAG 2.2 AA
 **Tool:** axe-core (`@axe-core/playwright`)
 
@@ -96,7 +96,7 @@
 
 ## Flow 3: Mobile Responsive (All Pages at 375px)
 
-**User Story:** As a mobile user, I want to use Telopillo.bo on my phone without horizontal scrolling.
+**User Story:** As a mobile user, I want to use Telopillo on my phone without horizontal scrolling.
 **Viewport:** 375 x 812 (iPhone SE / small Android)
 
 ### Pages to Test
@@ -162,7 +162,7 @@
 
 ## Flow 5: SEO & Metadata
 
-**User Story:** As a search engine, I want correct metadata to index Telopillo.bo properly.
+**User Story:** As a search engine, I want correct metadata to index Telopillo properly.
 
 ### Pages to Verify
 

@@ -84,7 +84,7 @@ Add voluntary identity verification features to the user profile, allowing users
 ### Email Template
 
 - [ ] Customize verification email template (Supabase templates)
-- [ ] Brand with Telopillo.bo logo and colors
+- [ ] Brand with Telopillo logo and colors
 - [ ] Spanish language copy
 - [ ] Clear CTA button: "Verificar mi Email"
 

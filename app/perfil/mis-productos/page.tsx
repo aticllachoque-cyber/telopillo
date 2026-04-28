@@ -48,7 +48,7 @@ export default function MisProductosPage() {
   const [businessSlug, setBusinessSlug] = useState<string | null>(null)
 
   useEffect(() => {
-    document.title = 'Mis productos - Telopillo.bo'
+    document.title = 'Mis productos - Telopillo'
     checkAuthAndLoadProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, sortOption])

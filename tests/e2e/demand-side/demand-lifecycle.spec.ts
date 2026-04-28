@@ -31,7 +31,9 @@ test.describe('Demand Dashboard', () => {
     await expect(page.getByRole('tab', { name: /activas/i })).toBeVisible()
     await expect(page.getByRole('tab', { name: /encontradas/i })).toBeVisible()
     await expect(page.getByRole('tab', { name: /expiradas/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /nueva solicitud/i })).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: /nueva solicitud|publicar solicitud/i }).first()
+    ).toBeVisible()
   })
 
   test('Tab switching works', async ({ page }) => {

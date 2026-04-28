@@ -9,7 +9,7 @@
 
 ## 📋 Overview
 
-M2 implements the core product listing functionality, allowing users to create, view, edit, and manage product listings. This is the heart of the Telopillo.bo marketplace.
+M2 implements the core product listing functionality, allowing users to create, view, edit, and manage product listings. This is the heart of the Telopillo marketplace.
 
 ### Progress
 

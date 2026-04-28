@@ -33,8 +33,8 @@ This is a **follow-up deployment milestone** before starting M5 (real-time chat)
 
 | Step | Where | What to set |
 |------|--------|-------------|
-| **Auth redirect URLs** | Authentication → URL Configuration | **Site URL:** your production URL (e.g. `https://telopillo.bo` or `https://your-app.vercel.app`). **Redirect URLs:** add `https://your-production-domain.com/auth/callback` and, if using Vercel previews, `https://*.vercel.app/auth/callback`. |
-| **Edge Function secrets** | Project Settings → Edge Functions → Secrets (or CLI below) | `HUGGINGFACE_API_KEY` = your Hugging Face API key (for semantic search). `ALLOWED_ORIGIN` = your production origin, e.g. `https://telopillo.bo` or `https://your-app.vercel.app` (no trailing slash). |
+| **Auth redirect URLs** | Authentication → URL Configuration | **Site URL:** your production URL (e.g. `https://telopillo` or `https://your-app.vercel.app`). **Redirect URLs:** add `https://your-production-domain.com/auth/callback` and, if using Vercel previews, `https://*.vercel.app/auth/callback`. |
+| **Edge Function secrets** | Project Settings → Edge Functions → Secrets (or CLI below) | `HUGGINGFACE_API_KEY` = your Hugging Face API key (for semantic search). `ALLOWED_ORIGIN` = your production origin, e.g. `https://telopillo` or `https://your-app.vercel.app` (no trailing slash). |
 
 To set Edge Function secrets from the CLI (after `supabase link`):
 ```bash
@@ -74,7 +74,7 @@ After a user signs in or signs up, Supabase Auth must send them back to **your**
 
 - **Where to set it:** Supabase Dashboard → Authentication → URL Configuration.
 - **What to add (production):**
-  - **Site URL:** e.g. `https://telopillo.bo` or `https://your-app.vercel.app` (used as default redirect).
+  - **Site URL:** e.g. `https://telopillo` or `https://your-app.vercel.app` (used as default redirect).
   - **Redirect URLs:** add at least:
     - `https://your-production-domain.com/auth/callback`
     - If you use Vercel previews: `https://*.vercel.app/auth/callback` (wildcard for preview deployments).
@@ -119,7 +119,7 @@ If you don’t add the production URL, users will get an “invalid redirect” 
 
 7. **Verify:** Open your Vercel URL. Check: home loads, search works, register/login, view a product, open `/busco`. Fix any 404s or env issues.
 
-8. **(Optional) Custom domain:** In Vercel → Project → Settings → Domains, add e.g. `telopillo.bo`. Vercel will show DNS records to add at your registrar; after propagation, SSL is automatic.
+8. **(Optional) Custom domain:** In Vercel → Project → Settings → Domains, add e.g. `telopillo`. Vercel will show DNS records to add at your registrar; after propagation, SSL is automatic.
 
 ---
 
@@ -131,7 +131,7 @@ You can keep this repository as the single source of truth and deploy to Vercel 
 |--------|-------------|-------------|
 | **A. Single branch (main)** | Connect this repo to Vercel. Production deploys from `main`. Every push to `main` triggers a production deploy. You keep developing in the same repo; feature work happens on branches, then you merge to `main` when ready to release. | Simplest; good for MVP and solo/small team. |
 | **B. Production + Preview branches** | In Vercel: set **Production Branch** to `main` (or `release`). Other branches get **Preview** URLs (e.g. `telopillo-abc123.vercel.app`). You develop on `develop` or feature branches; only merging into `main` goes to production. | When you want to test every PR or branch on a live URL before going to production. |
-| **C. Same repo, different Vercel projects** | Two Vercel projects both connected to the same repo: one for Production (e.g. `telopillo.bo`), one for Staging (e.g. `staging-telopillo.vercel.app`), each with its own env vars and branch. | When you want a dedicated staging environment with production-like config. |
+| **C. Same repo, different Vercel projects** | Two Vercel projects both connected to the same repo: one for Production (e.g. `telopillo`), one for Staging (e.g. `staging-telopillo.vercel.app`), each with its own env vars and branch. | When you want a dedicated staging environment with production-like config. |
 
 **Recommended for this milestone:** Option A. Push your repo to GitHub/GitLab/Bitbucket, connect that repo to Vercel, and set env vars in the Vercel dashboard. You continue working in the same repo; Vercel only deploys when you push (to the branch you configured as production, usually `main`). No second repo or copy needed.
 

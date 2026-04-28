@@ -1,5 +1,5 @@
 /**
- * Monkey/Chaos testing for Telopillo.bo header.
+ * Monkey/Chaos testing for Telopillo header.
  * Tests: Desktop header (Logo | Search | Publicar Gratis | Ingresar),
  * Mobile hamburger menu, responsive transitions, search bar, navigation flow,
  * keyboard navigation.

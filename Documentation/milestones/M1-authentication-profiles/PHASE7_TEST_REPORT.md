@@ -87,7 +87,7 @@
 
 | Test Case | Status | Notes |
 |-----------|--------|-------|
-| Logo displays | ✅ PASS | "Telopillo.bo" visible |
+| Logo displays | ✅ PASS | "Telopillo" visible |
 | Navigation links | ✅ PASS | "Buscar", "Categorías" |
 | "Publicar Gratis" button | ✅ PASS | Present and styled |
 | UserMenu integration | ✅ PASS | Replaces login buttons when authenticated |

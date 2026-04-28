@@ -24,11 +24,11 @@ playwright-cli snapshot
 ### 2. Verify hero section elements
 
 ```
-playwright-cli assert [h1] --text "Lo que buscás"
+playwright-cli assert [h1] --text "Lo buscás"
 playwright-cli assert [trust-badge] --text "Marketplace 100% boliviano"
 ```
 
-**Expected:** H1 heading "Lo que buscás, ¡telopillo!" is present. Trust badge with "Marketplace 100% boliviano" is visible. Search form with input `name="q"` and submit button exists.
+**Expected:** H1 heading "Lo buscás, ¡te lo pillo!" is present. Trust badge with "Marketplace 100% boliviano" is visible. Search form with input `name="q"` and submit button exists.
 
 ### 3. Test hero search
 
@@ -70,7 +70,7 @@ playwright-cli snapshot
 ### 7. Verify features section
 
 ```
-playwright-cli assert [features-heading] --text "¿Por qué Telopillo.bo?"
+playwright-cli assert [features-heading] --text "¿Por qué Telopillo?"
 ```
 
 **Expected:** Four feature cards: "Publicá Gratis", "Búsqueda Inteligente", "Chat Directo", "Hecho para Celular".

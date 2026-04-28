@@ -163,7 +163,7 @@ async function main() {
 
     const stepDelay = (ms) => new Promise((r) => setTimeout(r, ms))
 
-    const searchForm = page.getByLabel(/lo que buscás/i)
+    const searchForm = page.getByRole('search', { name: /buscar productos/i })
     const searchbox = page.getByRole('searchbox', { name: /término de búsqueda/i })
 
     if (flowName === 'demand') {

@@ -30,7 +30,7 @@
 
 Enable **buyer-initiated demand posts** — a reverse marketplace flow where buyers publish what they need and sellers/businesses respond with offers. This complements the existing supply-side model (seller publishes -> buyer finds) with a demand-side model (buyer requests -> seller offers).
 
-This is a **key differentiator** for Telopillo.bo. Neither Mercado Libre, OLX, nor Facebook Marketplace offer this in Bolivia, yet the behavior already exists informally in WhatsApp and Facebook groups ("Busco iPhone 13, alguien vende?").
+This is a **key differentiator** for Telopillo. Neither Mercado Libre, OLX, nor Facebook Marketplace offer this in Bolivia, yet the behavior already exists informally in WhatsApp and Facebook groups ("Busco iPhone 13, alguien vende?").
 
 ---
 

@@ -17,7 +17,7 @@ export default function PublicarDemandaPage() {
   const [rateLimitReached, setRateLimitReached] = useState(false)
 
   useEffect(() => {
-    document.title = 'Publicar lo que buscas - Telopillo.bo'
+    document.title = 'Publicar lo que buscas - Telopillo'
     checkAuthAndRateLimit()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -1,4 +1,4 @@
-# Telopillo.bo – Project Status Assessment
+# Telopillo – Project Status Assessment
 
 **Date:** February 2026  
 **Purpose:** Snapshot of where the project is (milestones, testing, local setup, blockers).

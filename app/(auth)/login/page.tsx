@@ -24,7 +24,7 @@ export default function LoginPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    document.title = 'Iniciar Sesión - Telopillo.bo'
+    document.title = 'Iniciar Sesión - Telopillo'
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) router.replace('/')
     })

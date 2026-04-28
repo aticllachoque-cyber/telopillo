@@ -11,7 +11,7 @@
 
 ## 1. Executive Summary
 
-This milestone establishes the foundational infrastructure for Telopillo.bo marketplace. It includes setting up the development environment, configuring the core technology stack (Next.js 14 + Supabase), and establishing development workflows that will support all future milestones.
+This milestone establishes the foundational infrastructure for Telopillo marketplace. It includes setting up the development environment, configuring the core technology stack (Next.js 14 + Supabase), and establishing development workflows that will support all future milestones.
 
 **Success means:** A fully functional development environment where developers can build features, with all core services (database, authentication, storage) properly configured and accessible.
 
@@ -598,7 +598,7 @@ NODE_ENV=development
 - [TypeScript Documentation](https://www.typescriptlang.org/docs)
 
 ### Related Documents
-- [Telopillo.bo PRD](../../PRD.md)
+- [Telopillo PRD](../../PRD.md)
 - [System Architecture](../../ARCHITECTURE.md)
 - [Milestone 1: Authentication & Profiles](../M1-authentication-profiles/README.md)
 

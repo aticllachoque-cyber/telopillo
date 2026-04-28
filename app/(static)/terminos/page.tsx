@@ -3,7 +3,7 @@ import { Construction } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Términos y Condiciones',
-  description: 'Términos y condiciones de uso de Telopillo.bo.',
+  description: 'Términos y condiciones de uso de Telopillo.',
 }
 
 export default function TermsPage() {

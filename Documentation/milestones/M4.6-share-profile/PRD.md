@@ -92,7 +92,7 @@ ELSE:
   shareUrl = {baseUrl}/vendedor/{profile.id}
 ```
 
-Base URL: `process.env.NEXT_PUBLIC_APP_URL` or fallback `https://telopillo.bo`
+Base URL: `process.env.NEXT_PUBLIC_APP_URL` or fallback `https://telopillo`
 
 #### 4.1.4 Copy to Clipboard
 - Uses `navigator.clipboard.writeText()`
@@ -102,8 +102,8 @@ Base URL: `process.env.NEXT_PUBLIC_APP_URL` or fallback `https://telopillo.bo`
 #### 4.1.5 Native Share (Web Share API)
 - Feature detection at call time: `typeof navigator.share === 'function'`
 - Share data:
-  - `title`: "Mi perfil en Telopillo.bo"
-  - `text`: "Mira mis productos en Telopillo.bo"
+  - `title`: "Mi perfil en Telopillo"
+  - `text`: "Mira mis productos en Telopillo"
   - `url`: the computed share URL
 - On `AbortError` (user cancelled): silent (no error toast)
 - Fallback: copy to clipboard when Web Share API is not available

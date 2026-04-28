@@ -3,7 +3,7 @@ import { Construction } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Contacto',
-  description: 'Contactá al equipo de Telopillo.bo.',
+  description: 'Contactá al equipo de Telopillo.',
 }
 
 export default function ContactPage() {

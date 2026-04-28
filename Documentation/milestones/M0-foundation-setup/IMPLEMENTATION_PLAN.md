@@ -975,7 +975,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-primary">Telopillo.bo</span>
+          <span className="text-2xl font-bold text-primary">Telopillo</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -1119,9 +1119,9 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="space-y-3">
-            <h3 className="text-lg font-bold">Telopillo.bo</h3>
+            <h3 className="text-lg font-bold">Telopillo</h3>
             <p className="text-sm text-muted-foreground">
-              Lo que buscás, ¡telopillo!
+              Lo buscás, ¡te lo pillo!
             </p>
             <div className="flex space-x-4">
               <Link
@@ -1219,7 +1219,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {currentYear} Telopillo.bo. Todos los derechos reservados.</p>
+          <p>&copy; {currentYear} Telopillo. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
@@ -1243,8 +1243,8 @@ import { Footer } from '@/components/layout/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Telopillo.bo - Marketplace Boliviano',
-  description: 'Lo que buscás, ¡telopillo!',
+  title: 'Telopillo - Marketplace Boliviano',
+  description: 'Lo buscás, ¡te lo pillo!',
 }
 
 export default function RootLayout({
@@ -1283,7 +1283,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="text-center space-y-6 py-12">
         <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-          Lo que buscás, <span className="text-primary">¡telopillo!</span>
+          Lo buscás, <span className="text-primary">¡te lo pillo!</span>
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           El marketplace boliviano donde comprás y vendés de todo, fácil y rápido.
@@ -1300,7 +1300,7 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="py-12">
-        <h2 className="text-3xl font-bold text-center mb-8">¿Por qué Telopillo.bo?</h2>
+        <h2 className="text-3xl font-bold text-center mb-8">¿Por qué Telopillo?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
@@ -1430,11 +1430,11 @@ curl http://localhost:3000/api/test-storage
 Create comprehensive `README.md`:
 
 ```markdown
-# Telopillo.bo - Marketplace Boliviano
+# Telopillo - Marketplace Boliviano
 
-**Lo que buscás, ¡telopillo!**
+**Lo buscás, ¡te lo pillo!**
 
-Telopillo.bo is a Bolivian marketplace platform where anyone can buy and sell products easily and quickly.
+Telopillo is a Bolivian marketplace platform where anyone can buy and sell products easily and quickly.
 
 ## Tech Stack
 
@@ -1563,8 +1563,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-- Website: [telopillo.bo](https://telopillo.bo)
-- Email: contacto@telopillo.bo
+- Website: [telopillo](https://telopillo)
+- Email: contacto@telopillo
 
 ---
 
@@ -1578,9 +1578,9 @@ Made with ❤️ in Bolivia
 Create `CONTRIBUTING.md`:
 
 ```markdown
-# Contributing to Telopillo.bo
+# Contributing to Telopillo
 
-Thank you for your interest in contributing to Telopillo.bo! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing to Telopillo! This document provides guidelines for contributing to the project.
 
 ## Development Workflow
 
@@ -1699,7 +1699,7 @@ Create `Documentation/STRUCTURE.md`:
 ```markdown
 # Project Structure
 
-This document explains the organization of the Telopillo.bo codebase.
+This document explains the organization of the Telopillo codebase.
 
 ## Directory Structure
 

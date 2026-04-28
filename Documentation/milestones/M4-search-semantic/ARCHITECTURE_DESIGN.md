@@ -1,6 +1,6 @@
 # M4 Semantic Search Architecture Design
 
-**Telopillo.bo Marketplace**  
+**Telopillo Marketplace**  
 **Target:** Bolivian Spanish hybrid search (keyword + semantic)  
 **Last Updated:** February 14, 2026
 
@@ -8,7 +8,7 @@
 
 ## 1. Summary
 
-M4 adds semantic search to Telopillo.bo using **pgvector** for vector storage, **Hugging Face Inference API** for embeddings (`paraphrase-multilingual-MiniLM-L12-v2`, 384 dimensions), and **Reciprocal Rank Fusion (RRF, k=60)** to merge keyword (FTS) and semantic results. A feature flag allows toggling between keyword-only and hybrid search. Embeddings are generated automatically via Database Webhooks invoking an Edge Function on product INSERT/UPDATE.
+M4 adds semantic search to Telopillo using **pgvector** for vector storage, **Hugging Face Inference API** for embeddings (`paraphrase-multilingual-MiniLM-L12-v2`, 384 dimensions), and **Reciprocal Rank Fusion (RRF, k=60)** to merge keyword (FTS) and semantic results. A feature flag allows toggling between keyword-only and hybrid search. Embeddings are generated automatically via Database Webhooks invoking an Edge Function on product INSERT/UPDATE.
 
 ---
 

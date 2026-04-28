@@ -3,7 +3,7 @@ import { MessageCircle, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export const metadata = {
-  title: 'Mensajes - Telopillo.bo',
+  title: 'Mensajes - Telopillo',
   description: 'Chat con compradores y vendedores. Próximamente.',
 }
 

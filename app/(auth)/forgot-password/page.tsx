@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    document.title = 'Recuperar Contraseña - Telopillo.bo'
+    document.title = 'Recuperar Contraseña - Telopillo'
   }, [])
 
   const {

@@ -1,4 +1,4 @@
-# Telopillo.bo - Playwright CLI Test Plans
+# Telopillo - Playwright CLI Test Plans
 
 Manual test plans designed for execution with [Playwright CLI](https://github.com/microsoft/playwright-cli).
 Each file documents a user flow with step-by-step `playwright-cli` commands.

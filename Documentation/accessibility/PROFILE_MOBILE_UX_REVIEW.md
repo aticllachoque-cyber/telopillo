@@ -1,4 +1,4 @@
-# Profile Page Mobile UX Review — Telopillo.bo
+# Profile Page Mobile UX Review — Telopillo
 
 **Review Date:** February 17, 2026  
 **Scope:** Profile pages (`/profile`, `/profile/edit`, `/perfil/mis-productos`), related components, UserMenu, Header  

@@ -24,7 +24,7 @@
 
 ### 1.1 Overview
 
-M3 implements keyword search and discovery for Telopillo.bo—enabling users to find products via search bar, filters, category browsing, and sort options. Uses PostgreSQL Full-Text Search (FTS) with Spanish configuration for Bolivian Spanish support.
+M3 implements keyword search and discovery for Telopillo—enabling users to find products via search bar, filters, category browsing, and sort options. Uses PostgreSQL Full-Text Search (FTS) with Spanish configuration for Bolivian Spanish support.
 
 ### 1.2 Key Metrics
 

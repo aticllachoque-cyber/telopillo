@@ -195,10 +195,10 @@
    - Show total product count: "Productos (24)"
 
 5. SEO (PRD Section 4.1.8)
-   - `<title>`: `{businessName} - Telopillo.bo`
+   - `<title>`: `{businessName} - Telopillo`
    - `<meta name="description">`: business description
    - Open Graph meta tags: `og:title`, `og:description`, `og:image` (logo), `og:type`
-   - `<link rel="canonical">`: `https://telopillo.bo/negocio/{slug}`
+   - `<link rel="canonical">`: `https://telopillo/negocio/{slug}`
    - Schema.org LocalBusiness JSON-LD structured data
 
 ### Deliverables

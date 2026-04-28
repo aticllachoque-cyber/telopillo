@@ -90,7 +90,7 @@ function BuscoPageContent() {
   }, [q, category, department, sort, page])
 
   useEffect(() => {
-    document.title = 'Busco / Necesito - Telopillo.bo'
+    document.title = 'Busco / Necesito - Telopillo'
     fetchDemands()
   }, [fetchDemands])
 

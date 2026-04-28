@@ -85,31 +85,31 @@ export async function generateMetadata({ params }: SellerPageProps): Promise<Met
   const profile = await getSellerProfile(id)
 
   if (!profile) {
-    return { title: 'Vendedor no encontrado - Telopillo.bo' }
+    return { title: 'Vendedor no encontrado - Telopillo' }
   }
 
   const name = profile.full_name || 'Vendedor'
   const location = [profile.location_city, profile.location_department].filter(Boolean).join(', ')
   const description = location
-    ? `Perfil de ${name} en Telopillo.bo. Vendedor ubicado en ${location}. Encuentra sus productos disponibles.`
-    : `Perfil de ${name} en Telopillo.bo. Encuentra sus productos disponibles.`
+    ? `Perfil de ${name} en Telopillo. Vendedor ubicado en ${location}. Encuentra sus productos disponibles.`
+    : `Perfil de ${name} en Telopillo. Encuentra sus productos disponibles.`
 
   return {
-    title: `${name} - Vendedor en Telopillo.bo`,
+    title: `${name} - Vendedor en Telopillo`,
     description,
     openGraph: {
-      title: `${name} - Vendedor en Telopillo.bo`,
+      title: `${name} - Vendedor en Telopillo`,
       description,
       type: 'profile',
       ...(profile.avatar_url && { images: [profile.avatar_url] }),
     },
     twitter: {
       card: 'summary',
-      title: `${name} - Vendedor en Telopillo.bo`,
+      title: `${name} - Vendedor en Telopillo`,
       description,
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://telopillo.bo'}/vendedor/${id}`,
+      canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://telopillo'}/vendedor/${id}`,
     },
   }
 }

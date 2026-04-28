@@ -100,7 +100,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
-          <span className="text-2xl font-bold text-primary">Telopillo.bo</span>
+          <span className="text-2xl font-bold text-primary">Telopillo</span>
         </Link>
 
         {/* Desktop Search Bar (Suspense required for useSearchParams during static generation) */}

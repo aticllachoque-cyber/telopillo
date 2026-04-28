@@ -45,7 +45,7 @@
 
 ### 1.1 Overview
 
-Milestone 4.5 introduces **differentiated account types** (Personal and Business) and a **minimal KYC** verification framework for Telopillo.bo. The architecture extends the existing Supabase-based BaaS platform with new database tables, triggers, storage buckets, and frontend components—all designed for zero onboarding friction and zero external service costs.
+Milestone 4.5 introduces **differentiated account types** (Personal and Business) and a **minimal KYC** verification framework for Telopillo. The architecture extends the existing Supabase-based BaaS platform with new database tables, triggers, storage buckets, and frontend components—all designed for zero onboarding friction and zero external service costs.
 
 **Key architectural characteristics:**
 
@@ -87,7 +87,7 @@ Milestone 4.5 introduces **differentiated account types** (Personal and Business
 
 ## 2. System Context
 
-### 2.1 M4.5 in Overall Telopillo.bo Architecture
+### 2.1 M4.5 in Overall Telopillo Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -678,7 +678,7 @@ v_slug := v_slug || '-' || v_suffix;
 
 ### 7.4 SEO Considerations
 
-- **Canonical URL:** `https://telopillo.bo/negocio/{slug}`
+- **Canonical URL:** `https://telopillo/negocio/{slug}`
 - **Meta tags:** title, description, og:*, Twitter cards
 - **Schema.org:** LocalBusiness JSON-LD (name, description, address, hours, sameAs)
 - **Slug stability:** Slug is set at creation; business name edits do not change URL (avoids redirect churn)
@@ -1033,7 +1033,7 @@ CREATE TABLE verification_documents (
 
 ## Conclusion
 
-M4.5 extends Telopillo.bo with a business-as-add-on model and minimal KYC through additive, non-breaking changes. The architecture prioritizes:
+M4.5 extends Telopillo with a business-as-add-on model and minimal KYC through additive, non-breaking changes. The architecture prioritizes:
 
 1. **Zero friction:** Single registration form; optional business add-on; phone in profile form
 2. **Business as add-on:** Any user can create a business profile at any time, no mutually exclusive types

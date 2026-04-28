@@ -33,7 +33,7 @@ You'll need to:
 3. Click **"Create"**
 
 **Fill in App Information:**
-- **App name:** `Telopillo.bo`
+- **App name:** `Telopillo`
 - **User support email:** Your email
 - **App logo:** (optional, skip for now)
 - **Application home page:** `http://localhost:3003`

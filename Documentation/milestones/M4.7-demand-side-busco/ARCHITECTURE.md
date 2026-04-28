@@ -80,7 +80,7 @@ Milestone 4.7 introduces a **demand-side posting** system to complement the exis
 
 ## 2. System Context
 
-### 2.1 M4.7 in Overall Telopillo.bo Architecture
+### 2.1 M4.7 in Overall Telopillo Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐

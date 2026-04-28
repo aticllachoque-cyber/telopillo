@@ -1,4 +1,4 @@
-# PRD — Telopillo.bo
+# PRD — Telopillo
 ## Marketplace de Compra y Venta para Bolivia
 
 **Versión:** 1.5  
@@ -11,11 +11,11 @@
 
 ## 1. Visión del Producto
 
-**Telopillo.bo** es un marketplace digital boliviano donde cualquier persona o negocio puede publicar productos para vender y buscar productos que necesita comprar. La plataforma conecta oferta y demanda de manera simple, rápida y con identidad local.
+**Telopillo** es un marketplace digital boliviano donde cualquier persona o negocio puede publicar productos para vender y buscar productos que necesita comprar. La plataforma conecta oferta y demanda de manera simple, rápida y con identidad local.
 
 **Misión:** Democratizar el comercio digital en Bolivia, dando a vendedores individuales y negocios una plataforma accesible para llegar a más compradores, y a compradores una herramienta ágil para encontrar lo que buscan.
 
-**Slogan:** *"Lo que buscás, ¡telopillo!"*
+**Slogan:** *"Lo buscás, ¡te lo pillo!"*
 
 ---
 
@@ -691,7 +691,7 @@ Optimizaciones:
 
 **Enfoque Híbrido: Keyword + Semantic Search**
 
-La búsqueda será el diferenciador principal de Telopillo.bo. Implementaremos un sistema híbrido que combine:
+La búsqueda será el diferenciador principal de Telopillo. Implementaremos un sistema híbrido que combine:
 
 1. **Búsqueda por Keywords (PostgreSQL Full-Text Search):**
    - Para coincidencias exactas y filtros estructurados
@@ -1034,7 +1034,7 @@ Deno.serve(async (req) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: 'Telopillo <noreply@telopillo.bo>',
+      from: 'Telopillo <noreply@telopillo>',
       to: recipientEmail,
       subject: 'Nuevo mensaje en Telopillo',
       html: `<p>Tienes un nuevo mensaje: "${record.content}"</p>`
@@ -3059,7 +3059,7 @@ supabase functions deploy send-notification
 **3. Configure Custom Domain:**
 ```bash
 # In Vercel dashboard:
-# - Add custom domain (telopillo.bo)
+# - Add custom domain (telopillo)
 # - Configure DNS (CNAME to vercel-dns.com)
 # - SSL automatic
 

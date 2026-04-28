@@ -20,7 +20,7 @@
 
 ## 1. Executive Summary
 
-This milestone introduces a **business-as-add-on** model with a **minimal KYC** (Know Your Customer) verification system for Telopillo.bo. All users start as personal accounts and can optionally add a business profile at any time - during registration or later. This gives businesses a dedicated storefront presence and establishes a lightweight trust framework based on email and phone collection.
+This milestone introduces a **business-as-add-on** model with a **minimal KYC** (Know Your Customer) verification system for Telopillo. All users start as personal accounts and can optionally add a business profile at any time - during registration or later. This gives businesses a dedicated storefront presence and establishes a lightweight trust framework based on email and phone collection.
 
 **Success means:** Users register with a simple single form (optionally adding a business), businesses get a rich storefront page, descriptive trust badges ("Nuevo Vendedor", "Vendedor con Telefono") appear on profiles and product cards - all with zero onboarding friction and zero external service costs.
 
@@ -426,13 +426,13 @@ export const profileSchema = z.object({
 
 **Business Storefront Meta Tags**
 ```html
-<title>{businessName} - Telopillo.bo</title>
+<title>{businessName} - Telopillo</title>
 <meta name="description" content="{businessDescription}" />
-<meta property="og:title" content="{businessName} - Telopillo.bo" />
+<meta property="og:title" content="{businessName} - Telopillo" />
 <meta property="og:description" content="{businessDescription}" />
 <meta property="og:image" content="{businessLogoUrl}" />
 <meta property="og:type" content="business.business" />
-<link rel="canonical" href="https://telopillo.bo/negocio/{slug}" />
+<link rel="canonical" href="https://telopillo/negocio/{slug}" />
 ```
 
 **Schema.org LocalBusiness (JSON-LD)**
@@ -443,7 +443,7 @@ export const profileSchema = z.object({
   "name": "{businessName}",
   "description": "{businessDescription}",
   "image": "{businessLogoUrl}",
-  "url": "https://telopillo.bo/negocio/{slug}",
+  "url": "https://telopillo/negocio/{slug}",
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "{businessCity}",

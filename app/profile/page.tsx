@@ -38,7 +38,7 @@ export default function ProfilePage() {
   const { showToast } = useToast()
 
   useEffect(() => {
-    document.title = 'Mi Perfil - Telopillo.bo'
+    document.title = 'Mi Perfil - Telopillo'
     loadProfile()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

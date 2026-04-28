@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'Telopillo.bo - Comprar y Vender en Bolivia | Marketplace Boliviano',
-    template: '%s | Telopillo.bo',
+    default: 'Telopillo - Comprar y Vender en Bolivia | Marketplace Boliviano',
+    template: '%s | Telopillo',
   },
   description:
     'El marketplace 100% boliviano para comprar y vender de todo. Sin comisiones. Electrónica, vehículos, moda y más en los 9 departamentos de Bolivia.',
@@ -27,21 +27,21 @@ export const metadata: Metadata = {
     'Cochabamba',
     'gratis',
   ],
-  authors: [{ name: 'Telopillo.bo' }],
-  creator: 'Telopillo.bo',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'),
+  authors: [{ name: 'Telopillo' }],
+  creator: 'Telopillo',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'),
   openGraph: {
     type: 'website',
     locale: 'es_BO',
-    siteName: 'Telopillo.bo',
-    title: 'Telopillo.bo - Comprar y Vender en Bolivia',
+    siteName: 'Telopillo',
+    title: 'Telopillo - Comprar y Vender en Bolivia',
     description:
       'El marketplace 100% boliviano. Comprá y vendé de todo sin comisiones en los 9 departamentos.',
     url: '/',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Telopillo.bo - Marketplace Boliviano',
+    title: 'Telopillo - Marketplace Boliviano',
     description: 'Comprá y vendé de todo en Bolivia. Sin comisiones. 100% boliviano.',
   },
   robots: {

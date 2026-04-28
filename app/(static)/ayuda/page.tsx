@@ -3,7 +3,7 @@ import { Construction } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Ayuda',
-  description: 'Centro de ayuda de Telopillo.bo.',
+  description: 'Centro de ayuda de Telopillo.',
 }
 
 export default function HelpPage() {

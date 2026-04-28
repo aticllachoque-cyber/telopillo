@@ -1,4 +1,4 @@
-# E2E Test Plan — Telopillo.bo
+# E2E Test Plan — Telopillo
 
 > **Plan ID:** E2E-MASTER-001
 > **Created:** 2026-02-15

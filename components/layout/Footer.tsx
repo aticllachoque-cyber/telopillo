@@ -13,10 +13,10 @@ export function Footer() {
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           {/* Brand + Social */}
           <div className="flex items-center gap-4">
-            <span className="text-sm font-bold">Telopillo.bo</span>
+            <span className="text-sm font-bold">Telopillo</span>
             <div className="flex gap-3">
               <Link
-                href="https://facebook.com/telopillo.bo"
+                href="https://facebook.com/telopillo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors p-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
@@ -25,7 +25,7 @@ export function Footer() {
                 <Facebook className="h-4 w-4" aria-hidden />
               </Link>
               <Link
-                href="https://instagram.com/telopillo.bo"
+                href="https://instagram.com/telopillo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors p-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
@@ -97,7 +97,7 @@ export function Footer() {
 
         {/* Copyright */}
         <p className="mt-4 pt-4 border-t text-center text-xs text-muted-foreground">
-          &copy; {currentYear} Telopillo.bo. Todos los derechos reservados.
+          &copy; {currentYear} Telopillo. Todos los derechos reservados.
         </p>
       </div>
     </footer>

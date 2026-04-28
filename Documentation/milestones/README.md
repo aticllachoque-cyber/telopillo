@@ -1,4 +1,4 @@
-# Telopillo.bo - Milestones Overview
+# Telopillo - Milestones Overview
 
 This directory contains detailed tracking for each development milestone.
 

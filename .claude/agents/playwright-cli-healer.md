@@ -34,7 +34,7 @@ You are the Playwright Test Healer. You fix failing **@playwright/test** specs b
 
 5. **Fix the spec** with `StrReplace` or `Write`:
    - Prefer `getByRole()`, `getByLabel()` over brittle `locator('css')`
-   - Use regex for dynamic text: `getByText(/lo que buscás/i)`
+   - Use regex for dynamic text: `getByText(/lo buscás|te lo pillo/i)`
    - Add explicit waits only when necessary; prefer `expect().toBeVisible()` over `page.waitForTimeout()`
    - Never use `networkidle` or deprecated APIs
 

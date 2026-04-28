@@ -11,7 +11,7 @@
 
 ## 1. Executive Summary
 
-This milestone introduces **demand-side posting** to Telopillo.bo — a reverse marketplace flow where **buyers publish what they need** and **sellers respond with product offers**. This complements the existing supply-side model (seller lists → buyer finds) with a demand-side channel (buyer requests → seller offers).
+This milestone introduces **demand-side posting** to Telopillo — a reverse marketplace flow where **buyers publish what they need** and **sellers respond with product offers**. This complements the existing supply-side model (seller lists → buyer finds) with a demand-side channel (buyer requests → seller offers).
 
 **Success means:** Buyers can post "Busco iPhone 13 en buen estado" and receive offers from sellers who have matching products, contact them via WhatsApp, and mark the request as fulfilled — all with zero friction, reusing existing categories, locations, search, and embedding infrastructure.
 

@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS public.products (
   CONSTRAINT products_description_length CHECK (char_length(description) BETWEEN 50 AND 5000)
 );
 
-COMMENT ON TABLE public.products IS 'Product listings for Telopillo.bo marketplace. M2 scope.';
+COMMENT ON TABLE public.products IS 'Product listings for Telopillo marketplace. M2 scope.';
 COMMENT ON COLUMN public.products.images IS 'Array of public URLs from product-images bucket. 1-5 images.';
 COMMENT ON COLUMN public.products.expires_at IS 'Auto-expire for cleanup. M2: no trigger; M9+ adds cron job.';
 

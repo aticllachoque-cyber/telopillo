@@ -1,6 +1,6 @@
-# Telopillo.bo - Claude Code Instructions
+# Telopillo - Claude Code Instructions
 
-**Project:** Telopillo.bo - Bolivian Online Marketplace
+**Project:** Telopillo - Bolivian Online Marketplace
 **Version:** MVP Development Phase
 **Last Updated:** February 19, 2026
 
@@ -8,7 +8,7 @@
 
 ## 🎯 Project Overview
 
-Telopillo.bo is a Bolivian marketplace platform that connects buyers and sellers. The key differentiator is **semantic search** that understands Bolivian Spanish, synonyms, typos, and natural language queries.
+Telopillo is a Bolivian marketplace platform that connects buyers and sellers. The key differentiator is **semantic search** that understands Bolivian Spanish, synonyms, typos, and natural language queries.
 
 ### Current State
 - **Milestone M4.7 Complete**: Demand-side posting ("Busco/Necesito"), UX polish, accessibility hardening
@@ -327,7 +327,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=      # Server-side only
 
 # Optional (set to actual values in production)
-NEXT_PUBLIC_APP_URL=https://telopillo.bo
+NEXT_PUBLIC_APP_URL=https://telopillo
 NEXT_PUBLIC_DISABLE_AUTH=false  # MUST be false in production
 
 # Edge Functions

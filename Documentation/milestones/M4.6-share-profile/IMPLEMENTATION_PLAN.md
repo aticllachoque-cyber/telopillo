@@ -42,9 +42,9 @@
 The component relies on `NEXT_PUBLIC_APP_URL` for the share base URL. Add a runtime guard:
 
 ```typescript
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo.bo'
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 if (!process.env.NEXT_PUBLIC_APP_URL) {
-  console.warn('NEXT_PUBLIC_APP_URL is not set. Share URLs will default to https://telopillo.bo')
+  console.warn('NEXT_PUBLIC_APP_URL is not set. Share URLs will default to https://telopillo')
 }
 ```
 

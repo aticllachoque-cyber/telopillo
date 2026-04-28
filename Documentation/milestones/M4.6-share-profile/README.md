@@ -58,7 +58,7 @@ Public seller pages already exist (`/vendedor/[id]` and `/negocio/[slug]`), but 
 
 **Acceptance Criteria:**
 - [x] "Compartir" button uses Web Share API when available
-- [x] Share includes title ("Mi perfil en Telopillo.bo") and URL
+- [x] Share includes title ("Mi perfil en Telopillo") and URL
 - [x] Falls back to clipboard copy when Web Share API is not available
 - [x] Works on Android and iOS browsers
 
@@ -191,6 +191,6 @@ After completing the core M4.6 scope, product-level sharing was added to `Produc
 | Web Share API not available on desktop | Fallback to clipboard copy |
 | Clipboard API requires HTTPS | Works on localhost for dev; production uses HTTPS |
 | UUID URLs are ugly for personal accounts | Functional for MVP; username/slug deferred |
-| `NEXT_PUBLIC_APP_URL` not set in production | Runtime fallback to `https://telopillo.bo`; add to deployment checklist |
+| `NEXT_PUBLIC_APP_URL` not set in production | Runtime fallback to `https://telopillo`; add to deployment checklist |
 | Safari/iOS may drop `text` from Web Share payload | Acceptable — `url` is the critical field; `text` is supplementary |
 | KPIs not measurable without analytics | KPIs are aspirational for MVP; share analytics deferred to future enhancement |

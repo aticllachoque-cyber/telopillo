@@ -25,7 +25,7 @@ const RETRY_BASE_DELAY_MS = 1000
 // SECURITY: Require ALLOWED_ORIGIN to be explicitly set (no fallback)
 // Set via:
 //   Development: npx supabase secrets set ALLOWED_ORIGIN=http://localhost:3003
-//   Production:  npx supabase secrets set ALLOWED_ORIGIN=https://telopillo.bo
+//   Production:  npx supabase secrets set ALLOWED_ORIGIN=https://telopillo
 const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN')
 if (!ALLOWED_ORIGIN) {
   throw new Error(
