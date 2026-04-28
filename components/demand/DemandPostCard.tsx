@@ -50,13 +50,13 @@ export function DemandPostCard({ post }: DemandPostCardProps) {
       className="block group"
       aria-label={`Ver solicitud: ${post.title}`}
     >
-      <Card className="p-4 h-full transition-shadow hover:shadow-md gap-3 flex flex-col">
+      <Card className="flex h-full flex-col gap-3 border border-border/60 p-4 shadow-md transition-shadow hover:shadow-md">
         <div className="flex items-center justify-between gap-2">
           <Badge variant="secondary" className="text-xs shrink-0">
             {categoryLabel}
           </Badge>
-          <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="h-3 w-3" aria-hidden />
+          <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
+            <Clock className="h-3 w-3 shrink-0" aria-hidden />
             {formatRelativeDate(post.created_at)}
           </span>
         </div>
@@ -69,15 +69,17 @@ export function DemandPostCard({ post }: DemandPostCardProps) {
           <p className="text-sm text-muted-foreground line-clamp-2 flex-1 text-pretty">{snippet}</p>
         )}
 
-        {priceRange && <p className="text-sm font-medium text-primary">{priceRange}</p>}
+        {priceRange && (
+          <p className="text-sm font-medium text-primary tabular-nums">{priceRange}</p>
+        )}
 
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t mt-auto">
           <span className="flex items-center gap-1">
             <MapPin className="h-3 w-3" aria-hidden />
             {post.location_city}, {post.location_department}
           </span>
-          <span className="flex items-center gap-1">
-            <MessageSquare className="h-3 w-3" aria-hidden />
+          <span className="flex items-center gap-1 tabular-nums">
+            <MessageSquare className="h-3 w-3 shrink-0" aria-hidden />
             {post.offers_count} {post.offers_count === 1 ? 'oferta' : 'ofertas'}
           </span>
         </div>

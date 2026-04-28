@@ -84,7 +84,8 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category') || undefined
   const department = searchParams.get('department') || undefined
   const sort = searchParams.get('sort') || (q ? 'relevance' : 'newest')
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const rawPage = parseInt(searchParams.get('page') || '1', 10)
+  const page = Math.max(1, Number.isFinite(rawPage) ? rawPage : 1)
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '12', 10)))
   const offset = (page - 1) * limit
 

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { SlidersHorizontal } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { CATEGORY_LABELS, BOLIVIA_DEPARTMENTS } from '@/lib/validations/product'
 import {
   Select,
@@ -17,12 +18,15 @@ interface DemandPostFiltersProps {
   category: string
   department: string
   sort: string
+  /** When true, default URL sort is `relevance` (with search); used for filter badge counts. */
+  hasSearchQuery: boolean
   onCategoryChange: (value: string) => void
   onDepartmentChange: (value: string) => void
   onSortChange: (value: string) => void
 }
 
 const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Más relevantes' },
   { value: 'newest', label: 'Más recientes' },
   { value: 'most_offers', label: 'Más ofertas' },
   { value: 'expiring_soon', label: 'Por vencer' },
@@ -32,13 +36,17 @@ export function DemandPostFilters({
   category,
   department,
   sort,
+  hasSearchQuery,
   onCategoryChange,
   onDepartmentChange,
   onSortChange,
 }: DemandPostFiltersProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const filtersPanelId = useId()
 
-  const activeCount = [category !== 'all', department !== 'all', sort !== 'newest'].filter(
+  const defaultSort = hasSearchQuery ? 'relevance' : 'newest'
+  const sortIsActive = sort !== defaultSort
+  const activeCount = [category !== 'all', department !== 'all', sortIsActive].filter(
     Boolean
   ).length
 
@@ -55,7 +63,7 @@ export function DemandPostFilters({
         <Select value={category} onValueChange={onCategoryChange}>
           <SelectTrigger
             id="filter-category"
-            className="h-11 w-full sm:w-[160px] sm:h-9 text-sm"
+            className="h-11 w-full touch-manipulation sm:h-9 sm:w-[160px] text-sm"
             aria-label="Filtrar por categoría"
           >
             <SelectValue placeholder="Todas" />
@@ -78,7 +86,7 @@ export function DemandPostFilters({
         <Select value={department} onValueChange={onDepartmentChange}>
           <SelectTrigger
             id="filter-department"
-            className="h-11 w-full sm:w-[160px] sm:h-9 text-sm"
+            className="h-11 w-full touch-manipulation sm:h-9 sm:w-[160px] text-sm"
             aria-label="Filtrar por departamento"
           >
             <SelectValue placeholder="Todos" />
@@ -101,7 +109,7 @@ export function DemandPostFilters({
         <Select value={sort} onValueChange={onSortChange}>
           <SelectTrigger
             id="filter-sort"
-            className="h-11 w-full sm:w-[180px] sm:h-9 text-sm"
+            className="h-11 w-full touch-manipulation sm:h-9 sm:w-[180px] text-sm"
             aria-label="Ordenar solicitudes"
           >
             <SelectValue />
@@ -120,15 +128,14 @@ export function DemandPostFilters({
 
   return (
     <>
-      {/* Mobile: collapsible toggle */}
       <div className="sm:hidden">
         <Button
           variant="outline"
           size="sm"
           onClick={() => setIsOpen(!isOpen)}
-          className="min-h-[44px] w-full justify-between"
+          className="min-h-[44px] w-full touch-manipulation justify-between"
           aria-expanded={isOpen}
-          aria-controls="demand-filters-mobile"
+          aria-controls={filtersPanelId}
         >
           <span className="flex items-center gap-2">
             <SlidersHorizontal className="size-4" aria-hidden />
@@ -136,15 +143,14 @@ export function DemandPostFilters({
           </span>
           <span className="text-xs text-muted-foreground">{isOpen ? 'Ocultar' : 'Mostrar'}</span>
         </Button>
-        {isOpen && (
-          <div id="demand-filters-mobile" className="mt-3">
-            {filterContent}
-          </div>
-        )}
       </div>
 
-      {/* Desktop: always visible */}
-      <div className="hidden sm:block">{filterContent}</div>
+      <div
+        id={filtersPanelId}
+        className={cn('mt-3 sm:mt-0', !isOpen && 'max-sm:hidden', 'sm:block')}
+      >
+        {filterContent}
+      </div>
     </>
   )
 }
