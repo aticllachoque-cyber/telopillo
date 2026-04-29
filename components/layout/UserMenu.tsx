@@ -13,7 +13,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { getAvatarColor } from '@/lib/utils'
-import { User, Settings, LogOut, Loader2, Package } from 'lucide-react'
+import {
+  ClipboardList,
+  Loader2,
+  LogOut,
+  MessageSquare,
+  Package,
+  Settings,
+  User,
+} from 'lucide-react'
 import { useAuth } from '@/components/providers/AuthProvider'
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password']
@@ -76,7 +84,7 @@ export function UserMenu() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-64 p-2">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{profile?.full_name || 'Usuario'}</p>
@@ -84,24 +92,63 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/profile" className="cursor-pointer">
-            <User className="mr-2 size-4" aria-hidden />
-            Mi Perfil
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/perfil/mis-productos" className="cursor-pointer">
-            <Package className="mr-2 size-4" aria-hidden />
-            Mis productos
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/profile/edit" className="cursor-pointer">
-            <Settings className="mr-2 size-4" aria-hidden />
-            Editar Perfil
-          </Link>
-        </DropdownMenuItem>
+
+        <div
+          className="mb-2 rounded-lg border border-primary/25 bg-primary/5 p-1.5"
+          role="group"
+          aria-labelledby="user-menu-publicaciones-label"
+        >
+          <p
+            id="user-menu-publicaciones-label"
+            className="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Publicaciones
+          </p>
+          <DropdownMenuItem asChild>
+            <Link href="/perfil/mis-productos" className="cursor-pointer">
+              <Package className="mr-2 size-4" aria-hidden />
+              Mis productos
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/perfil/demandas" className="cursor-pointer">
+              <ClipboardList className="mr-2 size-4" aria-hidden />
+              Mis solicitudes
+            </Link>
+          </DropdownMenuItem>
+        </div>
+
+        <div
+          className="rounded-lg border border-border/80 bg-muted/40 p-1.5"
+          role="group"
+          aria-labelledby="user-menu-cuenta-label"
+        >
+          <p
+            id="user-menu-cuenta-label"
+            className="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Cuenta
+          </p>
+          <DropdownMenuItem asChild>
+            <Link href="/profile" className="cursor-pointer">
+              <User className="mr-2 size-4" aria-hidden />
+              Perfil
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/profile/edit" className="cursor-pointer">
+              <Settings className="mr-2 size-4" aria-hidden />
+              Editar perfil
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/mensajes" className="cursor-pointer">
+              <MessageSquare className="mr-2 size-4" aria-hidden />
+              Mensajes
+            </Link>
+          </DropdownMenuItem>
+        </div>
+
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
           <LogOut className="mr-2 size-4" aria-hidden />
