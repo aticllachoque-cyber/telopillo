@@ -54,7 +54,7 @@ function getUserIdEmailPairsFromDb() {
       if (id && email) pairs.push({ id: id.trim(), email: email.trim() })
     }
     return pairs
-  } catch (e) {
+  } catch {
     return FALLBACK_IDS.filter((u) => TEST_USER_EMAILS.includes(u.email))
   }
 }

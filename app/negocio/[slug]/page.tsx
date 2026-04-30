@@ -176,6 +176,8 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
 
   const products = await getBusinessProducts(profile.id)
 
+  const storefrontWhatsApp = business.social_whatsapp?.trim() || profile.phone?.trim() || null
+
   const jsonLd = buildJsonLd(business, absoluteUrl(`/negocio/${slug}`))
 
   return (
@@ -271,7 +273,11 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
               </div>
 
               {products.length > 0 ? (
-                <ProductGrid products={products} showActions={false} />
+                <ProductGrid
+                  products={products}
+                  showActions={false}
+                  whatsappContactPhone={storefrontWhatsApp}
+                />
               ) : (
                 /* Empty storefront */
                 <Card>

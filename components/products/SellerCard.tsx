@@ -6,6 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
 import { getAvatarColor } from '@/lib/utils'
 import { MapPin, Package, Store, User } from 'lucide-react'
+import {
+  buildProductWhatsAppPrefillMessage,
+  buildWhatsAppMeUrl,
+  normalizeBolivianWhatsAppDigits,
+} from '@/lib/utils/whatsapp'
 
 interface SellerProfile {
   id: string
@@ -40,17 +45,6 @@ interface SellerCardProps {
   hideContactActions?: boolean
 }
 
-function buildWhatsAppMessage(productTitle: string, price: number, productPageUrl: string): string {
-  const priceLabel = `Bs ${price.toLocaleString('es-BO')}`
-  return [
-    'Hola! Me interesa este producto en Telopillo:',
-    '',
-    productTitle,
-    `Precio: ${priceLabel}`,
-    `Ver publicación: ${productPageUrl}`,
-  ].join('\n')
-}
-
 export function SellerCard({
   seller,
   productTitle,
@@ -73,20 +67,15 @@ export function SellerCard({
   const getWhatsAppLink = (): string => {
     const body =
       productContact != null
-        ? buildWhatsAppMessage(productTitle, productContact.price, productContact.productPageUrl)
+        ? buildProductWhatsAppPrefillMessage({
+            productTitle,
+            price: productContact.price,
+            productAbsoluteUrl: productContact.productPageUrl,
+          })
         : `Hola! Estoy interesado en tu producto: ${productTitle}`
-    const message = encodeURIComponent(body)
 
-    // If seller has phone, use it (Bolivia country code: 591)
-    if (seller.phone) {
-      // Remove any non-digit characters and ensure it starts with country code
-      const cleanPhone = seller.phone.replace(/\D/g, '')
-      const phoneWithCountry = cleanPhone.startsWith('591') ? cleanPhone : `591${cleanPhone}`
-      return `https://wa.me/${phoneWithCountry}?text=${message}`
-    }
-
-    // Fallback: WhatsApp with message only (user can select contact)
-    return `https://wa.me/?text=${message}`
+    const digits = seller.phone ? normalizeBolivianWhatsAppDigits(seller.phone) : null
+    return buildWhatsAppMeUrl(digits, body)
   }
 
   const hasPhone = !!seller.phone

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { getAvatarColor } from '@/lib/utils'
 import { MapPin, Calendar, Store } from 'lucide-react'
 import Link from 'next/link'
+import { buildWhatsAppMeUrl, normalizeBolivianWhatsAppDigits } from '@/lib/utils/whatsapp'
 
 interface SellerProfileHeaderProps {
   profile: {
@@ -32,12 +33,6 @@ function getInitials(name: string | null): string {
     .slice(0, 2)
 }
 
-function getWhatsAppLink(phone: string): string {
-  const cleanPhone = phone.replace(/\D/g, '')
-  const phoneWithCountry = cleanPhone.startsWith('591') ? cleanPhone : `591${cleanPhone}`
-  return `https://wa.me/${phoneWithCountry}`
-}
-
 export function SellerProfileHeader({
   profile,
   businessSlug,
@@ -52,6 +47,9 @@ export function SellerProfileHeader({
 
   const hasRatings = (profile.rating_count ?? 0) > 0
   const ratingAvg = profile.rating_average ?? 0
+
+  const whatsappDigits = profile.phone ? normalizeBolivianWhatsAppDigits(profile.phone) : null
+  const whatsappHref = whatsappDigits ? buildWhatsAppMeUrl(whatsappDigits) : null
 
   return (
     <div className="space-y-6">
@@ -124,14 +122,14 @@ export function SellerProfileHeader({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3">
-        {profile.phone && (
+        {whatsappHref && (
           <Button
             asChild
             size="lg"
             className="min-h-[44px] bg-green-700 hover:bg-green-800 text-white"
           >
             <a
-              href={getWhatsAppLink(profile.phone)}
+              href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"

@@ -3,6 +3,7 @@
 import { Clock, MapPin, Phone, Globe, ExternalLink } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { normalizeBolivianWhatsAppDigits } from '@/lib/utils/whatsapp'
 
 // Day names in Spanish, keyed by lowercase abbreviation
 const DAY_LABELS: Record<string, string> = {
@@ -48,21 +49,14 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
   const todayHours = hours?.[todayKey]
   const isOpenToday = !!todayHours && todayHours !== 'closed'
 
-  // Normalize a Bolivian phone number to include the country code
-  function normalizeBolivianPhone(raw: string): string {
-    const digits = raw.replace(/[^0-9]/g, '')
-    if (digits.startsWith('591')) return digits
-    return `591${digits}`
-  }
-
   // Build WhatsApp link
   const whatsappNumber = business.social_whatsapp || phone
-  const whatsappLink = whatsappNumber
-    ? `https://wa.me/${normalizeBolivianPhone(whatsappNumber)}`
-    : null
+  const whatsappDigits = whatsappNumber ? normalizeBolivianWhatsAppDigits(whatsappNumber) : null
+  const whatsappLink = whatsappDigits ? `https://wa.me/${whatsappDigits}` : null
 
   // Build tel: link with country code
-  const telLink = phone ? `tel:+${normalizeBolivianPhone(phone)}` : null
+  const telDigits = phone ? normalizeBolivianWhatsAppDigits(phone) : null
+  const telLink = telDigits ? `tel:+${telDigits}` : null
 
   const hasSocialLinks =
     business.social_facebook || business.social_instagram || business.social_tiktok

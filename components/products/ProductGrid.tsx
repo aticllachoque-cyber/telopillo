@@ -24,6 +24,11 @@ interface ProductGridProps {
   showActions?: boolean
   /** Show or hide status badges on cards (hide on public-facing pages) */
   showStatusBadge?: boolean
+  /**
+   * When set (e.g. shared storefront / seller profile), each card shows WhatsApp with a
+   * prefilled message for that listing. Omit on owner dashboard and mixed-seller grids.
+   */
+  whatsappContactPhone?: string | null
 }
 
 export function ProductGrid({
@@ -31,6 +36,7 @@ export function ProductGrid({
   onUpdate,
   showActions = false,
   showStatusBadge,
+  whatsappContactPhone,
 }: ProductGridProps) {
   if (products.length === 0) {
     return null
@@ -49,6 +55,7 @@ export function ProductGrid({
             showActions={showActions}
             showStatusBadge={showStatusBadge ?? showActions}
             priority={index === 0}
+            whatsappContactPhone={whatsappContactPhone}
           />
         </li>
       ))}
