@@ -188,7 +188,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="min-h-dvh bg-gradient-to-b from-background to-muted/20 py-8">
+      <div className="min-h-dvh bg-background py-8">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="mb-6">

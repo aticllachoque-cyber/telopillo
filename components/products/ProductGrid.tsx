@@ -16,6 +16,7 @@ interface Product {
   seller_business_name?: string | null
   seller_business_slug?: string | null
   seller_verification_level?: number
+  seller_whatsapp_phone?: string | null
 }
 
 interface ProductGridProps {
@@ -44,7 +45,7 @@ export function ProductGrid({
 
   return (
     <ul
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6 list-none p-0 m-0"
       role="list"
     >
       {products.map((product, index) => (

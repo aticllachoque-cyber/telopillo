@@ -183,8 +183,8 @@ export function OfferProductModal({
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{product.title}</p>
-                      <p className="text-sm text-primary font-semibold">
-                        Bs. {product.price.toLocaleString('es-BO')}
+                      <p className="text-sm font-semibold text-primary tabular-nums">
+                        Bs {product.price.toLocaleString('es-BO')}
                       </p>
                       <p className="text-xs text-muted-foreground">{product.location_city}</p>
                     </div>

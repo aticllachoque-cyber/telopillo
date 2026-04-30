@@ -41,6 +41,7 @@ interface Product {
   seller_business_name: string | null
   seller_business_slug: string | null
   seller_business_logo: string | null
+  seller_whatsapp_phone?: string | null
 }
 
 interface SearchResponse {
@@ -60,10 +61,10 @@ function BuscarPageSkeleton() {
         <Skeleton className="h-11 flex-1 max-w-xl" />
         <Skeleton className="h-11 w-24" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="space-y-3">
-            <Skeleton className="aspect-square rounded-lg" />
+          <div key={i} className="space-y-2">
+            <Skeleton className="aspect-[4/3] lg:aspect-square rounded-lg" />
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-6 w-1/4" />
           </div>
@@ -234,10 +235,10 @@ function BuscarPageContent() {
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="space-y-3">
-                      <Skeleton className="aspect-square rounded-lg" />
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="aspect-[4/3] lg:aspect-square rounded-lg" />
                       <Skeleton className="h-5 w-3/4" />
                       <Skeleton className="h-6 w-1/4" />
                       <Skeleton className="h-4 w-1/2" />

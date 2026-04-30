@@ -13,8 +13,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DemandStatusBadge, getDemandDisplayStatus } from './DemandStatusBadge'
 import { OfferProductModal } from './OfferProductModal'
 import { getCategoryName } from '@/lib/data/categories'
+import { productPresentation } from '@/lib/constants/productPresentation'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
-import { MapPin, MessageSquare, Calendar, Clock, CheckCircle2, Phone, Loader2 } from 'lucide-react'
+import { buildWhatsAppMeUrlWithFallback } from '@/lib/utils/whatsapp'
+import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
+import { cn } from '@/lib/utils'
+import { MapPin, MessageSquare, Calendar, Clock, CheckCircle2, Loader2 } from 'lucide-react'
 
 interface DemandPostDetailProps {
   post: {
@@ -83,9 +87,9 @@ function formatDate(dateString: string): string {
 function formatPriceRange(min: number | null, max: number | null): string | null {
   if (min == null && max == null) return null
   if (min != null && max != null)
-    return `Bs. ${min.toLocaleString('es-BO')} - Bs. ${max.toLocaleString('es-BO')}`
-  if (min != null) return `Desde Bs. ${min.toLocaleString('es-BO')}`
-  return `Hasta Bs. ${max!.toLocaleString('es-BO')}`
+    return `Bs ${min.toLocaleString('es-BO')} - Bs ${max.toLocaleString('es-BO')}`
+  if (min != null) return `Desde Bs ${min.toLocaleString('es-BO')}`
+  return `Hasta Bs ${max!.toLocaleString('es-BO')}`
 }
 
 function daysUntilExpiry(expiresAt: string): number {
@@ -114,9 +118,7 @@ export function DemandPostDetail({
   const expiryDays = daysUntilExpiry(post.expires_at)
 
   const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
-  const whatsappUrl = poster?.phone
-    ? `https://wa.me/${poster.phone.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`
-    : null
+  const whatsappHref = buildWhatsAppMeUrlWithFallback(poster?.phone, whatsappMessage)
 
   const handleMarkFound = async () => {
     setIsMarkingFound(true)
@@ -148,7 +150,7 @@ export function DemandPostDetail({
             {post.subcategory && <Badge variant="outline">{post.subcategory}</Badge>}
           </div>
 
-          <h1 className="text-2xl font-bold sm:text-3xl text-balance">{post.title}</h1>
+          <h1 className={productPresentation.detailTitle}>{post.title}</h1>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
             <span className="flex items-center gap-1">
@@ -171,24 +173,22 @@ export function DemandPostDetail({
         <Separator />
 
         <div>
-          <h2 className="font-semibold mb-2 text-balance">Descripción</h2>
+          <h2 className={cn(productPresentation.sectionHeading, 'mb-2')}>Descripción</h2>
           {isPlaceholderDescription(post.description) ? (
             <p className="text-muted-foreground italic text-pretty">
               El comprador no agregó más detalles. Puedes contactarlo directamente para más
               información.
             </p>
           ) : (
-            <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed text-pretty">
-              {post.description}
-            </p>
+            <p className={productPresentation.sectionBody}>{post.description}</p>
           )}
         </div>
 
         {/* Price range */}
         {priceRange && (
           <div>
-            <h2 className="font-semibold mb-2 text-balance">Presupuesto</h2>
-            <p className="text-lg font-medium text-primary">{priceRange}</p>
+            <h2 className={cn(productPresentation.sectionHeading, 'mb-2')}>Presupuesto</h2>
+            <p className={productPresentation.listingPrice}>{priceRange}</p>
           </div>
         )}
 
@@ -269,7 +269,7 @@ export function DemandPostDetail({
                   <p className="font-semibold">{poster.full_name}</p>
                   {posterBusiness && (
                     <Link
-                      href={`/tienda/${posterBusiness.slug}`}
+                      href={`/negocio/${posterBusiness.slug}`}
                       className="text-sm text-primary hover:underline"
                     >
                       {posterBusiness.business_name}
@@ -278,13 +278,11 @@ export function DemandPostDetail({
                 </div>
               </div>
 
-              {whatsappUrl && !isOwner && (
-                <Button asChild variant="outline" className="w-full min-h-[44px]">
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                    <Phone className="mr-2 h-4 w-4" aria-hidden />
-                    Contactar por WhatsApp
-                  </a>
-                </Button>
+              {whatsappHref && !isOwner && (
+                <ProductWhatsAppLink
+                  href={whatsappHref}
+                  ariaLabel={`Contactar a ${poster.full_name} por WhatsApp sobre esta solicitud`}
+                />
               )}
             </CardContent>
           </Card>
@@ -313,14 +311,13 @@ export function DemandPostDetail({
           </Button>
         </div>
       )}
-      {!canOffer && whatsappUrl && !isOwner && (
-        <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden z-40">
-          <Button asChild variant="outline" className="w-full min-h-[48px]">
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Phone className="mr-2 h-4 w-4" aria-hidden />
-              Contactar por WhatsApp
-            </a>
-          </Button>
+      {!canOffer && whatsappHref && !isOwner && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden">
+          <ProductWhatsAppLink
+            href={whatsappHref}
+            ariaLabel={`Contactar a ${poster?.full_name ?? 'el comprador'} por WhatsApp`}
+            className="min-h-12 w-full"
+          />
         </div>
       )}
 
@@ -371,8 +368,10 @@ function OfferCard({ offer }: { offer: OfferRow }) {
               >
                 {product.title}
               </Link>
-              <span className="text-sm font-semibold text-primary whitespace-nowrap">
-                Bs. {product.price.toLocaleString('es-BO')}
+              <span
+                className={cn(productPresentation.listingPrice, 'text-base sm:text-lg shrink-0')}
+              >
+                Bs {product.price.toLocaleString('es-BO')}
               </span>
             </div>
 

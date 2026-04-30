@@ -10,10 +10,18 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { ArrowLeft, MapPin, Eye, Flag, Calendar, Tag } from 'lucide-react'
+import { productPresentation } from '@/lib/constants/productPresentation'
+import { cn } from '@/lib/utils'
 import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
 import { getCategoryName } from '@/lib/data/categories'
 import { absoluteUrl } from '@/lib/utils'
+import {
+  buildProductWhatsAppPrefillMessage,
+  buildWhatsAppMeUrl,
+  normalizeBolivianWhatsAppDigits,
+} from '@/lib/utils/whatsapp'
 
 interface ProductPageProps {
   params: Promise<{
@@ -101,7 +109,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Fetch business profile for the seller (separate query — no direct FK from products)
   const { data: businessProfile } = await supabase
     .from('business_profiles')
-    .select('business_name, slug')
+    .select('business_name, slug, social_whatsapp')
     .eq('id', product.user_id)
     .maybeSingle()
 
@@ -120,6 +128,31 @@ export default async function ProductPage({ params }: ProductPageProps) {
     await supabase.rpc('increment_product_views', { product_id: id })
   }
 
+  const sellerProfile = product.profiles as {
+    id: string
+    full_name: string | null
+    avatar_url: string | null
+    location_city: string | null
+    location_department: string | null
+    phone: string | null
+    verification_level: number
+  }
+
+  const contactRaw = businessProfile?.social_whatsapp?.trim() || sellerProfile.phone?.trim() || ''
+  const buyerContactDigits =
+    !isOwner && contactRaw ? normalizeBolivianWhatsAppDigits(contactRaw) : null
+  const buyerWhatsAppHref =
+    buyerContactDigits != null
+      ? buildWhatsAppMeUrl(
+          buyerContactDigits,
+          buildProductWhatsAppPrefillMessage({
+            productTitle: product.title,
+            price: Number(product.price),
+            productAbsoluteUrl: absoluteUrl(`/productos/${id}`),
+          })
+        )
+      : null
+
   const categoryName = getCategoryName(product.category)
   const conditionLabel = CONDITION_LABELS[product.condition as keyof typeof CONDITION_LABELS]
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
@@ -132,7 +165,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   })
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-background to-muted/20 py-8 overflow-x-hidden">
+    <div className="min-h-dvh bg-background py-8 overflow-x-hidden">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-6">
@@ -191,75 +224,87 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <ProductGallery images={product.images} productTitle={product.title} />
 
             {/* Product Info Card */}
-            <Card>
-              <CardContent className="p-6 space-y-6">
-                {/* Title and Price */}
+            <Card className="border-border/80 shadow-sm">
+              <CardContent className="space-y-4 p-4 sm:p-6 sm:space-y-6">
+                {/* Title and Price — aligned with listing card scale */}
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-balance break-words">
-                    {product.title}
-                  </h1>
-                  <p className="text-3xl sm:text-4xl font-bold text-primary">
+                  <h1 className={productPresentation.detailTitle}>{product.title}</h1>
+                  <p className={cn(productPresentation.detailPrice, 'mt-1')}>
                     Bs {product.price.toLocaleString('es-BO')}
                   </p>
                 </div>
 
                 <Separator />
 
-                {/* Details Grid */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Estado</p>
-                      <p className="font-medium">{conditionLabel}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Ubicación</p>
-                      <p className="font-medium">{location}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Eye className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Vistas</p>
-                      <p className="font-medium">{product.views_count}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Publicado</p>
-                      <p className="font-medium">{createdDate}</p>
-                    </div>
-                  </div>
-                </div>
+                {/* Details — single-line rows (same icon + label pattern as cards) */}
+                <ul
+                  className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-2"
+                  aria-label="Información del producto"
+                >
+                  <li className={productPresentation.metaRow}>
+                    <Tag className={productPresentation.metaIcon} aria-hidden />
+                    <span className="min-w-0">
+                      <span className={productPresentation.metaLabel}>Estado · </span>
+                      <span className="font-medium">{conditionLabel}</span>
+                    </span>
+                  </li>
+                  <li className={productPresentation.metaRow}>
+                    <MapPin className={productPresentation.metaIcon} aria-hidden />
+                    <span className="min-w-0">
+                      <span className={productPresentation.metaLabel}>Ubicación · </span>
+                      <span className="font-medium">{location}</span>
+                    </span>
+                  </li>
+                  <li className={productPresentation.metaRow}>
+                    <Eye className={productPresentation.metaIcon} aria-hidden />
+                    <span className="min-w-0">
+                      <span className={productPresentation.metaLabel}>Vistas · </span>
+                      <span className="font-medium tabular-nums">{product.views_count}</span>
+                    </span>
+                  </li>
+                  <li className={productPresentation.metaRow}>
+                    <Calendar className={productPresentation.metaIcon} aria-hidden />
+                    <span className="min-w-0">
+                      <span className={productPresentation.metaLabel}>Publicado · </span>
+                      <span className="font-medium">{createdDate}</span>
+                    </span>
+                  </li>
+                </ul>
 
                 <Separator />
 
                 {/* Description */}
                 <div>
-                  <h2 className="text-xl font-semibold mb-3">Descripción</h2>
-                  <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                    {product.description}
-                  </p>
+                  <h2 className={productPresentation.sectionHeading}>Descripción</h2>
+                  <p className={productPresentation.sectionBody}>{product.description}</p>
                 </div>
 
                 <Separator />
 
-                {/* Actions */}
-                <div className="flex flex-wrap gap-3">
-                  <ShareButton title={product.title} />
-
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <Flag className="h-4 w-4" aria-hidden />
-                    Reportar
-                  </Button>
+                {/* Actions — WhatsApp matches listing cards; secondary row on narrow screens */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-stretch">
+                  {buyerWhatsAppHref && (
+                    <ProductWhatsAppLink
+                      href={buyerWhatsAppHref}
+                      ariaLabel={`Contactar al vendedor por WhatsApp sobre ${product.title}`}
+                      fullWidth={false}
+                      className="w-full shrink-0 sm:w-auto sm:min-w-[12rem]"
+                    />
+                  )}
+                  <div className="flex w-full gap-2 sm:w-auto sm:flex-1 sm:justify-start">
+                    <ShareButton
+                      title={product.title}
+                      className="flex-1 sm:flex-initial sm:min-w-[8rem]"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="min-h-[44px] flex flex-1 items-center justify-center gap-2 sm:flex-initial"
+                    >
+                      <Flag className="h-4 w-4 shrink-0" aria-hidden />
+                      Reportar
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -269,9 +314,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="lg:col-span-1">
             <div className="sticky top-8">
               <SellerCard
-                seller={product.profiles}
+                seller={sellerProfile}
                 productTitle={product.title}
-                business={businessProfile}
+                business={
+                  businessProfile
+                    ? {
+                        business_name: businessProfile.business_name,
+                        slug: businessProfile.slug,
+                        social_whatsapp: businessProfile.social_whatsapp,
+                      }
+                    : null
+                }
                 hideContactActions={isOwner}
                 productContact={
                   isOwner
