@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
               port: '54321',
               pathname: '/storage/v1/object/public/**',
             },
+            // Same storage host as 127.0.0.1; stored URLs may use localhost from env/clients
+            {
+              protocol: 'http' as const,
+              hostname: 'localhost',
+              port: '54321',
+              pathname: '/storage/v1/object/public/**',
+            },
           ]
         : []),
       ...(isDev
@@ -94,7 +101,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `img-src 'self' data: blob: https://${SUPABASE_CLOUD_HOSTNAME}${isDev ? ' http://127.0.0.1:54321 https://picsum.photos https://fastly.picsum.photos' : ''}`,
+              `img-src 'self' data: blob: https://${SUPABASE_CLOUD_HOSTNAME}${isDev ? ' http://127.0.0.1:54321 http://localhost:54321 https://picsum.photos https://fastly.picsum.photos' : ''}`,
               `connect-src 'self' ${supabaseOrigin}`,
               // worker-src allows blob: workers (e.g. browser-image-compression) when script-src does not
               "worker-src 'self' blob:",

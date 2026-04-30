@@ -13,14 +13,50 @@ export async function login(
   email: string = DEFAULT_EMAIL,
   password: string = DEFAULT_PASSWORD
 ): Promise<void> {
-  await page.goto('/login')
-  await page.waitForLoadState('networkidle')
+  await page.goto('/login', { waitUntil: 'load' })
+  await expect(page.getByLabel(/email/i)).toBeVisible({ timeout: 15_000 })
   await page.getByLabel(/email/i).fill(email)
   await page.locator('#main-content input[type="password"]').fill(password)
   await page.locator('#main-content button[type="submit"]').click()
   await page.waitForURL((url) => !url.pathname.startsWith('/login'), {
     timeout: 15_000,
   })
+}
+
+/**
+ * SPA-safe navigation: Next.js dev keeps HMR/WebSocket connections open, so
+ * `networkidle` often never fires and can hang tests.
+ */
+export async function gotoReady(page: Page, path: string): Promise<void> {
+  await page.goto(path, { waitUntil: 'load' })
+}
+
+/**
+ * Waits until the profile shell shows either the main heading (happy path) or an error
+ * alert (e.g. missing profile row), so tests fail fast instead of hanging on loading.
+ */
+export async function gotoProfilePage(page: Page): Promise<void> {
+  await gotoReady(page, '/profile')
+  const settled = page.getByRole('heading', { level: 1 }).or(page.getByRole('alert'))
+  await expect(settled).toBeVisible({ timeout: 15_000 })
+}
+
+/**
+ * Waits for the edit form’s name field or a page-level load/submit error alert.
+ */
+export async function gotoProfileEditPage(page: Page): Promise<void> {
+  await gotoReady(page, '/profile/edit')
+  const settled = page.getByLabel(/nombre completo/i).or(page.getByRole('alert'))
+  await expect(settled).toBeVisible({ timeout: 15_000 })
+}
+
+/**
+ * Waits for the page heading or a fatal error state (e.g. session could not be verified).
+ */
+export async function gotoMyProductsPage(page: Page): Promise<void> {
+  await gotoReady(page, '/perfil/mis-productos')
+  const settled = page.getByRole('heading', { name: /mis productos/i }).or(page.getByRole('alert'))
+  await expect(settled).toBeVisible({ timeout: 15_000 })
 }
 
 export interface AxeAuditOptions {
@@ -147,11 +183,10 @@ export async function takeScreenshot(
 }
 
 /**
- * Waits for a page to be fully loaded and interactive.
+ * Waits for document load (avoid `networkidle` with Next.js dev — see `gotoReady`).
  */
 export async function waitForPageReady(page: Page): Promise<void> {
-  await page.waitForLoadState('networkidle')
-  await page.waitForTimeout(500)
+  await page.waitForLoadState('load')
 }
 
 /**

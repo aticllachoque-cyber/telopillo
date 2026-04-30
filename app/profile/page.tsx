@@ -3,7 +3,18 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Loader2, MapPin, Phone, Star, Edit, LogOut, Package, Plus, Store } from 'lucide-react'
+import {
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+  Star,
+  Edit,
+  LogOut,
+  Package,
+  Plus,
+  Store,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -11,7 +22,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { ShareProfile } from '@/components/profile/ShareProfile'
 import { useToast } from '@/components/ui/toast'
+import { useAuth } from '@/components/providers/AuthProvider'
 import { getAvatarColor } from '@/lib/utils'
+
+const supabase = createClient()
 
 interface Profile {
   id: string
@@ -28,54 +42,85 @@ interface Profile {
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { user, isLoading: authLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [businessSlug, setBusinessSlug] = useState<string | null>(null)
   const [businessName, setBusinessName] = useState<string | null>(null)
   const [isCreatingBusiness, setIsCreatingBusiness] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
   const { showToast } = useToast()
 
   useEffect(() => {
     document.title = 'Mi Perfil - Telopillo'
-    loadProfile()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const loadProfile = async () => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+  // Use session from AuthProvider instead of getUser() — avoids duplicate session work and
+  // navigator lock contention with onAuthStateChange (see AuthProvider).
+  // Depends on user?.id only so TOKEN_REFRESHED (new User reference, same id) does not refetch.
+  useEffect(() => {
+    if (authLoading) return
 
-      if (!user) {
-        router.push('/login?redirect=/profile')
-        return
-      }
-
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-
-      if (error) throw error
-
-      setProfile(data)
-
-      const { data: business } = await supabase
-        .from('business_profiles')
-        .select('slug, business_name')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      if (business) {
-        setBusinessSlug(business.slug || null)
-        setBusinessName(business.business_name || null)
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al cargar perfil')
-    } finally {
+    const userId = user?.id
+    if (!userId) {
+      setProfile(null)
+      setBusinessSlug(null)
+      setBusinessName(null)
+      setError(null)
+      router.replace('/login?redirect=/profile')
       setIsLoading(false)
+      return
     }
-  }
+
+    let cancelled = false
+    setError(null)
+    setIsLoading(true)
+
+    const loadProfile = async () => {
+      try {
+        const { data, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single()
+
+        if (cancelled) return
+        if (profileError) throw profileError
+
+        setProfile(data)
+
+        const { data: business } = await supabase
+          .from('business_profiles')
+          .select('slug, business_name')
+          .eq('id', userId)
+          .maybeSingle()
+
+        if (cancelled) return
+
+        if (business) {
+          setBusinessSlug(business.slug || null)
+          setBusinessName(business.business_name || null)
+        } else {
+          setBusinessSlug(null)
+          setBusinessName(null)
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Error al cargar perfil')
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void loadProfile()
+
+    return () => {
+      cancelled = true
+    }
+  }, [authLoading, user?.id, router])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -211,6 +256,15 @@ export default function ProfilePage() {
           <CardContent className="space-y-4">
             {/* Profile Info */}
             <div className="grid gap-4 sm:grid-cols-2">
+              {user?.email && (
+                <div className="flex items-start gap-2 text-sm sm:col-span-2">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-muted-foreground">Correo de la cuenta</p>
+                    <p className="break-all text-foreground">{user.email}</p>
+                  </div>
+                </div>
+              )}
               {profile.location_city && profile.location_department && (
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden />

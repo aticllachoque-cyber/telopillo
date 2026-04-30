@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { login, runAxeAudit, assertNoHorizontalScroll } from '../../helpers'
+import {
+  login,
+  runAxeAudit,
+  assertNoHorizontalScroll,
+  gotoProfileEditPage,
+  gotoProfilePage,
+} from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. Edit Profile - Happy Path
@@ -7,8 +13,7 @@ import { login, runAxeAudit, assertNoHorizontalScroll } from '../../helpers'
 test.describe('Account Management - Edit Profile', () => {
   test('Form is pre-filled with current data', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     // Wait for form to load (name field has value)
     const nameInput = page.getByLabel(/nombre completo/i)
@@ -18,8 +23,7 @@ test.describe('Account Management - Edit Profile', () => {
 
   test('Update display name, location, phone and save successfully', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const nameInput = page.getByLabel(/nombre completo/i)
     await expect(nameInput).toBeVisible({ timeout: 5000 })
@@ -60,8 +64,7 @@ test.describe('Account Management - Edit Profile', () => {
 
   test('Changes persist after reload', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const nameInput = page.getByLabel(/nombre completo/i)
     await expect(nameInput).toBeVisible({ timeout: 5000 })
@@ -90,11 +93,10 @@ test.describe('Account Management - Edit Profile', () => {
       timeout: 5000,
     })
 
-    // Navigate back to edit and verify
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
-
+    // Reload edit page (avoid networkidle — Next.js dev HMR keeps connections open)
+    await page.goto('/profile/edit', { waitUntil: 'load' })
     const nameAfterReload = page.getByLabel(/nombre completo/i)
+    await expect(nameAfterReload).toBeVisible({ timeout: 15000 })
     await expect(nameAfterReload).toHaveValue(uniqueName)
   })
 })
@@ -105,8 +107,7 @@ test.describe('Account Management - Edit Profile', () => {
 test.describe('Account Management - Edit Profile (Validation)', () => {
   test('Shows validation error when name is cleared', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const nameInput = page.getByLabel(/nombre completo/i)
     await expect(nameInput).toBeVisible({ timeout: 5000 })
@@ -121,8 +122,7 @@ test.describe('Account Management - Edit Profile (Validation)', () => {
 
   test('Shows validation error for very long name', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const nameInput = page.getByLabel(/nombre completo/i)
     await expect(nameInput).toBeVisible({ timeout: 5000 })
@@ -137,8 +137,7 @@ test.describe('Account Management - Edit Profile (Validation)', () => {
 
   test('XSS in name is escaped when displayed', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const xssName = '<script>alert(1)</script>Test'
     const nameInput = page.getByLabel(/nombre completo/i)
@@ -167,8 +166,7 @@ test.describe('Account Management - Edit Profile (Validation)', () => {
     })
 
     // Navigate to profile view - no alert should have fired; content should be escaped
-    await page.goto('/profile')
-    await page.waitForLoadState('networkidle')
+    await gotoProfilePage(page)
 
     // Page should render without executing script; heading may show escaped or sanitized text
     const heading = page.getByRole('heading', { level: 1 })
@@ -183,16 +181,14 @@ test.describe('Account Management - Edit Profile (Validation)', () => {
 test.describe('Account Management - Edit Profile (Accessibility)', () => {
   test('Page passes WCAG 2.2 AA accessibility audit', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     await runAxeAudit(page)
   })
 
   test('Tab through form fields in order', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const nameInput = page.getByLabel(/nombre completo/i)
     await expect(nameInput).toBeVisible({ timeout: 5000 })
@@ -206,8 +202,7 @@ test.describe('Account Management - Edit Profile (Accessibility)', () => {
 
   test('Error messages are linked via aria-describedby', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const nameInput = page.getByLabel(/nombre completo/i)
     await nameInput.clear()
@@ -227,16 +222,14 @@ test.describe('Account Management - Edit Profile (Mobile 375x812)', () => {
 
   test('Form fields are full-width, no horizontal scroll', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     await assertNoHorizontalScroll(page)
   })
 
   test('Save button is reachable', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const saveButton = page.getByRole('button', { name: /guardar cambios/i })
     await expect(saveButton).toBeVisible()
@@ -246,8 +239,7 @@ test.describe('Account Management - Edit Profile (Mobile 375x812)', () => {
 
   test('Touch targets are >= 44px', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const buttons = page.locator('button, a[href], input, [role="button"]')
     const count = await buttons.count()

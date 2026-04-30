@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { login } from '../../helpers'
+import { gotoProfileEditPage, login } from '../../helpers'
 
 // Create a minimal valid PNG (1x1 pixel)
 function createValidPngBuffer(): Buffer {
@@ -89,8 +89,7 @@ function createPdfLikeBuffer(): Buffer {
 test.describe('Account Management - Avatar Upload', () => {
   test('Avatar section is visible on profile edit page', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     await expect(page.getByText(/foto de perfil/i)).toBeVisible()
     await expect(page.getByRole('button', { name: /cambiar foto/i })).toBeVisible()
@@ -98,8 +97,7 @@ test.describe('Account Management - Avatar Upload', () => {
 
   test('Upload valid image and verify avatar displays', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const fileInput = page.getByLabel(/seleccionar imagen de avatar/i)
     await expect(fileInput).toBeAttached()
@@ -129,8 +127,7 @@ test.describe('Account Management - Avatar Upload', () => {
 
   test('Non-image file shows error', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const fileInput = page.getByLabel(/seleccionar imagen de avatar/i)
     await expect(fileInput).toBeAttached()
@@ -149,8 +146,7 @@ test.describe('Account Management - Avatar Upload', () => {
 
   test('Oversized file shows error', async ({ page }) => {
     await login(page)
-    await page.goto('/profile/edit')
-    await page.waitForLoadState('networkidle')
+    await gotoProfileEditPage(page)
 
     const fileInput = page.getByLabel(/seleccionar imagen de avatar/i)
     await expect(fileInput).toBeAttached()

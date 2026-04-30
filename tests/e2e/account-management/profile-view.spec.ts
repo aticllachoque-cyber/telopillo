@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { login } from '../../helpers'
+import { gotoReady, gotoProfilePage, login } from '../../helpers'
 
 // ---------------------------------------------------------------------------
 // 1. View Profile - Authenticated
@@ -7,16 +7,15 @@ import { login } from '../../helpers'
 test.describe('Account Management - View Profile', () => {
   test('Login, navigate to /profile and verify profile data', async ({ page }) => {
     await login(page)
-    await page.goto('/profile')
-    await page.waitForLoadState('networkidle')
+    await gotoProfilePage(page)
 
     // Verify user name (heading)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     const heading = page.getByRole('heading', { level: 1 })
     await expect(heading).not.toHaveText(/cargando/i)
 
-    // Verify avatar or placeholder (Avatar shows initials when no image)
-    const avatar = page.locator('[class*="avatar"]').first()
+    // Profile card only: header also has an avatar, which can be hidden on small viewports
+    const avatar = page.locator('#main-content [data-slot="avatar"]').first()
     await expect(avatar).toBeVisible()
 
     // Verify location when present (profile may have city, department)
@@ -40,8 +39,7 @@ test.describe('Account Management - View Profile', () => {
 
   test('Edit profile link navigates to /profile/edit', async ({ page }) => {
     await login(page)
-    await page.goto('/profile')
-    await page.waitForLoadState('networkidle')
+    await gotoProfilePage(page)
 
     const editLink = page.getByRole('link', { name: /editar/i })
     await expect(editLink).toBeVisible()
@@ -54,8 +52,7 @@ test.describe('Account Management - View Profile', () => {
 
   test('Sign out button is visible', async ({ page }) => {
     await login(page)
-    await page.goto('/profile')
-    await page.waitForLoadState('networkidle')
+    await gotoProfilePage(page)
 
     const signOutButton = page.getByRole('button', { name: /cerrar sesión/i })
     await expect(signOutButton).toBeVisible()
@@ -63,8 +60,7 @@ test.describe('Account Management - View Profile', () => {
 
   test('Member since date is displayed', async ({ page }) => {
     await login(page)
-    await page.goto('/profile')
-    await page.waitForLoadState('networkidle')
+    await gotoProfilePage(page)
 
     await expect(page.getByText(/miembro desde/i)).toBeVisible()
   })
@@ -75,11 +71,8 @@ test.describe('Account Management - View Profile', () => {
 // ---------------------------------------------------------------------------
 test.describe('Account Management - View Profile (Unauthenticated)', () => {
   test('Visit /profile unauthenticated redirects to /login', async ({ page }) => {
-    await page.goto('/profile')
-    await page.waitForLoadState('networkidle')
-
-    // Client-side redirect happens after load
-    await page.waitForURL(/\/login/, { timeout: 10000 })
+    await gotoReady(page, '/profile')
+    await page.waitForURL(/\/login/, { timeout: 15000 })
     expect(page.url()).toContain('/login')
   })
 })

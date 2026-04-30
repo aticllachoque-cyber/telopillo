@@ -6,7 +6,7 @@ import { BusinessHeader } from '@/components/business/BusinessHeader'
 import { BusinessInfoSidebar } from '@/components/business/BusinessInfoSidebar'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { Card, CardContent } from '@/components/ui/card'
-import { Package, Store } from 'lucide-react'
+import { Construction, Package, Store } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
 
 interface StorefrontPageProps {
@@ -205,6 +205,27 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
               </li>
             </ol>
           </nav>
+
+          {/* MVP: set expectations — storefronts are still being enriched */}
+          <div
+            className="mb-6 flex gap-3 rounded-xl border border-primary/35 bg-gradient-to-br from-primary/12 via-primary/5 to-amber-500/10 px-4 py-3 shadow-sm sm:px-5 sm:py-4"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-background/80 shadow-sm ring-1 ring-primary/20">
+              <Construction className="size-5 text-primary" aria-hidden />
+            </div>
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-semibold leading-snug text-foreground">
+                Tienda en construcción en Telopillo
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Estamos ayudando a este negocio a completar su vitrina: datos, horarios y catálogo
+                pueden ir sumándose. Si ves algo que te interesa, contactá al vendedor — así les das
+                una mano a seguir mejorando.
+              </p>
+            </div>
+          </div>
 
           {/* Header Card */}
           <Card className="mb-6 sm:mb-8">
