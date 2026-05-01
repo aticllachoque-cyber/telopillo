@@ -11,7 +11,7 @@ import { MapPin, Package, Store, User } from 'lucide-react'
 import {
   buildProductWhatsAppPrefillMessage,
   buildWhatsAppMeUrl,
-  normalizeBolivianWhatsAppDigits,
+  resolveSellerWhatsAppDigits,
 } from '@/lib/utils/whatsapp'
 
 interface SellerProfile {
@@ -56,10 +56,8 @@ export function SellerCard({
   productContact,
   hideContactActions = false,
 }: SellerCardProps) {
-  const preferredContactRaw = business?.social_whatsapp?.trim() || seller.phone?.trim() || ''
-  const contactDigits = preferredContactRaw
-    ? normalizeBolivianWhatsAppDigits(preferredContactRaw)
-    : null
+  const sellerContact = resolveSellerWhatsAppDigits(business?.social_whatsapp, seller.phone)
+  const contactDigits = sellerContact.normalizedDigits
   const canWhatsApp = contactDigits != null
 
   // Get seller initials for avatar fallback
@@ -184,7 +182,9 @@ export function SellerCard({
           <div className="space-y-3">
             <div className="text-center p-3 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                El vendedor aún no ha agregado un número de contacto.
+                {sellerContact.anyRawPresent
+                  ? 'El número guardado no tiene un formato válido para WhatsApp. Podés intentar desde el perfil del vendedor.'
+                  : 'El vendedor no tiene un número de WhatsApp en Telopillo. Podés ver su perfil público.'}
               </p>
             </div>
             {/* Make "Ver perfil" the primary CTA when no phone */}

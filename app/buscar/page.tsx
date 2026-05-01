@@ -42,6 +42,8 @@ interface Product {
   seller_business_slug: string | null
   seller_business_logo: string | null
   seller_whatsapp_phone?: string | null
+  seller_business_whatsapp?: string | null
+  seller_profile_phone?: string | null
 }
 
 interface SearchResponse {

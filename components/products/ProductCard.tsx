@@ -12,7 +12,8 @@ import { absoluteUrl } from '@/lib/utils'
 import {
   buildProductWhatsAppPrefillMessage,
   buildWhatsAppMeUrl,
-  normalizeBolivianWhatsAppDigits,
+  resolveProductSearchContactFields,
+  resolveSellerWhatsAppDigits,
 } from '@/lib/utils/whatsapp'
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { cn } from '@/lib/utils'
@@ -37,6 +38,8 @@ interface ProductCardProps {
     seller_verification_level?: number
     /** From search RPC: COALESCE(business social_whatsapp, profile phone) */
     seller_whatsapp_phone?: string | null
+    seller_business_whatsapp?: string | null
+    seller_profile_phone?: string | null
   }
   onUpdate?: () => void
   showActions?: boolean
@@ -69,9 +72,10 @@ export function ProductCard({
   const imageUrl = !imageError && product.images[0] ? product.images[0] : null
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
 
-  const contactPhone = whatsappContactPhone ?? product.seller_whatsapp_phone ?? null
-  const whatsappDigits =
-    !showActions && contactPhone ? normalizeBolivianWhatsAppDigits(contactPhone) : null
+  const contactResolution = whatsappContactPhone?.trim()
+    ? resolveSellerWhatsAppDigits(whatsappContactPhone, null)
+    : resolveProductSearchContactFields(product)
+  const whatsappDigits = !showActions ? contactResolution.normalizedDigits : null
   const whatsappHref =
     whatsappDigits != null
       ? buildWhatsAppMeUrl(
@@ -83,6 +87,12 @@ export function ProductCard({
           })
         )
       : null
+
+  const showContactUnavailableHint =
+    !showActions &&
+    !whatsappHref &&
+    contactResolution.anyRawPresent &&
+    contactResolution.normalizedDigits == null
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow group focus-within:shadow-lg">
@@ -197,6 +207,17 @@ export function ProductCard({
             href={whatsappHref}
             ariaLabel="Contactar por WhatsApp sobre este producto"
           />
+        )}
+        {showContactUnavailableHint && (
+          <p className="text-xs text-muted-foreground leading-snug" role="status">
+            Contacto WhatsApp no disponible (número no válido).{' '}
+            <Link
+              href={`/productos/${product.id}`}
+              className="text-primary underline-offset-2 hover:underline font-medium"
+            >
+              Ver publicación
+            </Link>
+          </p>
         )}
         <div className="flex w-full items-center gap-3 text-xs sm:text-sm text-muted-foreground">
           {product.views_count > 0 && (

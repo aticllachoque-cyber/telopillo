@@ -6,10 +6,10 @@ import { ProductGallery } from '@/components/products/ProductGallery'
 import { SellerCard } from '@/components/products/SellerCard'
 import { ProductActions } from '@/components/products/ProductActions'
 import { ShareButton } from '@/components/products/ShareButton'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { OwnerListingNotice } from '@/components/products/OwnerListingNotice'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { ArrowLeft, MapPin, Eye, Flag, Calendar, Tag } from 'lucide-react'
 import { productPresentation } from '@/lib/constants/productPresentation'
@@ -20,7 +20,7 @@ import { absoluteUrl } from '@/lib/utils'
 import {
   buildProductWhatsAppPrefillMessage,
   buildWhatsAppMeUrl,
-  normalizeBolivianWhatsAppDigits,
+  resolveSellerWhatsAppDigits,
 } from '@/lib/utils/whatsapp'
 
 interface ProductPageProps {
@@ -138,13 +138,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
     verification_level: number
   }
 
-  const contactRaw = businessProfile?.social_whatsapp?.trim() || sellerProfile.phone?.trim() || ''
-  const buyerContactDigits =
-    !isOwner && contactRaw ? normalizeBolivianWhatsAppDigits(contactRaw) : null
+  const sellerContact = resolveSellerWhatsAppDigits(
+    businessProfile?.social_whatsapp,
+    sellerProfile.phone
+  )
+  const normalizedSellerContact = sellerContact.normalizedDigits
   const buyerWhatsAppHref =
-    buyerContactDigits != null
+    !isOwner && normalizedSellerContact != null
       ? buildWhatsAppMeUrl(
-          buyerContactDigits,
+          normalizedSellerContact,
           buildProductWhatsAppPrefillMessage({
             productTitle: product.title,
             price: Number(product.price),
@@ -201,19 +203,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
           Volver
         </Link>
 
-        {/* Owner Badge */}
+        {/* Owner: explain hidden WhatsApp + listing actions */}
         {isOwner && (
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <Badge variant="secondary" className="text-sm py-2 px-4">
-              Este es tu producto
-            </Badge>
-            <ProductActions
-              productId={product.id}
-              productTitle={product.title}
-              status={product.status}
-              variant="buttons"
-            />
-          </div>
+          <>
+            <OwnerListingNotice hasBuyerContactConfigured={normalizedSellerContact != null} />
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+              <ProductActions
+                productId={product.id}
+                productTitle={product.title}
+                status={product.status}
+                variant="buttons"
+              />
+            </div>
+          </>
         )}
 
         {/* Main Content */}

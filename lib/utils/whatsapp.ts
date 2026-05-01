@@ -24,6 +24,56 @@ export function normalizeBolivianWhatsAppDigits(raw: string): string | null {
   return normalized
 }
 
+export type ResolvedSellerWhatsApp = {
+  normalizedDigits: string | null
+  /** True if any candidate string was non-empty after trim */
+  anyRawPresent: boolean
+}
+
+/**
+ * Prefer business WhatsApp; if missing or not normalizable, fall back to profile phone.
+ */
+export function resolveSellerWhatsAppDigits(
+  businessSocialWhatsapp: string | null | undefined,
+  profilePhone: string | null | undefined
+): ResolvedSellerWhatsApp {
+  const b = businessSocialWhatsapp?.trim() ?? ''
+  const p = profilePhone?.trim() ?? ''
+  const anyRawPresent = b.length > 0 || p.length > 0
+  if (b) {
+    const d = normalizeBolivianWhatsAppDigits(b)
+    if (d) return { normalizedDigits: d, anyRawPresent: true }
+  }
+  if (p) {
+    const d = normalizeBolivianWhatsAppDigits(p)
+    if (d) return { normalizedDigits: d, anyRawPresent: true }
+  }
+  return { normalizedDigits: null, anyRawPresent }
+}
+
+/**
+ * Search API: use split business/profile fields when present; otherwise legacy COALESCE field.
+ */
+export function resolveProductSearchContactFields(product: {
+  seller_business_whatsapp?: string | null
+  seller_profile_phone?: string | null
+  seller_whatsapp_phone?: string | null
+}): ResolvedSellerWhatsApp {
+  const split = resolveSellerWhatsAppDigits(
+    product.seller_business_whatsapp,
+    product.seller_profile_phone
+  )
+  if (split.normalizedDigits) return split
+  const legacy = product.seller_whatsapp_phone?.trim() ?? ''
+  if (!legacy) return split
+  const d = normalizeBolivianWhatsAppDigits(legacy)
+  if (d) return { normalizedDigits: d, anyRawPresent: true }
+  return {
+    normalizedDigits: null,
+    anyRawPresent: split.anyRawPresent || legacy.length > 0,
+  }
+}
+
 /**
  * Builds https://wa.me/{digits} or wa.me/?text= when digits is null but text is set.
  * Encodes `prefilledText` when present.

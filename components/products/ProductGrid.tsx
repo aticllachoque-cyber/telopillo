@@ -17,6 +17,8 @@ interface Product {
   seller_business_slug?: string | null
   seller_verification_level?: number
   seller_whatsapp_phone?: string | null
+  seller_business_whatsapp?: string | null
+  seller_profile_phone?: string | null
 }
 
 interface ProductGridProps {

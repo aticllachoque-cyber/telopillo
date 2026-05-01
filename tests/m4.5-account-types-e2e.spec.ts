@@ -204,7 +204,11 @@ test.describe('M4.5 - Personal Seller Profile', () => {
     await page.waitForLoadState('networkidle')
 
     // Should see the no-phone fallback message
-    await expect(page.getByText(/no ha agregado un número de contacto/i)).toBeVisible()
+    await expect(
+      page.getByText(
+        /no ha agregado un número de contacto|no tiene un número de WhatsApp en Telopillo/i
+      )
+    ).toBeVisible()
   })
 })
 

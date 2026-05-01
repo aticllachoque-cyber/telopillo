@@ -87,7 +87,11 @@ test.describe('M4.5 - Mobile Responsive (375px)', () => {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
     // No-phone message should be visible and readable
-    await expect(page.getByText(/no ha agregado un número de contacto/i)).toBeVisible()
+    await expect(
+      page.getByText(
+        /no ha agregado un número de contacto|no tiene un número de WhatsApp en Telopillo/i
+      )
+    ).toBeVisible()
 
     // No horizontal scroll
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)

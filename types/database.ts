@@ -592,6 +592,10 @@ export interface SearchProduct {
   seller_business_name: string | null
   seller_business_slug: string | null
   seller_business_logo: string | null
+  seller_business_whatsapp?: string | null
+  seller_profile_phone?: string | null
+  /** Legacy COALESCE(business WhatsApp, profile phone) from search RPC */
+  seller_whatsapp_phone?: string | null
 }
 
 // ---------------------------------------------------------------------------

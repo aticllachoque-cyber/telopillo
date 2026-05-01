@@ -43,7 +43,9 @@ test.describe('Buyer Journey - Contact Seller from Product Detail', () => {
 
     // Either WhatsApp button or "no phone" fallback must be present
     const whatsappLink = page.getByRole('link', { name: /contactar.*vendedor/i })
-    const noPhoneMessage = page.getByText(/no ha agregado un número de contacto/i)
+    const noPhoneMessage = page.getByText(
+      /no ha agregado un número de contacto|no tiene un número de WhatsApp en Telopillo/i
+    )
 
     const hasWhatsApp = (await whatsappLink.count()) > 0
     const hasNoPhone = (await noPhoneMessage.count()) > 0
@@ -141,7 +143,9 @@ test.describe('Buyer Journey - Contact Seller from Product Detail', () => {
       return
     }
 
-    const noPhoneMessage = page.getByText(/no ha agregado un número de contacto/i)
+    const noPhoneMessage = page.getByText(
+      /no ha agregado un número de contacto|no tiene un número de WhatsApp en Telopillo/i
+    )
     if ((await noPhoneMessage.count()) === 0) {
       // This seller has a phone — skip this test variant
       test.skip()
