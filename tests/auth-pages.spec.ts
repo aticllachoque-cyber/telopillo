@@ -9,9 +9,9 @@ test.describe('Authentication Pages', () => {
     // Check page title/heading
     await expect(page.getByRole('heading', { name: /iniciar sesión/i })).toBeVisible()
 
-    // Check form fields
+    // Check form fields (password field only — getByLabel(/contraseña/) also matches "Mostrar contraseña")
     await expect(page.getByLabel(/email/i)).toBeVisible()
-    await expect(page.getByLabel(/contraseña/i)).toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Contraseña', exact: true })).toBeVisible()
 
     // Check OAuth buttons (Google + Facebook)
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()
@@ -46,8 +46,8 @@ test.describe('Authentication Pages', () => {
     // Check form fields
     await expect(page.getByLabel(/nombre completo/i)).toBeVisible()
     await expect(page.getByLabel(/email/i)).toBeVisible()
-    await expect(page.getByLabel(/contraseña/i).first()).toBeVisible()
-    await expect(page.getByLabel(/confirmar contraseña/i)).toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Contraseña', exact: true })).toBeVisible()
+    await expect(page.getByRole('textbox', { name: /confirmar contraseña/i })).toBeVisible()
 
     // Check OAuth buttons
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()
@@ -66,10 +66,7 @@ test.describe('Authentication Pages', () => {
     // Fill invalid data
     await page.getByLabel(/nombre completo/i).fill('A') // Too short
     await page.getByLabel(/email/i).first().fill('invalid-email')
-    await page
-      .getByLabel(/contraseña/i)
-      .first()
-      .fill('weak') // Too weak
+    await page.getByRole('textbox', { name: 'Contraseña', exact: true }).fill('weak') // Too weak
     await page.getByLabel(/confirmar contraseña/i).fill('different')
 
     // Submit form

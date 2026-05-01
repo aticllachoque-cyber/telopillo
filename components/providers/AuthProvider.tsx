@@ -77,32 +77,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'INITIAL_SESSION') {
-        if (session?.user) {
-          // Set BEFORE any async work — Supabase fires SIGNED_IN next
-          // without awaiting this callback, so the ref must be set
-          // synchronously to prevent a false "new login" toast.
+      try {
+        if (event === 'INITIAL_SESSION') {
+          if (session?.user) {
+            // Set BEFORE any async work — Supabase fires SIGNED_IN next
+            // without awaiting this callback, so the ref must be set
+            // synchronously to prevent a false "new login" toast.
+            knownUserIdRef.current = session.user.id
+            setUser(session.user)
+            await loadProfile(session.user.id)
+          }
+          setIsLoading(false)
+        } else if (event === 'SIGNED_IN' && session?.user) {
+          const isNewLogin = knownUserIdRef.current !== session.user.id
           knownUserIdRef.current = session.user.id
           setUser(session.user)
-          await loadProfile(session.user.id)
-        }
-        setIsLoading(false)
-      } else if (event === 'SIGNED_IN' && session?.user) {
-        const isNewLogin = knownUserIdRef.current !== session.user.id
-        knownUserIdRef.current = session.user.id
-        setUser(session.user)
-        const loadedProfile = await loadProfile(session.user.id)
+          const loadedProfile = await loadProfile(session.user.id)
 
-        if (isNewLogin) {
-          const name = loadedProfile?.full_name?.split(' ')[0] || ''
-          showToastRef.current(name ? `¡Bienvenido, ${name}!` : '¡Bienvenido!', 'success')
+          if (isNewLogin) {
+            const name = loadedProfile?.full_name?.split(' ')[0] || ''
+            showToastRef.current(name ? `¡Bienvenido, ${name}!` : '¡Bienvenido!', 'success')
+          }
+        } else if (event === 'SIGNED_OUT') {
+          knownUserIdRef.current = null
+          setUser(null)
+          setProfile(null)
+        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+          setUser(session.user)
         }
-      } else if (event === 'SIGNED_OUT') {
-        knownUserIdRef.current = null
-        setUser(null)
-        setProfile(null)
-      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-        setUser(session.user)
+      } catch (err) {
+        // Common when the listener is torn down or in-flight auth work is cancelled (e.g. Strict Mode).
+        if (err instanceof Error && err.name === 'AbortError') return
+        console.error('[AuthProvider] onAuthStateChange:', err)
       }
     })
 
