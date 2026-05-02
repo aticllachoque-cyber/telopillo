@@ -27,6 +27,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
+    "test:unit": "node --test tests/unit/**/*.test.mjs",
     "prepare": "husky"
   },
   "dependencies": {

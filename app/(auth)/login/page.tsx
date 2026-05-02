@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Shield, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { getAuthErrorMessage } from '@/lib/utils'
+import { getAuthErrorMessage, isAbortError } from '@/lib/utils'
 import { loginSchema, type LoginInput } from '@/lib/validations/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,9 +25,15 @@ export default function LoginPage() {
 
   useEffect(() => {
     document.title = 'Iniciar Sesión - Telopillo'
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) router.replace('/')
-    })
+    supabase.auth
+      .getUser()
+      .then(({ data: { user } }) => {
+        if (user) router.replace('/')
+      })
+      .catch((err: unknown) => {
+        if (isAbortError(err)) return
+        console.error('[LoginPage] getUser:', err)
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

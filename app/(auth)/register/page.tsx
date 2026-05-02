@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Shield, Store, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { getAuthErrorMessage } from '@/lib/utils'
+import { getAuthErrorMessage, isAbortError } from '@/lib/utils'
 import { registerSchema, type RegisterFormInput } from '@/lib/validations/auth'
 import { BUSINESS_CATEGORIES } from '@/lib/validations/business-profile'
 import { Button } from '@/components/ui/button'
@@ -35,9 +35,15 @@ export default function RegisterPage() {
 
   useEffect(() => {
     document.title = 'Crear Cuenta - Telopillo'
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) router.replace('/')
-    })
+    supabase.auth
+      .getUser()
+      .then(({ data: { user } }) => {
+        if (user) router.replace('/')
+      })
+      .catch((err: unknown) => {
+        if (isAbortError(err)) return
+        console.error('[RegisterPage] getUser:', err)
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

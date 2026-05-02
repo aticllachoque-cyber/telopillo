@@ -81,7 +81,7 @@ const nextConfig: NextConfig = {
       },
     ]
 
-    // One canonical host for session cookies (www vs apex). Uses NEXT_PUBLIC_APP_URL hostname.
+    // One canonical host for session cookies (www vs apex). Requires NEXT_PUBLIC_APP_URL to match the live hostname to avoid redirect loops.
     const appUrl = process.env.NEXT_PUBLIC_APP_URL
     if (!isDev && appUrl && !appUrl.includes('localhost') && !appUrl.includes('127.0.0.1')) {
       try {

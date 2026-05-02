@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+import { isAbortError, isAbortLikeError } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast'
 
 interface Profile {
@@ -60,6 +61,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .maybeSingle()
 
     if (error) {
+      // PostgREST can return an error object (not throw) when the request is aborted.
+      if (isAbortLikeError(error)) {
+        return null
+      }
       console.error('[AuthProvider] Failed to load profile:', error.message)
       return null
     }
@@ -71,45 +76,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    // Use onAuthStateChange with INITIAL_SESSION instead of getUser().
-    // getUser() acquires a navigator lock that conflicts with itself
-    // when React strict mode double-mounts the component.
+    // INITIAL_SESSION via onAuthStateChange instead of getUser() (avoids extra lock contention).
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      try {
-        if (event === 'INITIAL_SESSION') {
-          if (session?.user) {
-            // Set BEFORE any async work — Supabase fires SIGNED_IN next
-            // without awaiting this callback, so the ref must be set
-            // synchronously to prevent a false "new login" toast.
-            knownUserIdRef.current = session.user.id
-            setUser(session.user)
-            await loadProfile(session.user.id)
-          }
-          setIsLoading(false)
-        } else if (event === 'SIGNED_IN' && session?.user) {
-          const isNewLogin = knownUserIdRef.current !== session.user.id
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Sync callback only — Supabase holds an auth lock while this runs; do not await other
+      // Supabase client calls here (e.g. loadProfile). Defer them with void async IIFEs.
+
+      if (event === 'INITIAL_SESSION') {
+        if (session?.user) {
+          // Must run synchronously before any deferred work so a fast SIGNED_IN does not look like a new login.
           knownUserIdRef.current = session.user.id
           setUser(session.user)
-          const loadedProfile = await loadProfile(session.user.id)
-
-          if (isNewLogin) {
-            const name = loadedProfile?.full_name?.split(' ')[0] || ''
-            showToastRef.current(name ? `¡Bienvenido, ${name}!` : '¡Bienvenido!', 'success')
-          }
-        } else if (event === 'SIGNED_OUT') {
-          knownUserIdRef.current = null
-          setUser(null)
-          setProfile(null)
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          setUser(session.user)
+          void (async () => {
+            try {
+              await loadProfile(session.user.id)
+            } catch (err) {
+              if (isAbortError(err)) return
+              console.error('[AuthProvider] load profile after INITIAL_SESSION:', err)
+            } finally {
+              setIsLoading(false)
+            }
+          })().catch((err: unknown) => {
+            if (isAbortError(err)) {
+              setIsLoading(false)
+              return
+            }
+            console.error('[AuthProvider] INITIAL_SESSION profile task:', err)
+            setIsLoading(false)
+          })
+        } else {
+          setIsLoading(false)
         }
-      } catch (err) {
-        // Common when the listener is torn down or in-flight auth work is cancelled (e.g. Strict Mode).
-        if (err instanceof Error && err.name === 'AbortError') return
-        console.error('[AuthProvider] onAuthStateChange:', err)
+        return
       }
+
+      void (async () => {
+        try {
+          if (event === 'SIGNED_IN' && session?.user) {
+            const isNewLogin = knownUserIdRef.current !== session.user.id
+            knownUserIdRef.current = session.user.id
+            setUser(session.user)
+            const loadedProfile = await loadProfile(session.user.id)
+
+            if (isNewLogin) {
+              const name = loadedProfile?.full_name?.split(' ')[0] || ''
+              showToastRef.current(name ? `¡Bienvenido, ${name}!` : '¡Bienvenido!', 'success')
+            }
+          } else if (event === 'SIGNED_OUT') {
+            knownUserIdRef.current = null
+            setUser(null)
+            setProfile(null)
+          } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+            setUser(session.user)
+          }
+        } catch (err) {
+          if (isAbortError(err)) return
+          console.error('[AuthProvider] auth state handler:', err)
+        }
+      })().catch((err: unknown) => {
+        if (isAbortError(err)) return
+        console.error('[AuthProvider] auth state handler (unhandled):', err)
+      })
     })
 
     return () => {
@@ -122,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut({ scope: 'local' })
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (isAbortError(error)) {
         console.warn('Sign out request aborted — clearing local state')
       } else {
         console.error('Sign out error:', error)

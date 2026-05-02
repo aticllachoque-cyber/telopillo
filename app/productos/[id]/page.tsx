@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const supabase = await createClient()
   const { id } = await params
 
-  // RLS: active listings for everyone; inactive only for owner (same as page body).
+  // RLS must match page body: public sees active rows only; owners may see inactive (same rules as the main query + status check below).
   const { data: product } = await supabase
     .from('products')
     .select('title, description, images, price')

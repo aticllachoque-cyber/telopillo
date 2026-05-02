@@ -39,6 +39,24 @@ export function getAuthErrorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
+/** True for cancelled fetches / lock signals (Strict Mode, navigation, lock timeout). */
+export function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError'
+}
+
+/**
+ * Same as {@link isAbortError} plus PostgREST / Supabase `{ message }` results where the
+ * client returns an abort as data (e.g. `"AbortError: signal is aborted..."`) instead of throwing.
+ */
+export function isAbortLikeError(error: unknown): boolean {
+  if (isAbortError(error)) return true
+  if (typeof error !== 'object' || error === null) return false
+  const rec = error as { name?: unknown; message?: unknown }
+  if (typeof rec.name === 'string' && rec.name === 'AbortError') return true
+  if (typeof rec.message === 'string' && rec.message.includes('AbortError')) return true
+  return false
+}
+
 /**
  * Deterministic avatar color palette.
  * Each entry is [background, text] Tailwind classes.
