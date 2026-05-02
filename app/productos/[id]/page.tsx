@@ -29,17 +29,20 @@ interface ProductPageProps {
   }>
 }
 
+/** Session + owner UI must be evaluated per request (avoid any static/cache mix-up). */
+export const dynamic = 'force-dynamic'
+
 // Generate metadata for SEO
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const supabase = await createClient()
   const { id } = await params
 
+  // RLS: active listings for everyone; inactive only for owner (same as page body).
   const { data: product } = await supabase
     .from('products')
     .select('title, description, images, price')
     .eq('id', id)
-    .eq('status', 'active')
-    .single()
+    .maybeSingle()
 
   if (!product) {
     return {
@@ -298,14 +301,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       title={product.title}
                       className="flex-1 sm:flex-initial sm:min-w-[8rem]"
                     />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="min-h-[44px] flex flex-1 items-center justify-center gap-2 sm:flex-initial"
-                    >
-                      <Flag className="h-4 w-4 shrink-0" aria-hidden />
-                      Reportar
-                    </Button>
+                    {!isOwner && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="min-h-[44px] flex flex-1 items-center justify-center gap-2 sm:flex-initial"
+                      >
+                        <Flag className="h-4 w-4 shrink-0" aria-hidden />
+                        Reportar
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>

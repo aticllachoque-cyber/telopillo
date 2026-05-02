@@ -79,6 +79,11 @@ test.describe('Account Management - Product Management', () => {
     await productLink.click()
     await page.waitForURL(/\/productos\/[^/]+$/, { timeout: 10000 })
     expect(page.url()).not.toContain('/editar')
+
+    // Own listing: owner banner + actions; no buyer WhatsApp CTA (mis-productos only lists own products)
+    await expect(page.getByText('Este es tu producto')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('button', { name: /^Editar$/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /contactar por whatsapp/i })).toHaveCount(0)
   })
 })
 

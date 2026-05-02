@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import type { Redirect } from 'next/dist/lib/load-custom-routes'
 
 // Single place for dev vs prod: local Supabase, dev origins, and CSP differ by NODE_ENV
 const SUPABASE_CLOUD_HOSTNAME = 'apwpsjjzcbytnvtnmmru.supabase.co'
@@ -71,14 +72,39 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  async redirects() {
-    return [
+  async redirects(): Promise<Redirect[]> {
+    const base: Redirect[] = [
       {
         source: '/perfil',
         destination: '/profile',
         permanent: true,
       },
     ]
+
+    // One canonical host for session cookies (www vs apex). Uses NEXT_PUBLIC_APP_URL hostname.
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL
+    if (!isDev && appUrl && !appUrl.includes('localhost') && !appUrl.includes('127.0.0.1')) {
+      try {
+        const canonical = new URL(appUrl)
+        const host = canonical.hostname
+        const origin = canonical.origin
+        if (host && !host.includes('vercel.app')) {
+          const alternateHost = host.startsWith('www.') ? host.slice(4) : `www.${host}`
+          if (alternateHost !== host) {
+            base.push({
+              source: '/:path*',
+              has: [{ type: 'host', value: alternateHost }],
+              destination: `${origin}/:path*`,
+              permanent: true,
+            })
+          }
+        }
+      } catch {
+        // ignore invalid NEXT_PUBLIC_APP_URL
+      }
+    }
+
+    return base
   },
 
   async headers() {
