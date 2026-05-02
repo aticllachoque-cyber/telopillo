@@ -153,7 +153,7 @@ Deno.serve(async (req: Request) => {
   try {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      return json({ error: 'Missing Authorization' }, 401)
+      return json({ error: 'Falta el encabezado de autorización' }, 401)
     }
 
     const supabase = createClient(
@@ -175,11 +175,12 @@ Deno.serve(async (req: Request) => {
         .limit(batchLimit)
 
       if (fetchError) {
-        return json({ error: fetchError.message }, 500)
+        console.error('[generate-embedding] Backfill fetch error:', fetchError)
+        return json({ error: 'No se pudieron leer los productos para el proceso' }, 500)
       }
 
       if (!products || products.length === 0) {
-        return json({ message: 'No products need embeddings', processed: 0, remaining: 0 })
+        return json({ message: 'Ningún producto necesita embedding', processed: 0, remaining: 0 })
       }
 
       let success = 0
@@ -190,14 +191,14 @@ Deno.serve(async (req: Request) => {
         const text = buildProductText(product)
         if (!text?.trim()) {
           failed++
-          errors.push(`${product.id}: no text`)
+          errors.push(`${product.id}: sin texto`)
           continue
         }
 
         const embedding = await callHuggingFace(text)
         if (!embedding) {
           failed++
-          errors.push(`${product.id}: HF failed`)
+          errors.push(`${product.id}: falló el servicio de embedding`)
           continue
         }
 
@@ -208,7 +209,11 @@ Deno.serve(async (req: Request) => {
 
         if (updateError) {
           failed++
-          errors.push(`${product.id}: ${updateError.message}`)
+          console.error(
+            `[generate-embedding] Backfill update error for ${product.id}:`,
+            updateError
+          )
+          errors.push(`${product.id}: error al guardar el embedding`)
         } else {
           success++
         }
@@ -233,12 +238,12 @@ Deno.serve(async (req: Request) => {
     if (body.type === 'DEMAND') {
       const record = body.record
       if (!record?.id || !record?.text?.trim()) {
-        return json({ error: 'Missing demand record id or text' }, 400)
+        return json({ error: 'Falta el id de la solicitud o el texto' }, 400)
       }
 
       const embedding = await callHuggingFace(record.text)
       if (!embedding) {
-        return json({ error: 'HF embedding failed for demand post' }, 500)
+        return json({ error: 'No se pudo generar el embedding de la solicitud' }, 500)
       }
 
       const { error } = await supabase
@@ -248,7 +253,7 @@ Deno.serve(async (req: Request) => {
 
       if (error) {
         console.error('Supabase update error (demand_posts):', error)
-        return json({ error: error.message }, 500)
+        return json({ error: 'No se pudo actualizar la solicitud en la base de datos' }, 500)
       }
       return json({ success: true, demand_post_id: record.id })
     }
@@ -259,19 +264,19 @@ Deno.serve(async (req: Request) => {
       const productId = record.id
       const text = buildProductText(record)
       if (!text?.trim()) {
-        return json({ error: 'No text to embed' }, 400)
+        return json({ error: 'No hay texto para generar el embedding' }, 400)
       }
 
       const embedding = await callHuggingFace(text)
       if (!embedding) {
-        return json({ error: 'HF embedding failed' }, 500)
+        return json({ error: 'No se pudo generar el embedding' }, 500)
       }
 
       const { error } = await supabase.from('products').update({ embedding }).eq('id', productId)
 
       if (error) {
         console.error('Supabase update error:', error)
-        return json({ error: error.message }, 500)
+        return json({ error: 'No se pudo actualizar el producto en la base de datos' }, 500)
       }
       return json({ success: true, product_id: productId })
     }
@@ -279,17 +284,17 @@ Deno.serve(async (req: Request) => {
     // --- Mode 2: Direct text (search query embedding) ---
     const { text } = body
     if (!text?.trim()) {
-      return json({ error: 'Missing text' }, 400)
+      return json({ error: 'Falta el texto' }, 400)
     }
 
     const embedding = await callHuggingFace(text)
     if (!embedding) {
-      return json({ error: 'HF embedding failed' }, 500)
+      return json({ error: 'No se pudo generar el embedding' }, 500)
     }
 
     return json({ embedding })
   } catch (e) {
     console.error('generate-embedding error:', e)
-    return json({ error: String(e) }, 500)
+    return json({ error: 'Ocurrió un error inesperado' }, 500)
   }
 })

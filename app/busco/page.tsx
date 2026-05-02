@@ -76,7 +76,10 @@ function BuscoPageContent() {
       params.set('limit', String(PAGE_SIZE))
 
       const res = await fetch(`/api/search-demands?${params.toString()}`)
-      if (!res.ok) throw new Error('Failed to fetch demands')
+      if (!res.ok) {
+        setError('No se pudieron cargar las solicitudes.')
+        return
+      }
 
       const data = await res.json()
       setPosts(data.demands ?? [])

@@ -46,6 +46,8 @@ test.describe('Search API', () => {
     expect(body).toHaveProperty('totalCount')
     expect(Array.isArray(body.demands)).toBe(true)
     expect(typeof body.totalCount).toBe('number')
+    // Success responses must not mix in an API error payload (client contract).
+    expect(body.error).toBeUndefined()
   })
 
   test('GET /api/search-demands with search query', async ({ request }) => {

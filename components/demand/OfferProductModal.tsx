@@ -100,7 +100,7 @@ export function OfferProductModal({
       onSuccess()
     } catch (err) {
       console.error('Error creating offer:', err)
-      setError('No se pudo enviar la oferta. Intenta de nuevo.')
+      setError('No se pudo enviar la oferta. Intentá de nuevo.')
     } finally {
       setIsSubmitting(false)
     }

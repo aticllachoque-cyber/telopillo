@@ -84,7 +84,7 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
       router.push(`/busco/${post.id}`)
     } catch (error) {
       console.error('Error creating demand post:', error)
-      setSubmitError('No se pudo publicar tu solicitud. Intenta de nuevo.')
+      setSubmitError('No se pudo publicar tu solicitud. Intentá de nuevo.')
     } finally {
       setIsSubmitting(false)
     }

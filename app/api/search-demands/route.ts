@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('[search-demands] RPC error:', error)
-      return NextResponse.json({ error: 'Search failed' }, { status: 500 })
+      return NextResponse.json({ error: 'Error al buscar solicitudes' }, { status: 500 })
     }
 
     const row = Array.isArray(data) ? data[0] : data
@@ -174,6 +174,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     console.error('[search-demands] Error:', err)
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

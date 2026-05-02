@@ -92,7 +92,7 @@ export default function PublicarDemandaPage() {
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />
             Volver a solicitudes
           </Link>
-          <h1 className="text-3xl font-bold text-balance">Publica lo que buscas</h1>
+          <h1 className="text-3xl font-bold text-balance">Publicá lo que buscás</h1>
           <p className="text-muted-foreground mt-2 text-pretty">
             Completá el formulario y los vendedores podrán contactarte con lo que necesitás.
           </p>
@@ -104,7 +104,7 @@ export default function PublicarDemandaPage() {
               Alcanzaste el límite de {MAX_POSTS_PER_DAY} solicitudes por día
             </p>
             <p className="text-sm text-muted-foreground mt-2 text-pretty">
-              Intenta de nuevo mañana. Mientras tanto, puedes revisar las solicitudes existentes.
+              Intentá de nuevo mañana. Mientras tanto, podés revisar las solicitudes existentes.
             </p>
             <Link
               href="/busco"
