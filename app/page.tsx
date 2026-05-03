@@ -1,11 +1,9 @@
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { CtaStrip } from '@/components/home/CtaStrip'
+import { HeroSearchForm } from '@/components/home/HeroSearchForm'
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate'
 import Link from 'next/link'
 import {
-  Search,
   MessageCircle,
   ChevronRight,
   Smartphone,
@@ -14,6 +12,7 @@ import {
   ShieldCheck,
   MoreHorizontal,
   Target,
+  Search,
 } from 'lucide-react'
 import { CATEGORIES, CATEGORY_ICONS } from '@/lib/data/categories'
 
@@ -108,39 +107,7 @@ export default function Home() {
                 El marketplace boliviano para comprar y vender de todo. Gratis y seguro.
               </p>
 
-              <form
-                action="/buscar"
-                method="GET"
-                className="mx-auto mt-8 max-w-2xl"
-                role="search"
-                aria-label="Buscar productos"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
-                  <div className="relative min-w-0 flex-1">
-                    <Search
-                      className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground"
-                      aria-hidden
-                    />
-                    <Input
-                      type="search"
-                      name="q"
-                      placeholder="Ej: iPhone, moto, muebles..."
-                      className="h-12 min-h-[44px] pl-12 text-base touch-manipulation"
-                      aria-label="Término de búsqueda"
-                      autoComplete="off"
-                      required
-                      maxLength={200}
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="h-12 min-h-[44px] px-8 touch-manipulation sm:shrink-0"
-                  >
-                    Buscar
-                  </Button>
-                </div>
-              </form>
+              <HeroSearchForm />
 
               <p className="mt-6 text-center">
                 <Link
