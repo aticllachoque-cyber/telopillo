@@ -14,6 +14,15 @@ interface ShareProfileProps {
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 
+/** DOMException from navigator.share may not be instanceof Error in some browsers. */
+function isAbortError(err: unknown): boolean {
+  if (err instanceof Error && err.name === 'AbortError') return true
+  if (err !== null && typeof err === 'object' && 'name' in err) {
+    return String((err as { name: unknown }).name) === 'AbortError'
+  }
+  return false
+}
+
 export function ShareProfile({ profileId, businessSlug, variant = 'card' }: ShareProfileProps) {
   const { showToast } = useToast()
   const [copied, setCopied] = useState(false)
@@ -34,25 +43,36 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
     }
   }
 
+  /**
+   * Native share sheet (WhatsApp, etc.). Never falls back to clipboard — that is
+   * what "Copiar enlace" is for; a silent copy made both buttons feel identical.
+   */
   const handleShare = async () => {
-    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-      try {
-        await navigator.share({
-          title: 'Mi perfil en Telopillo',
-          text: 'Mira mis productos en Telopillo',
-          url: shareUrl,
-        })
-        return
-      } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') return
-      }
+    if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
+      showToast(
+        'Tu navegador no ofrece compartir aquí. Usa «Copiar enlace» y pégalo en WhatsApp u otra app.',
+        'info'
+      )
+      return
     }
-    await handleCopy()
+
+    const payload: ShareData = {
+      title: 'Mi perfil en Telopillo',
+      text: 'Mira mis productos en Telopillo',
+      url: shareUrl,
+    }
+
+    try {
+      await navigator.share(payload)
+    } catch (err: unknown) {
+      if (isAbortError(err)) return
+      showToast('No se pudo abrir compartir. Prueba «Copiar enlace».', 'error')
+    }
   }
 
   if (variant === 'compact') {
     return (
-      <Button variant="outline" size="sm" onClick={handleShare}>
+      <Button type="button" variant="outline" size="sm" onClick={handleShare}>
         <Share2 className="mr-2 h-4 w-4" aria-hidden />
         Compartir perfil
       </Button>
@@ -60,17 +80,19 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
   }
 
   return (
-    <Card className="border border-border/60 shadow-md">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
+    <Card className="min-w-0 max-w-full border border-border/60 shadow-md">
+      <CardHeader className="min-w-0 pb-3">
+        <div className="flex min-w-0 items-center gap-2">
           <LinkIcon className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
-          <h2 className="text-balance text-lg font-semibold">Compartir mi perfil</h2>
+          <h2 className="min-w-0 text-pretty text-lg font-semibold leading-snug">
+            Compartir mi perfil
+          </h2>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="min-w-0 space-y-4">
         <p
           id={publicUrlId}
-          className="truncate rounded-md bg-muted px-3 py-2 font-mono text-sm text-foreground"
+          className="min-w-0 max-w-full overflow-x-clip break-all rounded-md bg-muted px-3 py-2 font-mono text-sm leading-snug text-foreground [overflow-wrap:anywhere]"
           title={shareUrl}
         >
           <span className="sr-only">Enlace público: </span>
@@ -78,6 +100,7 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
         </p>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
           <Button
+            type="button"
             variant="default"
             onClick={handleShare}
             className="min-h-[44px] min-w-0 gap-2 touch-manipulation sm:min-h-10 sm:flex-1"
@@ -86,6 +109,7 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
             Compartir
           </Button>
           <Button
+            type="button"
             variant="outline"
             onClick={handleCopy}
             className="min-h-[44px] min-w-0 gap-2 touch-manipulation sm:min-h-10 sm:flex-1"

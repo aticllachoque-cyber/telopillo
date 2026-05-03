@@ -199,13 +199,13 @@ export default function ProfilePage() {
     profile.full_name && profile.location_city && profile.location_department
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="space-y-6">
+    <div className="container mx-auto max-w-4xl min-w-0 px-4 py-8">
+      <div className="min-w-0 space-y-6">
         {/* Profile Header Card */}
-        <Card className="border border-border/60 shadow-md">
-          <CardHeader className="pb-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex min-w-0 items-center gap-4">
+        <Card className="min-w-0 max-w-full border border-border/60 shadow-md">
+          <CardHeader className="min-w-0 pb-4">
+            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center sm:gap-4">
                 <Avatar className="h-20 w-20 shrink-0">
                   <AvatarImage
                     src={profile.avatar_url || undefined}
@@ -215,9 +215,11 @@ export default function ProfilePage() {
                     {getInitials(profile.full_name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-balance text-2xl font-bold">{profile.full_name}</h1>
+                <div className="min-w-0 flex-1 basis-0 self-stretch">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <h1 className="min-w-0 max-w-full text-xl font-bold leading-tight break-words sm:text-2xl [overflow-wrap:anywhere] [word-break:break-word]">
+                      {profile.full_name}
+                    </h1>
                     {profile.is_verified && (
                       <Badge variant="default" className="shrink-0 gap-1">
                         <svg
@@ -243,10 +245,10 @@ export default function ProfilePage() {
               </div>
               <Button
                 variant="outline"
-                className="w-full min-h-[44px] touch-manipulation sm:w-auto sm:min-h-10"
+                className="w-full min-w-0 shrink-0 min-h-[44px] touch-manipulation sm:w-auto sm:min-h-10"
                 asChild
               >
-                <Link href="/profile/edit">
+                <Link href="/profile/edit" className="min-w-0">
                   <Edit className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                   Editar perfil
                 </Link>
@@ -337,7 +339,7 @@ export default function ProfilePage() {
 
         {/* Business Profile Section */}
         {businessName ? (
-          <Card className="border border-border/60 shadow-md">
+          <Card className="min-w-0 max-w-full border border-border/60 shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Store className="h-5 w-5 shrink-0 text-primary" aria-hidden />
@@ -376,7 +378,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="border border-border/60 shadow-md">
+          <Card className="min-w-0 max-w-full border border-border/60 shadow-md">
             <CardHeader className="pb-3 text-center">
               <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-muted">
                 <Store className="h-6 w-6 text-muted-foreground" aria-hidden />
@@ -409,7 +411,7 @@ export default function ProfilePage() {
         )}
 
         {/* Listings quick actions */}
-        <Card className="border border-border/60 shadow-md">
+        <Card className="min-w-0 max-w-full border border-border/60 shadow-md">
           <CardHeader>
             <h2 className="text-balance text-xl font-semibold">Mis productos</h2>
           </CardHeader>

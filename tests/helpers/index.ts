@@ -37,7 +37,8 @@ export async function gotoReady(page: Page, path: string): Promise<void> {
  */
 export async function gotoProfilePage(page: Page): Promise<void> {
   await gotoReady(page, '/profile')
-  const settled = page.getByRole('heading', { level: 1 }).or(page.getByRole('alert'))
+  const main = page.locator('#main-content')
+  const settled = main.getByRole('heading', { level: 1 }).or(main.getByRole('alert'))
   await expect(settled).toBeVisible({ timeout: 15_000 })
 }
 
