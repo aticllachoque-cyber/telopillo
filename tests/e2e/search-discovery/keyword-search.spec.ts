@@ -86,6 +86,33 @@ test.describe('Keyword Search - Happy Path', () => {
       .catch(() => false)
     expect(hasResults || hasNoResults).toBeTruthy()
   })
+
+  test('Applying filters after a new search does not restore previous query', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/buscar?q=samsung')
+    await page.waitForLoadState('networkidle')
+    await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
+
+    const mainSearch = page.locator('#main-content').getByRole('search')
+    await mainSearch.getByLabel(/buscar productos/i).fill('laptop')
+    await mainSearch.getByRole('button', { name: /buscar/i }).click()
+
+    await expect(page).toHaveURL(/\/buscar\?q=laptop/)
+    await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
+
+    const categoryTrigger = page.getByLabel(/filtrar por categoría/i)
+    await categoryTrigger.click()
+    await page.getByRole('option', { name: /electrónica/i }).click()
+
+    await expect(page).toHaveURL((url) => {
+      return (
+        url.pathname === '/buscar' &&
+        url.searchParams.get('q') === 'laptop' &&
+        url.searchParams.has('category')
+      )
+    })
+    expect(page.url()).not.toContain('q=samsung')
+  })
 })
 
 // ---------------------------------------------------------------------------

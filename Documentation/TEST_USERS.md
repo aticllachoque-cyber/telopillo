@@ -1,42 +1,30 @@
-# Test Users (by category)
+# Test Users
 
-Users for local E2E and Playwright CLI. Created with `node scripts/create-test-users.mjs`.
+Usuarios locales creados por `scripts/seed-local-rich-users.sql`.
 
-**Standard password (all accounts):** `TestPassword123`
+**Password para todas las cuentas:** `TestPassword123`
 
----
+| Email | Tipo | Nombre | Ubicacion | Datos asociados |
+|-------|------|--------|-----------|-----------------|
+| `buyer1@test.com` | Comprador | Mariela Quispe | La Paz, La Paz | 3 solicitudes |
+| `buyer2@test.com` | Comprador | Rodrigo Vargas | Cochabamba, Cochabamba | 3 solicitudes |
+| `seller1@test.com` | Vendedor personal | Diego Mamani | Santa Cruz, Santa Cruz de la Sierra | 3 productos, 1 solicitud |
+| `seller2@test.com` | Vendedor personal | Laura Rojas | La Paz, El Alto | 3 productos, 1 solicitud |
+| `seller3@test.com` | Vendedor personal | Valentina Salazar | Tarija, Tarija | 3 productos, 1 solicitud |
+| `business1@test.com` | Negocio | Ana Pereira | La Paz, La Paz | Tienda Electronica La Paz, 3 productos |
+| `business2@test.com` | Negocio | Carlos Rivero | Santa Cruz, Santa Cruz de la Sierra | Moda Bolivia Express, 3 productos |
+| `business3@test.com` | Negocio | Sofia Camacho | Cochabamba, Cochabamba | Casa Andina Hogar, 3 productos, 1 solicitud |
 
-## Buyer
+Resumen del seed:
 
-| Email | Full name | Password |
-|-------|-----------|----------|
-| `buyer1@test.com` | Comprador Uno | `TestPassword123` |
-| `buyer2@test.com` | Comprador Dos | `TestPassword123` |
+- 8 usuarios con perfiles completos
+- 3 perfiles de negocio
+- 18 productos activos
+- 10 solicitudes activas en `/busco`
+- 10 ofertas cruzadas entre productos y solicitudes
 
-## Seller (personal)
-
-| Email | Full name | Password |
-|-------|-----------|----------|
-| `seller1@test.com` | Vendedor Uno | `TestPassword123` |
-| `seller2@test.com` | Vendedor Dos | `TestPassword123` |
-
-*These may already exist from DB seed. Set password via `node scripts/set-test-passwords.mjs` or Supabase Studio.*
-
-## Seller (business)
-
-| Email | Full name | Password | Business | Slug |
-|-------|-----------|----------|----------|------|
-| `business1@test.com` | Ana Negocio | `TestPassword123` | Tienda Electrónica La Paz | tienda-electronica-la-paz |
-| `business2@test.com` | Carlos Comercio | `TestPassword123` | Moda Bolivia | moda-bolivia |
-
----
-
-## Set / reset password
-
-To reset passwords for existing users (e.g. seller1, seller2):
+Para resembrar:
 
 ```bash
-node scripts/set-test-passwords.mjs
+docker exec -i supabase_db_telopillo.com psql -U postgres -d postgres -f /dev/stdin < scripts/seed-local-rich-users.sql
 ```
-
-Add more emails in `TEST_USER_EMAILS` in that script if needed.

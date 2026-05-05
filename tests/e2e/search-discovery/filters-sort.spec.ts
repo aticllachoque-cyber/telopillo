@@ -25,7 +25,7 @@ test.describe('Filters - Category', () => {
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
 
     // Open category filter (Select with label "Categoría") - desktop sidebar visible
-    const categoryTrigger = page.getByLabel(/categoría/i)
+    const categoryTrigger = page.getByLabel(/filtrar por categoría/i)
     await categoryTrigger.click()
 
     // Select "Electrónica" (slug: electronics)
@@ -58,7 +58,13 @@ test.describe('Filters - Category', () => {
     await clearBtn.click()
 
     // URL should no longer have category param
-    await page.waitForURL(/\/buscar\?q=samsung($|&)/, { timeout: 5000 })
+    await expect(page).toHaveURL((url) => {
+      return (
+        url.pathname === '/buscar' &&
+        url.searchParams.get('q') === 'samsung' &&
+        !url.searchParams.has('category')
+      )
+    })
     expect(page.url()).not.toContain('category=')
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
@@ -82,7 +88,7 @@ test.describe('Filters - Sort', () => {
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
 
     // Open sort dropdown
-    const sortTrigger = page.locator('#sort-select').nth(1)
+    const sortTrigger = page.getByLabel(/ordenar productos/i)
     await sortTrigger.click()
 
     // Select "Precio: menor a mayor"
@@ -105,7 +111,7 @@ test.describe('Filters - Sort', () => {
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
 
-    const sortTrigger = page.locator('#sort-select').nth(1)
+    const sortTrigger = page.getByLabel(/ordenar productos/i)
     await sortTrigger.click()
 
     await page.getByRole('option', { name: /más recientes/i }).click()
@@ -134,19 +140,19 @@ test.describe('Filters - Combine Filter and Sort', () => {
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
 
     // Apply category
-    const categoryTrigger = page.getByLabel(/categoría/i)
+    const categoryTrigger = page.getByLabel(/filtrar por categoría/i)
     await categoryTrigger.click()
     await page.getByRole('option', { name: /electrónica/i }).click()
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
 
     // Apply sort
-    const sortTrigger = page.locator('#sort-select').nth(1)
+    const sortTrigger = page.getByLabel(/ordenar productos/i)
     await sortTrigger.click()
     await page.getByRole('option', { name: /precio: menor a mayor/i }).click()
 
-    expect(page.url()).toContain('category=electronics')
-    expect(page.url()).toContain('sort=price_asc')
+    await expect(page).toHaveURL(/category=electronics/)
+    await expect(page).toHaveURL(/sort=price_asc/)
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
     const hasResults = await page.getByText(/resultado/i).isVisible()
@@ -178,10 +184,10 @@ test.describe('Filters - URL State Persistence', () => {
     expect(page.url()).toContain('sort=price_asc')
 
     // Category and sort selects should show selected values
-    const categoryTrigger = page.getByLabel(/categoría/i)
+    const categoryTrigger = page.getByLabel(/filtrar por categoría/i)
     await expect(categoryTrigger).toContainText(/electrónica/i)
 
-    const sortTrigger = page.locator('#sort-select').nth(1)
+    const sortTrigger = page.getByLabel(/ordenar productos/i)
     await expect(sortTrigger).toContainText(/menor a mayor/i)
   })
 })
@@ -196,9 +202,7 @@ test.describe('Filters - Error Scenarios', () => {
 
     await page.locator('text=Buscando productos...').waitFor({ state: 'hidden', timeout: 15000 })
 
-    await expect(
-      page.getByText(/no encontramos productos|no se encontraron resultados/i)
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: /no encontramos productos/i })).toBeVisible()
     // At least one suggestion: adjust keywords, clear filters link, or categories link
     const hasSuggestion =
       (await page.getByText(/intenta con otras palabras/i).isVisible()) ||
@@ -216,9 +220,12 @@ test.describe('Filters - Error Scenarios', () => {
 
     // Page should not crash; we get either empty results or fallback behavior
     const hasResults = await page.getByText(/resultado/i).isVisible()
-    const hasNoResults = await page
-      .getByText(/no se encontraron resultados|no encontramos productos/i)
-      .isVisible()
+    const hasNoResults =
+      (await page
+        .getByText(/no se encontraron resultados/i)
+        .first()
+        .isVisible()) ||
+      (await page.getByRole('heading', { name: /no encontramos productos/i }).isVisible())
     expect(hasResults || hasNoResults).toBeTruthy()
   })
 })

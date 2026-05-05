@@ -1,20 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, useCallback, Suspense, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { SearchBar } from '@/components/search/SearchBar'
 import { SearchFilters } from '@/components/search/SearchFilters'
-import { SearchSort } from '@/components/search/SearchSort'
 import { ProductGrid } from '@/components/products/ProductGrid'
-import {
-  Loader2,
-  Search as SearchIcon,
-  SlidersHorizontal,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react'
+import { Loader2, Search as SearchIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 
 interface Product {
@@ -55,6 +49,8 @@ interface SearchResponse {
   hasMore: boolean
 }
 
+const PAGE_SIZE = 24
+
 function BuscarPageSkeleton() {
   return (
     <div className="container mx-auto max-w-6xl px-4 sm:px-6 py-8">
@@ -77,13 +73,16 @@ function BuscarPageSkeleton() {
 }
 
 function BuscarPageContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const query = searchParams?.get('q') || ''
   const [results, setResults] = useState<SearchResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [loadedPage, setLoadedPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  const searchParamsString = searchParams?.toString() || ''
 
   // Check if any search criteria is active (query or filters)
   const hasActiveSearch = !!(
@@ -95,71 +94,79 @@ function BuscarPageContent() {
     searchParams?.get('priceMax')
   )
 
-  // Count active filters for badge (N2)
-  const activeFilterCount = [
-    searchParams?.get('category'),
-    searchParams?.get('condition'),
-    searchParams?.get('department'),
-    searchParams?.get('priceMin'),
-    searchParams?.get('priceMax'),
-  ].filter(Boolean).length
+  const performSearch = useCallback(
+    async (pageToLoad = 1, append = false) => {
+      if (append) {
+        setIsLoadingMore(true)
+      } else {
+        setIsLoading(true)
+      }
+      setError(null)
+
+      try {
+        // Build query string from all search params
+        const params = new URLSearchParams(searchParamsString)
+        params.set('page', String(pageToLoad))
+        params.set('limit', String(PAGE_SIZE))
+
+        const response = await fetch(`/api/search?${params.toString()}`)
+
+        if (!response.ok) {
+          throw new Error('Error al buscar productos')
+        }
+
+        const data: SearchResponse = await response.json()
+        setResults((current) => {
+          if (!append || !current) return data
+          const existingIds = new Set(current.products.map((product) => product.id))
+          const uniqueNextProducts = data.products.filter((product) => !existingIds.has(product.id))
+          return {
+            ...data,
+            products: [...current.products, ...uniqueNextProducts],
+          }
+        })
+        setLoadedPage(pageToLoad)
+        setHasMore(Boolean(data.hasMore))
+      } catch (err) {
+        console.error('Search error:', err)
+        setError(err instanceof Error ? err.message : 'Error al buscar productos')
+      } finally {
+        setIsLoading(false)
+        setIsLoadingMore(false)
+      }
+    },
+    [searchParamsString]
+  )
 
   useEffect(() => {
     document.title = query ? `Buscar: ${query} - Telopillo` : 'Buscar Productos - Telopillo'
 
     // Always perform search (returns all products when no query/filters)
-    performSearch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
+    setResults(null)
+    setLoadedPage(1)
+    setHasMore(false)
+    performSearch(1, false)
+  }, [performSearch, query])
 
-  // Close mobile filters on Escape (I4)
+  const loadMore = useCallback(() => {
+    if (isLoading || isLoadingMore || !hasMore) return
+    performSearch(loadedPage + 1, true)
+  }, [hasMore, isLoading, isLoadingMore, loadedPage, performSearch])
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showMobileFilters) {
-        setShowMobileFilters(false)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showMobileFilters])
+    const node = loadMoreRef.current
+    if (!node || !hasMore) return
 
-  const performSearch = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore()
+      },
+      { rootMargin: '600px 0px' }
+    )
 
-    try {
-      // Build query string from all search params
-      const params = new URLSearchParams(searchParams?.toString() || '')
-      if (!params.has('limit')) {
-        params.set('limit', '24')
-      }
-
-      const response = await fetch(`/api/search?${params.toString()}`)
-
-      if (!response.ok) {
-        throw new Error('Error al buscar productos')
-      }
-
-      const data: SearchResponse = await response.json()
-      setResults(data)
-    } catch (err) {
-      console.error('Search error:', err)
-      setError(err instanceof Error ? err.message : 'Error al buscar productos')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [searchParams])
-
-  // C1: Pagination navigation
-  const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams?.toString() || '')
-    if (page <= 1) {
-      params.delete('page')
-    } else {
-      params.set('page', String(page))
-    }
-    router.push(`/buscar?${params.toString()}`)
-  }
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [hasMore, loadMore])
 
   return (
     <div className="min-h-dvh bg-background">
@@ -173,56 +180,18 @@ function BuscarPageContent() {
         </div>
 
         {/* Layout: Filters + Results */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Desktop Filters Sidebar */}
-          <div className="hidden lg:block lg:w-64 shrink-0">
-            <div className="sticky top-24">
-              <SearchFilters />
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+          <div className="lg:w-64 lg:shrink-0">
+            <div className="lg:sticky lg:top-24">
+              <Card className="gap-0 border border-border/60 py-0 shadow-md">
+                <CardContent className="p-4 sm:p-5">
+                  <SearchFilters />
+                </CardContent>
+              </Card>
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 min-w-0">
-            {/* Mobile Filters Button + Sort */}
-            <div className="flex items-center justify-between mb-6 lg:hidden">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowMobileFilters(!showMobileFilters)}
-                className="gap-2 min-h-[44px] sm:min-h-0 touch-manipulation"
-                aria-expanded={showMobileFilters}
-                aria-controls="mobile-filters-panel"
-                aria-label={showMobileFilters ? 'Cerrar filtros' : 'Abrir filtros'}
-              >
-                <SlidersHorizontal className="h-4 w-4" aria-hidden />
-                Filtros
-                {activeFilterCount > 0 && (
-                  <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
-              <SearchSort showLabel={false} />
-            </div>
-
-            {/* Mobile Filters Panel */}
-            {showMobileFilters && (
-              <div
-                id="mobile-filters-panel"
-                role="region"
-                aria-label="Filtros de búsqueda"
-                className="lg:hidden mb-6 p-4 border rounded-lg bg-card"
-              >
-                <SearchFilters onApply={() => setShowMobileFilters(false)} />
-              </div>
-            )}
-
-            {/* Desktop Sort */}
-            <div className="hidden lg:flex items-center justify-between mb-6">
-              <div />
-              <SearchSort />
-            </div>
-
+          <div className="min-w-0 flex-1">
             {/* Loading State — skeleton grid (I4) */}
             {isLoading && (
               <div>
@@ -283,8 +252,13 @@ function BuscarPageContent() {
             {results && !isLoading && (
               <div>
                 {/* C4: Results count in aria-live region */}
-                <div className="mb-6" role="status" aria-live="polite" aria-atomic="true">
-                  <p className="text-muted-foreground">
+                <div
+                  className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  <p className="text-sm text-muted-foreground">
                     {results.totalCount === 0 ? (
                       <>
                         No se encontraron resultados
@@ -307,6 +281,11 @@ function BuscarPageContent() {
                       </>
                     )}
                   </p>
+                  {results.totalCount > 0 && (
+                    <p className="text-xs text-muted-foreground tabular-nums">
+                      Mostrando {results.products.length} de {results.totalCount}
+                    </p>
+                  )}
                 </div>
 
                 {/* No Results State (I2: clear filters link) */}
@@ -355,38 +334,30 @@ function BuscarPageContent() {
                   <ProductGrid products={results.products} showStatusBadge={true} />
                 )}
 
-                {/* C1: Pagination Controls */}
-                {results.totalPages > 1 && (
-                  <nav
-                    className="mt-8 flex items-center justify-center gap-2"
-                    aria-label="Paginación de resultados"
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={results.page <= 1}
-                      onClick={() => goToPage(results.page - 1)}
-                      className="min-h-[44px] sm:min-h-0 touch-manipulation"
-                      aria-label="Página anterior"
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-1" aria-hidden />
-                      Anterior
-                    </Button>
-                    <span className="text-sm text-muted-foreground tabular-nums px-3">
-                      Página {results.page} de {results.totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={!results.hasMore}
-                      onClick={() => goToPage(results.page + 1)}
-                      className="min-h-[44px] sm:min-h-0 touch-manipulation"
-                      aria-label="Página siguiente"
-                    >
-                      Siguiente
-                      <ChevronRight className="h-4 w-4 ml-1" aria-hidden />
-                    </Button>
-                  </nav>
+                {results.totalCount > 0 && (
+                  <>
+                    <div ref={loadMoreRef} className="h-1" aria-hidden />
+
+                    <div className="mt-8 flex flex-col items-center gap-3" aria-live="polite">
+                      {isLoadingMore ? (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="size-4 motion-safe:animate-spin" aria-hidden />
+                          Cargando más productos...
+                        </div>
+                      ) : hasMore ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={loadMore}
+                          className="min-h-[44px] touch-manipulation sm:min-h-10"
+                        >
+                          Cargar más
+                        </Button>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No hay más productos.</p>
+                      )}
+                    </div>
+                  </>
                 )}
 
                 {/* Demand CTA at bottom of results */}
