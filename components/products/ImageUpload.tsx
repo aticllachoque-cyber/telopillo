@@ -10,7 +10,7 @@ import {
   revokeImagePreview,
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 import { Upload, X, Loader2, CameraIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ImageUploadProps {
@@ -69,7 +69,7 @@ export function ImageUpload({
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const uploadInProgressRef = useRef(false)
   const supabase = createClient()
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
 
   // Sync uploaded URLs with parent component
   useEffect(() => {
@@ -83,7 +83,7 @@ export function ImageUpload({
     if (!files || files.length === 0) return
 
     if (uploadInProgressRef.current) {
-      showToast('Espera a que terminen las subidas actuales', 'warning')
+      showSnackbar('Espera a que terminen las subidas actuales', { variant: 'warning' })
       return
     }
 
@@ -91,7 +91,7 @@ export function ImageUpload({
     const remainingSlots = maxImages - previews.length
 
     if (fileArray.length > remainingSlots) {
-      showToast(`Solo puedes subir ${remainingSlots} imagen(es) más`, 'warning')
+      showSnackbar(`Solo puedes subir ${remainingSlots} imagen(es) más`, { variant: 'warning' })
       return
     }
 
@@ -99,7 +99,7 @@ export function ImageUpload({
     for (const file of fileArray) {
       const validation = validateImageFile(file)
       if (!validation.valid) {
-        showToast(validation.error || 'Archivo inválido', 'error')
+        showSnackbar(validation.error || 'Archivo inválido', { variant: 'error' })
         return
       }
     }

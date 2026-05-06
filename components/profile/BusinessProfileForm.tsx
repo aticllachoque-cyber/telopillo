@@ -25,7 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { LocationSelector } from '@/components/profile/LocationSelector'
 import { BusinessHoursEditor } from '@/components/profile/BusinessHoursEditor'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 import { getAvatarColor } from '@/lib/utils'
 
 interface BusinessProfileFormProps {
@@ -43,7 +43,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
   const [hasExistingProfile, setHasExistingProfile] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
 
   const {
     register,
@@ -196,10 +196,12 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
         setHasExistingProfile(true)
       }
 
-      showToast('Perfil de negocio guardado exitosamente', 'success')
+      showSnackbar('Perfil de negocio guardado exitosamente.', { variant: 'success' })
       onSaved?.()
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Error al guardar perfil de negocio', 'error')
+      showSnackbar(err instanceof Error ? err.message : 'Error al guardar perfil de negocio', {
+        variant: 'error',
+      })
     } finally {
       setIsSaving(false)
     }

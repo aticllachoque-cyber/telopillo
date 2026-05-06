@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Search, Megaphone, Target, UserCircle, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 
 interface WelcomeScreenProps {
@@ -26,7 +26,7 @@ const VALUE_POINTS = [
 export function WelcomeScreen({ userId, firstName, onDismiss }: WelcomeScreenProps) {
   const router = useRouter()
   const [activeAction, setActiveAction] = useState<DismissAction>(null)
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
   const supabase = createClient()
 
   const isDismissing = activeAction !== null
@@ -46,7 +46,7 @@ export function WelcomeScreen({ userId, firstName, onDismiss }: WelcomeScreenPro
       await markOnboardingComplete()
       onDismiss()
     } catch {
-      showToast('No se pudo guardar. Intentá de nuevo.', 'error')
+      showSnackbar('No se pudo guardar. Intentá de nuevo.', { variant: 'error' })
       setActiveAction(null)
     }
   }
@@ -57,7 +57,7 @@ export function WelcomeScreen({ userId, firstName, onDismiss }: WelcomeScreenPro
       await markOnboardingComplete()
       router.push('/profile/edit')
     } catch {
-      showToast('No se pudo guardar. Intentá de nuevo.', 'error')
+      showSnackbar('No se pudo guardar. Intentá de nuevo.', { variant: 'error' })
       setActiveAction(null)
     }
   }

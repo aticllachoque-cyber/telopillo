@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { ShareProfile } from '@/components/profile/ShareProfile'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { getAvatarColor } from '@/lib/utils'
 
@@ -49,7 +49,7 @@ export default function ProfilePage() {
   const [businessName, setBusinessName] = useState<string | null>(null)
   const [isCreatingBusiness, setIsCreatingBusiness] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
 
   useEffect(() => {
     document.title = 'Mi Perfil - Telopillo'
@@ -144,10 +144,12 @@ export default function ProfilePage() {
 
       if (insertError) throw insertError
 
-      showToast('Negocio creado. Completa la información de tu tienda.', 'success')
+      showSnackbar('Negocio creado. Completa la información de tu tienda.', { variant: 'success' })
       router.push('/profile/edit')
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Error al crear negocio', 'error')
+      showSnackbar(err instanceof Error ? err.message : 'Error al crear negocio', {
+        variant: 'error',
+      })
     } finally {
       setIsCreatingBusiness(false)
     }

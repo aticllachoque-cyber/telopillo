@@ -16,7 +16,7 @@ import { LocationSelector } from '@/components/profile/LocationSelector'
 import { AvatarUpload } from '@/components/profile/AvatarUpload'
 import { BusinessProfileForm } from '@/components/profile/BusinessProfileForm'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 
 export default function ProfileEditPage() {
   const router = useRouter()
@@ -31,7 +31,7 @@ export default function ProfileEditPage() {
   const [verificationLevel, setVerificationLevel] = useState(0)
   const [isCreatingBusiness, setIsCreatingBusiness] = useState(false)
   const supabase = createClient()
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
 
   useEffect(() => {
     document.title = 'Editar Perfil - Telopillo'
@@ -123,9 +123,13 @@ export default function ProfileEditPage() {
       if (insertError) throw insertError
 
       setHasBusinessProfile(true)
-      showToast('Perfil de negocio creado. Completa tu información abajo.', 'success')
+      showSnackbar('Perfil de negocio creado. Completa tu información abajo.', {
+        variant: 'success',
+      })
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Error al crear perfil de negocio', 'error')
+      showSnackbar(err instanceof Error ? err.message : 'Error al crear perfil de negocio', {
+        variant: 'error',
+      })
     } finally {
       setIsCreatingBusiness(false)
     }

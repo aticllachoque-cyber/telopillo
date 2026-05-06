@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 import type { FieldErrors } from 'react-hook-form'
 import {
   Loader2,
@@ -75,7 +75,7 @@ export function ProductFormWizard({
 }: ProductFormWizardProps) {
   const router = useRouter()
   const supabase = createClient()
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -220,7 +220,7 @@ export function ProductFormWizard({
 
         if (insertError) throw insertError
 
-        showToast('¡Producto publicado exitosamente!', 'success')
+        showSnackbar('Producto publicado exitosamente.', { variant: 'success' })
         router.push(`/productos/${product.id}`)
       } else if (mode === 'edit' && productId) {
         const { error: updateError } = await supabase
@@ -241,14 +241,14 @@ export function ProductFormWizard({
 
         if (updateError) throw updateError
 
-        showToast('¡Producto actualizado exitosamente!', 'success')
+        showSnackbar('Producto actualizado exitosamente.', { variant: 'success' })
         router.push(`/productos/${productId}`)
       }
     } catch (err) {
       console.error('Error saving product:', err)
       const errorMsg = err instanceof Error ? err.message : 'Error al guardar el producto'
       setError(errorMsg)
-      showToast('Error al guardar el producto', 'error')
+      showSnackbar('Error al guardar el producto', { variant: 'error' })
       requestAnimationFrame(() => {
         document.querySelector<HTMLElement>('[role="alert"]')?.focus()
       })

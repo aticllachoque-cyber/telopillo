@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { isAbortError, isAbortLikeError } from '@/lib/utils'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 
 interface Profile {
   id: string
@@ -40,11 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
 
-  // Refs to keep callback references stable and avoid effect re-runs
-  const showToastRef = useRef(showToast)
-  showToastRef.current = showToast
+  const showSnackbarRef = useRef(showSnackbar)
+  showSnackbarRef.current = showSnackbar
   const profileRef = useRef(profile)
   profileRef.current = profile
 
@@ -120,8 +119,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const loadedProfile = await loadProfile(session.user.id)
 
             if (isNewLogin) {
-              const name = loadedProfile?.full_name?.split(' ')[0] || ''
-              showToastRef.current(name ? `¡Bienvenido, ${name}!` : '¡Bienvenido!', 'success')
+              const firstName = loadedProfile?.full_name?.split(' ')[0] || ''
+              showSnackbarRef.current(firstName ? `¡Bienvenido, ${firstName}!` : '¡Bienvenido!', {
+                variant: 'success',
+              })
             }
           } else if (event === 'SIGNED_OUT') {
             knownUserIdRef.current = null
@@ -158,7 +159,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null)
       setProfile(null)
-      showToastRef.current(firstName ? `¡Hasta pronto, ${firstName}!` : '¡Hasta pronto!', 'success')
+      showSnackbarRef.current(firstName ? `¡Hasta pronto, ${firstName}!` : '¡Hasta pronto!', {
+        variant: 'success',
+      })
     }
   }, [])
 

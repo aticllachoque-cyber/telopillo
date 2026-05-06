@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
-import { ToastProvider } from '@/components/providers/ToastProvider'
+import { SnackbarProvider } from '@/components/providers/SnackbarProvider'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -58,7 +58,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
-        <ToastProvider>
+        <SnackbarProvider>
           <AuthProvider>
             <a
               href="#main-content"
@@ -74,7 +74,7 @@ export default function RootLayout({
               <Footer />
             </div>
           </AuthProvider>
-        </ToastProvider>
+        </SnackbarProvider>
       </body>
     </html>
   )

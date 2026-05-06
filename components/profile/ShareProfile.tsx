@@ -4,7 +4,7 @@ import { useId, useState } from 'react'
 import { Copy, Check, Share2, Link as LinkIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 
 interface ShareProfileProps {
   profileId: string
@@ -24,7 +24,7 @@ function isAbortError(err: unknown): boolean {
 }
 
 export function ShareProfile({ profileId, businessSlug, variant = 'card' }: ShareProfileProps) {
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
   const [copied, setCopied] = useState(false)
   const publicUrlId = useId()
 
@@ -36,10 +36,10 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
     try {
       await navigator.clipboard.writeText(shareUrl)
       setCopied(true)
-      showToast('Enlace copiado', 'success')
+      showSnackbar('Enlace copiado', { variant: 'success' })
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      showToast('No se pudo copiar el enlace', 'error')
+      showSnackbar('No se pudo copiar el enlace', { variant: 'error' })
     }
   }
 
@@ -49,9 +49,9 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
    */
   const handleShare = async () => {
     if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
-      showToast(
+      showSnackbar(
         'Tu navegador no ofrece compartir aquí. Usa «Copiar enlace» y pégalo en WhatsApp u otra app.',
-        'info'
+        { variant: 'info', duration: 5000 }
       )
       return
     }
@@ -66,7 +66,7 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
       await navigator.share(payload)
     } catch (err: unknown) {
       if (isAbortError(err)) return
-      showToast('No se pudo abrir compartir. Prueba «Copiar enlace».', 'error')
+      showSnackbar('No se pudo abrir compartir. Prueba «Copiar enlace».', { variant: 'error' })
     }
   }
 

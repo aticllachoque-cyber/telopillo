@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useToast } from '@/components/ui/toast'
+import { useSnackbar } from '@/components/ui/snackbar'
 import { Edit, MoreVertical, Loader2, Share2 } from 'lucide-react'
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
@@ -47,7 +47,7 @@ export function ProductActions({
 }: ProductActionsProps) {
   const router = useRouter()
   const supabase = createClient()
-  const { showToast } = useToast()
+  const { showSnackbar } = useSnackbar()
   const [isProcessing, setIsProcessing] = useState(false)
   const [dialogAction, setDialogAction] = useState<ActionType>(null)
 
@@ -71,9 +71,9 @@ export function ProductActions({
 
     try {
       await navigator.clipboard.writeText(productUrl)
-      showToast('Enlace del producto copiado', 'success')
+      showSnackbar('Enlace del producto copiado', { variant: 'success' })
     } catch {
-      showToast('No se pudo copiar el enlace', 'error')
+      showSnackbar('No se pudo copiar el enlace', { variant: 'error' })
     }
   }
 
@@ -115,7 +115,7 @@ export function ProductActions({
       }
     } catch (err) {
       console.error('Error updating product:', err)
-      showToast('Error al actualizar el producto', 'error')
+      showSnackbar('Error al actualizar el producto', { variant: 'error' })
     } finally {
       setIsProcessing(false)
       setDialogAction(null)
