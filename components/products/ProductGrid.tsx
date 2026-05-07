@@ -25,6 +25,7 @@ interface ProductGridProps {
   products: Product[]
   onUpdate?: () => void
   showActions?: boolean
+  variant?: 'default' | 'preview'
   /** Show or hide status badges on cards (hide on public-facing pages) */
   showStatusBadge?: boolean
   /**
@@ -38,6 +39,7 @@ export function ProductGrid({
   products,
   onUpdate,
   showActions = false,
+  variant = 'default',
   showStatusBadge,
   whatsappContactPhone,
 }: ProductGridProps) {
@@ -56,6 +58,7 @@ export function ProductGrid({
             product={product}
             onUpdate={onUpdate}
             showActions={showActions}
+            variant={variant}
             showStatusBadge={showStatusBadge ?? showActions}
             priority={index === 0}
             whatsappContactPhone={whatsappContactPhone}

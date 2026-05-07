@@ -49,6 +49,7 @@ interface ProductCardProps {
   showStatusBadge?: boolean
   /** Public shared-profile / storefront only: seller WhatsApp for this grid */
   whatsappContactPhone?: string | null
+  variant?: 'default' | 'preview'
 }
 
 export function ProductCard({
@@ -58,6 +59,7 @@ export function ProductCard({
   priority = false,
   showStatusBadge = true,
   whatsappContactPhone = null,
+  variant = 'default',
 }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
 
@@ -71,6 +73,7 @@ export function ProductCard({
   const status = statusConfig[product.status as keyof typeof statusConfig] || statusConfig.active
   const imageUrl = !imageError && product.images[0] ? product.images[0] : null
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
+  const isPreview = variant === 'preview'
 
   const contactResolution = whatsappContactPhone?.trim()
     ? resolveSellerWhatsAppDigits(whatsappContactPhone, null)
@@ -95,9 +98,16 @@ export function ProductCard({
     contactResolution.normalizedDigits == null
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow group focus-within:shadow-lg">
+    <Card className="overflow-hidden transition-shadow group hover:shadow-lg focus-within:shadow-lg">
       {/* Image */}
-      <div className="relative aspect-[4/3] lg:aspect-square overflow-hidden bg-muted">
+      <div
+        className={cn(
+          'relative overflow-hidden bg-muted',
+          isPreview
+            ? 'aspect-[16/9] sm:aspect-[16/10] lg:aspect-[5/4]'
+            : 'aspect-[4/3] lg:aspect-square'
+        )}
+      >
         <Link
           href={`/productos/${product.id}`}
           className="block absolute inset-0"
@@ -148,8 +158,11 @@ export function ProductCard({
       </div>
 
       {/* Content */}
-      <CardContent className="p-3 sm:p-4">
-        <Link href={`/productos/${product.id}`} className="block space-y-1 sm:space-y-2">
+      <CardContent className={cn(isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4')}>
+        <Link
+          href={`/productos/${product.id}`}
+          className={cn('block space-y-1 sm:space-y-2', isPreview && 'space-y-1')}
+        >
           {/* Title */}
           <h3
             className={cn(productPresentation.listingTitle, 'hover:text-primary transition-colors')}
@@ -170,7 +183,7 @@ export function ProductCard({
         </Link>
 
         {/* Seller Info — hidden in owner view (showActions=true) */}
-        {!showActions && (product.seller_business_name || product.seller_name) && (
+        {!isPreview && !showActions && (product.seller_business_name || product.seller_name) && (
           <div className="mt-1.5 pt-1.5 sm:mt-2 sm:pt-2 border-t">
             {product.seller_business_slug && product.seller_business_name ? (
               <Link
@@ -201,7 +214,12 @@ export function ProductCard({
       </CardContent>
 
       {/* Footer — optional WhatsApp (shared seller / storefront pages only) */}
-      <CardFooter className="flex flex-col gap-2 p-3 pt-0 sm:gap-3 sm:p-4">
+      <CardFooter
+        className={cn(
+          'flex flex-col gap-2 pt-0',
+          isPreview ? 'p-3 sm:p-3.5 sm:gap-2.5' : 'p-3 sm:p-4 sm:gap-3'
+        )}
+      >
         {whatsappHref && (
           <ProductWhatsAppLink
             href={whatsappHref}
@@ -219,22 +237,29 @@ export function ProductCard({
             </Link>
           </p>
         )}
-        <div className="flex w-full items-center gap-3 text-xs sm:text-sm text-muted-foreground">
-          {product.views_count > 0 && (
+        <div
+          className={cn(
+            'flex w-full items-center gap-3 text-muted-foreground',
+            isPreview ? 'text-xs' : 'text-xs sm:text-sm'
+          )}
+        >
+          {!isPreview && product.views_count > 0 && (
             <div className="flex items-center gap-1">
               <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden />
               <span aria-label={`${product.views_count} vistas`}>{product.views_count}</span>
             </div>
           )}
-          <span
-            className="text-xs"
-            aria-label={`Publicado el ${new Date(product.created_at).toLocaleDateString('es-BO', { day: 'numeric', month: 'long', year: 'numeric' })}`}
-          >
-            {new Date(product.created_at).toLocaleDateString('es-BO', {
-              day: 'numeric',
-              month: 'short',
-            })}
-          </span>
+          {!isPreview && (
+            <span
+              className="text-xs"
+              aria-label={`Publicado el ${new Date(product.created_at).toLocaleDateString('es-BO', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+            >
+              {new Date(product.created_at).toLocaleDateString('es-BO', {
+                day: 'numeric',
+                month: 'short',
+              })}
+            </span>
+          )}
         </div>
       </CardFooter>
     </Card>
