@@ -217,6 +217,7 @@ export type Database = {
           location_city: string
           price_min: number | null
           price_max: number | null
+          image_url: string | null
           status: string
           offers_count: number
           embedding: string | null
@@ -236,6 +237,7 @@ export type Database = {
           location_city: string
           price_min?: number | null
           price_max?: number | null
+          image_url?: string | null
           status?: string
           offers_count?: number
           embedding?: string | null
@@ -255,6 +257,7 @@ export type Database = {
           location_city?: string
           price_min?: number | null
           price_max?: number | null
+          image_url?: string | null
           status?: string
           offers_count?: number
           embedding?: string | null
@@ -612,6 +615,7 @@ export interface DemandPost {
   location_city: string
   price_min: number | null
   price_max: number | null
+  image_url: string | null
   status: 'active' | 'found' | 'deleted'
   offers_count: number
   embedding: string | null
@@ -647,6 +651,7 @@ export interface SearchDemandPost {
   location_city: string
   price_min: number | null
   price_max: number | null
+  image_url: string | null
   status: string
   offers_count: number
   expires_at: string

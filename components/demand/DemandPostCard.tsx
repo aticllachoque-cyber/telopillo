@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MapPin, MessageSquare, Clock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { DemandImageFrame } from '@/components/demand/DemandImageFrame'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
 import type { SearchDemandPost } from '@/types/database'
@@ -51,6 +52,15 @@ export function DemandPostCard({ post }: DemandPostCardProps) {
       aria-label={`Ver solicitud: ${post.title}`}
     >
       <Card className="flex h-full flex-col gap-3 border border-border/60 p-4 shadow-md transition-shadow hover:shadow-md">
+        <DemandImageFrame
+          imageUrl={post.image_url}
+          category={post.category}
+          title={post.title}
+          className="mb-1"
+          aspectClassName="aspect-[16/9]"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
+
         <div className="flex items-center justify-between gap-2">
           <Badge variant="secondary" className="text-xs shrink-0">
             {categoryLabel}

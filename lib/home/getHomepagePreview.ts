@@ -37,7 +37,7 @@ export async function getHomepagePreview(): Promise<HomepagePreviewData> {
     supabase
       .from('demand_posts')
       .select(
-        'id, user_id, title, description, category, subcategory, location_department, location_city, price_min, price_max, status, offers_count, expires_at, created_at, updated_at'
+        'id, user_id, title, description, category, subcategory, location_department, location_city, price_min, price_max, image_url, status, offers_count, expires_at, created_at, updated_at'
       )
       .eq('status', 'active')
       .gt('expires_at', new Date().toISOString())

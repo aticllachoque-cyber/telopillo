@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DemandStatusBadge, getDemandDisplayStatus } from './DemandStatusBadge'
 import { OfferProductModal } from './OfferProductModal'
+import { DemandImageFrame } from './DemandImageFrame'
 import { getCategoryName } from '@/lib/data/categories'
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
@@ -32,6 +33,7 @@ interface DemandPostDetailProps {
     location_city: string
     price_min: number | null
     price_max: number | null
+    image_url: string | null
     status: string
     offers_count: number
     expires_at: string
@@ -172,6 +174,14 @@ export function DemandPostDetail({
 
         <Separator />
 
+        <DemandImageFrame
+          imageUrl={post.image_url}
+          category={post.category}
+          title={post.title}
+          aspectClassName="aspect-[16/9] sm:aspect-[2/1]"
+          sizes="(max-width: 1024px) 100vw, 66vw"
+        />
+
         <div>
           <h2 className={cn(productPresentation.sectionHeading, 'mb-2')}>Descripción</h2>
           {isPlaceholderDescription(post.description) ? (
@@ -195,6 +205,9 @@ export function DemandPostDetail({
         {/* Owner actions */}
         {isOwner && isActive && (
           <div className="flex flex-wrap gap-3">
+            <Button asChild variant="outline" className="min-h-[44px]">
+              <Link href={`/busco/${post.id}/editar`}>Editar solicitud</Link>
+            </Button>
             <Button
               onClick={handleMarkFound}
               disabled={isMarkingFound}

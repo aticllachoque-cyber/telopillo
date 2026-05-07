@@ -1,6 +1,6 @@
 /**
- * Image utilities for product images
- * Handles validation, compression, and optimization
+ * Image utilities shared by product and demand uploads.
+ * Handles validation, compression, storage upload, and preview lifecycle.
  */
 
 import imageCompression from 'browser-image-compression'
@@ -12,6 +12,42 @@ export interface ImageValidationResult {
   valid: boolean
   error?: string
 }
+
+interface StorageUploadResult {
+  data: { path: string } | null
+  error: { message?: string } | null
+}
+
+interface StorageRemoveResult {
+  error: { message?: string } | null
+}
+
+interface StorageBucketLike {
+  upload: (
+    path: string,
+    fileBody: Blob,
+    options: { contentType: string; upsert: boolean }
+  ) => Promise<StorageUploadResult>
+  getPublicUrl: (path: string) => { data: { publicUrl: string } }
+  remove: (paths: string[]) => Promise<StorageRemoveResult>
+}
+
+interface StorageLike {
+  from: (bucket: string) => StorageBucketLike
+}
+
+interface UploadStorageImageOptions {
+  storage: StorageLike
+  bucket: string
+  path: string
+  file: File
+  compressionTimeoutMs?: number
+  uploadTimeoutMs?: number
+  upsert?: boolean
+}
+
+const DEFAULT_COMPRESS_TIMEOUT_MS = 30_000
+const DEFAULT_UPLOAD_TIMEOUT_MS = 60_000
 
 /**
  * Compression options for product images.
@@ -96,8 +132,24 @@ export async function compressImage(file: File): Promise<Blob> {
   }
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      }
+    )
+  })
+}
+
 /**
- * Generate unique filename for product image
+ * Generate unique filename for an uploaded image
  * Format: {timestamp}-{index}.webp
  */
 export function generateImageFilename(index: number): string {
@@ -106,12 +158,87 @@ export function generateImageFilename(index: number): string {
 }
 
 /**
- * Get storage path for product image
- * Format: product-images/{userId}/{timestamp}-{index}.webp
+ * Get storage path for an image in the user's folder
  */
-export function getProductImagePath(userId: string, index: number): string {
+export function getUserImagePath(userId: string, index: number): string {
   const filename = generateImageFilename(index)
   return `${userId}/${filename}`
+}
+
+/**
+ * Backwards-compatible helper for product image paths.
+ */
+export function getProductImagePath(userId: string, index: number): string {
+  return getUserImagePath(userId, index)
+}
+
+/**
+ * Single-image demand path helper.
+ */
+export function getDemandImagePath(userId: string): string {
+  return getUserImagePath(userId, 0)
+}
+
+/**
+ * Uploads an image after compression and returns both storage path and public URL.
+ */
+export async function uploadStorageImage({
+  storage,
+  bucket,
+  path,
+  file,
+  compressionTimeoutMs = DEFAULT_COMPRESS_TIMEOUT_MS,
+  uploadTimeoutMs = DEFAULT_UPLOAD_TIMEOUT_MS,
+  upsert = false,
+}: UploadStorageImageOptions): Promise<{ path: string; publicUrl: string }> {
+  const compressedBlob = await withTimeout(
+    compressImage(file),
+    compressionTimeoutMs,
+    'La compresión tardó demasiado. Probá con otra foto o formato JPG/PNG.'
+  )
+
+  const { data, error } = await withTimeout(
+    storage.from(bucket).upload(path, compressedBlob, {
+      contentType: 'image/webp',
+      upsert,
+    }),
+    uploadTimeoutMs,
+    'La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.'
+  )
+
+  if (error || !data?.path) {
+    throw new Error(error?.message || 'Error al subir imagen')
+  }
+
+  const {
+    data: { publicUrl },
+  } = storage.from(bucket).getPublicUrl(data.path)
+
+  return {
+    path: data.path,
+    publicUrl,
+  }
+}
+
+export function getStoragePathFromPublicUrl(bucket: string, publicUrl: string): string | null {
+  const bucketMarker = `/${bucket}/`
+  const parts = publicUrl.split(bucketMarker)
+  if (parts.length < 2) return null
+  return parts[1]?.split('?')[0] || null
+}
+
+export async function removeStorageImageByPublicUrl(
+  storage: StorageLike,
+  bucket: string,
+  publicUrl: string
+): Promise<void> {
+  const path = getStoragePathFromPublicUrl(bucket, publicUrl)
+  if (!path) return
+
+  const { error } = await storage.from(bucket).remove([path])
+  if (error) {
+    throw new Error(error.message || 'No se pudo eliminar la imagen')
+  }
 }
 
 /**

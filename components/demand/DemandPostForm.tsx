@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
+import { removeStorageImageByPublicUrl } from '@/lib/utils/image'
 import { demandPostSchema, type DemandPostInput } from '@/lib/validations/demand'
 import { CATEGORIES, getSubcategories } from '@/lib/data/categories'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
 import { LocationSelector } from '@/components/profile/LocationSelector'
+import { DemandImageUpload } from '@/components/demand/DemandImageUpload'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,13 +22,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 
 interface DemandPostFormProps {
   userId: string
+  demandPostId?: string
+  mode?: 'create' | 'edit'
+  defaultValues?: Partial<DemandPostInput>
 }
 
-export function DemandPostForm({ userId }: DemandPostFormProps) {
+export function DemandPostForm({
+  userId,
+  demandPostId,
+  mode = 'create',
+  defaultValues,
+}: DemandPostFormProps) {
   const router = useRouter()
   const supabase = createClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -41,7 +51,7 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
   } = useForm<DemandPostInput>({
     resolver: zodResolver(demandPostSchema),
     mode: 'onTouched',
-    defaultValues: {
+    defaultValues: defaultValues || {
       title: '',
       description: '',
       category: undefined,
@@ -50,6 +60,7 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
       location_city: '',
       price_min: undefined,
       price_max: undefined,
+      image_url: null,
     },
   })
 
@@ -57,34 +68,57 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
   const selectedDepartment = watch('location_department')
   const selectedCity = watch('location_city')
   const subcategories = selectedCategory ? getSubcategories(selectedCategory) : []
+  const originalImageUrl = defaultValues?.image_url ?? null
 
   const onSubmit = async (data: DemandPostInput) => {
     setIsSubmitting(true)
     setSubmitError(null)
 
     try {
-      const { data: post, error } = await supabase
-        .from('demand_posts')
-        .insert({
-          user_id: userId,
-          title: data.title,
-          description: data.description,
-          category: data.category,
-          subcategory: data.subcategory || null,
-          location_department: data.location_department,
-          location_city: data.location_city,
-          price_min: data.price_min ?? null,
-          price_max: data.price_max ?? null,
-        })
-        .select('id')
-        .single()
+      const payload = {
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        subcategory: data.subcategory || null,
+        location_department: data.location_department,
+        location_city: data.location_city,
+        price_min: data.price_min ?? null,
+        price_max: data.price_max ?? null,
+        image_url: data.image_url ?? null,
+      }
+
+      const query =
+        mode === 'create'
+          ? supabase.from('demand_posts').insert({
+              user_id: userId,
+              ...payload,
+            })
+          : supabase
+              .from('demand_posts')
+              .update(payload)
+              .eq('id', demandPostId!)
+              .eq('user_id', userId)
+
+      const { data: post, error } = await query.select('id').single()
 
       if (error) throw error
+
+      if (mode === 'edit' && originalImageUrl && originalImageUrl !== payload.image_url) {
+        try {
+          await removeStorageImageByPublicUrl(supabase.storage, 'demand-images', originalImageUrl)
+        } catch (cleanupError) {
+          console.error('Error deleting replaced demand image:', cleanupError)
+        }
+      }
 
       router.push(`/busco/${post.id}`)
     } catch (error) {
       console.error('Error creating demand post:', error)
-      setSubmitError('No se pudo publicar tu solicitud. Intentá de nuevo.')
+      setSubmitError(
+        mode === 'create'
+          ? 'No se pudo publicar tu solicitud. Intentá de nuevo.'
+          : 'No se pudieron guardar los cambios. Intentá de nuevo.'
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -92,6 +126,21 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      {submitError && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+          <div>
+            <p className="font-medium">
+              {mode === 'create' ? 'No se pudo publicar' : 'No se pudo actualizar'}
+            </p>
+            <p className="mt-1 text-sm">{submitError}</p>
+          </div>
+        </div>
+      )}
+
       {/* Title */}
       <div className="space-y-2">
         <Label htmlFor="title">¿Qué estás buscando? *</Label>
@@ -135,6 +184,14 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
           </p>
         )}
       </div>
+
+      <DemandImageUpload
+        userId={userId}
+        value={watch('image_url') ?? null}
+        onChange={(url) => setValue('image_url', url, { shouldValidate: true })}
+        disabled={isSubmitting}
+        error={errors.image_url?.message}
+      />
 
       {/* Category + Subcategory */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -267,22 +324,17 @@ export function DemandPostForm({ userId }: DemandPostFormProps) {
         </div>
       </fieldset>
 
-      {/* Submit Error */}
-      {submitError && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4" role="alert">
-          <p className="text-sm text-destructive">{submitError}</p>
-        </div>
-      )}
-
       {/* Submit */}
       <Button type="submit" size="lg" className="w-full min-h-[44px]" disabled={isSubmitting}>
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-            Publicando...
+            {mode === 'create' ? 'Publicando...' : 'Guardando...'}
           </>
-        ) : (
+        ) : mode === 'create' ? (
           'Publicar solicitud'
+        ) : (
+          'Guardar cambios'
         )}
       </Button>
     </form>

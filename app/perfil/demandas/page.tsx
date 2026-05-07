@@ -28,6 +28,7 @@ import {
   Trash2,
   MessageSquare,
   ClipboardList,
+  PencilLine,
 } from 'lucide-react'
 import type { DemandPost } from '@/types/database'
 
@@ -434,6 +435,18 @@ export default function DemandDashboardPage() {
                               <Link href={`/busco/${post.id}`}>
                                 <Eye className="h-4 w-4 shrink-0" aria-hidden />
                                 <span>Ver</span>
+                              </Link>
+                            </Button>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              asChild
+                              className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
+                            >
+                              <Link href={`/busco/${post.id}/editar`}>
+                                <PencilLine className="h-4 w-4 shrink-0" aria-hidden />
+                                <span>Editar</span>
                               </Link>
                             </Button>
 

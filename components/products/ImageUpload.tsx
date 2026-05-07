@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
-  compressImage,
-  validateImageFile,
   getProductImagePath,
   createImagePreview,
   revokeImagePreview,
+  removeStorageImageByPublicUrl,
+  uploadStorageImage,
+  validateImageFile,
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
 import { useSnackbar } from '@/components/ui/snackbar'
@@ -30,26 +31,7 @@ interface ImagePreview {
   error?: string
 }
 
-const COMPRESS_TIMEOUT_MS = 30_000 // 30s so compress never hangs
-const UPLOAD_TIMEOUT_MS = 60_000 // 60s for upload; mobile/slow networks can need more than 30s
-
 const LOG_PREFIX = '[ImageUpload]'
-
-function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error(message)), ms)
-    promise.then(
-      (v) => {
-        clearTimeout(t)
-        resolve(v)
-      },
-      (e) => {
-        clearTimeout(t)
-        reject(e)
-      }
-    )
-  })
-}
 
 export function ImageUpload({
   userId,
@@ -154,44 +136,17 @@ export function ImageUpload({
           setUploadingCount((c) => Math.max(0, c - 1))
         }
         try {
-          const compressStart = Date.now()
-          console.log(LOG_PREFIX, `[${i}] compress start`, {
-            name: file.name,
-            sizeKB: Math.round(file.size / 1024),
-          })
-          const compressedBlob = await withTimeout(
-            compressImage(file),
-            COMPRESS_TIMEOUT_MS,
-            'La compresión tardó demasiado. Probá con otra foto o formato JPG/PNG.'
-          )
-          const compressMs = Date.now() - compressStart
-          console.log(LOG_PREFIX, `[${i}] compress done`, {
-            compressMs,
-            outputSizeKB: Math.round(compressedBlob.size / 1024),
-          })
           const storagePath = getProductImagePath(userId, timestamp + i)
-          const uploadStart = Date.now()
           console.log(LOG_PREFIX, `[${i}] upload start`, { path: storagePath })
-          const uploadPromise = supabase.storage
-            .from('product-images')
-            .upload(storagePath, compressedBlob, {
-              contentType: 'image/webp',
-              upsert: false,
-            })
-          const { data, error: uploadError } = await withTimeout(
-            uploadPromise,
-            UPLOAD_TIMEOUT_MS,
-            'La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.'
-          )
+          const uploadStart = Date.now()
+          const { publicUrl, path } = await uploadStorageImage({
+            storage: supabase.storage,
+            bucket: 'product-images',
+            path: storagePath,
+            file,
+          })
           const uploadMs = Date.now() - uploadStart
-          if (uploadError) {
-            console.warn(LOG_PREFIX, `[${i}] upload error`, { uploadMs, error: uploadError })
-            throw uploadError
-          }
-          console.log(LOG_PREFIX, `[${i}] upload done`, { uploadMs, path: data.path })
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from('product-images').getPublicUrl(data.path)
+          console.log(LOG_PREFIX, `[${i}] upload done`, { uploadMs, path })
           setPreviews((prev) => {
             const updated = [...prev]
             const existing = updated[previewIndex]
@@ -251,12 +206,7 @@ export function ImageUpload({
     // If uploaded to storage, delete it
     if (preview.uploaded && preview.url.includes('supabase')) {
       try {
-        // Extract path from URL
-        const urlParts = preview.url.split('/product-images/')
-        if (urlParts.length > 1) {
-          const path = urlParts[1]?.split('?')[0] // Remove query params
-          if (path) await supabase.storage.from('product-images').remove([path])
-        }
+        await removeStorageImageByPublicUrl(supabase.storage, 'product-images', preview.url)
       } catch (err) {
         console.error('Error deleting image from storage:', err)
       }

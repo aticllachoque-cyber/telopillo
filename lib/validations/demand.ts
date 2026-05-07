@@ -45,6 +45,8 @@ export const demandPostSchema = z
       .min(0, 'El precio máximo debe ser mayor o igual a 0')
       .optional()
       .nullable(),
+
+    image_url: z.string().url('La imagen debe ser una URL válida').optional().nullable(),
   })
   .refine(
     (data) => {

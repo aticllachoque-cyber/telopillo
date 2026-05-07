@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
 
   const { data: post } = await supabase
     .from('demand_posts')
-    .select('title, description, category, location_city')
+    .select('title, description, category, location_city, image_url')
     .eq('id', id)
     .single()
 
@@ -79,6 +79,7 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
       title: `Solicitud: ${post.title}`,
       description: post.description.slice(0, 160),
       type: 'website',
+      images: post.image_url ? [post.image_url] : undefined,
     },
     other: {
       'article:section': categoryName || post.category,

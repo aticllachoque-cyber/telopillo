@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Clock, MapPin, MessageSquare } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { DemandImageFrame } from '@/components/demand/DemandImageFrame'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
 import type { SearchDemandPost } from '@/types/database'
@@ -50,36 +51,52 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
       aria-label={`Ver solicitud: ${post.title}`}
     >
       <Card className="border border-border/60 p-4 shadow-md transition-shadow hover:shadow-lg">
-        <div className="flex items-start justify-between gap-3">
-          <Badge variant="secondary" className="shrink-0 text-xs">
-            {categoryLabel}
-          </Badge>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
-            <Clock className="h-3 w-3 shrink-0" aria-hidden />
-            {formatRelativeDate(post.created_at)}
-          </span>
-        </div>
+        <div className="flex gap-4">
+          <DemandImageFrame
+            imageUrl={post.image_url}
+            category={post.category}
+            title={post.title}
+            className="w-28 shrink-0 self-start"
+            aspectClassName="aspect-square"
+            sizes="112px"
+            iconClassName="h-7 w-7"
+          />
 
-        <h3 className="mt-3 line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
-          {post.title}
-        </h3>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <Badge variant="secondary" className="shrink-0 text-xs">
+                {categoryLabel}
+              </Badge>
+              <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
+                <Clock className="h-3 w-3 shrink-0" aria-hidden />
+                {formatRelativeDate(post.created_at)}
+              </span>
+            </div>
 
-        {snippet && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{snippet}</p>}
+            <h3 className="mt-3 line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
+              {post.title}
+            </h3>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
-          {priceRange && (
-            <span className="font-medium text-primary tabular-nums">{priceRange}</span>
-          )}
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            <span className="truncate">
-              {post.location_city}, {post.location_department}
-            </span>
-          </span>
-          <span className="flex items-center gap-1 tabular-nums">
-            <MessageSquare className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            {post.offers_count} {post.offers_count === 1 ? 'oferta' : 'ofertas'}
-          </span>
+            {snippet && (
+              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{snippet}</p>
+            )}
+
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
+              {priceRange && (
+                <span className="font-medium text-primary tabular-nums">{priceRange}</span>
+              )}
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                <span className="truncate">
+                  {post.location_city}, {post.location_department}
+                </span>
+              </span>
+              <span className="flex items-center gap-1 tabular-nums">
+                <MessageSquare className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                {post.offers_count} {post.offers_count === 1 ? 'oferta' : 'ofertas'}
+              </span>
+            </div>
+          </div>
         </div>
       </Card>
     </Link>
