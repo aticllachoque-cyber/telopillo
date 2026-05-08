@@ -17,10 +17,10 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
   return (
     <Link
       href={`/productos/${product.id}`}
-      className="block group"
+      className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       aria-label={`Ver ${product.title}`}
     >
-      <Card className="overflow-hidden border border-border/60 shadow-md transition-shadow hover:shadow-lg">
+      <Card className="overflow-hidden border border-border/60 shadow-md transition-shadow group-hover:shadow-lg group-focus-visible:shadow-lg">
         <div className="flex items-stretch gap-0">
           <div className="relative w-28 shrink-0 overflow-hidden bg-muted sm:w-32">
             {imageUrl ? (
@@ -40,7 +40,7 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
           </div>
 
           <div className="min-w-0 flex-1 px-4 py-3">
-            <h3 className="line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
+            <h3 className="line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary group-focus-visible:text-primary sm:text-base">
               {product.title}
             </h3>
             <p className="mt-2 text-xl font-bold leading-tight text-primary tabular-nums">

@@ -31,7 +31,7 @@ export function CategoryGrid({ value, onChange, error }: CategoryGridProps) {
             data-testid={`category-${cat.id}`}
             onClick={() => onChange(cat.id)}
             className={cn(
-              'flex flex-col items-center gap-1.5 sm:gap-2 rounded-lg border-2 p-3 sm:p-4 text-center transition-colors min-h-[80px] sm:min-h-[88px] touch-manipulation',
+              'flex flex-col items-center gap-1 sm:gap-2 rounded-lg border-2 px-2 py-2.5 sm:p-4 text-center transition-colors min-h-[72px] sm:min-h-[88px] touch-manipulation',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               isSelected
                 ? 'border-primary bg-primary/5 text-foreground'
@@ -41,13 +41,13 @@ export function CategoryGrid({ value, onChange, error }: CategoryGridProps) {
           >
             <div
               className={cn(
-                'flex items-center justify-center size-9 sm:size-10 rounded-lg transition-colors',
+                'flex items-center justify-center size-8 sm:size-10 rounded-lg transition-colors',
                 isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               )}
             >
               {Icon && <Icon className="size-5" aria-hidden="true" />}
             </div>
-            <span className="text-xs sm:text-sm font-medium leading-tight line-clamp-2">
+            <span className="text-[11px] sm:text-sm font-medium leading-tight line-clamp-2">
               {cat.name}
             </span>
           </button>

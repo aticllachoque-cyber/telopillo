@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import { BusinessHeader } from '@/components/business/BusinessHeader'
 import { BusinessInfoSidebar } from '@/components/business/BusinessInfoSidebar'
 import { ProductGrid } from '@/components/products/ProductGrid'
@@ -20,7 +20,7 @@ interface StorefrontPageProps {
 // ---------------------------------------------------------------------------
 
 async function getBusinessBySlug(slug: string) {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   // Fetch business profile with its owner profile in a single query
   const { data: business, error } = await supabase
@@ -46,7 +46,7 @@ async function getBusinessBySlug(slug: string) {
 }
 
 async function getBusinessProducts(userId: string) {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data: products } = await supabase
     .from('products')

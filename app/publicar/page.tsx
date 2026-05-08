@@ -4,14 +4,18 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ProductFormWizard } from '@/components/products/ProductFormWizard'
+import type { ProductInput } from '@/lib/validations/product'
 import { Loader2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+
+type ProfileLocationDefaults = Pick<ProductInput, 'location_department' | 'location_city'>
 
 export default function PublicarPage() {
   const router = useRouter()
   const supabase = createClient()
   const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [profileLocation, setProfileLocation] = useState<Partial<ProfileLocationDefaults>>({})
 
   useEffect(() => {
     document.title = 'Publicar Producto - Telopillo'
@@ -34,6 +38,18 @@ export default function PublicarPage() {
       }
 
       setUserId(user.id)
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('location_department, location_city')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      setProfileLocation({
+        location_department:
+          (profile?.location_department as ProductInput['location_department'] | null) ?? undefined,
+        location_city: profile?.location_city || undefined,
+      })
     } catch (error) {
       console.error('Error checking auth:', error)
       router.push('/login?redirect=/publicar')
@@ -78,7 +94,7 @@ export default function PublicarPage() {
         </div>
 
         {/* Wizard Form */}
-        <ProductFormWizard userId={userId} mode="create" />
+        <ProductFormWizard userId={userId} mode="create" defaultValues={profileLocation} />
 
         {/* Footer Info */}
         <div className="mt-8 text-center text-sm text-muted-foreground">

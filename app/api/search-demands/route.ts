@@ -1,11 +1,11 @@
 // Public route: demand search does not require authentication
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import { expandQuery } from '@/lib/search/synonyms'
 
 export const dynamic = 'force-dynamic'
 
-type SupabaseClient = Awaited<ReturnType<typeof createClient>>
+type SupabaseClient = ReturnType<typeof createPublicClient>
 
 async function isSemanticSearchEnabled(supabase: SupabaseClient): Promise<boolean> {
   if (process.env.SEMANTIC_SEARCH_ENABLED === 'true') return true
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
 
     let searchMode = 'browse'
     let embeddingCached = false

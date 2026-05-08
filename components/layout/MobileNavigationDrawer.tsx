@@ -430,7 +430,7 @@ export function MobileNavigationDrawer({
           <div className="border-t p-4">
             {isAuthenticated ? (
               <Button asChild className="w-full" size="lg">
-                <Link href="/publicar" onClick={() => onClose(false)}>
+                <Link href="/crear" onClick={() => onClose(false)}>
                   Publicar Gratis
                 </Link>
               </Button>

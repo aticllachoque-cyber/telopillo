@@ -16,7 +16,7 @@ import { cn, getAvatarColor } from '@/lib/utils'
 function desktopMarketplaceLinkClass(pathname: string, href: string) {
   const active = pathname.startsWith(href)
   return cn(
-    'rounded-md px-2.5 py-2 text-sm transition-colors whitespace-nowrap',
+    'inline-flex min-h-[44px] items-center rounded-md px-2.5 py-2 text-sm transition-colors whitespace-nowrap',
     active
       ? 'bg-background font-medium text-foreground shadow-sm'
       : 'text-muted-foreground hover:bg-background/60 hover:text-foreground'
@@ -101,7 +101,10 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 shrink-0">
+        <Link
+          href="/"
+          className="flex min-h-[44px] items-center space-x-2 shrink-0 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <span className="text-2xl font-bold text-primary">Telopillo</span>
         </Link>
 
@@ -146,8 +149,8 @@ export function Header() {
               Solicitudes
             </Link>
           </div>
-          <Button asChild size="sm">
-            <Link href="/publicar">Publicar Gratis</Link>
+          <Button asChild className="min-h-[44px]">
+            <Link href="/crear">Publicar Gratis</Link>
           </Button>
           <UserMenu />
         </nav>
@@ -169,7 +172,7 @@ export function Header() {
           </Button>
 
           {!isAuthenticated ? (
-            <Button asChild size="sm">
+            <Button asChild className="min-h-[44px] touch-manipulation">
               <Link href="/login">Ingresar</Link>
             </Button>
           ) : profile ? (

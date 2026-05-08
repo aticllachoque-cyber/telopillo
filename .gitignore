@@ -14,6 +14,7 @@
 /tests/.auth
 /.playwright-mcp
 /.playwright-cli
+/logged-in
 
 # Playwright CLI skills (local agent tooling)
 .claude/skills/playwright-cli/

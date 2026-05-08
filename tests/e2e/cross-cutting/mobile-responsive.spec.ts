@@ -165,10 +165,15 @@ test.describe('Cross-Cutting - Touch Targets (>= 44px)', () => {
     const buttons = page.locator('button, a[href], input, [role="button"]')
     const count = await buttons.count()
     for (let i = 0; i < Math.min(count, 10); i++) {
-      const box = await buttons.nth(i).boundingBox()
-      if (box) {
-        expect(Math.max(box.width, box.height)).toBeGreaterThanOrEqual(44)
-      }
+      const target = buttons.nth(i)
+      const box = await target.boundingBox()
+      if (!box || box.width === 0 || box.height === 0) continue
+      const isHiddenSkipLink = await target.evaluate(
+        (el) => el.classList.contains('sr-only') && !el.matches(':focus')
+      )
+      if (isHiddenSkipLink) continue
+
+      expect(Math.max(box.width, box.height)).toBeGreaterThanOrEqual(44)
     }
   })
 

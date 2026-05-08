@@ -34,3 +34,31 @@ export async function createClient() {
     }
   )
 }
+
+export function createPublicClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get() {
+          return undefined
+        },
+        set(_name: string, _value: string, _options: CookieOptions) {},
+        remove(_name: string, _options: CookieOptions) {},
+      },
+    }
+  )
+}
+
+export async function getOptionalUser() {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    return user ?? null
+  } catch {
+    return null
+  }
+}

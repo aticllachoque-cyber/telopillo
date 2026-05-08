@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import type { SearchDemandPost } from '@/types/database'
 
 export interface HomepagePreviewProduct {
@@ -23,7 +23,7 @@ const HOMEPAGE_PRODUCT_LIMIT = 6
 const HOMEPAGE_DEMAND_LIMIT = 4
 
 export async function getHomepagePreview(): Promise<HomepagePreviewData> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const [productsResult, demandsResult] = await Promise.all([
     supabase

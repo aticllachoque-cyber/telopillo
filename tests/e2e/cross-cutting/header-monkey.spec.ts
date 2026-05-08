@@ -367,12 +367,15 @@ test.describe('Header Monkey - Navigation Flow', () => {
     await page.waitForURL(/\/register/, { timeout: 5000 })
   })
 
-  test('Publicar Gratis navigates to /publicar', async ({ page }) => {
+  test('Publicar Gratis navigates to publish chooser', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     await page.getByRole('link', { name: /publicar gratis/i }).click()
-    await page.waitForURL(/\/publicar/, { timeout: 5000 })
+    await page.waitForURL(/\/crear/, { timeout: 5000 })
+    await expect(page.getByRole('heading', { name: /qué querés publicar/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /ir a publicar producto/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /ir a publicar solicitud/i })).toBeVisible()
   })
 
   test('Logo navigates to homepage', async ({ page }) => {

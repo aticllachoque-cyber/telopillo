@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createPublicClient, getOptionalUser } from '@/lib/supabase/server'
 import { ProductGallery } from '@/components/products/ProductGallery'
 import { SellerCard } from '@/components/products/SellerCard'
 import { ProductActions } from '@/components/products/ProductActions'
@@ -34,8 +34,9 @@ export const dynamic = 'force-dynamic'
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const supabase = await createClient()
   const { id } = await params
+  const user = await getOptionalUser()
+  const supabase = user ? await createClient() : createPublicClient()
 
   // RLS must match page body: public sees active rows only; owners may see inactive (same rules as the main query + status check below).
   const { data: product } = await supabase
@@ -82,8 +83,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const supabase = await createClient()
   const { id } = await params
+  const user = await getOptionalUser()
+  const supabase = user ? await createClient() : createPublicClient()
 
   // Fetch product with seller profile
   const { data: product, error } = await supabase
@@ -117,9 +119,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .maybeSingle()
 
   // Only show active products to non-owners
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
   const isOwner = user?.id === product.user_id
 
   if (product.status !== 'active' && !isOwner) {

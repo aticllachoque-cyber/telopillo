@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { DemandPostForm } from '@/components/demand/DemandPostForm'
+import type { DemandPostInput } from '@/lib/validations/demand'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 const MAX_POSTS_PER_DAY = 5
+type ProfileLocationDefaults = Pick<DemandPostInput, 'location_department' | 'location_city'>
 
 export default function PublicarDemandaPage() {
   const router = useRouter()
@@ -15,6 +17,7 @@ export default function PublicarDemandaPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [rateLimitReached, setRateLimitReached] = useState(false)
+  const [profileLocation, setProfileLocation] = useState<Partial<ProfileLocationDefaults>>({})
 
   useEffect(() => {
     document.title = 'Publicar lo que buscas - Telopillo'
@@ -47,6 +50,19 @@ export default function PublicarDemandaPage() {
       if (count != null && count >= MAX_POSTS_PER_DAY) {
         setRateLimitReached(true)
       }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('location_department, location_city')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      setProfileLocation({
+        location_department:
+          (profile?.location_department as DemandPostInput['location_department'] | null) ??
+          undefined,
+        location_city: profile?.location_city || undefined,
+      })
 
       setUserId(user.id)
     } catch (error) {
@@ -114,7 +130,7 @@ export default function PublicarDemandaPage() {
             </Link>
           </div>
         ) : (
-          <DemandPostForm userId={userId} />
+          <DemandPostForm userId={userId} defaultValues={profileLocation} />
         )}
 
         <div className="mt-8 text-center text-sm text-muted-foreground">

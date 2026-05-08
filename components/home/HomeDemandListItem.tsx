@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { DemandImageFrame } from '@/components/demand/DemandImageFrame'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
-import { isPlaceholderDescription } from '@/lib/utils/demand'
 import type { SearchDemandPost } from '@/types/database'
 
 interface HomeDemandListItemProps {
@@ -37,20 +36,14 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
   const categoryLabel =
     CATEGORY_LABELS[post.category as keyof typeof CATEGORY_LABELS] || post.category
   const priceRange = formatPriceRange(post.price_min, post.price_max)
-  const hasRealDescription = !isPlaceholderDescription(post.description)
-  const snippet = hasRealDescription
-    ? post.description.length > 96
-      ? post.description.slice(0, 96).trimEnd() + '...'
-      : post.description
-    : null
 
   return (
     <Link
       href={`/busco/${post.id}`}
-      className="block group"
+      className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       aria-label={`Ver solicitud: ${post.title}`}
     >
-      <Card className="border border-border/60 p-4 shadow-md transition-shadow hover:shadow-lg">
+      <Card className="border border-border/60 p-4 shadow-md transition-shadow group-hover:shadow-lg group-focus-visible:shadow-lg">
         <div className="flex gap-4">
           <DemandImageFrame
             imageUrl={post.image_url}
@@ -73,13 +66,9 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
               </span>
             </div>
 
-            <h3 className="mt-3 line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-base">
+            <h3 className="mt-3 line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary group-focus-visible:text-primary sm:text-base">
               {post.title}
             </h3>
-
-            {snippet && (
-              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{snippet}</p>
-            )}
 
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
               {priceRange && (

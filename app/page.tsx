@@ -116,7 +116,7 @@ export default async function Home() {
               <p className="mt-6 text-center">
                 <Link
                   href="/busco"
-                  className="inline-flex min-h-[44px] touch-manipulation items-center gap-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                  className="inline-flex min-h-[44px] touch-manipulation items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <Target className="size-4 shrink-0" aria-hidden />
                   <span className="text-pretty">¿Vendés? Encontrá qué buscan los compradores</span>
@@ -129,11 +129,7 @@ export default async function Home() {
       </section>
 
       {/* Categories Section */}
-      <section
-        id="contenido-principal"
-        className="py-16 md:py-20"
-        aria-labelledby="categories-heading"
-      >
+      <section className="py-16 md:py-20" aria-labelledby="categories-heading">
         <div className="container mx-auto max-w-6xl px-4">
           <h2
             id="categories-heading"
@@ -142,42 +138,45 @@ export default async function Home() {
             Categorías populares
           </h2>
 
-          <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-4 sm:grid-cols-4">
+          <ul className="mx-auto mt-10 grid max-w-5xl list-none grid-cols-2 gap-4 p-0 sm:grid-cols-4">
             {categories.map((category) => {
               const IconComponent = category.Icon
               return (
-                <Link
-                  key={category.id}
-                  href={`/buscar?category=${category.id}`}
-                  className="group flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card p-6 shadow-md transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                >
-                  <div
-                    className="flex size-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20"
-                    aria-hidden
+                <li key={category.id}>
+                  <Link
+                    href={`/buscar?category=${category.id}`}
+                    className="group flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card p-6 shadow-md transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   >
-                    {IconComponent && <IconComponent className="size-6 text-primary" />}
-                  </div>
-                  <p className="text-pretty font-medium text-foreground group-hover:text-primary">
-                    {category.name}
-                  </p>
-                </Link>
+                    <div
+                      className="flex size-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20"
+                      aria-hidden
+                    >
+                      {IconComponent && <IconComponent className="size-6 text-primary" />}
+                    </div>
+                    <p className="text-pretty font-medium text-foreground group-hover:text-primary">
+                      {category.name}
+                    </p>
+                  </Link>
+                </li>
               )
             })}
-            <Link
-              href="/categorias"
-              className="group flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card p-6 shadow-md transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            >
-              <div
-                className="flex size-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20"
-                aria-hidden
+            <li>
+              <Link
+                href="/categorias"
+                className="group flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card p-6 shadow-md transition-all hover:border-primary hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
-                <MoreHorizontal className="size-6 text-primary" />
-              </div>
-              <p className="text-pretty font-medium text-foreground group-hover:text-primary">
-                Ver todas
-              </p>
-            </Link>
-          </div>
+                <div
+                  className="flex size-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20"
+                  aria-hidden
+                >
+                  <MoreHorizontal className="size-6 text-primary" />
+                </div>
+                <p className="text-pretty font-medium text-foreground group-hover:text-primary">
+                  Ver todas
+                </p>
+              </Link>
+            </li>
+          </ul>
         </div>
       </section>
 

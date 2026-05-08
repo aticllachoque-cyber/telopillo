@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useSnackbar } from '@/components/ui/snackbar'
+import { cn } from '@/lib/utils'
 import type { FieldErrors } from 'react-hook-form'
 import {
   Loader2,
@@ -99,6 +100,7 @@ export function ProductFormWizard({
   // Watch all values for the review step
   const watchAll = watch()
   const selectedCategory = watch('category')
+  const selectedCondition = watch('condition')
   const images = watch('images')
   const title = watch('title')
   const description = watch('description')
@@ -339,6 +341,7 @@ export function ProductFormWizard({
           <div
             className="w-full bg-muted rounded-full h-2"
             role="progressbar"
+            aria-label="Progreso del formulario"
             aria-valuenow={currentStep}
             aria-valuemin={1}
             aria-valuemax={4}
@@ -393,14 +396,17 @@ export function ProductFormWizard({
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Fotos del Producto</h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Subí fotos claras y bien iluminadas. La primera imagen será la portada.
               </p>
             </div>
 
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-sm space-y-2">
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
               <p className="font-medium">Tips para buenas fotos:</p>
-              <ul className="list-disc list-inside space-y-1 text-foreground/80">
+              <p className="mt-1 text-foreground/80 sm:hidden">
+                Mostrá el producto con buena luz y desde varios ángulos.
+              </p>
+              <ul className="mt-2 hidden list-disc list-inside space-y-1 text-foreground/80 sm:block">
                 <li>Usá buena iluminación natural</li>
                 <li>Mostrá el producto desde varios ángulos</li>
                 <li>Incluí fotos de detalles o imperfecciones</li>
@@ -434,7 +440,7 @@ export function ProductFormWizard({
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Información Básica</h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Describí tu producto para que los compradores lo encuentren fácilmente
               </p>
             </div>
@@ -454,11 +460,12 @@ export function ProductFormWizard({
                 aria-describedby={errors.title ? 'title-error' : 'title-help'}
                 onFocus={scrollInputIntoView}
               />
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between gap-3">
                 <p id="title-help" className="text-xs text-muted-foreground">
-                  Mínimo 10 caracteres, máximo 100
+                  <span className="sm:hidden">Entre 10 y 100 caracteres</span>
+                  <span className="hidden sm:inline">Mínimo 10 caracteres, máximo 100</span>
                 </p>
-                <p className="text-xs text-muted-foreground">{title?.length || 0}/100</p>
+                <p className="shrink-0 text-xs text-muted-foreground">{title?.length || 0}/100</p>
               </div>
               {errors.title && (
                 <p id="title-error" className="text-sm text-destructive">
@@ -483,11 +490,14 @@ export function ProductFormWizard({
                 aria-describedby={errors.description ? 'description-error' : 'description-help'}
                 onFocus={scrollInputIntoView}
               />
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between gap-3">
                 <p id="description-help" className="text-xs text-muted-foreground">
-                  Mínimo 50 caracteres, máximo 5000
+                  <span className="sm:hidden">Entre 50 y 5000 caracteres</span>
+                  <span className="hidden sm:inline">Mínimo 50 caracteres, máximo 5000</span>
                 </p>
-                <p className="text-xs text-muted-foreground">{description?.length || 0}/5000</p>
+                <p className="shrink-0 text-xs text-muted-foreground">
+                  {description?.length || 0}/5000
+                </p>
               </div>
               {errors.description && (
                 <p id="description-error" className="text-sm text-destructive">
@@ -501,6 +511,9 @@ export function ProductFormWizard({
               <Label>
                 Categoría <span className="text-destructive">*</span>
               </Label>
+              <p className="text-xs text-muted-foreground sm:hidden">
+                Elegí la categoría que mejor describe tu producto.
+              </p>
               <CategoryGrid
                 value={selectedCategory}
                 onChange={(value) => setValue('category', value as ProductInput['category'])}
@@ -542,7 +555,7 @@ export function ProductFormWizard({
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Detalles del Producto</h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Indicá el precio, estado y ubicación
               </p>
             </div>
@@ -587,7 +600,7 @@ export function ProductFormWizard({
                 Estado del Producto <span className="text-destructive">*</span>
               </Label>
               <RadioGroup
-                value={watch('condition') ?? ''}
+                value={selectedCondition ?? ''}
                 onValueChange={(value) => setValue('condition', value as ProductInput['condition'])}
                 aria-required="true"
                 aria-invalid={errors.condition ? 'true' : 'false'}
@@ -599,7 +612,7 @@ export function ProductFormWizard({
                     key={condition}
                     htmlFor={`condition-${condition}`}
                     className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${
-                      watch('condition') === condition
+                      selectedCondition === condition
                         ? 'border-primary bg-primary/5'
                         : 'border-border hover:border-muted-foreground/30'
                     }`}
@@ -611,7 +624,13 @@ export function ProductFormWizard({
                     />
                     <div className="space-y-1 leading-none">
                       <span className="font-medium">{CONDITION_LABELS[condition]}</span>
-                      <p className="text-sm text-muted-foreground">
+                      <p
+                        className={cn(
+                          'text-muted-foreground sm:text-sm',
+                          selectedCondition === condition ? 'block text-xs' : 'hidden',
+                          'sm:block'
+                        )}
+                      >
                         {CONDITION_DESCRIPTIONS[condition]}
                       </p>
                     </div>
@@ -697,7 +716,7 @@ export function ProductFormWizard({
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Revisar y Publicar</h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="mt-1 text-sm text-foreground/80">
                 Verificá que toda la información sea correcta antes de publicar
               </p>
             </div>
@@ -738,7 +757,7 @@ export function ProductFormWizard({
                 </div>
 
                 {/* Category */}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm text-foreground/80">
                   {(() => {
                     const CatIcon = watchAll.category ? CATEGORY_ICONS[watchAll.category] : null
                     return CatIcon ? (
@@ -754,7 +773,7 @@ export function ProductFormWizard({
                 </div>
 
                 {/* Condition */}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm text-foreground/80">
                   <Tag className="h-4 w-4" aria-hidden />
                   <span>
                     {watchAll.condition
@@ -764,7 +783,7 @@ export function ProductFormWizard({
                 </div>
 
                 {/* Location */}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm text-foreground/80">
                   <MapPin className="h-4 w-4" aria-hidden />
                   <span>
                     {watchAll.location_city && watchAll.location_department
@@ -779,7 +798,7 @@ export function ProductFormWizard({
                 {/* Description */}
                 <div className="pt-3 border-t">
                   <h4 className="text-sm font-medium mb-2">Descripción</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line line-clamp-4">
+                  <p className="text-sm text-foreground/80 whitespace-pre-line line-clamp-4">
                     {watchAll.description || 'Sin descripción'}
                   </p>
                 </div>
@@ -806,7 +825,7 @@ export function ProductFormWizard({
             {/* Edit hints */}
             <div className="bg-muted/50 rounded-lg p-4 text-sm space-y-2">
               <p className="font-medium">¿Algo no está bien?</p>
-              <p className="text-muted-foreground">
+              <p className="text-foreground/80">
                 <span className="sm:hidden">
                   Tocá los números de arriba para volver a un paso anterior y corregir la
                   información.

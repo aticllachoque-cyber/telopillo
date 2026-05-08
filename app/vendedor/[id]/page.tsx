@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import { SellerProfileHeader } from '@/components/profile/SellerProfileHeader'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { Card, CardContent } from '@/components/ui/card'
@@ -36,7 +36,7 @@ interface SellerProfile {
 // ---------------------------------------------------------------------------
 
 async function getSellerProfile(id: string) {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data: profile, error } = await supabase
     .from('profiles')
@@ -51,7 +51,7 @@ async function getSellerProfile(id: string) {
 }
 
 async function getBusinessSlug(userId: string): Promise<string | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data } = await supabase
     .from('business_profiles')
@@ -63,7 +63,7 @@ async function getBusinessSlug(userId: string): Promise<string | null> {
 }
 
 async function getSellerProducts(userId: string) {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data: products } = await supabase
     .from('products')

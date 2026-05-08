@@ -65,7 +65,7 @@ test.describe('Cross-Cutting - Navigation & Layout', () => {
 
     const footer = page.getByRole('contentinfo')
     await expect(footer).toBeVisible()
-    await expect(footer.getByText(/telopillo/i)).toBeVisible()
+    await expect(footer.getByText('Telopillo', { exact: true })).toBeVisible()
     await expect(footer.getByText(/todos los derechos reservados/i)).toBeVisible()
     await expect(footer.getByRole('link', { name: /acerca de/i })).toBeVisible()
   })

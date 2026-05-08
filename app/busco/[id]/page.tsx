@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createPublicClient, getOptionalUser } from '@/lib/supabase/server'
 import { DemandPostDetail } from '@/components/demand/DemandPostDetail'
 import { ArrowLeft } from 'lucide-react'
 import { getCategoryName } from '@/lib/data/categories'
@@ -57,8 +57,9 @@ interface RawOffer {
 }
 
 export async function generateMetadata({ params }: DemandPageProps): Promise<Metadata> {
-  const supabase = await createClient()
   const { id } = await params
+  const user = await getOptionalUser()
+  const supabase = user ? await createClient() : createPublicClient()
 
   const { data: post } = await supabase
     .from('demand_posts')
@@ -88,8 +89,9 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
 }
 
 export default async function DemandPostPage({ params }: DemandPageProps) {
-  const supabase = await createClient()
   const { id } = await params
+  const user = await getOptionalUser()
+  const supabase = user ? await createClient() : createPublicClient()
 
   const { data: post, error: postError } = await supabase
     .from('demand_posts')
@@ -140,10 +142,6 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
   }))
   // Only pass offers with a valid product_id (OfferRow requires it)
   const offers = mapped.filter((o): o is typeof o & { product_id: string } => o.product_id != null)
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
   return (
     <div className="min-h-dvh bg-background py-8 pb-24 lg:pb-8">

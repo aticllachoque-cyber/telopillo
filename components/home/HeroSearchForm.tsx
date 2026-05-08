@@ -1,11 +1,12 @@
 'use client'
 
-import type { FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Search } from 'lucide-react'
 
-const EMPTY_SEARCH_MESSAGE = 'Escribí un término para buscar.'
+const EMPTY_SEARCH_MESSAGE = 'Escribí el nombre de un producto para buscar.'
 
 /**
  * Hero GET form to /buscar. Disables built-in HTML5 validation (noValidate) and
@@ -13,6 +14,10 @@ const EMPTY_SEARCH_MESSAGE = 'Escribí un término para buscar.'
  * reportValidity — avoids browsers showing "Please fill out this field" in English.
  */
 export function HeroSearchForm() {
+  const inputId = useId()
+  const errorId = useId()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget
     const el = form.querySelector<HTMLInputElement>('input[name="q"]')
@@ -20,10 +25,11 @@ export function HeroSearchForm() {
     const q = el.value.trim()
     if (q.length === 0) {
       e.preventDefault()
-      el.setCustomValidity(EMPTY_SEARCH_MESSAGE)
-      el.reportValidity()
+      setErrorMessage(EMPTY_SEARCH_MESSAGE)
+      el.focus()
       return
     }
+    setErrorMessage(null)
     if (el.value !== q) {
       el.value = q
     }
@@ -39,6 +45,9 @@ export function HeroSearchForm() {
       noValidate
       onSubmit={handleSubmit}
     >
+      <Label htmlFor={inputId} className="mb-3 justify-start text-sm font-medium">
+        ¿Qué estás buscando?
+      </Label>
       <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
         <div className="relative min-w-0 flex-1">
           <Search
@@ -46,16 +55,18 @@ export function HeroSearchForm() {
             aria-hidden
           />
           <Input
+            id={inputId}
             type="search"
             name="q"
             placeholder="Ej: iPhone, moto, muebles..."
             className="h-12 min-h-[44px] pl-12 text-base touch-manipulation"
-            aria-label="Término de búsqueda"
-            aria-required="true"
+            aria-describedby={errorMessage ? errorId : undefined}
+            aria-invalid={errorMessage != null}
             autoComplete="off"
             maxLength={200}
-            onInput={(e) => {
-              e.currentTarget.setCustomValidity('')
+            required
+            onInput={() => {
+              setErrorMessage(null)
             }}
           />
         </div>
@@ -67,6 +78,13 @@ export function HeroSearchForm() {
           Buscar
         </Button>
       </div>
+      <p
+        id={errorId}
+        aria-live="polite"
+        className="mt-2 min-h-5 text-left text-sm text-destructive"
+      >
+        {errorMessage ?? ''}
+      </p>
     </form>
   )
 }

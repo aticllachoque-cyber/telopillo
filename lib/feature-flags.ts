@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 
 /**
  * Feature flag keys stored in app_config table.
@@ -28,7 +28,7 @@ export async function isFeatureEnabled(flag: FeatureFlag): Promise<boolean> {
 
   // 2. Check database
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('app_config')
       .select('value')
@@ -50,7 +50,7 @@ export async function getFeatureFlag(flag: FeatureFlag): Promise<string | null> 
   if (envValue !== undefined) return envValue
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('app_config')
       .select('value')

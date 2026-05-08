@@ -1,6 +1,6 @@
 // Public route: product search does not require authentication
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import { expandQuery } from '@/lib/search/synonyms'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +19,7 @@ interface SearchParams {
   limit?: number
 }
 
-type SupabaseClient = Awaited<ReturnType<typeof createClient>>
+type SupabaseClient = ReturnType<typeof createPublicClient>
 
 // ---------------------------------------------------------------------------
 // Feature flag: semantic search enabled
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
   const searchStartMs = Date.now()
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { searchParams } = request.nextUrl
 
     const params: SearchParams = {
