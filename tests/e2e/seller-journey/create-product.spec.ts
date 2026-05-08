@@ -42,7 +42,11 @@ test.describe('Create Product - Wizard Flow', () => {
 
     await expect(page.getByRole('heading', { name: /publicar producto/i })).toBeVisible()
     await expect(page.getByRole('heading', { name: /fotos del producto/i })).toBeVisible()
-    await expect(page.locator('input[multiple][type="file"]')).toBeAttached()
+    const fileInput = page.locator('input[multiple][type="file"]')
+    await expect(fileInput).toBeAttached()
+    await expect(fileInput).toHaveAttribute('accept', /image\/heic/)
+    await expect(fileInput).toHaveAttribute('accept', /image\/heif/)
+    await expect(page.getByText(/heic\/heif/i)).toBeVisible()
   })
 
   test('Completes full wizard and publishes product', async ({ page }) => {

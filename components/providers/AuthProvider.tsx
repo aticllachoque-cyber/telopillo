@@ -5,6 +5,7 @@ import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { isAbortError, isAbortLikeError } from '@/lib/utils'
 import { useSnackbar } from '@/components/ui/snackbar'
+import { resolveAvatarUrl } from '@/lib/utils/image'
 
 interface Profile {
   id: string
@@ -69,7 +70,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (data) {
-      setProfile(data)
+      const normalizedProfile = {
+        ...data,
+        avatar_url: resolveAvatarUrl(data.avatar_url),
+      }
+      setProfile(normalizedProfile)
+      return normalizedProfile
     }
     return data
   }, [])

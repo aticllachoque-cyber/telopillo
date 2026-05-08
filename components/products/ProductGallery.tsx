@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { resolveProductImageUrls, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
 interface ProductGalleryProps {
   images: string[]
@@ -12,8 +13,10 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const resolvedImages = resolveProductImageUrls(images)
+  const selectedImage = resolvedImages[selectedIndex] ?? null
 
-  if (!images || images.length === 0) {
+  if (resolvedImages.length === 0) {
     return (
       <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
         <p className="text-muted-foreground">Sin imágenes</p>
@@ -22,11 +25,11 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
   }
 
   const handlePrevious = () => {
-    setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+    setSelectedIndex((prev) => (prev === 0 ? resolvedImages.length - 1 : prev - 1))
   }
 
   const handleNext = () => {
-    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+    setSelectedIndex((prev) => (prev === resolvedImages.length - 1 ? 0 : prev + 1))
   }
 
   const handleThumbnailClick = (index: number) => {
@@ -38,16 +41,17 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
       {/* Main Image */}
       <div className="relative aspect-square bg-muted rounded-lg overflow-hidden group">
         <Image
-          src={images[selectedIndex] ?? ''}
+          src={selectedImage ?? ''}
           alt={`${productTitle} - Imagen ${selectedIndex + 1}`}
           fill
           className="object-cover"
           priority={selectedIndex === 0}
+          unoptimized={shouldBypassNextImageOptimization(selectedImage)}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
 
         {/* Navigation Arrows (only if multiple images) */}
-        {images.length > 1 && (
+        {resolvedImages.length > 1 && (
           <>
             <Button
               variant="secondary"
@@ -75,16 +79,16 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
               aria-live="polite"
               aria-atomic="true"
             >
-              {selectedIndex + 1} / {images.length}
+              {selectedIndex + 1} / {resolvedImages.length}
             </div>
           </>
         )}
       </div>
 
       {/* Thumbnails (only if multiple images) */}
-      {images.length > 1 && (
+      {resolvedImages.length > 1 && (
         <div className="grid grid-cols-5 gap-2">
-          {images.map((image, index) => (
+          {resolvedImages.map((image, index) => (
             <button
               key={index}
               onClick={() => handleThumbnailClick(index)}
@@ -101,6 +105,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
                 alt={`${productTitle} - Miniatura ${index + 1}`}
                 fill
                 className="object-cover"
+                unoptimized={shouldBypassNextImageOptimization(image)}
                 sizes="(max-width: 768px) 20vw, 10vw"
               />
             </button>

@@ -7,6 +7,7 @@ import { ProductGrid } from '@/components/products/ProductGrid'
 import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, Package } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
+import { resolveAvatarUrl } from '@/lib/utils/image'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -104,7 +105,9 @@ export async function generateMetadata({ params }: SellerPageProps): Promise<Met
       type: 'profile',
       siteName: 'Telopillo',
       url: absoluteUrl(`/vendedor/${id}`),
-      ...(profile.avatar_url && { images: [profile.avatar_url] }),
+      ...(resolveAvatarUrl(profile.avatar_url) && {
+        images: [resolveAvatarUrl(profile.avatar_url) as string],
+      }),
     },
     twitter: {
       card: 'summary',
@@ -129,7 +132,9 @@ function buildJsonLd(profile: SellerProfile, productCount: number) {
     '@type': 'Person',
     name: profile.full_name || 'Vendedor',
     url: absoluteUrl(`/vendedor/${profile.id}`),
-    ...(profile.avatar_url && { image: profile.avatar_url }),
+    ...(resolveAvatarUrl(profile.avatar_url) && {
+      image: resolveAvatarUrl(profile.avatar_url) as string,
+    }),
     ...(location && {
       address: {
         '@type': 'PostalAddress',

@@ -43,42 +43,51 @@ const devImageOrigins = Array.from(
 
 const isDev = process.env.NODE_ENV === 'development'
 
-const devStorageRemotePatterns: RemotePattern[] = isDev
-  ? (() => {
-      const patterns: RemotePattern[] = [
-        {
-          protocol: 'http',
-          hostname: '127.0.0.1',
-          port: '54321',
-          pathname: '/storage/v1/object/public/**',
-        },
-        {
-          protocol: 'http',
-          hostname: 'localhost',
-          port: '54321',
-          pathname: '/storage/v1/object/public/**',
-        },
-      ]
+const storageRemotePatterns: RemotePattern[] = (() => {
+  const patterns: RemotePattern[] = [
+    {
+      protocol: 'https',
+      hostname: SUPABASE_CLOUD_HOSTNAME,
+      port: '',
+      pathname: '/storage/v1/object/public/**',
+    },
+  ]
 
-      if (parsedSupabaseUrl) {
-        patterns.unshift({
-          protocol: parsedSupabaseUrl.protocol.replace(':', '') as 'http' | 'https',
-          hostname: parsedSupabaseUrl.hostname,
-          port: parsedSupabaseUrl.port,
-          pathname: '/storage/v1/object/public/**',
-        })
+  if (parsedSupabaseUrl) {
+    patterns.push({
+      protocol: parsedSupabaseUrl.protocol.replace(':', '') as 'http' | 'https',
+      hostname: parsedSupabaseUrl.hostname,
+      port: parsedSupabaseUrl.port,
+      pathname: '/storage/v1/object/public/**',
+    })
+  }
+
+  if (isDev) {
+    patterns.push(
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '54321',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '54321',
+        pathname: '/storage/v1/object/public/**',
       }
+    )
+  }
 
-      return Array.from(
-        new Map(
-          patterns.map((pattern) => [
-            `${pattern.protocol}://${pattern.hostname}:${pattern.port}${pattern.pathname}`,
-            pattern,
-          ])
-        ).values()
-      )
-    })()
-  : []
+  return Array.from(
+    new Map(
+      patterns.map((pattern) => [
+        `${pattern.protocol}://${pattern.hostname}:${pattern.port}${pattern.pathname}`,
+        pattern,
+      ])
+    ).values()
+  )
+})()
 
 const nextConfig: NextConfig = {
   turbopack: {},
@@ -102,14 +111,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: SUPABASE_CLOUD_HOSTNAME,
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
-      // Local Supabase (dev only)
-      ...devStorageRemotePatterns,
+      ...storageRemotePatterns,
       ...(isDev
         ? [
             { protocol: 'https' as const, hostname: 'picsum.photos' },

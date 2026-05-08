@@ -8,6 +8,7 @@ import { ProductGrid } from '@/components/products/ProductGrid'
 import { Card, CardContent } from '@/components/ui/card'
 import { Construction, Package, Store } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
+import { resolveBusinessLogoUrl } from '@/lib/utils/image'
 
 interface StorefrontPageProps {
   params: Promise<{
@@ -76,7 +77,7 @@ export async function generateMetadata({ params }: StorefrontPageProps): Promise
   const description = business.business_description
     ? business.business_description.slice(0, 160)
     : `Visita la tienda de ${business.business_name} en Telopillo. Encuentra sus productos y ofertas.`
-  const imageUrl = business.business_logo_url || '/og-image.png'
+  const imageUrl = resolveBusinessLogoUrl(business.business_logo_url) || '/og-image.png'
   const canonicalPath = `/negocio/${slug}`
 
   return {
@@ -126,8 +127,9 @@ function buildJsonLd(
   if (business.business_description) {
     jsonLd.description = business.business_description
   }
-  if (business.business_logo_url) {
-    jsonLd.image = business.business_logo_url
+  const businessLogoUrl = resolveBusinessLogoUrl(business.business_logo_url)
+  if (businessLogoUrl) {
+    jsonLd.image = businessLogoUrl
   }
   if (profile?.phone) {
     jsonLd.telephone = profile.phone

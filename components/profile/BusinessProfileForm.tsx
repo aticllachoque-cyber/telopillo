@@ -27,6 +27,12 @@ import { LocationSelector } from '@/components/profile/LocationSelector'
 import { BusinessHoursEditor } from '@/components/profile/BusinessHoursEditor'
 import { useSnackbar } from '@/components/ui/snackbar'
 import { getAvatarColor } from '@/lib/utils'
+import {
+  isHeicLikeImage,
+  resolveBusinessLogoUrl,
+  uploadStorageImage,
+  validateImageFile,
+} from '@/lib/utils/image'
 
 interface BusinessProfileFormProps {
   userId: string
@@ -39,6 +45,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [logoBusyMessage, setLogoBusyMessage] = useState<string | null>(null)
   const [businessHours, setBusinessHours] = useState<Record<string, string>>({})
   const [hasExistingProfile, setHasExistingProfile] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -87,7 +94,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
         setValue('business_address', data.business_address || '')
         setValue('business_department', data.business_department || '')
         setValue('business_city', data.business_city || '')
-        setLogoUrl(data.business_logo_url || null)
+        setLogoUrl(resolveBusinessLogoUrl(data.business_logo_url))
         if (data.business_hours && typeof data.business_hours === 'object') {
           setBusinessHours(data.business_hours as Record<string, string>)
         }
@@ -103,31 +110,26 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
     const file = event.target.files?.[0]
     if (!file) return
 
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Por favor selecciona una imagen')
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('La imagen debe ser menor a 5MB')
+    const validation = validateImageFile(file)
+    if (!validation.valid) {
+      setUploadError(validation.error || 'Por favor selecciona una imagen válida')
       return
     }
 
     try {
       setIsUploadingLogo(true)
       setUploadError(null)
+      setLogoBusyMessage(
+        isHeicLikeImage(file) ? 'Procesando foto del iPhone...' : 'Procesando imagen...'
+      )
 
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${userId}/logo.${fileExt}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('business-logos')
-        .upload(fileName, file, { upsert: true, contentType: file.type })
-
-      if (uploadError) throw uploadError
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('business-logos').getPublicUrl(fileName)
+      const { publicUrl } = await uploadStorageImage({
+        storage: supabase.storage,
+        bucket: 'business-logos',
+        path: `${userId}/logo.webp`,
+        file,
+        upsert: true,
+      })
 
       // Update business profile with logo URL
       await supabase
@@ -140,6 +142,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
       setUploadError(err instanceof Error ? err.message : 'Error al subir logo')
     } finally {
       setIsUploadingLogo(false)
+      setLogoBusyMessage(null)
     }
   }
 
@@ -232,7 +235,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               onChange={handleLogoSelect}
               className="hidden"
               disabled={isUploadingLogo || isSaving}
@@ -248,7 +251,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
               {isUploadingLogo ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                  Subiendo...
+                  {logoBusyMessage || 'Subiendo...'}
                 </>
               ) : (
                 <>
@@ -276,7 +279,9 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
             {uploadError}
           </p>
         )}
-        <p className="text-xs text-muted-foreground">JPG, PNG o WebP. Máximo 5MB.</p>
+        <p className="text-xs text-muted-foreground">
+          JPG, PNG, WebP o HEIC/HEIF. Convertimos fotos de iPhone automáticamente.
+        </p>
       </div>
 
       <Separator />

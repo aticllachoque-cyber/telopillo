@@ -31,6 +31,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useSnackbar } from '@/components/ui/snackbar'
 import { cn } from '@/lib/utils'
+import { resolveStorageImageUrl } from '@/lib/utils/image'
 import type { FieldErrors } from 'react-hook-form'
 import {
   Loader2,
@@ -104,6 +105,7 @@ export function ProductFormWizard({
   const images = watch('images')
   const title = watch('title')
   const description = watch('description')
+  const previewImageUrl = resolveStorageImageUrl('product-images', watchAll.images?.[0])
 
   // Update subcategories when category changes
   useEffect(() => {
@@ -762,11 +764,11 @@ export function ProductFormWizard({
             <div className="border rounded-lg overflow-hidden">
               {/* Image Preview */}
               <div className="relative aspect-video bg-muted">
-                {watchAll.images && watchAll.images.length > 0 ? (
+                {previewImageUrl ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={watchAll.images[0]}
+                      src={previewImageUrl}
                       alt="Vista previa"
                       className="w-full h-full object-cover"
                     />

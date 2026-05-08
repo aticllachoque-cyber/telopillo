@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   createImagePreview,
   getStoragePathFromPublicUrl,
+  isHeicLikeImage,
   removeStorageImageByPublicUrl,
   revokeImagePreview,
   uploadStorageImage,
@@ -47,6 +48,7 @@ export function SingleImageUpload({
   const [previewUrl, setPreviewUrl] = useState<string | null>(value)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [busyMessage, setBusyMessage] = useState<string | null>(null)
 
   useEffect(() => {
     setPreviewUrl(value)
@@ -79,7 +81,7 @@ export function SingleImageUpload({
     !!publicUrl && stagedUploadUrlsRef.current.has(publicUrl)
 
   const removeCurrentStoredImage = async (publicUrl: string | null) => {
-    if (!publicUrl || !publicUrl.includes('supabase')) return
+    if (!publicUrl) return
     if (!getStoragePathFromPublicUrl(bucket, publicUrl)) return
 
     try {
@@ -105,6 +107,7 @@ export function SingleImageUpload({
 
     setIsUploading(true)
     setUploadError(null)
+    setBusyMessage(isHeicLikeImage(file) ? 'Procesando foto del iPhone...' : 'Procesando imagen...')
 
     const previousValue = value
     const tempPreview = createImagePreview(file)
@@ -135,6 +138,7 @@ export function SingleImageUpload({
       setUploadError(uploadErr instanceof Error ? uploadErr.message : 'No se pudo subir la imagen')
     } finally {
       setIsUploading(false)
+      setBusyMessage(null)
       resetInputs()
     }
   }
@@ -168,7 +172,7 @@ export function SingleImageUpload({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp"
+          accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           onChange={(e) => handleFileSelect(e.target.files)}
           className="hidden"
           disabled={disabled || isUploading}
@@ -195,7 +199,7 @@ export function SingleImageUpload({
                 <div className="absolute inset-0 flex items-center justify-center bg-background/80">
                   <div className="text-center">
                     <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin" aria-hidden />
-                    <p className="text-xs text-muted-foreground">Subiendo...</p>
+                    <p className="text-xs text-muted-foreground">{busyMessage || 'Subiendo...'}</p>
                   </div>
                 </div>
               )}
@@ -241,7 +245,9 @@ export function SingleImageUpload({
                 <ImageIcon className="mb-3 h-10 w-10 text-muted-foreground" aria-hidden />
               )}
               <p className="text-sm font-medium">{emptyStateLabel}</p>
-              <p className="mt-1 text-xs text-muted-foreground">JPG, PNG o WebP. Máximo 5MB.</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                JPG, PNG, WebP o HEIC/HEIF. Convertimos fotos de iPhone automáticamente.
+              </p>
             </button>
 
             <Button

@@ -13,6 +13,7 @@ import {
   buildWhatsAppMeUrl,
   resolveSellerWhatsAppDigits,
 } from '@/lib/utils/whatsapp'
+import { resolveAvatarUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
 interface SellerProfile {
   id: string
@@ -99,7 +100,10 @@ export function SellerCard({
         {/* Seller Info */}
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={seller.avatar_url || undefined} alt={seller.full_name || 'Usuario'} />
+            <AvatarImage
+              src={resolveAvatarUrl(seller.avatar_url) || undefined}
+              alt={seller.full_name || 'Usuario'}
+            />
             <AvatarFallback className={`text-lg font-medium ${getAvatarColor(seller.id)}`}>
               {getInitials(seller.full_name)}
             </AvatarFallback>
@@ -153,6 +157,7 @@ export function SellerCard({
                     fill
                     className="object-cover"
                     sizes="56px"
+                    unoptimized={shouldBypassNextImageOptimization(productContact.imageUrl)}
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center" aria-hidden>

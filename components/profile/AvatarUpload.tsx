@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { getAvatarColor } from '@/lib/utils'
+import { isHeicLikeImage, uploadStorageImage, validateImageFile } from '@/lib/utils/image'
 import { Upload, X, Loader2 } from 'lucide-react'
 
 interface AvatarUploadProps {
@@ -26,6 +27,7 @@ export function AvatarUpload({
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl)
   const [error, setError] = useState<string | null>(null)
+  const [busyMessage, setBusyMessage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
@@ -33,41 +35,30 @@ export function AvatarUpload({
     const file = event.target.files?.[0]
     if (!file) return
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Por favor selecciona una imagen')
-      return
-    }
-
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('La imagen debe ser menor a 5MB')
+    const validation = validateImageFile(file)
+    if (!validation.valid) {
+      setError(validation.error || 'Por favor selecciona una imagen válida')
       return
     }
 
     try {
       setIsUploading(true)
       setError(null)
+      setBusyMessage(
+        isHeicLikeImage(file) ? 'Procesando foto del iPhone...' : 'Procesando imagen...'
+      )
 
       // Create preview
       const objectUrl = URL.createObjectURL(file)
       setPreviewUrl(objectUrl)
 
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${userId}/avatar.${fileExt}`
-
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file, {
+      const { publicUrl } = await uploadStorageImage({
+        storage: supabase.storage,
+        bucket: 'avatars',
+        path: `${userId}/avatar.webp`,
+        file,
         upsert: true,
-        contentType: file.type,
       })
-
-      if (uploadError) throw uploadError
-
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('avatars').getPublicUrl(fileName)
 
       // Update profile
       const { error: updateError } = await supabase
@@ -83,6 +74,7 @@ export function AvatarUpload({
       setPreviewUrl(currentAvatarUrl)
     } finally {
       setIsUploading(false)
+      setBusyMessage(null)
     }
   }
 
@@ -131,7 +123,7 @@ export function AvatarUpload({
             id={fileInputId}
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,.heic,.heif"
             onChange={handleFileSelect}
             className="hidden"
             disabled={isUploading}
@@ -149,7 +141,7 @@ export function AvatarUpload({
             {isUploading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                Subiendo...
+                {busyMessage || 'Subiendo...'}
               </>
             ) : (
               <>
@@ -182,7 +174,7 @@ export function AvatarUpload({
       )}
 
       <p className="text-pretty text-xs text-muted-foreground">
-        JPG, PNG o WebP · máx. 5MB · se optimiza al subir.
+        JPG, PNG, WebP o HEIC/HEIF · máx. 5MB, o 25MB si es HEIC · se optimiza al subir.
       </p>
     </div>
   )

@@ -5,6 +5,12 @@
 
 import imageCompression from 'browser-image-compression'
 
+type Heic2AnyConverter = (options: {
+  blob: Blob
+  toType: string
+  quality?: number
+}) => Promise<Blob | Blob[]>
+
 /**
  * Validation result for image files
  */
@@ -48,6 +54,8 @@ interface UploadStorageImageOptions {
 
 const DEFAULT_COMPRESS_TIMEOUT_MS = 30_000
 const DEFAULT_UPLOAD_TIMEOUT_MS = 60_000
+const MAX_STANDARD_UPLOAD_BYTES = 5 * 1024 * 1024
+const MAX_HEIC_UPLOAD_BYTES = 25 * 1024 * 1024
 
 /**
  * Compression options for product images.
@@ -61,6 +69,20 @@ const COMPRESSION_OPTIONS = {
   initialQuality: 0.82,
 }
 
+export function isHeicLikeImage(file: File): boolean {
+  const lowerType = file.type.toLowerCase()
+  const lowerName = (file.name || '').toLowerCase()
+
+  return (
+    lowerType === 'image/heic' ||
+    lowerType === 'image/heic-sequence' ||
+    lowerType === 'image/heif' ||
+    lowerType === 'image/heif-sequence' ||
+    lowerName.endsWith('.heic') ||
+    lowerName.endsWith('.heif')
+  )
+}
+
 /**
  * Validate image file type, size, and dimensions
  */
@@ -70,40 +92,71 @@ export function validateImageFile(file: File): ImageValidationResult {
     return { valid: false, error: 'No se seleccionó ningún archivo' }
   }
 
-  // Reject HEIC (common from iOS camera); most browsers can't compress it and it can hang
-  const lowerType = file.type.toLowerCase()
-  const lowerName = (file.name || '').toLowerCase()
-  if (
-    lowerType === 'image/heic' ||
-    lowerType === 'image/heic-sequence' ||
-    lowerName.endsWith('.heic')
-  ) {
-    return {
-      valid: false,
-      error:
-        'Formato HEIC no soportado. Usá JPG o PNG (en Ajustes de cámara podés cambiar el formato).',
-    }
-  }
+  const isHeic = isHeicLikeImage(file)
 
   // Check file type
-  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-  if (!validTypes.includes(file.type)) {
+  const validTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'image/heic-sequence',
+    'image/heif',
+    'image/heif-sequence',
+  ]
+  const hasRecognizedMimeType = validTypes.includes(file.type)
+  const hasRecognizedExtension = isHeic || /\.(jpe?g|png|webp)$/i.test(file.name || '')
+
+  if (!hasRecognizedMimeType && !hasRecognizedExtension) {
     return {
       valid: false,
-      error: 'Formato inválido. Solo se permiten JPG, PNG o WebP',
+      error: 'Formato inválido. Solo se permiten JPG, PNG, WebP o HEIC/HEIF',
     }
   }
 
-  // Check file size (max 5MB before compression)
-  const maxSizeBytes = 5 * 1024 * 1024 // 5MB
+  const maxSizeBytes = isHeic ? MAX_HEIC_UPLOAD_BYTES : MAX_STANDARD_UPLOAD_BYTES
   if (file.size > maxSizeBytes) {
     return {
       valid: false,
-      error: 'La imagen debe ser menor a 5MB',
+      error: isHeic ? 'La foto HEIC debe ser menor a 25MB' : 'La imagen debe ser menor a 5MB',
     }
   }
 
   return { valid: true }
+}
+
+async function convertHeicToJpeg(file: File): Promise<File> {
+  const heic2AnyModule = (await import('heic2any')) as { default: Heic2AnyConverter }
+  const converted = await heic2AnyModule.default({
+    blob: file,
+    toType: 'image/jpeg',
+    quality: 0.9,
+  })
+  const convertedBlob = Array.isArray(converted) ? converted[0] : converted
+
+  if (!convertedBlob) {
+    throw new Error('No se pudo convertir la foto HEIC. Intentá de nuevo con otra imagen.')
+  }
+
+  const filename = (file.name || 'image').replace(/\.(heic|heif)$/i, '.jpg')
+  return new File([convertedBlob], filename, {
+    type: 'image/jpeg',
+    lastModified: Date.now(),
+  })
+}
+
+export async function normalizeImageFileForUpload(file: File): Promise<File> {
+  if (!isHeicLikeImage(file)) return file
+
+  try {
+    return await convertHeicToJpeg(file)
+  } catch (error) {
+    console.error('[normalizeImageFileForUpload] HEIC conversion failed', error)
+    throw new Error(
+      'No pudimos procesar esta foto HEIC del iPhone. Intentá otra vez o elegí otra imagen.'
+    )
+  }
 }
 
 /**
@@ -111,14 +164,15 @@ export function validateImageFile(file: File): ImageValidationResult {
  * Reduces file size while maintaining quality
  */
 export async function compressImage(file: File): Promise<Blob> {
+  const normalizedFile = await normalizeImageFileForUpload(file)
   const start = Date.now()
   console.log('[compressImage] start', {
-    name: file.name,
-    type: file.type,
-    sizeKB: Math.round(file.size / 1024),
+    name: normalizedFile.name,
+    type: normalizedFile.type,
+    sizeKB: Math.round(normalizedFile.size / 1024),
   })
   try {
-    const compressedFile = await imageCompression(file, COMPRESSION_OPTIONS)
+    const compressedFile = await imageCompression(normalizedFile, COMPRESSION_OPTIONS)
     const ms = Date.now() - start
     console.log('[compressImage] done', {
       ms,
@@ -127,8 +181,8 @@ export async function compressImage(file: File): Promise<Blob> {
     return compressedFile
   } catch (error) {
     console.error('[compressImage] error', { ms: Date.now() - start, error })
-    // Fallback: return original file if compression fails
-    return file
+    // Fallback: return normalized file if compression fails
+    return normalizedFile
   }
 }
 
@@ -239,6 +293,92 @@ export async function removeStorageImageByPublicUrl(
   if (error) {
     throw new Error(error.message || 'No se pudo eliminar la imagen')
   }
+}
+
+function getSupabaseStoragePublicBase(): string | null {
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+  if (!rawUrl) return null
+
+  try {
+    const url = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`
+    return `${new URL(url).origin}/storage/v1/object/public`
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Normalizes a persisted image value into a displayable URL.
+ * Supports full public URLs, local paths, and legacy Supabase storage object paths.
+ */
+export function resolveStorageImageUrl(
+  bucket: string,
+  value: string | null | undefined
+): string | null {
+  const trimmed = value?.trim()
+  if (!trimmed) return null
+
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('/')
+  ) {
+    return trimmed
+  }
+
+  const publicBase = getSupabaseStoragePublicBase()
+  if (!publicBase) return null
+
+  return `${publicBase}/${bucket}/${trimmed.replace(/^\/+/, '')}`
+}
+
+export function resolveStorageImageUrls(
+  bucket: string,
+  values: string[] | null | undefined
+): string[] {
+  if (!values || values.length === 0) return []
+
+  return values
+    .map((value) => resolveStorageImageUrl(bucket, value))
+    .filter((value): value is string => Boolean(value))
+}
+
+export function shouldBypassNextImageOptimization(value: string | null | undefined): boolean {
+  const trimmed = value?.trim()
+  if (!trimmed) return false
+
+  try {
+    const parsed = new URL(trimmed)
+    const isLocalSupabaseHost =
+      (parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost') &&
+      parsed.port === '54321'
+
+    return isLocalSupabaseHost && parsed.pathname.includes('/storage/v1/object/public/')
+  } catch {
+    return false
+  }
+}
+
+export function resolveAvatarUrl(value: string | null | undefined): string | null {
+  return resolveStorageImageUrl('avatars', value)
+}
+
+export function resolveBusinessLogoUrl(value: string | null | undefined): string | null {
+  return resolveStorageImageUrl('business-logos', value)
+}
+
+export function resolveProductImageUrl(value: string | null | undefined): string | null {
+  return resolveStorageImageUrl('product-images', value)
+}
+
+export function resolveProductImageUrls(values: string[] | null | undefined): string[] {
+  return resolveStorageImageUrls('product-images', values)
+}
+
+export function resolveDemandImageUrl(value: string | null | undefined): string | null {
+  return resolveStorageImageUrl('demand-images', value)
 }
 
 /**

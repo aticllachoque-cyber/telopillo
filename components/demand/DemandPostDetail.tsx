@@ -15,11 +15,16 @@ import { OfferProductModal } from './OfferProductModal'
 import { DemandImageFrame } from './DemandImageFrame'
 import { getCategoryName } from '@/lib/data/categories'
 import { productPresentation } from '@/lib/constants/productPresentation'
+import {
+  resolveAvatarUrl,
+  resolveProductImageUrl,
+  shouldBypassNextImageOptimization,
+} from '@/lib/utils/image'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
 import { buildWhatsAppMeUrlWithFallback } from '@/lib/utils/whatsapp'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { cn } from '@/lib/utils'
-import { MapPin, MessageSquare, Calendar, Clock, CheckCircle2, Loader2 } from 'lucide-react'
+import { MapPin, MessageSquare, Calendar, Clock, CheckCircle2, Loader2, User } from 'lucide-react'
 
 interface DemandPostDetailProps {
   post: {
@@ -118,6 +123,7 @@ export function DemandPostDetail({
   const categoryName = getCategoryName(post.category)
   const priceRange = formatPriceRange(post.price_min, post.price_max)
   const expiryDays = daysUntilExpiry(post.expires_at)
+  const location = `${post.location_city}, ${post.location_department}`
 
   const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
   const whatsappHref = buildWhatsAppMeUrlWithFallback(poster?.phone, whatsappMessage)
@@ -142,9 +148,7 @@ export function DemandPostDetail({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      {/* Main content */}
       <div className="lg:col-span-2 space-y-6">
-        {/* Header */}
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <DemandStatusBadge status={displayStatus} />
@@ -157,7 +161,7 @@ export function DemandPostDetail({
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
             <span className="flex items-center gap-1">
               <MapPin className="h-4 w-4" aria-hidden />
-              {post.location_city}, {post.location_department}
+              {location}
             </span>
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" aria-hidden />
@@ -172,8 +176,6 @@ export function DemandPostDetail({
           </div>
         </div>
 
-        <Separator />
-
         <DemandImageFrame
           imageUrl={post.image_url}
           category={post.category}
@@ -182,94 +184,136 @@ export function DemandPostDetail({
           sizes="(max-width: 1024px) 100vw, 66vw"
         />
 
-        <div>
-          <h2 className={cn(productPresentation.sectionHeading, 'mb-2')}>Descripción</h2>
-          {isPlaceholderDescription(post.description) ? (
-            <p className="text-muted-foreground italic text-pretty">
-              El comprador no agregó más detalles. Puedes contactarlo directamente para más
-              información.
-            </p>
-          ) : (
-            <p className={productPresentation.sectionBody}>{post.description}</p>
-          )}
-        </div>
-
-        {/* Price range */}
-        {priceRange && (
-          <div>
-            <h2 className={cn(productPresentation.sectionHeading, 'mb-2')}>Presupuesto</h2>
-            <p className={productPresentation.listingPrice}>{priceRange}</p>
-          </div>
-        )}
-
-        {/* Owner actions */}
-        {isOwner && isActive && (
-          <div className="flex flex-wrap gap-3">
-            <Button asChild variant="outline" className="min-h-[44px]">
-              <Link href={`/busco/${post.id}/editar`}>Editar solicitud</Link>
-            </Button>
-            <Button
-              onClick={handleMarkFound}
-              disabled={isMarkingFound}
-              variant="outline"
-              className="min-h-[44px]"
-            >
-              {isMarkingFound ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-              ) : (
-                <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />
+        <Card className="border-border/80 shadow-sm">
+          <CardContent className="space-y-5 p-4 sm:p-6">
+            <div className="grid gap-2 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-3" aria-label="Resumen">
+              <div className={productPresentation.metaRow}>
+                <MapPin className={productPresentation.metaIcon} aria-hidden />
+                <span className="min-w-0">
+                  <span className={productPresentation.metaLabel}>Ubicación · </span>
+                  <span className="font-medium">{location}</span>
+                </span>
+              </div>
+              <div className={productPresentation.metaRow}>
+                <Calendar className={productPresentation.metaIcon} aria-hidden />
+                <span className="min-w-0">
+                  <span className={productPresentation.metaLabel}>Publicado · </span>
+                  <span className="font-medium">{formatDate(post.created_at)}</span>
+                </span>
+              </div>
+              {isActive && (
+                <div className={productPresentation.metaRow}>
+                  <Clock className={productPresentation.metaIcon} aria-hidden />
+                  <span className="min-w-0">
+                    <span className={productPresentation.metaLabel}>Vigencia · </span>
+                    <span className="font-medium">
+                      {expiryDays} {expiryDays === 1 ? 'día restante' : 'días restantes'}
+                    </span>
+                  </span>
+                </div>
               )}
-              Marcar como Encontrado
-            </Button>
-          </div>
-        )}
+              {priceRange && (
+                <div className={productPresentation.metaRow}>
+                  <MessageSquare className={productPresentation.metaIcon} aria-hidden />
+                  <span className="min-w-0">
+                    <span className={productPresentation.metaLabel}>Presupuesto · </span>
+                    <span className="font-medium">{priceRange}</span>
+                  </span>
+                </div>
+              )}
+            </div>
 
-        <Separator />
+            <Separator />
 
-        {/* Offers section */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold flex items-center gap-2 text-balance">
-              <MessageSquare className="h-5 w-5" aria-hidden />
-              Ofertas ({offers.length})
-            </h2>
-            {canOffer && (
-              <Button onClick={() => setShowOfferModal(true)} className="min-h-[44px]">
-                Ofrecer mi producto
-              </Button>
+            <div>
+              <h2 className={productPresentation.sectionHeading}>Descripción</h2>
+              {isPlaceholderDescription(post.description) ? (
+                <p className="mt-2 text-muted-foreground italic text-pretty">
+                  El comprador no agregó más detalles. Puedes contactarlo directamente para pedir
+                  más contexto.
+                </p>
+              ) : (
+                <p className={cn(productPresentation.sectionBody, 'mt-2')}>{post.description}</p>
+              )}
+            </div>
+
+            {isOwner && isActive && (
+              <>
+                <Separator />
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  <Button asChild variant="outline" className="min-h-[44px]">
+                    <Link href={`/busco/${post.id}/editar`}>Editar solicitud</Link>
+                  </Button>
+                  <Button
+                    onClick={handleMarkFound}
+                    disabled={isMarkingFound}
+                    variant="outline"
+                    className="min-h-[44px]"
+                  >
+                    {isMarkingFound ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                    ) : (
+                      <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />
+                    )}
+                    Marcar como encontrado
+                  </Button>
+                </div>
+              </>
             )}
-          </div>
+          </CardContent>
+        </Card>
 
-          {offers.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
+        <Card className="border-border/80 shadow-sm">
+          <CardContent className="p-4 sm:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="flex items-center gap-2 font-semibold text-balance">
+                <MessageSquare className="h-5 w-5" aria-hidden />
+                Ofertas ({offers.length})
+              </h2>
+              {canOffer && (
+                <Button onClick={() => setShowOfferModal(true)} className="min-h-[44px] shrink-0">
+                  Ofrecer producto
+                </Button>
+              )}
+            </div>
+
+            {offers.length === 0 ? (
+              <div className="rounded-lg border border-border/60 bg-muted/20 px-4 py-8 text-center">
                 <p className="text-muted-foreground text-pretty">
                   {isActive
-                    ? 'Aún no hay ofertas. ¡Sé el primero en ofrecer!'
-                    : 'No se recibieron ofertas.'}
+                    ? 'Aún no hay ofertas. Sé el primero en proponer un producto.'
+                    : 'No se recibieron ofertas para esta solicitud.'}
                 </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {offers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} />
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {offers.map((offer) => (
+                  <OfferCard key={offer.id} offer={offer} />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Sidebar */}
       <div className="space-y-4">
-        {/* Buyer info */}
         {poster && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={poster.avatar_url || undefined} alt={poster.full_name} />
-                  <AvatarFallback>
+          <Card className="border-border/80 shadow-sm">
+            <CardContent className="space-y-4 p-4 sm:p-6">
+              <div>
+                <h2 className="text-lg font-semibold">Comprador</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Esta persona publicó la necesidad y recibirá las ofertas.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Avatar className="h-14 w-14">
+                  <AvatarImage
+                    src={resolveAvatarUrl(poster.avatar_url) || undefined}
+                    alt={poster.full_name}
+                  />
+                  <AvatarFallback className="text-base font-medium">
                     {poster.full_name
                       .split(' ')
                       .map((n) => n[0])
@@ -278,12 +322,16 @@ export function DemandPostDetail({
                       .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="font-semibold">{poster.full_name}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-lg font-semibold">{poster.full_name}</p>
+                  <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <span className="truncate">{location}</span>
+                  </div>
                   {posterBusiness && (
                     <Link
                       href={`/negocio/${posterBusiness.slug}`}
-                      className="text-sm text-primary hover:underline"
+                      className="mt-1 inline-flex items-center text-sm text-primary hover:underline"
                     >
                       {posterBusiness.business_name}
                     </Link>
@@ -297,15 +345,26 @@ export function DemandPostDetail({
                   ariaLabel={`Contactar a ${poster.full_name} por WhatsApp sobre esta solicitud`}
                 />
               )}
+
+              {!whatsappHref && !isOwner && (
+                <Button asChild variant="outline" className="w-full min-h-[44px]">
+                  <Link
+                    href={`/vendedor/${poster.id}`}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <User className="h-4 w-4" aria-hidden />
+                    Ver perfil público
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}
 
-        {/* CTA for non-logged-in users */}
         {!currentUserId && isActive && (
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <p className="text-sm text-muted-foreground mb-3 text-pretty">
+          <Card className="border-border/80 shadow-sm">
+            <CardContent className="p-4 text-center sm:p-6">
+              <p className="mb-3 text-sm text-muted-foreground text-pretty">
                 ¿Tienes lo que esta persona busca?
               </p>
               <Button asChild className="w-full min-h-[44px]">
@@ -316,11 +375,10 @@ export function DemandPostDetail({
         )}
       </div>
 
-      {/* Mobile sticky CTA bar */}
       {canOffer && (
         <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden z-40">
           <Button onClick={() => setShowOfferModal(true)} className="w-full min-h-[48px]">
-            Ofrecer mi producto
+            Ofrecer producto
           </Button>
         </div>
       )}
@@ -356,7 +414,7 @@ function OfferCard({ offer }: { offer: OfferRow }) {
 
   if (!product || !seller) return null
 
-  const imageUrl = product.images?.[0]
+  const imageUrl = resolveProductImageUrl(product.images?.[0])
 
   return (
     <Card>
@@ -370,6 +428,7 @@ function OfferCard({ offer }: { offer: OfferRow }) {
                 fill
                 className="object-cover"
                 sizes="80px"
+                unoptimized={shouldBypassNextImageOptimization(imageUrl)}
               />
             </div>
           )}
@@ -391,7 +450,7 @@ function OfferCard({ offer }: { offer: OfferRow }) {
             <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
               <Avatar className="h-5 w-5">
                 <AvatarImage
-                  src={seller.avatar_url || undefined}
+                  src={resolveAvatarUrl(seller.avatar_url) || undefined}
                   alt={seller.full_name ?? undefined}
                 />
                 <AvatarFallback className="text-[10px]">

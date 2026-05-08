@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Loader2, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
 interface OfferProductModalProps {
   demandPostId: string
@@ -154,7 +155,7 @@ export function OfferProductModal({
             >
               {products.map((product) => {
                 const isSelected = selectedProductId === product.id
-                const imageUrl = product.images?.[0]
+                const imageUrl = resolveProductImageUrl(product.images?.[0])
 
                 return (
                   <button
@@ -178,6 +179,7 @@ export function OfferProductModal({
                           fill
                           className="object-cover"
                           sizes="56px"
+                          unoptimized={shouldBypassNextImageOptimization(imageUrl)}
                         />
                       </div>
                     )}

@@ -93,6 +93,10 @@ test.describe('Account Management - Avatar Upload', () => {
 
     await expect(page.getByText(/foto de perfil/i)).toBeVisible()
     await expect(page.getByRole('button', { name: /cambiar foto/i })).toBeVisible()
+    const fileInput = page.getByLabel(/seleccionar imagen de avatar/i)
+    await expect(fileInput).toHaveAttribute('accept', /heic/i)
+    await expect(fileInput).toHaveAttribute('accept', /heif/i)
+    await expect(page.getByText(/heic\/heif/i)).toBeVisible()
   })
 
   test('Upload valid image and verify avatar displays', async ({ page }) => {

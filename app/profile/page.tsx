@@ -24,6 +24,7 @@ import { ShareProfile } from '@/components/profile/ShareProfile'
 import { useSnackbar } from '@/components/ui/snackbar'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { getAvatarColor } from '@/lib/utils'
+import { resolveAvatarUrl } from '@/lib/utils/image'
 
 const supabase = createClient()
 
@@ -87,7 +88,10 @@ export default function ProfilePage() {
         if (cancelled) return
         if (profileError) throw profileError
 
-        setProfile(data)
+        setProfile({
+          ...data,
+          avatar_url: resolveAvatarUrl(data.avatar_url),
+        })
 
         const { data: business } = await supabase
           .from('business_profiles')

@@ -6,6 +6,7 @@ import { MapPin, Calendar, Store } from 'lucide-react'
 import Link from 'next/link'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { buildWhatsAppMeUrl, normalizeBolivianWhatsAppDigits } from '@/lib/utils/whatsapp'
+import { resolveAvatarUrl } from '@/lib/utils/image'
 
 interface SellerProfileHeaderProps {
   profile: {
@@ -59,7 +60,7 @@ export function SellerProfileHeader({
         {/* Avatar */}
         <Avatar className="size-24 border">
           <AvatarImage
-            src={profile.avatar_url || undefined}
+            src={resolveAvatarUrl(profile.avatar_url) || undefined}
             alt={profile.full_name || 'Vendedor'}
           />
           <AvatarFallback className={`text-2xl font-bold ${getAvatarColor(profile.id)}`}>

@@ -17,6 +17,7 @@ import { AvatarUpload } from '@/components/profile/AvatarUpload'
 import { BusinessProfileForm } from '@/components/profile/BusinessProfileForm'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
 import { useSnackbar } from '@/components/ui/snackbar'
+import { resolveAvatarUrl } from '@/lib/utils/image'
 
 export default function ProfileEditPage() {
   const router = useRouter()
@@ -78,7 +79,7 @@ export default function ProfileEditPage() {
         setValue('phone', profile.phone || '')
         setValue('location_department', profile.location_department || '')
         setValue('location_city', profile.location_city || '')
-        setAvatarUrl(profile.avatar_url)
+        setAvatarUrl(resolveAvatarUrl(profile.avatar_url))
         setVerificationLevel(profile.verification_level ?? 0)
 
         const initials = profile.full_name

@@ -18,6 +18,7 @@ import {
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { cn } from '@/lib/utils'
 import { ProductWhatsAppLink } from './ProductWhatsAppLink'
+import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
 interface ProductCardProps {
   product: {
@@ -71,7 +72,7 @@ export function ProductCard({
   }
 
   const status = statusConfig[product.status as keyof typeof statusConfig] || statusConfig.active
-  const imageUrl = !imageError && product.images[0] ? product.images[0] : null
+  const imageUrl = !imageError ? resolveProductImageUrl(product.images[0]) : null
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
   const isPreview = variant === 'preview'
 
@@ -121,6 +122,7 @@ export function ProductCard({
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={priority}
+              unoptimized={shouldBypassNextImageOptimization(imageUrl)}
               onError={() => setImageError(true)}
             />
           ) : (

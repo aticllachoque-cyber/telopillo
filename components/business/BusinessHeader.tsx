@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Calendar, User } from 'lucide-react'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
+import { resolveBusinessLogoUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
 interface BusinessHeaderProps {
   business: {
@@ -26,6 +27,7 @@ export function BusinessHeader({ business, profile }: BusinessHeaderProps) {
   })
 
   const location = [business.business_city, business.business_department].filter(Boolean).join(', ')
+  const businessLogoUrl = resolveBusinessLogoUrl(business.business_logo_url)
 
   const initials = business.business_name
     .split(' ')
@@ -38,13 +40,14 @@ export function BusinessHeader({ business, profile }: BusinessHeaderProps) {
     <div className="flex flex-col sm:flex-row gap-6 items-start">
       {/* Logo */}
       <div className="shrink-0">
-        {business.business_logo_url ? (
+        {businessLogoUrl ? (
           <Image
-            src={business.business_logo_url}
+            src={businessLogoUrl}
             alt={`Logo de ${business.business_name}`}
             width={96}
             height={96}
             className="size-24 rounded-xl object-cover border"
+            unoptimized={shouldBypassNextImageOptimization(businessLogoUrl)}
           />
         ) : (
           <div

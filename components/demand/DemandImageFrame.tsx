@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { CATEGORY_ICONS } from '@/lib/data/categories'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
 import { cn } from '@/lib/utils'
+import { resolveDemandImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
 interface DemandImageFrameProps {
   imageUrl: string | null
@@ -39,6 +40,7 @@ export function DemandImageFrame({
   const categoryLabel = CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] || category
   const accent =
     CATEGORY_ACCENTS[category] || 'from-slate-100 via-gray-50 to-zinc-100 text-slate-900'
+  const resolvedImageUrl = resolveDemandImageUrl(imageUrl)
 
   return (
     <div
@@ -48,8 +50,15 @@ export function DemandImageFrame({
         className
       )}
     >
-      {imageUrl ? (
-        <Image src={imageUrl} alt={title} fill className="object-cover" sizes={sizes} />
+      {resolvedImageUrl ? (
+        <Image
+          src={resolvedImageUrl}
+          alt={title}
+          fill
+          className="object-cover"
+          sizes={sizes}
+          unoptimized={shouldBypassNextImageOptimization(resolvedImageUrl)}
+        />
       ) : (
         <div
           className={cn(

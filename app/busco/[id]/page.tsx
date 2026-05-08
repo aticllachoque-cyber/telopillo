@@ -5,6 +5,7 @@ import { createClient, createPublicClient, getOptionalUser } from '@/lib/supabas
 import { DemandPostDetail } from '@/components/demand/DemandPostDetail'
 import { ArrowLeft } from 'lucide-react'
 import { getCategoryName } from '@/lib/data/categories'
+import { resolveDemandImageUrl } from '@/lib/utils/image'
 
 interface DemandPageProps {
   params: Promise<{
@@ -72,6 +73,7 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
   }
 
   const categoryName = getCategoryName(post.category)
+  const imageUrl = resolveDemandImageUrl(post.image_url)
 
   return {
     title: `${post.title} - ${post.location_city} | Telopillo`,
@@ -80,7 +82,7 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
       title: `Solicitud: ${post.title}`,
       description: post.description.slice(0, 160),
       type: 'website',
-      images: post.image_url ? [post.image_url] : undefined,
+      images: imageUrl ? [imageUrl] : undefined,
     },
     other: {
       'article:section': categoryName || post.category,

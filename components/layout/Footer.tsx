@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Facebook, Instagram, Twitter } from 'lucide-react'
+import { FaFacebookF, FaInstagram, FaTiktok, FaXTwitter } from 'react-icons/fa6'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -16,31 +16,40 @@ export function Footer() {
             <span className="text-sm font-bold">Telopillo</span>
             <div className="flex gap-3">
               <Link
-                href="https://facebook.com/telopillo"
+                href="https://www.facebook.com/profile.php?id=61589457988698"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors p-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
                 aria-label="Seguinos en Facebook"
               >
-                <Facebook className="h-4 w-4" aria-hidden />
+                <FaFacebookF className="h-4 w-4" aria-hidden />
               </Link>
               <Link
-                href="https://instagram.com/telopillo"
+                href="https://www.instagram.com/telo.pillo/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors p-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
                 aria-label="Seguinos en Instagram"
               >
-                <Instagram className="h-4 w-4" aria-hidden />
+                <FaInstagram className="h-4 w-4" aria-hidden />
               </Link>
               <Link
-                href="https://twitter.com/telopillo_bo"
+                href="https://x.com/telopillo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors p-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
-                aria-label="Seguinos en Twitter"
+                aria-label="Seguinos en X"
               >
-                <Twitter className="h-4 w-4" aria-hidden />
+                <FaXTwitter className="h-4 w-4" aria-hidden />
+              </Link>
+              <Link
+                href="https://www.tiktok.com/@telopillo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors p-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
+                aria-label="Seguinos en TikTok"
+              >
+                <FaTiktok className="h-4 w-4" aria-hidden />
               </Link>
             </div>
           </div>

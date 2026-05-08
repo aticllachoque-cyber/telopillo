@@ -22,6 +22,7 @@ import {
   buildWhatsAppMeUrl,
   resolveSellerWhatsAppDigits,
 } from '@/lib/utils/whatsapp'
+import { resolveProductImageUrl, resolveProductImageUrls } from '@/lib/utils/image'
 
 interface ProductPageProps {
   params: Promise<{
@@ -51,7 +52,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     }
   }
 
-  const imageUrl = product.images?.[0] || '/og-image.png'
+  const imageUrl = resolveProductImageUrl(product.images?.[0]) || '/og-image.png'
 
   const rawDescription = (product.description ?? '').trim()
   const ogDescription =
@@ -160,6 +161,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const categoryName = getCategoryName(product.category)
   const conditionLabel = CONDITION_LABELS[product.condition as keyof typeof CONDITION_LABELS]
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
+  const productImages = resolveProductImageUrls(product.images)
 
   // Format date
   const createdDate = new Date(product.created_at).toLocaleDateString('es-BO', {
@@ -225,7 +227,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Left Column: Gallery + Description */}
           <div className="lg:col-span-2 space-y-6">
             {/* Gallery */}
-            <ProductGallery images={product.images} productTitle={product.title} />
+            <ProductGallery images={productImages} productTitle={product.title} />
 
             {/* Product Info Card */}
             <Card className="border-border/80 shadow-sm">
@@ -336,7 +338,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   isOwner
                     ? undefined
                     : {
-                        imageUrl: product.images?.[0] ?? null,
+                        imageUrl: productImages[0] ?? null,
                         price: Number(product.price),
                         productPageUrl: absoluteUrl(`/productos/${id}`),
                       }

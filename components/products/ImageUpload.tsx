@@ -5,8 +5,10 @@ import { createClient } from '@/lib/supabase/client'
 import {
   getProductImagePath,
   createImagePreview,
+  isHeicLikeImage,
   revokeImagePreview,
   removeStorageImageByPublicUrl,
+  resolveProductImageUrls,
   uploadStorageImage,
   validateImageFile,
 } from '@/lib/utils/image'
@@ -33,6 +35,18 @@ interface ImagePreview {
 
 const LOG_PREFIX = '[ImageUpload]'
 
+function buildUploadedPreviews(urls: string[]): ImagePreview[] {
+  return resolveProductImageUrls(urls).map((url) => ({
+    url,
+    uploading: false,
+    uploaded: true,
+  }))
+}
+
+function areStringArraysEqual(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((value, index) => value === b[index])
+}
+
 export function ImageUpload({
   userId,
   value = [],
@@ -41,21 +55,44 @@ export function ImageUpload({
   disabled = false,
   error,
 }: ImageUploadProps) {
-  const [previews, setPreviews] = useState<ImagePreview[]>(
-    value.map((url) => ({ url, uploading: false, uploaded: true }))
-  )
+  const [previews, setPreviews] = useState<ImagePreview[]>(() => buildUploadedPreviews(value))
   const [isDragging, setIsDragging] = useState(false)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [uploadingCount, setUploadingCount] = useState(0)
+  const [uploadStatusText, setUploadStatusText] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const uploadInProgressRef = useRef(false)
+  const lastSyncedUploadedUrlsRef = useRef<string[]>(resolveProductImageUrls(value))
   const supabase = createClient()
   const { showSnackbar } = useSnackbar()
+
+  useEffect(() => {
+    if (uploadInProgressRef.current) return
+    const normalizedUrls = resolveProductImageUrls(value)
+    setPreviews((currentPreviews) => {
+      const currentUploadedUrls = currentPreviews
+        .filter((preview) => preview.uploaded)
+        .map((preview) => preview.url)
+
+      if (areStringArraysEqual(normalizedUrls, currentUploadedUrls)) {
+        lastSyncedUploadedUrlsRef.current = normalizedUrls
+        return currentPreviews
+      }
+
+      lastSyncedUploadedUrlsRef.current = normalizedUrls
+      return buildUploadedPreviews(value)
+    })
+  }, [value])
 
   // Sync uploaded URLs with parent component
   useEffect(() => {
     const uploadedUrls = previews.filter((p) => p.uploaded).map((p) => p.url)
+    if (areStringArraysEqual(uploadedUrls, lastSyncedUploadedUrlsRef.current)) {
+      return
+    }
+
+    lastSyncedUploadedUrlsRef.current = uploadedUrls
     onChange(uploadedUrls)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previews])
@@ -87,6 +124,16 @@ export function ImageUpload({
     }
 
     uploadInProgressRef.current = true
+    const hasHeic = fileArray.some((file) => isHeicLikeImage(file))
+    setUploadStatusText(
+      hasHeic
+        ? fileArray.length > 1
+          ? 'Procesando fotos del iPhone...'
+          : 'Procesando foto del iPhone...'
+        : fileArray.length > 1
+          ? 'Procesando imágenes...'
+          : 'Procesando imagen...'
+    )
 
     console.log(LOG_PREFIX, 'start', {
       fileCount: fileArray.length,
@@ -174,6 +221,7 @@ export function ImageUpload({
       console.log(LOG_PREFIX, 'batch done', { succeeded, failed, total: fileArray.length })
     } finally {
       uploadInProgressRef.current = false
+      setUploadStatusText(null)
     }
   }
 
@@ -204,7 +252,7 @@ export function ImageUpload({
     if (!preview) return
 
     // If uploaded to storage, delete it
-    if (preview.uploaded && preview.url.includes('supabase')) {
+    if (preview.uploaded) {
       try {
         await removeStorageImageByPublicUrl(supabase.storage, 'product-images', preview.url)
       } catch (err) {
@@ -279,7 +327,8 @@ export function ImageUpload({
       {/* Upload Status (screen reader live region) */}
       <div role="status" aria-live="polite" className="sr-only">
         {uploadingCount > 0
-          ? `Subiendo ${uploadingCount} imagen${uploadingCount > 1 ? 'es' : ''}...`
+          ? uploadStatusText ||
+            `Subiendo ${uploadingCount} imagen${uploadingCount > 1 ? 'es' : ''}...`
           : ''}
       </div>
 
@@ -320,7 +369,7 @@ export function ImageUpload({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
               multiple
               onChange={(e) => handleFileSelect(e.target.files)}
               className="hidden"
@@ -344,7 +393,8 @@ export function ImageUpload({
             </p>
 
             <p id="image-upload-help" className="text-xs text-muted-foreground">
-              JPG, PNG o WebP • Máximo 5MB por imagen • {previews.length}/{maxImages} imágenes
+              JPG, PNG, WebP o HEIC/HEIF • Máximo 5MB por imagen, o 25MB si es HEIC •{' '}
+              {previews.length}/{maxImages} imágenes
             </p>
           </div>
 
@@ -453,7 +503,9 @@ export function ImageUpload({
                   >
                     <div className="text-center">
                       <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" aria-hidden />
-                      <p className="text-xs text-muted-foreground">Subiendo...</p>
+                      <p className="text-xs text-muted-foreground">
+                        {uploadStatusText || 'Subiendo...'}
+                      </p>
                     </div>
                   </div>
                 )}

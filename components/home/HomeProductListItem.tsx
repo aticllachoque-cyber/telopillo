@@ -4,6 +4,7 @@ import { MapPin, Package } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import type { HomepagePreviewProduct } from '@/lib/home/getHomepagePreview'
 import { formatProductLocationDisplay } from '@/lib/validations/product'
+import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
 interface HomeProductListItemProps {
   product: HomepagePreviewProduct
@@ -11,7 +12,7 @@ interface HomeProductListItemProps {
 }
 
 export function HomeProductListItem({ product, priority = false }: HomeProductListItemProps) {
-  const imageUrl = product.images[0] || null
+  const imageUrl = resolveProductImageUrl(product.images[0])
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
 
   return (
@@ -31,6 +32,7 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 640px) 112px, 128px"
                 priority={priority}
+                unoptimized={shouldBypassNextImageOptimization(imageUrl)}
               />
             ) : (
               <div className="flex h-full min-h-28 items-center justify-center">
