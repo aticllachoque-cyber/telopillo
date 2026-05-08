@@ -20,7 +20,7 @@ export default function PublicarDemandaPage() {
   const [profileLocation, setProfileLocation] = useState<Partial<ProfileLocationDefaults>>({})
 
   useEffect(() => {
-    document.title = 'Publicar lo que buscas - Telopillo'
+    document.title = 'Publicá lo que buscás - Telopillo'
     checkAuthAndRateLimit()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -110,7 +110,7 @@ export default function PublicarDemandaPage() {
           </Link>
           <h1 className="text-3xl font-bold text-balance">Publicá lo que buscás</h1>
           <p className="text-muted-foreground mt-2 text-pretty">
-            Completá el formulario y los vendedores podrán contactarte con lo que necesitás.
+            Completá los datos y los vendedores podrán contactarte con lo que necesitás.
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export default function PublicarDemandaPage() {
 
         <div className="mt-8 text-center text-sm text-muted-foreground">
           <p>
-            Al publicar, aceptas nuestros{' '}
+            Al publicar, aceptás nuestros{' '}
             <Link
               href="/terminos"
               className="underline hover:text-foreground inline-flex items-center min-h-[44px] sm:min-h-0 touch-manipulation"

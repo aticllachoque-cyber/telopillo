@@ -87,9 +87,9 @@ export default function PublicarPage() {
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />
             Volver al inicio
           </Link>
-          <h1 className="text-3xl font-bold">Publicar Producto</h1>
+          <h1 className="text-3xl font-bold text-balance">Publicar Producto</h1>
           <p className="text-muted-foreground mt-2">
-            Completá los pasos para publicar tu producto en Telopillo
+            Completá los datos para publicar tu producto en Telopillo.
           </p>
         </div>
 

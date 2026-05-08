@@ -160,43 +160,13 @@ export function DemandPostForm({
         )}
       </div>
 
-      {/* Description */}
-      <div className="space-y-2">
-        <Label htmlFor="description">Describe lo que necesitas *</Label>
-        <Textarea
-          id="description"
-          placeholder="Ej: Busco Samsung Galaxy A52 en buen estado, color negro, con caja original si es posible. Presupuesto flexible."
-          className="min-h-[120px] resize-y"
-          maxLength={1000}
-          aria-invalid={!!errors.description}
-          aria-describedby={errors.description ? 'description-error' : 'description-hint'}
-          {...register('description')}
-        />
-        {!errors.description && (
-          <p id="description-hint" className="text-xs text-muted-foreground">
-            Incluí marca, modelo, estado y detalles que ayuden a los vendedores a encontrar lo que
-            buscás.
-          </p>
-        )}
-        {errors.description && (
-          <p id="description-error" className="text-sm text-destructive" role="alert">
-            {errors.description.message}
-          </p>
-        )}
-      </div>
-
-      <DemandImageUpload
-        userId={userId}
-        value={watch('image_url') ?? null}
-        onChange={(url) => setValue('image_url', url, { shouldValidate: true })}
-        disabled={isSubmitting}
-        error={errors.image_url?.message}
-      />
-
       {/* Category + Subcategory */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="category">Categoría *</Label>
+          <p className="text-xs text-muted-foreground sm:hidden">
+            Elegí la categoría para que te encuentren más rápido.
+          </p>
           <Select
             value={selectedCategory || ''}
             onValueChange={(val) => {
@@ -210,9 +180,9 @@ export function DemandPostForm({
               id="category"
               className="h-11"
               aria-invalid={!!errors.category}
-              aria-describedby={errors.category ? 'category-error' : undefined}
+              aria-describedby={errors.category ? 'category-error' : 'category-hint'}
             >
-              <SelectValue placeholder="Selecciona categoría" />
+              <SelectValue placeholder="Elegí una categoría" />
             </SelectTrigger>
             <SelectContent>
               {CATEGORIES.map((cat) => (
@@ -222,6 +192,11 @@ export function DemandPostForm({
               ))}
             </SelectContent>
           </Select>
+          {!errors.category && (
+            <p id="category-hint" className="text-xs text-muted-foreground sm:hidden">
+              Después podrás agregar más detalle en la descripción.
+            </p>
+          )}
           {errors.category && (
             <p id="category-error" className="text-sm text-destructive" role="alert">
               {errors.category.message}
@@ -250,6 +225,42 @@ export function DemandPostForm({
           </div>
         )}
       </div>
+
+      {/* Description */}
+      <div className="space-y-2">
+        <Label htmlFor="description">Describe lo que necesitas *</Label>
+        <Textarea
+          id="description"
+          placeholder="Ej: Busco Samsung Galaxy A52 en buen estado, color negro, con caja original si es posible. Presupuesto flexible."
+          className="min-h-[120px] resize-y"
+          maxLength={1000}
+          aria-invalid={!!errors.description}
+          aria-describedby={errors.description ? 'description-error' : 'description-hint'}
+          {...register('description')}
+        />
+        {!errors.description && (
+          <p id="description-hint" className="text-xs text-muted-foreground">
+            <span className="sm:hidden">Incluí marca, estado y detalles clave.</span>
+            <span className="hidden sm:inline">
+              Incluí marca, modelo, estado y detalles que ayuden a los vendedores a encontrar lo que
+              buscás.
+            </span>
+          </p>
+        )}
+        {errors.description && (
+          <p id="description-error" className="text-sm text-destructive" role="alert">
+            {errors.description.message}
+          </p>
+        )}
+      </div>
+
+      <DemandImageUpload
+        userId={userId}
+        value={watch('image_url') ?? null}
+        onChange={(url) => setValue('image_url', url, { shouldValidate: true })}
+        disabled={isSubmitting}
+        error={errors.image_url?.message}
+      />
 
       {/* Location */}
       <LocationSelector

@@ -474,51 +474,51 @@ export function ProductFormWizard({
               )}
             </div>
 
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">
-                Descripción <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="description"
-                {...register('description')}
-                placeholder="Describe tu producto en detalle: estado, características, qué incluye..."
-                rows={5}
-                className="min-h-[100px] sm:min-h-[120px]"
-                aria-required="true"
-                aria-invalid={errors.description ? 'true' : 'false'}
-                aria-describedby={errors.description ? 'description-error' : 'description-help'}
-                onFocus={scrollInputIntoView}
-              />
-              <div className="flex items-center justify-between gap-3">
-                <p id="description-help" className="text-xs text-muted-foreground">
-                  <span className="sm:hidden">Entre 50 y 5000 caracteres</span>
-                  <span className="hidden sm:inline">Mínimo 50 caracteres, máximo 5000</span>
-                </p>
-                <p className="shrink-0 text-xs text-muted-foreground">
-                  {description?.length || 0}/5000
-                </p>
-              </div>
-              {errors.description && (
-                <p id="description-error" className="text-sm text-destructive">
-                  {errors.description.message}
-                </p>
-              )}
-            </div>
-
             {/* Category */}
             <div className="space-y-2">
-              <Label>
+              <Label htmlFor="category">
                 Categoría <span className="text-destructive">*</span>
               </Label>
               <p className="text-xs text-muted-foreground sm:hidden">
                 Elegí la categoría que mejor describe tu producto.
               </p>
-              <CategoryGrid
-                value={selectedCategory}
-                onChange={(value) => setValue('category', value as ProductInput['category'])}
-                error={!!errors.category}
-              />
+              <div className="sm:hidden">
+                <Select
+                  value={selectedCategory || ''}
+                  onValueChange={(value) => {
+                    setValue('category', value as ProductInput['category'])
+                    setValue('subcategory', undefined)
+                  }}
+                >
+                  <SelectTrigger
+                    id="category"
+                    className="w-full"
+                    aria-invalid={!!errors.category}
+                    aria-describedby={errors.category ? 'category-error' : 'category-help'}
+                  >
+                    <SelectValue placeholder="Elegí una categoría" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!errors.category && (
+                  <p id="category-help" className="mt-1 text-xs text-muted-foreground">
+                    Elegí primero la categoría y luego completa la descripción.
+                  </p>
+                )}
+              </div>
+              <div className="hidden sm:block">
+                <CategoryGrid
+                  value={selectedCategory}
+                  onChange={(value) => setValue('category', value as ProductInput['category'])}
+                  error={!!errors.category}
+                />
+              </div>
               {errors.category && (
                 <p id="category-error" className="text-sm text-destructive" role="alert">
                   {errors.category.message}
@@ -547,6 +547,38 @@ export function ProductFormWizard({
                 </Select>
               </div>
             )}
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">
+                Descripción <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="description"
+                {...register('description')}
+                placeholder="Describe tu producto en detalle: estado, características, qué incluye..."
+                rows={5}
+                className="min-h-[100px] sm:min-h-[120px]"
+                aria-required="true"
+                aria-invalid={errors.description ? 'true' : 'false'}
+                aria-describedby={errors.description ? 'description-error' : 'description-help'}
+                onFocus={scrollInputIntoView}
+              />
+              <div className="flex items-center justify-between gap-3">
+                <p id="description-help" className="text-xs text-muted-foreground">
+                  <span className="sm:hidden">Cuenta estado, accesorios y detalles clave</span>
+                  <span className="hidden sm:inline">Mínimo 50 caracteres, máximo 5000</span>
+                </p>
+                <p className="shrink-0 text-xs text-muted-foreground">
+                  {description?.length || 0}/5000
+                </p>
+              </div>
+              {errors.description && (
+                <p id="description-error" className="text-sm text-destructive">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
           </div>
         )}
 
@@ -590,56 +622,6 @@ export function ProductFormWizard({
               {errors.price && (
                 <p id="price-error" className="text-sm text-destructive">
                   {errors.price.message}
-                </p>
-              )}
-            </div>
-
-            {/* Condition */}
-            <div className="space-y-3">
-              <Label>
-                Estado del Producto <span className="text-destructive">*</span>
-              </Label>
-              <RadioGroup
-                value={selectedCondition ?? ''}
-                onValueChange={(value) => setValue('condition', value as ProductInput['condition'])}
-                aria-required="true"
-                aria-invalid={errors.condition ? 'true' : 'false'}
-                aria-describedby={errors.condition ? 'condition-error' : undefined}
-                className="grid gap-3"
-              >
-                {PRODUCT_CONDITIONS.map((condition) => (
-                  <label
-                    key={condition}
-                    htmlFor={`condition-${condition}`}
-                    className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${
-                      selectedCondition === condition
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-muted-foreground/30'
-                    }`}
-                  >
-                    <RadioGroupItem
-                      value={condition}
-                      id={`condition-${condition}`}
-                      className="mt-0.5 size-5 sm:size-4 shrink-0"
-                    />
-                    <div className="space-y-1 leading-none">
-                      <span className="font-medium">{CONDITION_LABELS[condition]}</span>
-                      <p
-                        className={cn(
-                          'text-muted-foreground sm:text-sm',
-                          selectedCondition === condition ? 'block text-xs' : 'hidden',
-                          'sm:block'
-                        )}
-                      >
-                        {CONDITION_DESCRIPTIONS[condition]}
-                      </p>
-                    </div>
-                  </label>
-                ))}
-              </RadioGroup>
-              {errors.condition && (
-                <p id="condition-error" className="text-sm text-destructive">
-                  {errors.condition.message}
                 </p>
               )}
             </div>
@@ -708,6 +690,61 @@ export function ProductFormWizard({
                 </div>
               </div>
             </div>
+
+            {/* Condition */}
+            <div className="space-y-3">
+              <Label>
+                Estado del Producto <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup
+                value={selectedCondition ?? ''}
+                onValueChange={(value) => setValue('condition', value as ProductInput['condition'])}
+                aria-required="true"
+                aria-invalid={errors.condition ? 'true' : 'false'}
+                aria-describedby={errors.condition ? 'condition-error' : 'condition-help'}
+                className="grid gap-3"
+              >
+                {PRODUCT_CONDITIONS.map((condition) => (
+                  <label
+                    key={condition}
+                    htmlFor={`condition-${condition}`}
+                    className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${
+                      selectedCondition === condition
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-muted-foreground/30'
+                    }`}
+                  >
+                    <RadioGroupItem
+                      value={condition}
+                      id={`condition-${condition}`}
+                      className="mt-0.5 size-5 sm:size-4 shrink-0"
+                    />
+                    <div className="space-y-1 leading-none">
+                      <span className="font-medium">{CONDITION_LABELS[condition]}</span>
+                      <p
+                        className={cn(
+                          'text-muted-foreground sm:text-sm',
+                          selectedCondition === condition ? 'block text-xs' : 'hidden',
+                          'sm:block'
+                        )}
+                      >
+                        {CONDITION_DESCRIPTIONS[condition]}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </RadioGroup>
+              {!errors.condition && (
+                <p id="condition-help" className="text-xs text-muted-foreground sm:hidden">
+                  Elige la opción que mejor representa el estado real del producto.
+                </p>
+              )}
+              {errors.condition && (
+                <p id="condition-error" className="text-sm text-destructive">
+                  {errors.condition.message}
+                </p>
+              )}
+            </div>
           </div>
         )}
 
@@ -750,7 +787,9 @@ export function ProductFormWizard({
               <div className="p-5 space-y-4">
                 {/* Title & Price */}
                 <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-lg font-semibold">{watchAll.title || 'Sin título'}</h3>
+                  <h3 className="line-clamp-2 text-lg font-semibold">
+                    {watchAll.title || 'Sin título'}
+                  </h3>
                   <span className="text-xl font-bold text-primary whitespace-nowrap">
                     Bs {watchAll.price ? watchAll.price.toLocaleString() : '0'}
                   </span>
@@ -796,9 +835,9 @@ export function ProductFormWizard({
                 </div>
 
                 {/* Description */}
-                <div className="pt-3 border-t">
+                <div className="border-t pt-3">
                   <h4 className="text-sm font-medium mb-2">Descripción</h4>
-                  <p className="text-sm text-foreground/80 whitespace-pre-line line-clamp-4">
+                  <p className="text-sm text-foreground/80 whitespace-pre-line line-clamp-3">
                     {watchAll.description || 'Sin descripción'}
                   </p>
                 </div>
@@ -823,12 +862,11 @@ export function ProductFormWizard({
             </div>
 
             {/* Edit hints */}
-            <div className="bg-muted/50 rounded-lg p-4 text-sm space-y-2">
-              <p className="font-medium">¿Algo no está bien?</p>
+            <div className="space-y-2 rounded-lg bg-muted/50 p-4 text-sm">
+              <p className="font-medium">Revisa lo esencial antes de publicar</p>
               <p className="text-foreground/80">
                 <span className="sm:hidden">
-                  Tocá los números de arriba para volver a un paso anterior y corregir la
-                  información.
+                  Tocá los números de arriba si quieres corregir algo antes de publicar.
                 </span>
                 <span className="hidden sm:inline">
                   Podés volver a cualquier paso haciendo click en los círculos de arriba para
