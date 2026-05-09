@@ -223,10 +223,17 @@ export function ProductCard({
         )}
       >
         {whatsappHref && (
-          <ProductWhatsAppLink
-            href={whatsappHref}
-            ariaLabel="Contactar por WhatsApp sobre este producto"
-          />
+          <div className="flex w-full justify-end">
+            <ProductWhatsAppLink
+              href={whatsappHref}
+              ariaLabel="Contactar por WhatsApp sobre este producto"
+              fullWidth={false}
+              size="xs"
+              variant="text"
+              label="WhatsApp"
+              className="text-xs no-underline"
+            />
+          </div>
         )}
         {showContactUnavailableHint && (
           <p className="text-xs text-muted-foreground leading-snug" role="status">

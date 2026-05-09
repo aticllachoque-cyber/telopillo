@@ -18,6 +18,9 @@ interface ProductWhatsAppLinkProps {
   ariaLabel: string
   /** Full width (listing cards); detail uses false for inline toolbar */
   fullWidth?: boolean
+  label?: string
+  size?: 'sm' | 'xs'
+  variant?: 'outline' | 'text'
   className?: string
 }
 
@@ -25,6 +28,9 @@ export function ProductWhatsAppLink({
   href,
   ariaLabel,
   fullWidth = true,
+  label = 'Contactar por WhatsApp',
+  size = 'sm',
+  variant = 'outline',
   className,
 }: ProductWhatsAppLinkProps) {
   if (!isSafeWhatsAppHref(href)) {
@@ -37,13 +43,21 @@ export function ProductWhatsAppLink({
   return (
     <Button
       asChild
-      variant="outline"
-      size="sm"
-      className={cn(productPresentation.whatsappButtonClass, fullWidth && 'w-full', className)}
+      variant={variant === 'text' ? 'link' : 'outline'}
+      size={size}
+      className={cn(
+        variant === 'text'
+          ? 'h-auto px-0 py-0 text-green-700 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300'
+          : productPresentation.whatsappButtonClass,
+        fullWidth && variant !== 'text' && 'w-full',
+        className
+      )}
     >
       <a href={href} target="_blank" rel="noopener noreferrer" aria-label={ariaLabel}>
-        <WhatsAppGlyph className="mr-2 size-4 shrink-0" />
-        Contactar por WhatsApp
+        <WhatsAppGlyph
+          className={cn('shrink-0', variant === 'text' ? 'mr-1 size-3.5' : 'mr-2 size-4')}
+        />
+        {label}
       </a>
     </Button>
   )

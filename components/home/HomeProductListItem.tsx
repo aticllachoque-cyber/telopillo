@@ -2,9 +2,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Package } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import type { HomepagePreviewProduct } from '@/lib/home/getHomepagePreview'
+import { absoluteUrl } from '@/lib/utils'
 import { formatProductLocationDisplay } from '@/lib/validations/product'
 import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
+import {
+  buildProductWhatsAppPrefillMessage,
+  buildWhatsAppMeUrl,
+  resolveSellerWhatsAppDigits,
+} from '@/lib/utils/whatsapp'
 
 interface HomeProductListItemProps {
   product: HomepagePreviewProduct
@@ -14,15 +21,30 @@ interface HomeProductListItemProps {
 export function HomeProductListItem({ product, priority = false }: HomeProductListItemProps) {
   const imageUrl = resolveProductImageUrl(product.images[0])
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
+  const sellerContact = resolveSellerWhatsAppDigits(
+    product.seller_business_whatsapp,
+    product.seller_profile_phone
+  )
+  const whatsappHref =
+    sellerContact.normalizedDigits != null
+      ? buildWhatsAppMeUrl(
+          sellerContact.normalizedDigits,
+          buildProductWhatsAppPrefillMessage({
+            productTitle: product.title,
+            price: product.price,
+            productAbsoluteUrl: absoluteUrl(`/productos/${product.id}`),
+          })
+        )
+      : null
 
   return (
-    <Link
-      href={`/productos/${product.id}`}
-      className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      aria-label={`Ver ${product.title}`}
-    >
-      <Card className="overflow-hidden border border-border/60 shadow-md transition-shadow group-hover:shadow-lg group-focus-visible:shadow-lg">
-        <div className="flex items-stretch gap-0">
+    <Card className="overflow-hidden border border-border/60 shadow-md transition-shadow hover:shadow-lg">
+      <div className="flex items-stretch gap-0">
+        <Link
+          href={`/productos/${product.id}`}
+          className="group flex min-w-0 flex-1 items-stretch rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label={`Ver ${product.title}`}
+        >
           <div className="relative w-28 shrink-0 overflow-hidden bg-muted sm:w-32">
             {imageUrl ? (
               <Image
@@ -53,8 +75,24 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
               <span className="truncate">{location}</span>
             </div>
           </div>
+        </Link>
+      </div>
+
+      {whatsappHref && (
+        <div className="px-4 pb-3">
+          <div className="flex items-center justify-end">
+            <ProductWhatsAppLink
+              href={whatsappHref}
+              ariaLabel={`Contactar por WhatsApp sobre ${product.title}`}
+              fullWidth={false}
+              size="xs"
+              variant="text"
+              label="WhatsApp"
+              className="text-xs no-underline"
+            />
+          </div>
         </div>
-      </Card>
-    </Link>
+      )}
+    </Card>
   )
 }
