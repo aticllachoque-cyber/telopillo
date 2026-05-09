@@ -11,6 +11,31 @@ import {
 // 1. Product Management - Happy Path
 // ---------------------------------------------------------------------------
 test.describe('Account Management - Product Management', () => {
+  test('Compact share controls expose copy action on mis-productos', async ({ page }, testInfo) => {
+    if (testInfo.project.name === 'chromium') {
+      await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+    }
+
+    await login(page)
+    await gotoMyProductsPage(page)
+
+    const copyButton = page.getByRole('button', { name: /Copiar enlace/i })
+    const shareButton = page.getByRole('button', { name: /Compartir perfil/i })
+
+    await expect(copyButton).toBeVisible()
+    await expect(shareButton).toBeVisible()
+
+    await copyButton.click()
+    await expect(page.getByRole('status').filter({ hasText: /enlace copiado/i })).toBeVisible({
+      timeout: 5000,
+    })
+
+    if (testInfo.project.name === 'chromium') {
+      const clipboardText = await page.evaluate(() => navigator.clipboard.readText())
+      expect(clipboardText).toMatch(/\/(vendedor|negocio)\//)
+    }
+  })
+
   test('Page loads with header and product grid or empty state', async ({ page }) => {
     await login(page)
     await gotoMyProductsPage(page)

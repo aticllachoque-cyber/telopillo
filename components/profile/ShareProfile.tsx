@@ -72,10 +72,32 @@ export function ShareProfile({ profileId, businessSlug, variant = 'card' }: Shar
 
   if (variant === 'compact') {
     return (
-      <Button type="button" variant="outline" size="sm" onClick={handleShare}>
-        <Share2 className="mr-2 h-4 w-4" aria-hidden />
-        Compartir perfil
-      </Button>
+      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleCopy}
+          className="min-h-[44px] w-full gap-2 touch-manipulation sm:w-auto sm:min-h-8"
+        >
+          {copied ? (
+            <Check className="h-4 w-4 shrink-0 text-green-600 dark:text-green-400" aria-hidden />
+          ) : (
+            <Copy className="h-4 w-4 shrink-0" aria-hidden />
+          )}
+          <span aria-live="polite">{copied ? 'Copiado' : 'Copiar enlace'}</span>
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleShare}
+          className="min-h-[44px] w-full gap-2 touch-manipulation sm:w-auto sm:min-h-8"
+        >
+          <Share2 className="h-4 w-4 shrink-0" aria-hidden />
+          Compartir perfil
+        </Button>
+      </div>
     )
   }
 
