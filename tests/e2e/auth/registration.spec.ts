@@ -23,12 +23,11 @@ test.describe('Auth - Registration Form', () => {
     await expect(page.getByLabel(/confirmar contraseña/i)).toBeVisible()
   })
 
-  test('OAuth buttons (Google, Facebook) are visible', async ({ page }) => {
+  test('OAuth button (Google) is visible', async ({ page }) => {
     await page.goto('/register')
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /continuar con facebook/i })).toBeVisible()
   })
 
   test('Form accepts valid input and submits without client-side validation error', async ({
@@ -247,6 +246,5 @@ test.describe('Auth - Registration Mobile (375x812)', () => {
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /continuar con facebook/i })).toBeVisible()
   })
 })

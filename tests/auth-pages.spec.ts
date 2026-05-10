@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 
 test.describe('Authentication Pages', () => {
-  test('Login page renders correctly with OAuth buttons', async ({ page }) => {
+  test('Login page renders correctly with OAuth button', async ({ page }) => {
     await page.goto(`${BASE_URL}/login`)
 
     // Check page title/heading
@@ -13,9 +13,8 @@ test.describe('Authentication Pages', () => {
     await expect(page.getByLabel(/email/i)).toBeVisible()
     await expect(page.getByRole('textbox', { name: 'Contraseña', exact: true })).toBeVisible()
 
-    // Check OAuth buttons (Google + Facebook)
+    // Check OAuth button
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /continuar con facebook/i })).toBeVisible()
 
     // Check forgot password link
     await expect(page.getByRole('link', { name: /olvidaste tu contraseña/i })).toBeVisible()
@@ -37,7 +36,7 @@ test.describe('Authentication Pages', () => {
     await expect(page.getByText(/email inválido|inválido/i)).toBeVisible({ timeout: 3000 })
   })
 
-  test('Register page renders correctly with OAuth buttons', async ({ page }) => {
+  test('Register page renders correctly with OAuth button', async ({ page }) => {
     await page.goto(`${BASE_URL}/register`)
 
     // Check page heading
@@ -49,9 +48,8 @@ test.describe('Authentication Pages', () => {
     await expect(page.getByRole('textbox', { name: 'Contraseña', exact: true })).toBeVisible()
     await expect(page.getByRole('textbox', { name: /confirmar contraseña/i })).toBeVisible()
 
-    // Check OAuth buttons
+    // Check OAuth button
     await expect(page.getByRole('button', { name: /continuar con google/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /continuar con facebook/i })).toBeVisible()
 
     // Check login link
     await expect(page.getByRole('link', { name: /inicia sesión/i })).toBeVisible()

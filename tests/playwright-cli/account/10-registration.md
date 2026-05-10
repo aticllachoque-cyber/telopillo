@@ -45,7 +45,7 @@ playwright-cli assert [confirmPassword] --visible
 playwright-cli snapshot
 ```
 
-**Expected:** Inputs for fullName, email, password, confirmPassword are present. OAuth buttons (Google, Facebook) exist. "Inicia sesión" link to `/login` is visible.
+**Expected:** Inputs for fullName, email, password, confirmPassword are present. OAuth button de Google visible. "Inicia sesión" link to `/login` is visible.
 
 #### 3. Fill form with valid test data
 
@@ -195,7 +195,7 @@ playwright-cli snapshot
 
 - [ ] Registration page loads at `/register`
 - [ ] Form fields fullName, email, password, confirmPassword are present
-- [ ] OAuth buttons (Google, Facebook) exist
+- [ ] OAuth button de Google visible
 - [ ] "Inicia sesión" link navigates to `/login`
 - [ ] Personal registration succeeds and redirects to home
 - [ ] Header shows user menu after successful registration

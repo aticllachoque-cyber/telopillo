@@ -31,9 +31,7 @@ test.describe('Flow 2.1 - Register Form', () => {
   test('2.1.4-5: OAuth buttons exist and have min-h-[44px]', async ({ page }) => {
     await page.goto('/register')
     const googleBtn = page.getByRole('button', { name: /continuar con google/i })
-    const fbBtn = page.getByRole('button', { name: /continuar con facebook/i })
     await expect(googleBtn).toBeVisible()
-    await expect(fbBtn).toBeVisible()
 
     const heights = await page.evaluate(() => {
       const btns = document.querySelectorAll('button[aria-label*="Continuar"]')
@@ -166,7 +164,7 @@ test.describe('Flow 2.4 - OAuth Buttons Height', () => {
       const btns = document.querySelectorAll('button[aria-label*="Continuar"]')
       return Array.from(btns).map((b) => (b as HTMLElement).offsetHeight)
     })
-    expect(heights.length).toBe(2)
+    expect(heights.length).toBe(1)
     heights.forEach((h) => expect(h).toBeGreaterThanOrEqual(44))
   })
 
@@ -176,7 +174,7 @@ test.describe('Flow 2.4 - OAuth Buttons Height', () => {
       const btns = document.querySelectorAll('button[aria-label*="Continuar"]')
       return Array.from(btns).map((b) => (b as HTMLElement).offsetHeight)
     })
-    expect(heights.length).toBe(2)
+    expect(heights.length).toBe(1)
     heights.forEach((h) => expect(h).toBeGreaterThanOrEqual(44))
   })
 })
