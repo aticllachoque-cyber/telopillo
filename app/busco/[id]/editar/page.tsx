@@ -4,6 +4,11 @@ import { ArrowLeft } from 'lucide-react'
 import { DemandPostForm } from '@/components/demand/DemandPostForm'
 import { createClient } from '@/lib/supabase/server'
 import type { DemandPostInput } from '@/lib/validations/demand'
+import {
+  getDemandEditPath,
+  getDemandPath,
+  resolveUuidFromRouteParam,
+} from '@/lib/utils/publicRoutes'
 
 interface EditDemandPostPageProps {
   params: Promise<{
@@ -13,14 +18,18 @@ interface EditDemandPostPageProps {
 
 export default async function EditDemandPostPage({ params }: EditDemandPostPageProps) {
   const supabase = await createClient()
-  const { id } = await params
+  const { id: routeId } = await params
+  const id = resolveUuidFromRouteParam(routeId)
+  if (!id) {
+    notFound()
+  }
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(`/login?redirect=/busco/${id}/editar`)
+    redirect(`/login?redirect=${encodeURIComponent(getDemandEditPath(routeId))}`)
   }
 
   const { data: post, error } = await supabase
@@ -51,7 +60,7 @@ export default async function EditDemandPostPage({ params }: EditDemandPostPageP
       <div className="container max-w-2xl px-4 sm:px-6">
         <div className="mb-8">
           <Link
-            href={`/busco/${id}`}
+            href={getDemandPath(id)}
             className="mb-4 inline-flex min-h-[44px] touch-manipulation items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />

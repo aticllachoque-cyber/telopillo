@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Loader2, AlertCircle } from 'lucide-react'
+import { getProductPath } from '@/lib/utils/publicRoutes'
 
 interface ProductFormProps {
   userId: string
@@ -112,7 +113,7 @@ export function ProductForm({
         if (insertError) throw insertError
 
         // Redirect to product detail page
-        router.push(`/productos/${product.id}`)
+        router.push(getProductPath(product.id))
       } else if (mode === 'edit' && productId) {
         // Update existing product
         const { error: updateError } = await supabase
@@ -134,7 +135,7 @@ export function ProductForm({
         if (updateError) throw updateError
 
         // Redirect to product detail page
-        router.push(`/productos/${productId}`)
+        router.push(getProductPath(productId))
       }
     } catch (err) {
       console.error('Error saving product:', err)

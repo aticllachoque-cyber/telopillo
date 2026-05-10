@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useSnackbar } from '@/components/ui/snackbar'
 import { Edit, MoreVertical, Loader2, Share2 } from 'lucide-react'
+import { getProductEditPath, getProductPath } from '@/lib/utils/publicRoutes'
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 
@@ -50,13 +51,14 @@ export function ProductActions({
   const { showSnackbar } = useSnackbar()
   const [isProcessing, setIsProcessing] = useState(false)
   const [dialogAction, setDialogAction] = useState<ActionType>(null)
+  const productPath = getProductPath(productId)
 
   const handleEdit = () => {
-    router.push(`/productos/${productId}/editar`)
+    router.push(getProductEditPath(productId))
   }
 
   const handleShareProduct = async () => {
-    const productUrl = `${BASE_URL}/productos/${productId}`
+    const productUrl = `${BASE_URL}${productPath}`
     const shareTitle = productTitle || 'Producto en Telopillo'
     const shareText = `Mira este producto: ${shareTitle}`
 

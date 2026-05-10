@@ -7,6 +7,7 @@ import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
 import type { SearchDemandPost } from '@/types/database'
 import { buildWhatsAppMeUrlWithFallback } from '@/lib/utils/whatsapp'
+import { getDemandPath } from '@/lib/utils/publicRoutes'
 
 interface HomeDemandListItemProps {
   post: SearchDemandPost
@@ -38,6 +39,7 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
   const categoryLabel =
     CATEGORY_LABELS[post.category as keyof typeof CATEGORY_LABELS] || post.category
   const priceRange = formatPriceRange(post.price_min, post.price_max)
+  const demandPath = getDemandPath(post.id)
   const whatsappHref = buildWhatsAppMeUrlWithFallback(
     post.poster_phone,
     `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
@@ -47,7 +49,7 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
     <Card className="border border-border/60 p-4 shadow-md transition-shadow hover:shadow-lg">
       <div className="flex gap-4">
         <Link
-          href={`/busco/${post.id}`}
+          href={demandPath}
           className="group flex min-w-0 flex-1 gap-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={`Ver solicitud: ${post.title}`}
         >

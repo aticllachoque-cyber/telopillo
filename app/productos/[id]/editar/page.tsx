@@ -8,11 +8,17 @@ import type { ProductInput } from '@/lib/validations/product'
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import {
+  getProductEditPath,
+  getProductPath,
+  resolveUuidFromRouteParam,
+} from '@/lib/utils/publicRoutes'
 
 export default function EditProductPage() {
   const router = useRouter()
   const params = useParams()
-  const productId = params.id as string
+  const routeProductId = params.id as string
+  const productId = resolveUuidFromRouteParam(routeProductId)
   const supabase = createClient()
 
   const [isLoading, setIsLoading] = useState(true)
@@ -32,6 +38,11 @@ export default function EditProductPage() {
 
   useEffect(() => {
     document.title = 'Editar Producto - Telopillo'
+    if (!productId) {
+      setError('Producto no encontrado')
+      setIsLoading(false)
+      return
+    }
     loadProductData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId])
@@ -41,6 +52,11 @@ export default function EditProductPage() {
     setError(null)
 
     try {
+      if (!productId) {
+        setError('Producto no encontrado')
+        return
+      }
+
       // Check auth
       const {
         data: { user },
@@ -50,7 +66,7 @@ export default function EditProductPage() {
       if (authError) throw authError
 
       if (!user) {
-        router.push(`/login?redirect=/productos/${productId}/editar`)
+        router.push(`/login?redirect=${encodeURIComponent(getProductEditPath(routeProductId))}`)
         return
       }
 
@@ -127,13 +143,17 @@ export default function EditProductPage() {
     return null
   }
 
+  if (!productId) {
+    return null
+  }
+
   return (
     <div className="min-h-dvh bg-background py-8">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6">
         {/* Header */}
         <div className="mb-6">
           <Link
-            href={`/productos/${productId}`}
+            href={getProductPath(productId)}
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />

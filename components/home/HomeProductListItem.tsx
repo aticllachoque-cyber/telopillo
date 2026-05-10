@@ -7,6 +7,7 @@ import type { HomepagePreviewProduct } from '@/lib/home/getHomepagePreview'
 import { absoluteUrl } from '@/lib/utils'
 import { formatProductLocationDisplay } from '@/lib/validations/product'
 import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
+import { getProductPath } from '@/lib/utils/publicRoutes'
 import {
   buildProductWhatsAppPrefillMessage,
   buildWhatsAppMeUrl,
@@ -21,6 +22,7 @@ interface HomeProductListItemProps {
 export function HomeProductListItem({ product, priority = false }: HomeProductListItemProps) {
   const imageUrl = resolveProductImageUrl(product.images[0])
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
+  const productPath = getProductPath(product.id)
   const sellerContact = resolveSellerWhatsAppDigits(
     product.seller_business_whatsapp,
     product.seller_profile_phone
@@ -32,7 +34,7 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
           buildProductWhatsAppPrefillMessage({
             productTitle: product.title,
             price: product.price,
-            productAbsoluteUrl: absoluteUrl(`/productos/${product.id}`),
+            productAbsoluteUrl: absoluteUrl(productPath),
           })
         )
       : null
@@ -41,7 +43,7 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
     <Card className="overflow-hidden border border-border/60 shadow-md transition-shadow hover:shadow-lg">
       <div className="flex items-stretch gap-0">
         <Link
-          href={`/productos/${product.id}`}
+          href={productPath}
           className="group flex min-w-0 flex-1 items-stretch rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={`Ver ${product.title}`}
         >

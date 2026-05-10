@@ -10,18 +10,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { OwnerListingNotice } from '@/components/products/OwnerListingNotice'
-import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { ArrowLeft, MapPin, Eye, Flag, Calendar, Tag } from 'lucide-react'
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { cn } from '@/lib/utils'
 import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
 import { getCategoryName } from '@/lib/data/categories'
 import { absoluteUrl } from '@/lib/utils'
-import {
-  buildProductWhatsAppPrefillMessage,
-  buildWhatsAppMeUrl,
-  resolveSellerWhatsAppDigits,
-} from '@/lib/utils/whatsapp'
+import { getProductPath, resolveUuidFromRouteParam } from '@/lib/utils/publicRoutes'
+import { resolveSellerWhatsAppDigits } from '@/lib/utils/whatsapp'
 import { resolveProductImageUrl, resolveProductImageUrls } from '@/lib/utils/image'
 
 interface ProductPageProps {
@@ -35,7 +31,13 @@ export const dynamic = 'force-dynamic'
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const { id } = await params
+  const { id: routeId } = await params
+  const id = resolveUuidFromRouteParam(routeId)
+  if (!id) {
+    return {
+      title: 'Producto no encontrado',
+    }
+  }
   const user = await getOptionalUser()
   const supabase = user ? await createClient() : createPublicClient()
 
@@ -64,7 +66,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     title: `${product.title} - Bs ${product.price.toLocaleString('es-BO')} | Telopillo`,
     description: ogDescription,
     alternates: {
-      canonical: `/productos/${id}`,
+      canonical: getProductPath(id),
     },
     openGraph: {
       title: product.title,
@@ -72,7 +74,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       images: [imageUrl],
       type: 'website',
       siteName: 'Telopillo',
-      url: absoluteUrl(`/productos/${id}`),
+      url: absoluteUrl(getProductPath(id)),
     },
     twitter: {
       card: 'summary_large_image',
@@ -84,7 +86,11 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { id } = await params
+  const { id: routeId } = await params
+  const id = resolveUuidFromRouteParam(routeId)
+  if (!id) {
+    notFound()
+  }
   const user = await getOptionalUser()
   const supabase = user ? await createClient() : createPublicClient()
 
@@ -140,23 +146,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     phone: string | null
     verification_level: number
   }
-
-  const sellerContact = resolveSellerWhatsAppDigits(
+  const normalizedSellerContact = resolveSellerWhatsAppDigits(
     businessProfile?.social_whatsapp,
     sellerProfile.phone
-  )
-  const normalizedSellerContact = sellerContact.normalizedDigits
-  const buyerWhatsAppHref =
-    !isOwner && normalizedSellerContact != null
-      ? buildWhatsAppMeUrl(
-          normalizedSellerContact,
-          buildProductWhatsAppPrefillMessage({
-            productTitle: product.title,
-            price: Number(product.price),
-            productAbsoluteUrl: absoluteUrl(`/productos/${id}`),
-          })
-        )
-      : null
+  ).normalizedDigits
+  const productPath = getProductPath(product.id)
 
   const categoryName = getCategoryName(product.category)
   const conditionLabel = CONDITION_LABELS[product.condition as keyof typeof CONDITION_LABELS]
@@ -287,16 +281,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
                 <Separator />
 
-                {/* Actions — WhatsApp matches listing cards; secondary row on narrow screens */}
+                {/* Actions */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-stretch">
-                  {buyerWhatsAppHref && (
-                    <ProductWhatsAppLink
-                      href={buyerWhatsAppHref}
-                      ariaLabel={`Contactar al vendedor por WhatsApp sobre ${product.title}`}
-                      fullWidth={false}
-                      className="w-full shrink-0 sm:w-auto sm:min-w-[12rem]"
-                    />
-                  )}
                   <div className="flex w-full gap-2 sm:w-auto sm:flex-1 sm:justify-start">
                     <ShareButton
                       title={product.title}
@@ -340,7 +326,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     : {
                         imageUrl: productImages[0] ?? null,
                         price: Number(product.price),
-                        productPageUrl: absoluteUrl(`/productos/${id}`),
+                        productPageUrl: absoluteUrl(productPath),
                       }
                 }
               />

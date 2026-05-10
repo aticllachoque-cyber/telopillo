@@ -32,6 +32,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useSnackbar } from '@/components/ui/snackbar'
 import { cn } from '@/lib/utils'
 import { resolveStorageImageUrl } from '@/lib/utils/image'
+import { getProductPath } from '@/lib/utils/publicRoutes'
 import type { FieldErrors } from 'react-hook-form'
 import {
   Loader2,
@@ -225,7 +226,7 @@ export function ProductFormWizard({
         if (insertError) throw insertError
 
         showSnackbar('Producto publicado exitosamente.', { variant: 'success' })
-        router.push(`/productos/${product.id}`)
+        router.push(getProductPath(product.id))
       } else if (mode === 'edit' && productId) {
         const { error: updateError } = await supabase
           .from('products')
@@ -246,7 +247,7 @@ export function ProductFormWizard({
         if (updateError) throw updateError
 
         showSnackbar('Producto actualizado exitosamente.', { variant: 'success' })
-        router.push(`/productos/${productId}`)
+        router.push(getProductPath(productId))
       }
     } catch (err) {
       console.error('Error saving product:', err)

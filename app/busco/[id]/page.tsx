@@ -6,6 +6,7 @@ import { DemandPostDetail } from '@/components/demand/DemandPostDetail'
 import { ArrowLeft } from 'lucide-react'
 import { getCategoryName } from '@/lib/data/categories'
 import { resolveDemandImageUrl } from '@/lib/utils/image'
+import { resolveUuidFromRouteParam } from '@/lib/utils/publicRoutes'
 
 interface DemandPageProps {
   params: Promise<{
@@ -58,7 +59,11 @@ interface RawOffer {
 }
 
 export async function generateMetadata({ params }: DemandPageProps): Promise<Metadata> {
-  const { id } = await params
+  const { id: routeId } = await params
+  const id = resolveUuidFromRouteParam(routeId)
+  if (!id) {
+    return { title: 'Solicitud no encontrada' }
+  }
   const user = await getOptionalUser()
   const supabase = user ? await createClient() : createPublicClient()
 
@@ -91,7 +96,11 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
 }
 
 export default async function DemandPostPage({ params }: DemandPageProps) {
-  const { id } = await params
+  const { id: routeId } = await params
+  const id = resolveUuidFromRouteParam(routeId)
+  if (!id) {
+    notFound()
+  }
   const user = await getOptionalUser()
   const supabase = user ? await createClient() : createPublicClient()
 
@@ -113,7 +122,7 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
 
   const { data: posterBusiness } = await supabase
     .from('business_profiles')
-    .select('business_name, slug')
+    .select('business_name, slug, social_whatsapp')
     .eq('id', post.user_id)
     .maybeSingle()
 

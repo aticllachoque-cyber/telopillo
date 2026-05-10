@@ -31,6 +31,7 @@ import {
   PencilLine,
 } from 'lucide-react'
 import type { DemandPost } from '@/types/database'
+import { getDemandEditPath, getDemandPath } from '@/lib/utils/publicRoutes'
 
 type TabKey = 'active' | 'found' | 'expired'
 
@@ -415,7 +416,7 @@ export default function DemandDashboardPage() {
                             </Badge>
                           </div>
                           <Link
-                            href={`/busco/${post.id}`}
+                            href={getDemandPath(post.id)}
                             className="line-clamp-2 font-medium text-balance hover:text-primary"
                           >
                             {post.title}
@@ -432,7 +433,7 @@ export default function DemandDashboardPage() {
                               asChild
                               className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
                             >
-                              <Link href={`/busco/${post.id}`}>
+                              <Link href={getDemandPath(post.id)}>
                                 <Eye className="h-4 w-4 shrink-0" aria-hidden />
                                 <span>Ver</span>
                               </Link>
@@ -444,7 +445,7 @@ export default function DemandDashboardPage() {
                               asChild
                               className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
                             >
-                              <Link href={`/busco/${post.id}/editar`}>
+                              <Link href={getDemandEditPath(post.id)}>
                                 <PencilLine className="h-4 w-4 shrink-0" aria-hidden />
                                 <span>Editar</span>
                               </Link>

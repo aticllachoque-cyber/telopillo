@@ -19,6 +19,7 @@ import { productPresentation } from '@/lib/constants/productPresentation'
 import { cn } from '@/lib/utils'
 import { ProductWhatsAppLink } from './ProductWhatsAppLink'
 import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
+import { getProductPath } from '@/lib/utils/publicRoutes'
 
 interface ProductCardProps {
   product: {
@@ -79,6 +80,7 @@ export function ProductCard({
   const contactResolution = whatsappContactPhone?.trim()
     ? resolveSellerWhatsAppDigits(whatsappContactPhone, null)
     : resolveProductSearchContactFields(product)
+  const productPath = getProductPath(product.id)
   const whatsappDigits = !showActions ? contactResolution.normalizedDigits : null
   const whatsappHref =
     whatsappDigits != null
@@ -87,7 +89,7 @@ export function ProductCard({
           buildProductWhatsAppPrefillMessage({
             productTitle: product.title,
             price: product.price,
-            productAbsoluteUrl: absoluteUrl(`/productos/${product.id}`),
+            productAbsoluteUrl: absoluteUrl(productPath),
           })
         )
       : null
@@ -110,7 +112,7 @@ export function ProductCard({
         )}
       >
         <Link
-          href={`/productos/${product.id}`}
+          href={productPath}
           className="block absolute inset-0"
           aria-label={`Ver ${product.title}`}
         >
@@ -162,7 +164,7 @@ export function ProductCard({
       {/* Content */}
       <CardContent className={cn(isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4')}>
         <Link
-          href={`/productos/${product.id}`}
+          href={productPath}
           className={cn('block space-y-1 sm:space-y-2', isPreview && 'space-y-1')}
         >
           {/* Title */}
@@ -239,7 +241,7 @@ export function ProductCard({
           <p className="text-xs text-muted-foreground leading-snug" role="status">
             Contacto WhatsApp no disponible (número no válido).{' '}
             <Link
-              href={`/productos/${product.id}`}
+              href={productPath}
               className="text-primary underline-offset-2 hover:underline font-medium"
             >
               Ver publicación

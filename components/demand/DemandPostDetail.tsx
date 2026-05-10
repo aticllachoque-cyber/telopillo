@@ -21,9 +21,10 @@ import {
   shouldBypassNextImageOptimization,
 } from '@/lib/utils/image'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
-import { buildWhatsAppMeUrlWithFallback } from '@/lib/utils/whatsapp'
+import { buildWhatsAppMeUrl, resolveSellerWhatsAppDigits } from '@/lib/utils/whatsapp'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { cn } from '@/lib/utils'
+import { getDemandEditPath, getDemandPath, getProductPath } from '@/lib/utils/publicRoutes'
 import { MapPin, MessageSquare, Calendar, Clock, CheckCircle2, Loader2, User } from 'lucide-react'
 
 interface DemandPostDetailProps {
@@ -54,6 +55,7 @@ interface DemandPostDetailProps {
   posterBusiness: {
     business_name: string
     slug: string
+    social_whatsapp: string | null
   } | null
   offers: OfferRow[]
   currentUserId: string | null
@@ -124,9 +126,15 @@ export function DemandPostDetail({
   const priceRange = formatPriceRange(post.price_min, post.price_max)
   const expiryDays = daysUntilExpiry(post.expires_at)
   const location = `${post.location_city}, ${post.location_department}`
+  const demandPath = getDemandPath(post.id)
+  const demandEditPath = getDemandEditPath(post.id)
 
   const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
-  const whatsappHref = buildWhatsAppMeUrlWithFallback(poster?.phone, whatsappMessage)
+  const posterContact = resolveSellerWhatsAppDigits(posterBusiness?.social_whatsapp, poster?.phone)
+  const whatsappHref =
+    posterContact.normalizedDigits != null
+      ? buildWhatsAppMeUrl(posterContact.normalizedDigits, whatsappMessage)
+      : null
 
   const handleMarkFound = async () => {
     setIsMarkingFound(true)
@@ -242,7 +250,7 @@ export function DemandPostDetail({
                 <Separator />
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button asChild variant="outline" className="min-h-[44px]">
-                    <Link href={`/busco/${post.id}/editar`}>Editar solicitud</Link>
+                    <Link href={demandEditPath}>Editar solicitud</Link>
                   </Button>
                   <Button
                     onClick={handleMarkFound}
@@ -368,7 +376,9 @@ export function DemandPostDetail({
                 ¿Tienes lo que esta persona busca?
               </p>
               <Button asChild className="w-full min-h-[44px]">
-                <Link href={`/login?redirect=/busco/${post.id}`}>Inicia sesión para ofrecer</Link>
+                <Link href={`/login?redirect=${encodeURIComponent(demandPath)}`}>
+                  Inicia sesión para ofrecer
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -435,7 +445,7 @@ function OfferCard({ offer }: { offer: OfferRow }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <Link
-                href={`/productos/${product.id}`}
+                href={getProductPath(product.id)}
                 className="font-medium hover:text-primary truncate"
               >
                 {product.title}

@@ -38,6 +38,7 @@ import {
 import { cn } from '@/lib/utils'
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
+import { getDemandPath } from '@/lib/utils/publicRoutes'
 
 interface DemandPostFormProps {
   userId: string
@@ -238,7 +239,7 @@ export function DemandPostForm({
         }
       }
 
-      router.push(`/busco/${post.id}`)
+      router.push(getDemandPath(post.id))
     } catch (error) {
       console.error('Error creating demand post:', error)
       setSubmitError(
