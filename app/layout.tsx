@@ -5,6 +5,8 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { SnackbarProvider } from '@/components/providers/SnackbarProvider'
 import { AuthProvider } from '@/components/providers/AuthProvider'
+import { NetworkStatusProvider } from '@/components/providers/NetworkStatusProvider'
+import { NetworkStatusBanner } from '@/components/network/NetworkStatusBanner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -59,21 +61,24 @@ export default function RootLayout({
     <html lang="es">
       <body className={inter.className}>
         <SnackbarProvider>
-          <AuthProvider>
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              Saltar al contenido principal
-            </a>
-            <div className="flex min-h-dvh flex-col">
-              <Header />
-              <main id="main-content" className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-          </AuthProvider>
+          <NetworkStatusProvider>
+            <AuthProvider>
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                Saltar al contenido principal
+              </a>
+              <div className="flex min-h-dvh flex-col">
+                <Header />
+                <NetworkStatusBanner />
+                <main id="main-content" className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </AuthProvider>
+          </NetworkStatusProvider>
         </SnackbarProvider>
       </body>
     </html>

@@ -27,6 +27,7 @@ import { LocationSelector } from '@/components/profile/LocationSelector'
 import { BusinessHoursEditor } from '@/components/profile/BusinessHoursEditor'
 import { useSnackbar } from '@/components/ui/snackbar'
 import { getAvatarColor } from '@/lib/utils'
+import { clearDraft, loadDraft, saveDraft } from '@/lib/offline/drafts'
 import {
   isHeicLikeImage,
   resolveBusinessLogoUrl,
@@ -39,6 +40,30 @@ interface BusinessProfileFormProps {
   onSaved?: () => void
 }
 
+const BUSINESS_PROFILE_DRAFT_VERSION = 1
+
+type BusinessHours = Record<string, string>
+
+interface BusinessProfileDraftData {
+  values: Partial<BusinessProfileInput>
+  businessHours: BusinessHours
+}
+
+const INITIAL_FORM_VALUES: Partial<BusinessProfileInput> = {
+  business_name: '',
+  business_description: '',
+  business_category: '',
+  nit: '',
+  website_url: '',
+  social_facebook: '',
+  social_instagram: '',
+  social_tiktok: '',
+  social_whatsapp: '',
+  business_address: '',
+  business_department: '',
+  business_city: '',
+}
+
 export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
@@ -46,24 +71,41 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [logoBusyMessage, setLogoBusyMessage] = useState<string | null>(null)
-  const [businessHours, setBusinessHours] = useState<Record<string, string>>({})
+  const [businessHours, setBusinessHours] = useState<BusinessHours>({})
   const [hasExistingProfile, setHasExistingProfile] = useState(false)
+  const [loadedDefaults, setLoadedDefaults] =
+    useState<Partial<BusinessProfileInput>>(INITIAL_FORM_VALUES)
+  const [loadedBusinessHours, setLoadedBusinessHours] = useState<BusinessHours>({})
+  const [draftStatus, setDraftStatus] = useState<'idle' | 'saved' | 'restored' | 'error'>('idle')
+  const [draftUpdatedAt, setDraftUpdatedAt] = useState<string | null>(null)
+  const [pendingDraft, setPendingDraft] = useState<BusinessProfileDraftData | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const hydrateCompleteRef = useRef(false)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastSavedSnapshotRef = useRef<string | null>(null)
   const supabase = createClient()
   const { showSnackbar } = useSnackbar()
+  const draftKey = `draft:business-profile:${userId}`
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<BusinessProfileInput>({
     resolver: zodResolver(businessProfileSchema),
+    defaultValues: INITIAL_FORM_VALUES,
   })
 
+  const watchAll = watch()
   const department = watch('business_department')
   const city = watch('business_city')
+  const draftBaselineSnapshot = JSON.stringify({
+    values: loadedDefaults,
+    businessHours: loadedBusinessHours,
+  })
 
   useEffect(() => {
     loadBusinessProfile()
@@ -72,6 +114,8 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
 
   const loadBusinessProfile = async () => {
     try {
+      let nextDefaults: Partial<BusinessProfileInput> = INITIAL_FORM_VALUES
+      let nextHours: BusinessHours = {}
       const { data, error } = await supabase
         .from('business_profiles')
         .select('*')
@@ -82,29 +126,107 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
 
       if (data) {
         setHasExistingProfile(true)
-        setValue('business_name', data.business_name || '')
-        setValue('business_description', data.business_description || '')
-        setValue('business_category', data.business_category || '')
-        setValue('nit', data.nit || '')
-        setValue('website_url', data.website_url || '')
-        setValue('social_facebook', data.social_facebook || '')
-        setValue('social_instagram', data.social_instagram || '')
-        setValue('social_tiktok', data.social_tiktok || '')
-        setValue('social_whatsapp', data.social_whatsapp || '')
-        setValue('business_address', data.business_address || '')
-        setValue('business_department', data.business_department || '')
-        setValue('business_city', data.business_city || '')
+        nextDefaults = {
+          business_name: data.business_name || '',
+          business_description: data.business_description || '',
+          business_category: data.business_category || '',
+          nit: data.nit || '',
+          website_url: data.website_url || '',
+          social_facebook: data.social_facebook || '',
+          social_instagram: data.social_instagram || '',
+          social_tiktok: data.social_tiktok || '',
+          social_whatsapp: data.social_whatsapp || '',
+          business_address: data.business_address || '',
+          business_department: data.business_department || '',
+          business_city: data.business_city || '',
+        }
         setLogoUrl(resolveBusinessLogoUrl(data.business_logo_url))
         if (data.business_hours && typeof data.business_hours === 'object') {
-          setBusinessHours(data.business_hours as Record<string, string>)
+          nextHours = data.business_hours as BusinessHours
         }
       }
+
+      setLoadedDefaults(nextDefaults)
+      setLoadedBusinessHours(nextHours)
+      reset(nextDefaults)
+      setBusinessHours(nextHours)
     } catch (err) {
       console.error('Error loading business profile:', err)
     } finally {
       setIsLoadingProfile(false)
     }
   }
+
+  useEffect(() => {
+    if (isLoadingProfile) return
+
+    const draft = loadDraft<BusinessProfileDraftData>(draftKey, BUSINESS_PROFILE_DRAFT_VERSION)
+    const snapshot = draft ? JSON.stringify(draft.data) : null
+
+    if (!draft || !snapshot || snapshot === draftBaselineSnapshot) {
+      if (snapshot === draftBaselineSnapshot) {
+        clearDraft(draftKey)
+      }
+      hydrateCompleteRef.current = true
+      lastSavedSnapshotRef.current = draftBaselineSnapshot
+      return
+    }
+
+    setPendingDraft(draft.data)
+    setDraftUpdatedAt(draft.updatedAt)
+    lastSavedSnapshotRef.current = snapshot
+    hydrateCompleteRef.current = true
+  }, [draftBaselineSnapshot, draftKey, isLoadingProfile])
+
+  useEffect(() => {
+    if (isLoadingProfile || !hydrateCompleteRef.current || pendingDraft) return
+
+    const snapshot = JSON.stringify({
+      values: watchAll,
+      businessHours,
+    })
+
+    if (snapshot === draftBaselineSnapshot) {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      clearDraft(draftKey)
+      lastSavedSnapshotRef.current = draftBaselineSnapshot
+      setDraftStatus('idle')
+      setDraftUpdatedAt(null)
+      return
+    }
+
+    if (snapshot === lastSavedSnapshotRef.current) return
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      const saved = saveDraft<BusinessProfileDraftData>(
+        draftKey,
+        {
+          values: watchAll,
+          businessHours,
+        },
+        BUSINESS_PROFILE_DRAFT_VERSION
+      )
+
+      if (saved) {
+        lastSavedSnapshotRef.current = snapshot
+        setDraftUpdatedAt(new Date().toISOString())
+        setDraftStatus('saved')
+      } else {
+        setDraftStatus('error')
+      }
+    }, 800)
+
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [businessHours, draftBaselineSnapshot, draftKey, isLoadingProfile, pendingDraft, watchAll])
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [])
 
   const handleLogoSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -199,6 +321,24 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
         setHasExistingProfile(true)
       }
 
+      clearDraft(draftKey)
+      setLoadedDefaults({
+        business_name: data.business_name,
+        business_description: data.business_description || '',
+        business_category: data.business_category || '',
+        nit: data.nit || '',
+        website_url: data.website_url || '',
+        social_facebook: data.social_facebook || '',
+        social_instagram: data.social_instagram || '',
+        social_tiktok: data.social_tiktok || '',
+        social_whatsapp: data.social_whatsapp || '',
+        business_address: data.business_address || '',
+        business_department: data.business_department || '',
+        business_city: data.business_city || '',
+      })
+      setLoadedBusinessHours(Object.keys(businessHours).length > 0 ? businessHours : {})
+      setDraftStatus('idle')
+      setDraftUpdatedAt(null)
       showSnackbar('Perfil de negocio guardado exitosamente.', { variant: 'success' })
       onSaved?.()
     } catch (err) {
@@ -208,6 +348,28 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const handleRestoreDraft = () => {
+    if (!pendingDraft) return
+
+    reset({
+      ...loadedDefaults,
+      ...pendingDraft.values,
+    })
+    setBusinessHours(pendingDraft.businessHours || {})
+    setDraftStatus('restored')
+    showSnackbar('Borrador recuperado.', { variant: 'success' })
+    setPendingDraft(null)
+  }
+
+  const handleDiscardDraft = () => {
+    clearDraft(draftKey)
+    setPendingDraft(null)
+    setDraftStatus('idle')
+    setDraftUpdatedAt(null)
+    lastSavedSnapshotRef.current = draftBaselineSnapshot
+    showSnackbar('Borrador descartado.', { variant: 'success' })
   }
 
   if (isLoadingProfile) {
@@ -221,6 +383,38 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {pendingDraft && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="font-medium text-foreground">Encontramos un borrador guardado</p>
+              <p className="text-sm text-muted-foreground">
+                {draftUpdatedAt
+                  ? `Guardado por última vez el ${new Date(draftUpdatedAt).toLocaleString('es-BO')}.`
+                  : 'Podés restaurarlo o descartarlo.'}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button type="button" variant="outline" onClick={handleDiscardDraft}>
+                Descartar
+              </Button>
+              <Button type="button" onClick={handleRestoreDraft}>
+                Restaurar borrador
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!pendingDraft && draftStatus !== 'idle' && (
+        <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          {draftStatus === 'saved' && 'Borrador guardado localmente.'}
+          {draftStatus === 'restored' && 'Estás trabajando sobre un borrador recuperado.'}
+          {draftStatus === 'error' &&
+            'No pudimos guardar el borrador localmente en este dispositivo.'}
+        </div>
+      )}
+
       {/* Logo */}
       <div className="space-y-3">
         <Label>Logo del Negocio</Label>
