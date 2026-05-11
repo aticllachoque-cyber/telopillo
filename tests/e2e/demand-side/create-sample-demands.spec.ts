@@ -65,7 +65,7 @@ async function login(page: import('@playwright/test').Page) {
   await page.goto(`${BASE_URL}/login`)
   await page.waitForLoadState('networkidle')
   await page.getByLabel(/email/i).fill(EMAIL)
-  await page.getByLabel(/contraseña/i).fill(PASSWORD)
+  await page.locator('#password').fill(PASSWORD)
   await page.locator('#main-content button[type="submit"]').click()
   await expect(page).not.toHaveURL(/\/login/, { timeout: 15000 })
 }

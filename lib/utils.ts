@@ -39,6 +39,41 @@ export function getAuthErrorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
+/**
+ * Maps common Supabase/PostgREST/storage errors to clearer Spanish messages.
+ * Falls back to the raw error message when available so production issues stay diagnosable.
+ */
+export function getSupabaseErrorMessage(error: unknown, fallback: string): string {
+  const message = error instanceof Error ? error.message : String(error ?? '')
+  const lower = message.toLowerCase()
+
+  if (!message || message === 'undefined') return fallback
+
+  if (lower.includes('bucket not found')) {
+    return 'Falta configurar el bucket de Storage en Supabase para este flujo.'
+  }
+
+  if (
+    lower.includes('violates foreign key constraint') &&
+    (lower.includes('products_user_id_fkey') || lower.includes('demand_posts_user_id_fkey'))
+  ) {
+    return 'Tu perfil de usuario no está completo en la base de datos. Volvé a iniciar sesión o creá tu perfil antes de publicar.'
+  }
+
+  if (
+    lower.includes('row-level security') ||
+    lower.includes('new row violates row-level security policy')
+  ) {
+    return 'Tu sesión no tiene permisos para publicar. Cerrá sesión y volvé a ingresar.'
+  }
+
+  if (lower.includes('jwt') || lower.includes('auth session missing')) {
+    return 'Tu sesión expiró. Volvé a iniciar sesión e intentá de nuevo.'
+  }
+
+  return message
+}
+
 /** True for cancelled fetches / lock signals (Strict Mode, navigation, lock timeout). */
 export function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === 'AbortError'
