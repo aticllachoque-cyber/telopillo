@@ -52,19 +52,41 @@ export function BusinessHoursEditor({
   onChange,
   disabled = false,
 }: BusinessHoursEditorProps) {
-  const [hours, setHours] = useState<Record<string, DayHours>>(() => {
+  const buildHoursState = useCallback((nextValue: BusinessHours | null | undefined) => {
     const initial: Record<string, DayHours> = {}
     for (const day of BUSINESS_DAYS) {
-      initial[day.key] = parseHours(value?.[day.key])
+      initial[day.key] = parseHours(nextValue?.[day.key])
     }
     return initial
+  }, [])
+
+  const [hours, setHours] = useState<Record<string, DayHours>>(() => {
+    return buildHoursState(value)
   })
 
   const isInitialMount = useRef(true)
+  const syncingFromPropRef = useRef(false)
+
+  useEffect(() => {
+    const nextHours = buildHoursState(value)
+    setHours((currentHours) => {
+      const currentSerialized = JSON.stringify(serializeHours(currentHours))
+      const nextSerialized = JSON.stringify(serializeHours(nextHours))
+
+      if (currentSerialized === nextSerialized) return currentHours
+
+      syncingFromPropRef.current = true
+      return nextHours
+    })
+  }, [buildHoursState, value])
 
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false
+      return
+    }
+    if (syncingFromPropRef.current) {
+      syncingFromPropRef.current = false
       return
     }
     onChange(serializeHours(hours))

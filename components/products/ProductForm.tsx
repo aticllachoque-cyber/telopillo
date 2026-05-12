@@ -30,6 +30,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { getProductPath } from '@/lib/utils/publicRoutes'
+import { getSupabaseErrorMessage } from '@/lib/utils'
 
 interface ProductFormProps {
   userId: string
@@ -50,6 +51,11 @@ export function ProductForm({
   const [error, setError] = useState<string | null>(null)
   const [subcategories, setSubcategories] = useState<string[]>([])
 
+  const formDefaultValues: Partial<ProductInput> = {
+    ...defaultValues,
+    images: defaultValues?.images ?? [],
+  }
+
   const {
     register,
     handleSubmit,
@@ -58,9 +64,7 @@ export function ProductForm({
     formState: { errors },
   } = useForm<ProductInput>({
     resolver: zodResolver(productSchema),
-    defaultValues: defaultValues || {
-      images: [],
-    },
+    defaultValues: formDefaultValues,
   })
 
   // Watch category to update subcategories
@@ -139,7 +143,7 @@ export function ProductForm({
       }
     } catch (err) {
       console.error('Error saving product:', err)
-      setError(err instanceof Error ? err.message : 'Error al guardar el producto')
+      setError(getSupabaseErrorMessage(err, 'Error al guardar el producto'))
     } finally {
       setIsSubmitting(false)
     }

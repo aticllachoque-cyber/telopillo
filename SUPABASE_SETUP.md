@@ -88,6 +88,13 @@ In your Supabase Dashboard:
 - **Allowed MIME types:** `image/jpeg,image/png,image/webp`
 - Click **"Create bucket"**
 
+### Create "demand-images" bucket:
+- **Name:** `demand-images`
+- **Public bucket:** ✅ Yes
+- **File size limit:** 5 MB
+- **Allowed MIME types:** `image/jpeg,image/png,image/webp`
+- Click **"Create bucket"**
+
 ## Step 6: Configure Authentication
 
 In your Supabase Dashboard:
@@ -149,6 +156,7 @@ Once you've updated `.env.local` with your credentials:
 
 ### "Storage upload failed"
 - ✅ Make sure the `product-images` bucket exists
+- ✅ Make sure the `demand-images` bucket exists if you use `/busco/publicar`
 - ✅ Verify the bucket is set to **public**
 - ✅ Check bucket policies allow uploads
 

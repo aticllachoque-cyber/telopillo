@@ -1,21 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
 import { removeStorageImageByPublicUrl, resolveDemandImageUrl } from '@/lib/utils/image'
 import { demandPostSchema, type DemandPostInput } from '@/lib/validations/demand'
-import { CATEGORIES, getSubcategories } from '@/lib/data/categories'
+import { getSubcategories } from '@/lib/data/categories'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
 import { LocationSelector } from '@/components/profile/LocationSelector'
 import { DemandImageUpload } from '@/components/demand/DemandImageUpload'
 import { DemandImageFrame } from '@/components/demand/DemandImageFrame'
+import { CategoryGrid } from '@/components/products/CategoryGrid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useSnackbar } from '@/components/ui/snackbar'
 import {
   Select,
   SelectContent,
@@ -36,9 +38,11 @@ import {
   Search,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getSupabaseErrorMessage } from '@/lib/utils'
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
 import { getDemandPath } from '@/lib/utils/publicRoutes'
+import { clearDraft, loadDraft, saveDraft } from '@/lib/offline/drafts'
 
 interface DemandPostFormProps {
   userId: string
@@ -61,6 +65,13 @@ const STEP_FIELDS: Record<number, (keyof DemandPostInput)[]> = {
   4: [],
 }
 
+const DEMAND_FORM_DRAFT_VERSION = 1
+
+interface DemandPostFormDraftData {
+  currentStep: number
+  values: Partial<DemandPostInput>
+}
+
 function formatPriceRange(
   min: number | null | undefined,
   max: number | null | undefined
@@ -80,10 +91,30 @@ export function DemandPostForm({
 }: DemandPostFormProps) {
   const router = useRouter()
   const supabase = createClient()
+  const { showSnackbar } = useSnackbar()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState(1)
   const [subcategories, setSubcategories] = useState<string[]>([])
+  const [draftStatus, setDraftStatus] = useState<'idle' | 'saved' | 'restored' | 'error'>('idle')
+  const [draftUpdatedAt, setDraftUpdatedAt] = useState<string | null>(null)
+  const [pendingDraft, setPendingDraft] = useState<DemandPostFormDraftData | null>(null)
+  const formDefaultValues: Partial<DemandPostInput> = defaultValues || {
+    title: '',
+    description: '',
+    category: undefined,
+    subcategory: undefined,
+    location_department: undefined,
+    location_city: '',
+    price_min: undefined,
+    price_max: undefined,
+    image_url: null,
+  }
+  const draftKey =
+    mode === 'create' ? `draft:demand:create:${userId}` : `draft:demand:edit:${demandPostId}`
+  const hydrateCompleteRef = useRef(false)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastSavedSnapshotRef = useRef<string | null>(null)
 
   const {
     register,
@@ -91,21 +122,12 @@ export function DemandPostForm({
     setValue,
     watch,
     trigger,
+    reset,
     formState: { errors },
   } = useForm<DemandPostInput>({
     resolver: zodResolver(demandPostSchema),
     mode: 'onTouched',
-    defaultValues: defaultValues || {
-      title: '',
-      description: '',
-      category: undefined,
-      subcategory: undefined,
-      location_department: undefined,
-      location_city: '',
-      price_min: undefined,
-      price_max: undefined,
-      image_url: null,
-    },
+    defaultValues: formDefaultValues,
   })
 
   const selectedCategory = watch('category')
@@ -118,6 +140,10 @@ export function DemandPostForm({
     ? CATEGORY_LABELS[selectedCategory as keyof typeof CATEGORY_LABELS] || selectedCategory
     : null
   const priceRange = formatPriceRange(watchAll.price_min, watchAll.price_max)
+  const draftBaselineSnapshot = JSON.stringify({
+    currentStep: 1,
+    values: formDefaultValues,
+  })
 
   useEffect(() => {
     if (selectedCategory) {
@@ -133,10 +159,91 @@ export function DemandPostForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory])
 
+  useEffect(() => {
+    const draft = loadDraft<DemandPostFormDraftData>(draftKey, DEMAND_FORM_DRAFT_VERSION)
+    const snapshot = draft ? JSON.stringify(draft.data) : null
+
+    if (!draft || !snapshot || snapshot === draftBaselineSnapshot) {
+      if (snapshot === draftBaselineSnapshot) {
+        clearDraft(draftKey)
+      }
+      hydrateCompleteRef.current = true
+      lastSavedSnapshotRef.current = draftBaselineSnapshot
+      return
+    }
+
+    setPendingDraft(draft.data)
+    setDraftUpdatedAt(draft.updatedAt)
+    lastSavedSnapshotRef.current = snapshot
+    hydrateCompleteRef.current = true
+  }, [draftBaselineSnapshot, draftKey])
+
+  useEffect(() => {
+    if (!hydrateCompleteRef.current || pendingDraft) return
+
+    const snapshot = JSON.stringify({
+      currentStep,
+      values: watchAll,
+    })
+
+    if (snapshot === draftBaselineSnapshot) {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      clearDraft(draftKey)
+      lastSavedSnapshotRef.current = draftBaselineSnapshot
+      setDraftStatus('idle')
+      setDraftUpdatedAt(null)
+      return
+    }
+
+    if (snapshot === lastSavedSnapshotRef.current) return
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      const saved = saveDraft<DemandPostFormDraftData>(
+        draftKey,
+        {
+          currentStep,
+          values: watchAll,
+        },
+        DEMAND_FORM_DRAFT_VERSION
+      )
+
+      if (saved) {
+        lastSavedSnapshotRef.current = snapshot
+        setDraftUpdatedAt(new Date().toISOString())
+        setDraftStatus('saved')
+      } else {
+        setDraftStatus('error')
+      }
+    }, 800)
+
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [currentStep, draftBaselineSnapshot, draftKey, pendingDraft, watchAll])
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [])
+
   const focusFirstInvalidField = () => {
     requestAnimationFrame(() => {
       const firstError = document.querySelector<HTMLElement>('[aria-invalid="true"]')
       if (firstError) {
+        if (firstError.getAttribute('role') === 'radiogroup') {
+          const firstRadio =
+            firstError.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]') ??
+            firstError.querySelector<HTMLElement>('[role="radio"]')
+
+          if (firstRadio) {
+            firstRadio.focus()
+            firstRadio.scrollIntoView({ block: 'center', behavior: 'smooth' })
+            return
+          }
+        }
+
         firstError.focus()
         firstError.scrollIntoView({ block: 'center', behavior: 'smooth' })
       }
@@ -239,21 +346,80 @@ export function DemandPostForm({
         }
       }
 
+      clearDraft(draftKey)
       router.push(getDemandPath(post.id))
     } catch (error) {
       console.error('Error creating demand post:', error)
       setSubmitError(
-        mode === 'create'
-          ? 'No se pudo publicar tu solicitud. Intentá de nuevo.'
-          : 'No se pudieron guardar los cambios. Intentá de nuevo.'
+        getSupabaseErrorMessage(
+          error,
+          mode === 'create'
+            ? 'No se pudo publicar tu solicitud. Intentá de nuevo.'
+            : 'No se pudieron guardar los cambios. Intentá de nuevo.'
+        )
       )
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const handleRestoreDraft = () => {
+    if (!pendingDraft) return
+
+    reset({
+      ...formDefaultValues,
+      ...pendingDraft.values,
+      image_url: pendingDraft.values.image_url ?? formDefaultValues.image_url ?? null,
+    })
+    setCurrentStep(Math.min(Math.max(pendingDraft.currentStep || 1, 1), STEPS.length))
+    setDraftStatus('restored')
+    showSnackbar('Borrador recuperado.', { variant: 'success' })
+    setPendingDraft(null)
+  }
+
+  const handleDiscardDraft = () => {
+    clearDraft(draftKey)
+    setPendingDraft(null)
+    setDraftStatus('idle')
+    setDraftUpdatedAt(null)
+    lastSavedSnapshotRef.current = draftBaselineSnapshot
+    showSnackbar('Borrador descartado.', { variant: 'success' })
+  }
+
   return (
     <div className="space-y-8">
+      {pendingDraft && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="font-medium text-foreground">Encontramos un borrador guardado</p>
+              <p className="text-sm text-muted-foreground">
+                {draftUpdatedAt
+                  ? `Guardado por última vez el ${new Date(draftUpdatedAt).toLocaleString('es-BO')}.`
+                  : 'Podés restaurarlo o descartarlo.'}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button type="button" variant="outline" onClick={handleDiscardDraft}>
+                Descartar
+              </Button>
+              <Button type="button" onClick={handleRestoreDraft}>
+                Restaurar borrador
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!pendingDraft && draftStatus !== 'idle' && (
+        <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          {draftStatus === 'saved' && 'Borrador guardado localmente.'}
+          {draftStatus === 'restored' && 'Estás trabajando sobre un borrador recuperado.'}
+          {draftStatus === 'error' &&
+            'No pudimos guardar el borrador localmente en este dispositivo.'}
+        </div>
+      )}
+
       <nav aria-label="Progreso del formulario">
         <ol className="hidden sm:flex items-center w-full">
           {STEPS.map((step, index) => {
@@ -397,37 +563,22 @@ export function DemandPostForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">
+              <Label>
                 Categoría <span className="text-destructive">*</span>
               </Label>
               <p className="text-xs text-muted-foreground sm:hidden">
                 Elegí la categoría principal de lo que buscás.
               </p>
-              <Select
-                value={selectedCategory || ''}
-                onValueChange={(val) => {
+              <CategoryGrid
+                value={selectedCategory}
+                onChange={(val) => {
                   setValue('category', val as DemandPostInput['category'], {
                     shouldValidate: true,
                   })
                   setValue('subcategory', undefined)
                 }}
-              >
-                <SelectTrigger
-                  id="category"
-                  className="min-h-[44px]"
-                  aria-invalid={errors.category ? 'true' : 'false'}
-                  aria-describedby={errors.category ? 'category-error' : 'category-help'}
-                >
-                  <SelectValue placeholder="Elegí una categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {CATEGORY_LABELS[cat.id as keyof typeof CATEGORY_LABELS] || cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                error={!!errors.category}
+              />
               {!errors.category && (
                 <p id="category-help" className="text-xs text-muted-foreground">
                   Si no ves una categoría perfecta, elige la más cercana y acláralo en la

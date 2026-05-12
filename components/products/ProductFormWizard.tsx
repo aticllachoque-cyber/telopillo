@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,9 +30,10 @@ import {
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useSnackbar } from '@/components/ui/snackbar'
-import { cn } from '@/lib/utils'
+import { cn, getSupabaseErrorMessage } from '@/lib/utils'
 import { resolveStorageImageUrl } from '@/lib/utils/image'
 import { getProductPath } from '@/lib/utils/publicRoutes'
+import { clearDraft, loadDraft, saveDraft } from '@/lib/offline/drafts'
 import type { FieldErrors } from 'react-hook-form'
 import {
   Loader2,
@@ -70,6 +71,13 @@ const STEP_FIELDS: Record<number, (keyof ProductInput)[]> = {
   4: [],
 }
 
+const PRODUCT_FORM_DRAFT_VERSION = 1
+
+interface ProductFormDraftData {
+  currentStep: number
+  values: Partial<ProductInput>
+}
+
 export function ProductFormWizard({
   userId,
   defaultValues,
@@ -83,6 +91,19 @@ export function ProductFormWizard({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [subcategories, setSubcategories] = useState<string[]>([])
+  const [draftStatus, setDraftStatus] = useState<'idle' | 'saved' | 'restored' | 'error'>('idle')
+  const [draftUpdatedAt, setDraftUpdatedAt] = useState<string | null>(null)
+  const [pendingDraft, setPendingDraft] = useState<ProductFormDraftData | null>(null)
+
+  const formDefaultValues: Partial<ProductInput> = {
+    ...defaultValues,
+    images: defaultValues?.images ?? [],
+  }
+  const draftKey =
+    mode === 'create' ? `draft:product:create:${userId}` : `draft:product:edit:${productId}`
+  const hydrateCompleteRef = useRef(false)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastSavedSnapshotRef = useRef<string | null>(null)
 
   const {
     register,
@@ -90,12 +111,11 @@ export function ProductFormWizard({
     watch,
     setValue,
     trigger,
+    reset,
     formState: { errors },
   } = useForm<ProductInput>({
     resolver: zodResolver(productSchema),
-    defaultValues: defaultValues || {
-      images: [],
-    },
+    defaultValues: formDefaultValues,
     mode: 'onTouched',
   })
 
@@ -107,6 +127,10 @@ export function ProductFormWizard({
   const title = watch('title')
   const description = watch('description')
   const previewImageUrl = resolveStorageImageUrl('product-images', watchAll.images?.[0])
+  const draftBaselineSnapshot = JSON.stringify({
+    currentStep: 1,
+    values: formDefaultValues,
+  })
 
   // Update subcategories when category changes
   useEffect(() => {
@@ -122,6 +146,76 @@ export function ProductFormWizard({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory])
+
+  useEffect(() => {
+    const draft = loadDraft<ProductFormDraftData>(draftKey, PRODUCT_FORM_DRAFT_VERSION)
+    const snapshot = draft ? JSON.stringify(draft.data) : null
+
+    if (!draft || !snapshot || snapshot === draftBaselineSnapshot) {
+      if (snapshot === draftBaselineSnapshot) {
+        clearDraft(draftKey)
+      }
+      hydrateCompleteRef.current = true
+      lastSavedSnapshotRef.current = draftBaselineSnapshot
+      return
+    }
+
+    setPendingDraft(draft.data)
+    setDraftUpdatedAt(draft.updatedAt)
+    lastSavedSnapshotRef.current = snapshot
+    hydrateCompleteRef.current = true
+  }, [draftBaselineSnapshot, draftKey])
+
+  useEffect(() => {
+    if (!hydrateCompleteRef.current || pendingDraft) return
+
+    const snapshot = JSON.stringify({
+      currentStep,
+      values: watchAll,
+    })
+
+    if (snapshot === draftBaselineSnapshot) {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      clearDraft(draftKey)
+      lastSavedSnapshotRef.current = draftBaselineSnapshot
+      setDraftStatus('idle')
+      setDraftUpdatedAt(null)
+      return
+    }
+
+    if (snapshot === lastSavedSnapshotRef.current) return
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      const saved = saveDraft<ProductFormDraftData>(
+        draftKey,
+        {
+          currentStep,
+          values: watchAll,
+        },
+        PRODUCT_FORM_DRAFT_VERSION
+      )
+
+      if (saved) {
+        lastSavedSnapshotRef.current = snapshot
+        const now = new Date().toISOString()
+        setDraftUpdatedAt(now)
+        setDraftStatus('saved')
+      } else {
+        setDraftStatus('error')
+      }
+    }, 800)
+
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [currentStep, draftBaselineSnapshot, draftKey, pendingDraft, watchAll])
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [])
 
   // Focus the first invalid field after failed validation
   const focusFirstInvalidField = () => {
@@ -225,6 +319,7 @@ export function ProductFormWizard({
 
         if (insertError) throw insertError
 
+        clearDraft(draftKey)
         showSnackbar('Producto publicado exitosamente.', { variant: 'success' })
         router.push(getProductPath(product.id))
       } else if (mode === 'edit' && productId) {
@@ -246,14 +341,15 @@ export function ProductFormWizard({
 
         if (updateError) throw updateError
 
+        clearDraft(draftKey)
         showSnackbar('Producto actualizado exitosamente.', { variant: 'success' })
         router.push(getProductPath(productId))
       }
     } catch (err) {
       console.error('Error saving product:', err)
-      const errorMsg = err instanceof Error ? err.message : 'Error al guardar el producto'
+      const errorMsg = getSupabaseErrorMessage(err, 'Error al guardar el producto')
       setError(errorMsg)
-      showSnackbar('Error al guardar el producto', { variant: 'error' })
+      showSnackbar(errorMsg, { variant: 'error' })
       requestAnimationFrame(() => {
         document.querySelector<HTMLElement>('[role="alert"]')?.focus()
       })
@@ -268,8 +364,63 @@ export function ProductFormWizard({
     return cat?.name || id
   }
 
+  const handleRestoreDraft = () => {
+    if (!pendingDraft) return
+
+    reset({
+      ...formDefaultValues,
+      ...pendingDraft.values,
+      images: pendingDraft.values.images ?? formDefaultValues.images ?? [],
+    })
+    setCurrentStep(Math.min(Math.max(pendingDraft.currentStep || 1, 1), STEPS.length))
+    setDraftStatus('restored')
+    showSnackbar('Borrador recuperado.', { variant: 'success' })
+    setPendingDraft(null)
+  }
+
+  const handleDiscardDraft = () => {
+    clearDraft(draftKey)
+    setPendingDraft(null)
+    setDraftStatus('idle')
+    setDraftUpdatedAt(null)
+    lastSavedSnapshotRef.current = draftBaselineSnapshot
+    showSnackbar('Borrador descartado.', { variant: 'success' })
+  }
+
   return (
     <div className="space-y-8">
+      {pendingDraft && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="font-medium text-foreground">Encontramos un borrador guardado</p>
+              <p className="text-sm text-muted-foreground">
+                {draftUpdatedAt
+                  ? `Guardado por última vez el ${new Date(draftUpdatedAt).toLocaleString('es-BO')}.`
+                  : 'Podés restaurarlo o descartarlo.'}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button type="button" variant="outline" onClick={handleDiscardDraft}>
+                Descartar
+              </Button>
+              <Button type="button" onClick={handleRestoreDraft}>
+                Restaurar borrador
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!pendingDraft && draftStatus !== 'idle' && (
+        <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          {draftStatus === 'saved' && 'Borrador guardado localmente.'}
+          {draftStatus === 'restored' && 'Estás trabajando sobre un borrador recuperado.'}
+          {draftStatus === 'error' &&
+            'No pudimos guardar el borrador localmente en este dispositivo.'}
+        </div>
+      )}
+
       {/* Stepper */}
       <nav aria-label="Progreso del formulario">
         {/* Desktop stepper */}
@@ -428,7 +579,13 @@ export function ProductFormWizard({
               <ImageUpload
                 userId={userId}
                 value={images || []}
-                onChange={(urls) => setValue('images', urls)}
+                onChange={(urls) =>
+                  setValue('images', urls, {
+                    shouldValidate: true,
+                    shouldTouch: true,
+                    shouldDirty: true,
+                  })
+                }
                 maxImages={5}
                 disabled={isSubmitting}
                 error={errors.images?.message}
@@ -489,8 +646,16 @@ export function ProductFormWizard({
                 <Select
                   value={selectedCategory || ''}
                   onValueChange={(value) => {
-                    setValue('category', value as ProductInput['category'])
-                    setValue('subcategory', undefined)
+                    setValue('category', value as ProductInput['category'], {
+                      shouldValidate: true,
+                      shouldTouch: true,
+                      shouldDirty: true,
+                    })
+                    setValue('subcategory', undefined, {
+                      shouldValidate: true,
+                      shouldTouch: true,
+                      shouldDirty: true,
+                    })
                   }}
                 >
                   <SelectTrigger
@@ -518,7 +683,18 @@ export function ProductFormWizard({
               <div className="hidden sm:block">
                 <CategoryGrid
                   value={selectedCategory}
-                  onChange={(value) => setValue('category', value as ProductInput['category'])}
+                  onChange={(value) => {
+                    setValue('category', value as ProductInput['category'], {
+                      shouldValidate: true,
+                      shouldTouch: true,
+                      shouldDirty: true,
+                    })
+                    setValue('subcategory', undefined, {
+                      shouldValidate: true,
+                      shouldTouch: true,
+                      shouldDirty: true,
+                    })
+                  }}
                   error={!!errors.category}
                 />
               </div>
@@ -590,18 +766,18 @@ export function ProductFormWizard({
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Detalles del Producto</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-foreground/80">
                 Indicá el precio, estado y ubicación
               </p>
             </div>
 
             {/* Price */}
             <div className="space-y-2">
-              <Label htmlFor="price">
+              <Label htmlFor="price" className="text-foreground">
                 Precio (BOB) <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/80 font-medium">
                   Bs
                 </span>
                 <Input
@@ -619,7 +795,7 @@ export function ProductFormWizard({
                   onFocus={scrollInputIntoView}
                 />
               </div>
-              <p id="price-help" className="text-xs text-muted-foreground">
+              <p id="price-help" className="text-xs text-foreground/80">
                 Precio en Bolivianos (BOB)
               </p>
               {errors.price && (
@@ -637,7 +813,7 @@ export function ProductFormWizard({
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="location_department">
+                  <Label htmlFor="location_department" className="text-foreground">
                     Departamento <span className="text-destructive">*</span>
                   </Label>
                   <Select
@@ -671,7 +847,7 @@ export function ProductFormWizard({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="location_city">
+                  <Label htmlFor="location_city" className="text-foreground">
                     Ciudad <span className="text-destructive">*</span>
                   </Label>
                   <Input
@@ -696,7 +872,7 @@ export function ProductFormWizard({
 
             {/* Condition */}
             <div className="space-y-3">
-              <Label>
+              <Label className="text-foreground">
                 Estado del Producto <span className="text-destructive">*</span>
               </Label>
               <RadioGroup
@@ -726,7 +902,7 @@ export function ProductFormWizard({
                       <span className="font-medium">{CONDITION_LABELS[condition]}</span>
                       <p
                         className={cn(
-                          'text-muted-foreground sm:text-sm',
+                          'text-foreground/80 sm:text-sm',
                           selectedCondition === condition ? 'block text-xs' : 'hidden',
                           'sm:block'
                         )}
@@ -738,7 +914,7 @@ export function ProductFormWizard({
                 ))}
               </RadioGroup>
               {!errors.condition && (
-                <p id="condition-help" className="text-xs text-muted-foreground sm:hidden">
+                <p id="condition-help" className="text-xs text-foreground/80 sm:hidden">
                   Elige la opción que mejor representa el estado real del producto.
                 </p>
               )}

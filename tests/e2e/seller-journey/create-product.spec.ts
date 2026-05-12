@@ -28,6 +28,20 @@ async function uploadPhotoAndProceed(page: Page) {
   })
 }
 
+async function selectElectronicsCategory(page: Page) {
+  const mobileTrigger = page.locator('#category')
+  if (await mobileTrigger.isVisible().catch(() => false)) {
+    await mobileTrigger.click()
+    await page.getByRole('option', { name: /electrónica y tecnología/i }).click()
+    return
+  }
+
+  const desktopCategory = page.getByTestId('category-electronics')
+  await desktopCategory.scrollIntoViewIfNeeded()
+  await expect(desktopCategory).toBeVisible()
+  await desktopCategory.click()
+}
+
 // ---------------------------------------------------------------------------
 // 1. Create Product - Wizard Flow
 // ---------------------------------------------------------------------------
@@ -63,7 +77,7 @@ test.describe('Create Product - Wizard Flow', () => {
       .fill(
         'iPhone 13 Pro Max en excelente estado. Incluye cargador y funda. Sin rayones en pantalla. Batería al 95%.'
       )
-    await page.getByTestId('category-electronics').click()
+    await selectElectronicsCategory(page)
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     // Step 3: Details
@@ -113,7 +127,7 @@ test.describe('Create Product - Validation Errors', () => {
 
     // Leave title empty, fill the rest and click next
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByTestId('category-electronics').click()
+    await selectElectronicsCategory(page)
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     await expect(page.getByText(/título debe tener al menos 10 caracteres/i)).toBeVisible({
@@ -145,7 +159,7 @@ test.describe('Create Product - Validation Errors', () => {
     // Step 2: Info
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByTestId('category-electronics').click()
+    await selectElectronicsCategory(page)
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     // Step 3: Details - invalid price
@@ -170,7 +184,7 @@ test.describe('Create Product - Validation Errors', () => {
     // Step 2: Info
     await page.getByLabel(/título del producto/i).fill('iPhone 13 Pro Max 256GB')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByTestId('category-electronics').click()
+    await selectElectronicsCategory(page)
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     // Step 3: Details - zero price
@@ -198,7 +212,7 @@ test.describe('Create Product - Validation Errors', () => {
     // Step 2: Info
     await page.getByLabel(/título del producto/i).fill(title)
     await page.getByRole('textbox', { name: /descripción \*/i }).fill(description)
-    await page.getByTestId('category-electronics').click()
+    await selectElectronicsCategory(page)
     await page.getByRole('button', { name: /siguiente/i }).click()
 
     // Step 3: Details
@@ -255,7 +269,7 @@ test.describe('Create Product - Accessibility', () => {
     await uploadPhotoAndProceed(page)
     await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByTestId('category-electronics').click()
+    await selectElectronicsCategory(page)
     await page.getByRole('button', { name: /siguiente/i }).click()
     await page.waitForLoadState('networkidle')
 
@@ -272,7 +286,7 @@ test.describe('Create Product - Accessibility', () => {
     // Step 2: Info
     await page.getByLabel(/título del producto/i).fill('Test Product for A11y')
     await page.getByRole('textbox', { name: /descripción \*/i }).fill('A'.repeat(50))
-    await page.getByTestId('category-electronics').click()
+    await selectElectronicsCategory(page)
     await page.getByRole('button', { name: /siguiente/i }).click()
     await page.waitForLoadState('networkidle')
 
