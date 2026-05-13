@@ -3,7 +3,6 @@
 import { Clock, MapPin, Phone, Globe, ExternalLink } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { normalizeBolivianWhatsAppDigits } from '@/lib/utils/whatsapp'
 
 // Day names in Spanish, keyed by lowercase abbreviation
@@ -73,11 +72,6 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
 
   return (
     <div className="space-y-4">
-      {/* WhatsApp CTA - most important for Bolivian market */}
-      {whatsappLink && (
-        <ProductWhatsAppLink href={whatsappLink} ariaLabel="Contactar por WhatsApp" />
-      )}
-
       {/* Phone */}
       {phone && telLink && (
         <Button asChild variant="outline" className="w-full min-h-[44px]" size="lg">
