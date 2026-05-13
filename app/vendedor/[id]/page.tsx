@@ -51,16 +51,16 @@ async function getSellerProfile(id: string) {
   return profile as SellerProfile
 }
 
-async function getBusinessSlug(userId: string): Promise<string | null> {
+async function getBusinessInfo(userId: string) {
   const supabase = createPublicClient()
 
   const { data } = await supabase
     .from('business_profiles')
-    .select('slug')
+    .select('slug, social_whatsapp')
     .eq('id', userId)
     .maybeSingle()
 
-  return data?.slug ?? null
+  return data ?? null
 }
 
 async function getSellerProducts(userId: string) {
@@ -160,9 +160,9 @@ function buildJsonLd(profile: SellerProfile, productCount: number) {
 export default async function SellerProfilePage({ params }: SellerPageProps) {
   const { id } = await params
 
-  const [profile, businessSlug, products] = await Promise.all([
+  const [profile, businessInfo, products] = await Promise.all([
     getSellerProfile(id),
-    getBusinessSlug(id),
+    getBusinessInfo(id),
     getSellerProducts(id),
   ])
 
@@ -196,7 +196,8 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
             <CardContent className="p-4 sm:p-6">
               <SellerProfileHeader
                 profile={profile}
-                businessSlug={businessSlug}
+                businessSlug={businessInfo?.slug ?? null}
+                social_whatsapp={businessInfo?.social_whatsapp ?? null}
                 productCount={products.length}
               />
             </CardContent>

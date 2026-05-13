@@ -9,6 +9,7 @@ import { isPlaceholderDescription } from '@/lib/utils/demand'
 import { buildWhatsAppMeUrlWithFallback } from '@/lib/utils/whatsapp'
 import type { SearchDemandPost } from '@/types/database'
 import { getDemandPath } from '@/lib/utils/publicRoutes'
+import { absoluteUrl } from '@/lib/utils'
 
 interface DemandPostCardProps {
   post: SearchDemandPost
@@ -44,7 +45,7 @@ export function DemandPostCard({ post }: DemandPostCardProps) {
   const demandPath = getDemandPath(post.id)
   const whatsappHref = buildWhatsAppMeUrlWithFallback(
     post.poster_phone,
-    `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
+    `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.\n\nVer solicitud: ${absoluteUrl(demandPath)}`
   )
   const snippet = hasRealDescription
     ? post.description.length > 120

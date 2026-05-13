@@ -23,7 +23,7 @@ import {
 import { isPlaceholderDescription } from '@/lib/utils/demand'
 import { buildWhatsAppMeUrl, resolveSellerWhatsAppDigits } from '@/lib/utils/whatsapp'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
-import { cn } from '@/lib/utils'
+import { cn, absoluteUrl } from '@/lib/utils'
 import { getDemandEditPath, getDemandPath, getProductPath } from '@/lib/utils/publicRoutes'
 import { MapPin, MessageSquare, Calendar, Clock, CheckCircle2, Loader2, User } from 'lucide-react'
 
@@ -129,7 +129,7 @@ export function DemandPostDetail({
   const demandPath = getDemandPath(post.id)
   const demandEditPath = getDemandEditPath(post.id)
 
-  const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
+  const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.\n\nVer solicitud: ${absoluteUrl(demandPath)}`
   const posterContact = resolveSellerWhatsAppDigits(posterBusiness?.social_whatsapp, poster?.phone)
   const whatsappHref =
     posterContact.normalizedDigits != null
