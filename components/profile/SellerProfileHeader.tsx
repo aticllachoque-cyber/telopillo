@@ -1,12 +1,15 @@
+'use client'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
 import { Button } from '@/components/ui/button'
-import { getAvatarColor } from '@/lib/utils'
-import { MapPin, Calendar, Store } from 'lucide-react'
+import { absoluteUrl, getAvatarColor } from '@/lib/utils'
+import { MapPin, Calendar, Store, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { buildWhatsAppMeUrl, normalizeBolivianWhatsAppDigits } from '@/lib/utils/whatsapp'
 import { resolveAvatarUrl } from '@/lib/utils/image'
+import { useSnackbar } from '@/components/ui/snackbar'
 
 interface SellerProfileHeaderProps {
   profile: {
@@ -22,6 +25,7 @@ interface SellerProfileHeaderProps {
     created_at: string
   }
   businessSlug: string | null
+  social_whatsapp?: string | null
   productCount: number
 }
 
@@ -38,8 +42,11 @@ function getInitials(name: string | null): string {
 export function SellerProfileHeader({
   profile,
   businessSlug,
+  social_whatsapp,
   productCount,
 }: SellerProfileHeaderProps) {
+  const { showSnackbar } = useSnackbar()
+
   const memberSince = new Date(profile.created_at).toLocaleDateString('es-BO', {
     year: 'numeric',
     month: 'long',
@@ -50,8 +57,34 @@ export function SellerProfileHeader({
   const hasRatings = (profile.rating_count ?? 0) > 0
   const ratingAvg = profile.rating_average ?? 0
 
-  const whatsappDigits = profile.phone ? normalizeBolivianWhatsAppDigits(profile.phone) : null
-  const whatsappHref = whatsappDigits ? buildWhatsAppMeUrl(whatsappDigits) : null
+  const whatsappNumber = social_whatsapp || profile.phone
+  const whatsappDigits = whatsappNumber ? normalizeBolivianWhatsAppDigits(whatsappNumber) : null
+  const profileUrl = absoluteUrl(`/vendedor/${profile.id}`)
+  const whatsappMessage = `Hola! Vi tu perfil "${profile.full_name || 'vendedor'}" en Telopillo y me gustaría hacerte una consulta.\n\nVer perfil: ${profileUrl}`
+  const whatsappHref = whatsappDigits ? buildWhatsAppMeUrl(whatsappDigits, whatsappMessage) : null
+
+  const handleShare = async () => {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({
+          title: profile.full_name || 'Vendedor en Telopillo',
+          text: `Mira el perfil de ${profile.full_name || 'este vendedor'} en Telopillo`,
+          url: profileUrl,
+        })
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error('Share failed:', err)
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(profileUrl)
+        showSnackbar('Enlace copiado al portapapeles', { variant: 'success' })
+      } catch (err) {
+        console.error('Clipboard failed:', err)
+      }
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -133,8 +166,18 @@ export function SellerProfileHeader({
           />
         )}
 
+        <Button
+          variant="outline"
+          size="lg"
+          className="min-h-[44px] w-full sm:w-auto gap-2"
+          onClick={handleShare}
+        >
+          <Share2 className="size-5" aria-hidden />
+          Compartir perfil
+        </Button>
+
         {businessSlug && (
-          <Button asChild variant="outline" size="lg" className="min-h-[44px]">
+          <Button asChild variant="outline" size="lg" className="min-h-[44px] w-full sm:w-auto">
             <Link href={`/negocio/${businessSlug}`} className="flex items-center gap-2">
               <Store className="size-5" aria-hidden />
               Visitar tienda
