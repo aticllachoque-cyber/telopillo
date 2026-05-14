@@ -218,14 +218,44 @@ export function ProductForm({
 
       {/* Category */}
       <div className="space-y-2">
-        <Label>
+        <Label
+          id="category-label"
+          className="cursor-pointer"
+          onClick={() => {
+            const activeCategory = document.querySelector<HTMLElement>(
+              '#category-grid [role="radio"][aria-checked="true"]'
+            )
+            const firstCategory = document.querySelector<HTMLElement>(
+              '#category-grid [role="radio"]'
+            )
+
+            if (activeCategory) {
+              activeCategory.focus()
+              return
+            }
+
+            firstCategory?.focus()
+          }}
+        >
           Categoría <span className="text-destructive">*</span>
         </Label>
+        <p className="text-xs text-muted-foreground">
+          Elegí la categoría principal de tu producto.
+        </p>
         <CategoryGrid
+          id="category-grid"
           value={selectedCategory}
           onChange={(value) => setValue('category', value as ProductInput['category'])}
           error={!!errors.category}
+          ariaLabel="Categoría del producto"
+          ariaLabelledBy="category-label"
+          ariaDescribedBy={errors.category ? 'category-error' : 'category-help'}
         />
+        {!errors.category && (
+          <p id="category-help" className="text-xs text-muted-foreground">
+            Si no ves una categoría perfecta, elige la más cercana y acláralo en la descripción.
+          </p>
+        )}
         {errors.category && (
           <p id="category-error" className="text-sm text-destructive" role="alert">
             {errors.category.message}

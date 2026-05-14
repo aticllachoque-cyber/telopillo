@@ -578,6 +578,7 @@ export function DemandPostForm({
                   setValue('subcategory', undefined)
                 }}
                 error={!!errors.category}
+                ariaLabel="Categoría de la solicitud"
               />
               {!errors.category && (
                 <p id="category-help" className="text-xs text-muted-foreground">

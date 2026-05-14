@@ -636,68 +636,56 @@ export function ProductFormWizard({
 
             {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="category">
+              <Label
+                id="category-label"
+                className="cursor-pointer"
+                onClick={() => {
+                  const activeCategory = document.querySelector<HTMLElement>(
+                    '#category-grid [role="radio"][aria-checked="true"]'
+                  )
+                  const firstCategory = document.querySelector<HTMLElement>(
+                    '#category-grid [role="radio"]'
+                  )
+
+                  if (activeCategory) {
+                    activeCategory.focus()
+                    return
+                  }
+
+                  firstCategory?.focus()
+                }}
+              >
                 Categoría <span className="text-destructive">*</span>
               </Label>
-              <p className="text-xs text-muted-foreground sm:hidden">
-                Elegí la categoría que mejor describe tu producto.
+              <p className="text-xs text-muted-foreground">
+                Elegí la categoría principal de tu producto.
               </p>
-              <div className="sm:hidden">
-                <Select
-                  value={selectedCategory || ''}
-                  onValueChange={(value) => {
-                    setValue('category', value as ProductInput['category'], {
-                      shouldValidate: true,
-                      shouldTouch: true,
-                      shouldDirty: true,
-                    })
-                    setValue('subcategory', undefined, {
-                      shouldValidate: true,
-                      shouldTouch: true,
-                      shouldDirty: true,
-                    })
-                  }}
-                >
-                  <SelectTrigger
-                    id="category"
-                    className="w-full"
-                    aria-invalid={!!errors.category}
-                    aria-describedby={errors.category ? 'category-error' : 'category-help'}
-                  >
-                    <SelectValue placeholder="Elegí una categoría" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {!errors.category && (
-                  <p id="category-help" className="mt-1 text-xs text-muted-foreground">
-                    Elegí primero la categoría y luego completa la descripción.
-                  </p>
-                )}
-              </div>
-              <div className="hidden sm:block">
-                <CategoryGrid
-                  value={selectedCategory}
-                  onChange={(value) => {
-                    setValue('category', value as ProductInput['category'], {
-                      shouldValidate: true,
-                      shouldTouch: true,
-                      shouldDirty: true,
-                    })
-                    setValue('subcategory', undefined, {
-                      shouldValidate: true,
-                      shouldTouch: true,
-                      shouldDirty: true,
-                    })
-                  }}
-                  error={!!errors.category}
-                />
-              </div>
+              <CategoryGrid
+                id="category-grid"
+                value={selectedCategory}
+                onChange={(value) => {
+                  setValue('category', value as ProductInput['category'], {
+                    shouldValidate: true,
+                    shouldTouch: true,
+                    shouldDirty: true,
+                  })
+                  setValue('subcategory', undefined, {
+                    shouldValidate: true,
+                    shouldTouch: true,
+                    shouldDirty: true,
+                  })
+                }}
+                error={!!errors.category}
+                ariaLabel="Categoría del producto"
+                ariaLabelledBy="category-label"
+                ariaDescribedBy={errors.category ? 'category-error' : 'category-help'}
+              />
+              {!errors.category && (
+                <p id="category-help" className="text-xs text-muted-foreground">
+                  Si no ves una categoría perfecta, elige la más cercana y acláralo en la
+                  descripción.
+                </p>
+              )}
               {errors.category && (
                 <p id="category-error" className="text-sm text-destructive" role="alert">
                   {errors.category.message}

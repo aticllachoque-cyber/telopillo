@@ -5,12 +5,24 @@ import { CATEGORIES, CATEGORY_ICONS } from '@/lib/data/categories'
 import { cn } from '@/lib/utils'
 
 interface CategoryGridProps {
+  id?: string
   value?: string
   onChange: (categoryId: string) => void
   error?: boolean
+  ariaLabel?: string
+  ariaLabelledBy?: string
+  ariaDescribedBy?: string
 }
 
-export function CategoryGrid({ value, onChange, error }: CategoryGridProps) {
+export function CategoryGrid({
+  id,
+  value,
+  onChange,
+  error,
+  ariaLabel = 'Categoría',
+  ariaLabelledBy,
+  ariaDescribedBy,
+}: CategoryGridProps) {
   const selectedIndex = value ? CATEGORIES.findIndex((cat) => cat.id === value) : -1
 
   const handleArrowNavigation = (event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
@@ -54,8 +66,12 @@ export function CategoryGrid({ value, onChange, error }: CategoryGridProps) {
 
   return (
     <div
+      id={id}
       role="radiogroup"
-      aria-label="Categoría del producto"
+      tabIndex={-1}
+      aria-label={ariaLabelledBy ? undefined : ariaLabel}
+      aria-labelledby={ariaLabelledBy}
+      aria-describedby={ariaDescribedBy}
       aria-required="true"
       aria-invalid={error ? 'true' : 'false'}
       className="grid grid-cols-3 gap-2 sm:gap-3"

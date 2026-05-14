@@ -29,17 +29,10 @@ async function uploadPhotoAndProceed(page: Page) {
 }
 
 async function selectElectronicsCategory(page: Page) {
-  const mobileTrigger = page.locator('#category')
-  if (await mobileTrigger.isVisible().catch(() => false)) {
-    await mobileTrigger.click()
-    await page.getByRole('option', { name: /electrónica y tecnología/i }).click()
-    return
-  }
-
-  const desktopCategory = page.getByTestId('category-electronics')
-  await desktopCategory.scrollIntoViewIfNeeded()
-  await expect(desktopCategory).toBeVisible()
-  await desktopCategory.click()
+  const categoryCard = page.getByTestId('category-electronics')
+  await categoryCard.scrollIntoViewIfNeeded()
+  await expect(categoryCard).toBeVisible()
+  await categoryCard.click()
 }
 
 // ---------------------------------------------------------------------------
@@ -335,5 +328,15 @@ test.describe('Create Product - Mobile Responsive (375x812)', () => {
         expect(Math.max(box.width, box.height)).toBeGreaterThanOrEqual(44)
       }
     }
+  })
+
+  test('Step 2 uses category cards on mobile', async ({ page }) => {
+    await page.goto('/publicar')
+    await page.waitForLoadState('networkidle')
+
+    await uploadPhotoAndProceed(page)
+
+    await expect(page.getByTestId('category-electronics')).toBeVisible()
+    await expect(page.locator('#category')).toHaveCount(0)
   })
 })
