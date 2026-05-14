@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPublicClient } from '@/lib/supabase/server'
 import { expandQuery } from '@/lib/search/synonyms'
+import { fetchWithPolicy } from '@/lib/network/fetch'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,26 +85,30 @@ async function getQueryEmbedding(
     return { embedding: cached, cached: true }
   }
 
-  // Call Edge Function
-  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-embedding`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ text }),
-  })
+  try {
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-embedding`
+    const res = await fetchWithPolicy(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+      timeoutMs: 6_000,
+      retries: 1,
+    })
 
-  if (!res.ok) return { embedding: null, cached: false }
+    if (!res.ok) return { embedding: null, cached: false }
 
-  const { embedding } = await res.json()
-  if (!Array.isArray(embedding)) return { embedding: null, cached: false }
+    const { embedding } = await res.json()
+    if (!Array.isArray(embedding)) return { embedding: null, cached: false }
 
-  // Store in cache
-  setCachedEmbedding(normalizedQuery, embedding)
-
-  return { embedding, cached: false }
+    setCachedEmbedding(normalizedQuery, embedding)
+    return { embedding, cached: false }
+  } catch (error) {
+    console.warn('generate-embedding failed for product search:', error)
+    return { embedding: null, cached: false }
+  }
 }
 
 // ---------------------------------------------------------------------------

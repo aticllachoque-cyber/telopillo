@@ -39,18 +39,52 @@ The following are intentionally out of scope for the first resilience rollout:
   - `lib/utils/image.ts`
 - WhatsApp is already a first-class contact path:
   - `components/products/ProductWhatsAppLink.tsx`
+- Product publish/edit drafts are implemented:
+  - `components/products/ProductFormWizard.tsx`
+- Demand publish/edit drafts are implemented:
+  - `components/demand/DemandPostForm.tsx`
+- Business profile drafts are implemented:
+  - `components/profile/BusinessProfileForm.tsx`
+- Global network status provider and banner are implemented:
+  - `components/providers/NetworkStatusProvider.tsx`
+  - `components/network/NetworkStatusBanner.tsx`
 
 ### Gaps
 
-- Product publishing has no local draft recovery:
-  - `components/products/ProductForm.tsx`
-- Demand publishing has no local draft recovery:
-  - `components/demand/DemandPostForm.tsx`
-- Business profile editing has no local draft recovery:
-  - `components/profile/BusinessProfileForm.tsx`
-- Search error handling is present but not cache-backed:
-  - `app/buscar/page.tsx`
-- No shared network-status or request-policy layer exists.
+- Upload recovery is still coarse in `main`:
+  - recovery exists, but no deferred attachment queue yet
+- No adverse-network Playwright coverage exists for offline/reconnect flows.
+- No structured resilience telemetry exists beyond local logging.
+
+## Current Delivery Status
+
+This plan started as a forward-looking design doc. Parts of P0 are now already shipped in `main`, while other work remains pending or only exists in `feat/network-resilience`.
+
+| Workstream | Status in `main` | Notes |
+| --- | --- | --- |
+| Draft persistence | Implemented | Product, demand, and business profile forms persist and restore drafts locally. |
+| Network status + banner | Implemented | `online` / `offline` / `reconnecting` states exist globally. |
+| Shared request policy | Implemented | `lib/network/fetch.ts` standardizes timeout/retry/error mapping for search flows. |
+| Resilient publish flow | Partial | Draft recovery and upload retry exist; deferred attachment flow is still pending. |
+| Read cache for discovery | Partial | Search stale-on-error cache now exists; detail/home caches are still pending. |
+| Search degradation + recovery UX | Partial | Backend fallback and stale-results fallback exist; broader degraded-mode UX can still improve. |
+| Observability | Not implemented | No formal resilience metrics/log schema. |
+| Adverse-network tests | Not implemented | Current E2E does not simulate offline/reconnect recovery. |
+
+## Findings Since Initial Draft
+
+1. The original “Current Codebase Observations” section is stale because draft persistence and global network status have already been delivered.
+2. The remaining resilience gap is no longer “prevent form loss”; it is “make degraded reads and uploads recoverable”.
+3. `feat/network-resilience` contained useful resilience work that has now been ported selectively into `main`:
+   - resilient search request policy
+   - search fallback cache
+   - upload recovery hardening
+4. That branch also contains unrelated UI/form churn, so it should not be merged wholesale. Remaining resilience pieces should be ported selectively.
+5. Current priority should shift from general foundations to a narrower P1:
+   - adverse-network test coverage
+   - broader read cache
+   - telemetry
+   - deferred upload recovery
 
 ## Guiding Principles
 
@@ -80,6 +114,27 @@ This is the highest-priority implementation block.
 3. Shared fetch timeout/retry utilities.
 4. Publish flow hardening for partial image failures.
 5. Clear user-visible sync state and recovery actions.
+
+### P0 Status
+
+- `1` shipped in `main`
+- `2` shipped in `main`
+- `3` shipped in `main`
+- `4` partial in `main`
+- `5` partial in `main`
+
+### Recommended Next Milestone
+
+The next milestone should no longer be called “baseline”. The baseline exists. The next implementation block should be:
+
+### P1: Recoverable Degraded Operation
+
+#### Goals
+
+- Keep search useful after transient request failures across more surfaces.
+- Make image failures recoverable without restarting the flow.
+- Standardize retry/timeout behavior in low-quality networks.
+- Add tests that prove recovery instead of only happy-path submission.
 
 ---
 
@@ -142,6 +197,14 @@ function hasDraft(key: string): boolean
 - A successful save clears the draft.
 - The user always knows whether the current state is local-only or remote-synced.
 
+### Status
+
+Implemented in `main` for:
+
+- `components/products/ProductFormWizard.tsx`
+- `components/demand/DemandPostForm.tsx`
+- `components/profile/BusinessProfileForm.tsx`
+
 ---
 
 ## Workstream 2: Network Status and Global Feedback
@@ -192,6 +255,10 @@ Suggested tracked states:
 - The user sees a clear banner when offline or reconnecting.
 - Forms and search can react to network state.
 
+### Status
+
+Implemented in `main`.
+
 ---
 
 ## Workstream 3: Shared Request Policy
@@ -204,7 +271,7 @@ Standardize timeouts, retries, and recoverable-network-error detection.
 
 Add:
 
-- `lib/network/fetchWithPolicy.ts`
+- `lib/network/fetch.ts`
 
 Suggested utilities:
 
@@ -247,6 +314,10 @@ function isRecoverableNetworkError(error: unknown): boolean
 - Requests fail faster and more predictably.
 - Retry logic is visible and bounded.
 - Errors are consistently mapped to actionable user messages.
+
+### Status
+
+Implemented in `main`.
 
 ---
 
@@ -297,6 +368,21 @@ Refactor create/edit flows into:
 - The user can retry only the failed upload.
 - Successfully uploaded images remain attached.
 - Text data remains recoverable even if uploads fail.
+
+### Status
+
+Partial in `main`.
+
+What exists:
+
+- drafts protect text loss
+- uploads already use client-side compression and explicit timeouts
+
+What is still missing:
+
+- deferred image attachment queue
+- resumable retry beyond current page session
+- broader recovery coverage for every upload surface
 
 ---
 
@@ -351,6 +437,21 @@ Suggested capabilities:
 - Recently opened detail pages can show stale content when connectivity drops.
 - Cached content is clearly marked when necessary.
 
+### Status
+
+Partial in `main`.
+
+Implemented:
+
+- stale-on-error cache for `app/buscar/page.tsx`
+- stale-on-error cache for `app/busco/page.tsx`
+
+Still missing:
+
+- product detail stale cache
+- demand detail stale cache
+- home/category read cache
+
 ---
 
 ## Workstream 6: Search Degradation and Recovery UX
@@ -382,6 +483,20 @@ The backend already falls back from semantic to keyword search.
 - Search input is never lost on failure.
 - The user has a recovery path beyond a blank error state.
 - Search remains useful under degraded connectivity.
+
+### Status
+
+Partial in `main`.
+
+What exists:
+
+- backend semantic-to-keyword fallback
+- stale-results fallback in `app/buscar/page.tsx` and `app/busco/page.tsx`
+
+What is still missing:
+
+- clearer degraded-mode messaging in more read surfaces
+- broader reuse outside the two main search pages
 
 ---
 
@@ -459,6 +574,10 @@ Integrate a lightweight monitoring solution or central logging path.
 - The team can identify the highest-friction network failures.
 - Logs distinguish timeout, offline, auth, and backend errors.
 
+### Status
+
+Not implemented as a formal workstream.
+
 ---
 
 ## Workstream 9: Adverse-Network Testing
@@ -499,58 +618,43 @@ Prove operability under realistic poor-network conditions.
 - Search fallback is covered by automated tests.
 - Upload partial-failure recovery is covered by automated tests.
 
+### Status
+
+Still pending in `main`.
+
 ---
 
 ## Recommended Execution Order
 
-### Sprint 1
+### Completed
 
 - Draft utilities
 - Product form draft persistence
 - Demand form draft persistence
+- Business profile draft persistence
 - Network status provider and banner
 
-### Sprint 2
+### Next
 
-- Business profile draft persistence
-- Shared request policy
-- Search stale-result fallback
-- Error-message standardization
-
-### Sprint 3
-
-- Per-image retry UX
-- Publish-flow hardening
-- Initial telemetry/logging
 - Adverse-network Playwright tests
+- Read cache expansion beyond search
+- Telemetry/logging for resilience events
+- Deferred upload recovery improvements
 
-### Sprint 4
+### Later
 
-- Read cache expansion
 - PWA/light offline enhancements
 - Future chat fallback design inputs
 
 ## P0 File-Level Task List
 
-### New files
+### Priority files to modify next
 
-- `lib/offline/drafts.ts`
-- `lib/offline/storage.ts`
-- `lib/network/status.ts`
-- `lib/network/fetchWithPolicy.ts`
-- `components/providers/NetworkStatusProvider.tsx`
-- `components/network/NetworkStatusBanner.tsx`
-
-### Existing files to modify first
-
-- `app/layout.tsx`
-- `components/products/ProductForm.tsx`
-- `components/demand/DemandPostForm.tsx`
-- `components/profile/BusinessProfileForm.tsx`
-- `components/products/ImageUpload.tsx`
-- `components/shared/SingleImageUpload.tsx`
-- `app/buscar/page.tsx`
-- `lib/utils.ts`
+- `tests/e2e/search-discovery/*`
+- `tests/e2e/demand-side/*`
+- `tests/e2e/seller-journey/*`
+- read-cache wiring for detail/home pages
+- resilience telemetry hooks
 
 ## Risks and Tradeoffs
 
@@ -597,9 +701,9 @@ This rollout is successful when:
 
 Implementation should start with:
 
-1. draft persistence
-2. network-status banner
-3. search request policy
-4. per-image recovery improvements
+1. adverse-network tests
+2. read-cache expansion beyond search
+3. resilience telemetry
+4. deferred upload recovery improvements
 
-This sequence gives the largest operational gain with the smallest architectural disruption.
+These are now the highest-value remaining steps with the smallest architectural disruption.

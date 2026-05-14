@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
+import { fetchWithPolicy, getNetworkErrorMessage } from '@/lib/network/fetch'
+import { buildSearchCacheKey, loadSearchCache, saveSearchCache } from '@/lib/offline/search-cache'
 
 interface Product {
   id: string
@@ -50,6 +52,7 @@ interface SearchResponse {
 }
 
 const PAGE_SIZE = 24
+const SEARCH_CACHE_VERSION = 1
 
 function BuscarPageSkeleton() {
   return (
@@ -81,8 +84,10 @@ function BuscarPageContent() {
   const [loadedPage, setLoadedPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [cachedUpdatedAt, setCachedUpdatedAt] = useState<string | null>(null)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const searchParamsString = searchParams?.toString() || ''
+  const cacheKey = buildSearchCacheKey('products:search', searchParamsString)
 
   // Check if any search criteria is active (query or filters)
   const hasActiveSearch = !!(
@@ -109,7 +114,10 @@ function BuscarPageContent() {
         params.set('page', String(pageToLoad))
         params.set('limit', String(PAGE_SIZE))
 
-        const response = await fetch(`/api/search?${params.toString()}`)
+        const response = await fetchWithPolicy(`/api/search?${params.toString()}`, {
+          timeoutMs: 12_000,
+          retries: 1,
+        })
 
         if (!response.ok) {
           throw new Error('Error al buscar productos')
@@ -127,26 +135,49 @@ function BuscarPageContent() {
         })
         setLoadedPage(pageToLoad)
         setHasMore(Boolean(data.hasMore))
+        if (!append) {
+          saveSearchCache(cacheKey, data, SEARCH_CACHE_VERSION)
+          setCachedUpdatedAt(null)
+        }
       } catch (err) {
         console.error('Search error:', err)
-        setError(err instanceof Error ? err.message : 'Error al buscar productos')
+        if (!append) {
+          const cached = loadSearchCache<SearchResponse>(cacheKey, SEARCH_CACHE_VERSION)
+          if (cached) {
+            setResults(cached.data)
+            setLoadedPage(cached.data.page)
+            setHasMore(Boolean(cached.data.hasMore))
+            setCachedUpdatedAt(cached.updatedAt)
+            setError(null)
+            return
+          }
+        }
+        setError(getNetworkErrorMessage(err, 'Error al buscar productos'))
       } finally {
         setIsLoading(false)
         setIsLoadingMore(false)
       }
     },
-    [searchParamsString]
+    [cacheKey, searchParamsString]
   )
 
   useEffect(() => {
     document.title = query ? `Buscar: ${query} - Telopillo` : 'Buscar Productos - Telopillo'
 
-    // Always perform search (returns all products when no query/filters)
-    setResults(null)
-    setLoadedPage(1)
-    setHasMore(false)
+    const cached = loadSearchCache<SearchResponse>(cacheKey, SEARCH_CACHE_VERSION)
+    if (cached) {
+      setResults(cached.data)
+      setLoadedPage(cached.data.page)
+      setHasMore(Boolean(cached.data.hasMore))
+      setCachedUpdatedAt(cached.updatedAt)
+    } else {
+      setResults(null)
+      setLoadedPage(1)
+      setHasMore(false)
+      setCachedUpdatedAt(null)
+    }
     performSearch(1, false)
-  }, [performSearch, query])
+  }, [cacheKey, performSearch, query])
 
   const loadMore = useCallback(() => {
     if (isLoading || isLoadingMore || !hasMore) return
@@ -251,6 +282,12 @@ function BuscarPageContent() {
             {/* Results */}
             {results && !isLoading && (
               <div>
+                {cachedUpdatedAt && (
+                  <div className="mb-4 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Mostrando resultados guardados por una falla de conexión.{' '}
+                    {`Última actualización: ${new Date(cachedUpdatedAt).toLocaleString('es-BO')}.`}
+                  </div>
+                )}
                 {/* C4: Results count in aria-live region */}
                 <div
                   className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"

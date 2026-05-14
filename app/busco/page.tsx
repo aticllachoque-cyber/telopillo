@@ -10,8 +10,18 @@ import { Input } from '@/components/ui/input'
 import { DemandPostCard } from '@/components/demand/DemandPostCard'
 import { DemandPostFilters } from '@/components/demand/DemandPostFilters'
 import type { SearchDemandPost } from '@/types/database'
+import { fetchWithPolicy, getNetworkErrorMessage } from '@/lib/network/fetch'
+import { buildSearchCacheKey, loadSearchCache, saveSearchCache } from '@/lib/offline/search-cache'
 
 const PAGE_SIZE = 12
+const DEMAND_SEARCH_CACHE_VERSION = 1
+
+interface DemandSearchCachePayload {
+  demands: SearchDemandPost[]
+  totalCount: number
+  page: number
+  hasMore: boolean
+}
 
 function BuscoPageSkeleton() {
   return (
@@ -53,6 +63,7 @@ function BuscoPageContent() {
   const [loadedPage, setLoadedPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [cachedUpdatedAt, setCachedUpdatedAt] = useState<string | null>(null)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const pendingSearchParams = useRef(searchParams.toString())
 
@@ -62,6 +73,7 @@ function BuscoPageContent() {
   const sort = searchParams.get('sort') || (q ? 'relevance' : 'newest')
   const hasActiveSearch = Boolean(q || category !== 'all' || department !== 'all')
   const searchParamsString = searchParams.toString()
+  const cacheKey = buildSearchCacheKey('demands:search', searchParamsString)
 
   const [searchInput, setSearchInput] = useState(q)
 
@@ -87,10 +99,12 @@ function BuscoPageContent() {
         params.set('page', String(pageToLoad))
         params.set('limit', String(PAGE_SIZE))
 
-        const res = await fetch(`/api/search-demands?${params.toString()}`)
+        const res = await fetchWithPolicy(`/api/search-demands?${params.toString()}`, {
+          timeoutMs: 12_000,
+          retries: 1,
+        })
         if (!res.ok) {
-          setError('No se pudieron cargar las solicitudes.')
-          return
+          throw new Error('No se pudieron cargar las solicitudes.')
         }
 
         const data = await res.json()
@@ -104,24 +118,63 @@ function BuscoPageContent() {
         setTotalCount(data.totalCount ?? 0)
         setHasMore(Boolean(data.hasMore))
         setLoadedPage(pageToLoad)
+        if (!append) {
+          saveSearchCache<DemandSearchCachePayload>(
+            cacheKey,
+            {
+              demands: nextPosts,
+              totalCount: data.totalCount ?? 0,
+              page: pageToLoad,
+              hasMore: Boolean(data.hasMore),
+            },
+            DEMAND_SEARCH_CACHE_VERSION
+          )
+          setCachedUpdatedAt(null)
+        }
       } catch (err) {
         console.error('Error fetching demands:', err)
-        setError('No se pudieron cargar las solicitudes.')
+        if (!append) {
+          const cached = loadSearchCache<DemandSearchCachePayload>(
+            cacheKey,
+            DEMAND_SEARCH_CACHE_VERSION
+          )
+          if (cached) {
+            setPosts(cached.data.demands)
+            setTotalCount(cached.data.totalCount)
+            setLoadedPage(cached.data.page)
+            setHasMore(Boolean(cached.data.hasMore))
+            setCachedUpdatedAt(cached.updatedAt)
+            setError(null)
+            return
+          }
+        }
+        setError(getNetworkErrorMessage(err, 'No se pudieron cargar las solicitudes.'))
       } finally {
         setIsLoading(false)
         setIsLoadingMore(false)
       }
     },
-    [q, category, department, sort]
+    [cacheKey, q, category, department, sort]
   )
 
   useEffect(() => {
     document.title = 'Solicitudes - Telopillo'
-    setPosts([])
-    setLoadedPage(1)
-    setHasMore(false)
+    const cached = loadSearchCache<DemandSearchCachePayload>(cacheKey, DEMAND_SEARCH_CACHE_VERSION)
+    if (cached) {
+      setPosts(cached.data.demands)
+      setTotalCount(cached.data.totalCount)
+      setLoadedPage(cached.data.page)
+      setHasMore(Boolean(cached.data.hasMore))
+      setCachedUpdatedAt(cached.updatedAt)
+    } else {
+      setPosts([])
+      setTotalCount(0)
+      setLoadedPage(1)
+      setHasMore(false)
+      setCachedUpdatedAt(null)
+    }
     fetchDemands(1, false)
-  }, [fetchDemands])
+  }, [cacheKey, fetchDemands])
 
   useEffect(() => {
     setSearchInput(q)
@@ -354,6 +407,12 @@ function BuscoPageContent() {
               </Card>
             ) : (
               <>
+                {cachedUpdatedAt && (
+                  <div className="mb-4 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Mostrando solicitudes guardadas por una falla de conexión.{' '}
+                    {`Última actualización: ${new Date(cachedUpdatedAt).toLocaleString('es-BO')}.`}
+                  </div>
+                )}
                 <div
                   className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
                   role="status"

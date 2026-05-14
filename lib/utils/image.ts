@@ -274,6 +274,54 @@ export async function uploadStorageImage({
   }
 }
 
+interface UploadStorageImageWithRetryOptions extends UploadStorageImageOptions {
+  retries?: number
+  retryDelayMs?: number
+  retryExistingPath?: boolean
+}
+
+export async function uploadStorageImageWithRetry({
+  retries = 1,
+  retryDelayMs = 700,
+  retryExistingPath = false,
+  ...options
+}: UploadStorageImageWithRetryOptions): Promise<{ path: string; publicUrl: string }> {
+  let lastError: unknown = null
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await uploadStorageImage({
+        ...options,
+        upsert: retryExistingPath || attempt > 0 ? true : options.upsert,
+      })
+    } catch (error) {
+      lastError = error
+      if (attempt === retries || !isRecoverableUploadError(error)) {
+        throw error
+      }
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs * (attempt + 1)))
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('No se pudo subir la imagen')
+}
+
+export function isRecoverableUploadError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false
+
+  const lower = error.message.toLowerCase()
+  return (
+    lower.includes('tardó demasiado') ||
+    lower.includes('timeout') ||
+    lower.includes('network') ||
+    lower.includes('fetch') ||
+    lower.includes('failed') ||
+    lower.includes('temporarily') ||
+    lower.includes('503') ||
+    lower.includes('502')
+  )
+}
+
 export function getStoragePathFromPublicUrl(bucket: string, publicUrl: string): string | null {
   const bucketMarker = `/${bucket}/`
   const parts = publicUrl.split(bucketMarker)

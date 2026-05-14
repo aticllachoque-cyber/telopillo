@@ -9,7 +9,7 @@ import {
   revokeImagePreview,
   removeStorageImageByPublicUrl,
   resolveProductImageUrls,
-  uploadStorageImage,
+  uploadStorageImageWithRetry,
   validateImageFile,
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
@@ -31,6 +31,7 @@ interface ImagePreview {
   uploading: boolean
   uploaded: boolean
   error?: string
+  retryKey?: string
 }
 
 const LOG_PREFIX = '[ImageUpload]'
@@ -66,6 +67,74 @@ export function ImageUpload({
   const lastSyncedUploadedUrlsRef = useRef<string[]>(resolveProductImageUrls(value))
   const supabase = createClient()
   const { showSnackbar } = useSnackbar()
+
+  const setPreviewUploadState = (
+    previewIndex: number,
+    updater: (existing: ImagePreview) => ImagePreview
+  ) => {
+    setPreviews((prev) => {
+      const updated = [...prev]
+      const existing = updated[previewIndex]
+      if (!existing) return prev
+      updated[previewIndex] = updater(existing)
+      return updated
+    })
+  }
+
+  const uploadPreviewFile = async (
+    previewIndex: number,
+    file: File,
+    storagePath: string,
+    incrementCounter = true
+  ) => {
+    setPreviewUploadState(previewIndex, (existing) => ({
+      ...existing,
+      uploading: true,
+      uploaded: false,
+      error: undefined,
+      retryKey: storagePath,
+    }))
+    if (incrementCounter) {
+      setUploadingCount((count) => count + 1)
+    }
+
+    try {
+      const { publicUrl, path } = await uploadStorageImageWithRetry({
+        storage: supabase.storage,
+        bucket: 'product-images',
+        path: storagePath,
+        file,
+        retries: 1,
+      })
+      console.log(LOG_PREFIX, 'upload done', { previewIndex, path })
+      setPreviewUploadState(previewIndex, (existing) => {
+        if (existing.url !== publicUrl) revokeImagePreview(existing.url)
+        return {
+          url: publicUrl,
+          uploading: false,
+          uploaded: true,
+          file: undefined,
+          error: undefined,
+          retryKey: undefined,
+        }
+      })
+      return true
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al subir imagen'
+      console.error(LOG_PREFIX, 'upload failed', { previewIndex, error: message })
+      setPreviewUploadState(previewIndex, (existing) => ({
+        ...existing,
+        uploading: false,
+        uploaded: false,
+        error: message,
+        file,
+        retryKey: storagePath,
+      }))
+      return false
+    } finally {
+      setUploadingCount((count) => Math.max(0, count - 1))
+    }
+  }
 
   useEffect(() => {
     if (uploadInProgressRef.current) return
@@ -163,62 +232,29 @@ export function ImageUpload({
     const timestamp = Date.now()
 
     try {
-      // Run compress + upload in parallel for all files (faster than sequential)
+      // Run upload per file so one failure does not block the rest.
       const tasks = fileArray.map(async (file, i) => {
         const previewIndex = baseIndex + i
-        const setError = (message: string) => {
-          setPreviews((prev) => {
-            const updated = [...prev]
-            const existing = updated[previewIndex]
-            if (existing) {
-              updated[previewIndex] = {
-                ...existing,
-                uploading: false,
-                uploaded: false,
-                error: message,
-              }
-            }
-            return updated
-          })
-          setUploadingCount((c) => Math.max(0, c - 1))
-        }
-        try {
-          const storagePath = getProductImagePath(userId, timestamp + i)
-          console.log(LOG_PREFIX, `[${i}] upload start`, { path: storagePath })
-          const uploadStart = Date.now()
-          const { publicUrl, path } = await uploadStorageImage({
-            storage: supabase.storage,
-            bucket: 'product-images',
-            path: storagePath,
-            file,
-          })
-          const uploadMs = Date.now() - uploadStart
-          console.log(LOG_PREFIX, `[${i}] upload done`, { uploadMs, path })
-          setPreviews((prev) => {
-            const updated = [...prev]
-            const existing = updated[previewIndex]
-            if (existing) revokeImagePreview(existing.url)
-            updated[previewIndex] = {
-              url: publicUrl,
-              uploading: false,
-              uploaded: true,
-            }
-            return updated
-          })
-          setUploadingCount((c) => Math.max(0, c - 1))
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : 'Error al subir imagen'
-          console.error(LOG_PREFIX, `[${i}] failed`, {
-            error: msg,
-            isTimeout: msg.includes('tardó demasiado'),
-          })
-          setError(msg)
-        }
+        const storagePath = getProductImagePath(userId, timestamp + i)
+        console.log(LOG_PREFIX, `[${i}] upload start`, { path: storagePath })
+        return uploadPreviewFile(previewIndex, file, storagePath, false)
       })
       const results = await Promise.allSettled(tasks)
-      const succeeded = results.filter((r) => r.status === 'fulfilled').length
-      const failed = results.filter((r) => r.status === 'rejected').length
+      const succeeded = results.filter(
+        (result) => result.status === 'fulfilled' && result.value
+      ).length
+      const failed = fileArray.length - succeeded
       console.log(LOG_PREFIX, 'batch done', { succeeded, failed, total: fileArray.length })
+      if (failed > 0 && succeeded > 0) {
+        showSnackbar(
+          `Se subieron ${succeeded} imagen(es). ${failed} fallaron y puedes reintentarlas.`,
+          { variant: 'warning' }
+        )
+      } else if (failed > 0) {
+        showSnackbar('No pudimos subir las imágenes. Revisa tu conexión e intenta de nuevo.', {
+          variant: 'error',
+        })
+      }
     } finally {
       uploadInProgressRef.current = false
       setUploadStatusText(null)
@@ -266,6 +302,29 @@ export function ImageUpload({
     // Remove from previews
     const updated = previews.filter((_, i) => i !== index)
     setPreviews(updated)
+  }
+
+  const handleRetry = async (index: number) => {
+    const preview = previews[index]
+    if (!preview?.file || preview.uploading || disabled) return
+
+    uploadInProgressRef.current = true
+    setUploadStatusText('Reintentando subida...')
+
+    try {
+      const storagePath = preview.retryKey || getProductImagePath(userId, Date.now() + index)
+      const uploaded = await uploadPreviewFile(index, preview.file, storagePath, true)
+      if (uploaded) {
+        showSnackbar('Imagen subida correctamente.', { variant: 'success' })
+      } else {
+        showSnackbar('La imagen sigue fallando. Puedes reintentar o quitarla.', {
+          variant: 'warning',
+        })
+      }
+    } finally {
+      uploadInProgressRef.current = false
+      setUploadStatusText(null)
+    }
   }
 
   // Handle reorder with buttons (keyboard accessible)
@@ -552,6 +611,24 @@ export function ImageUpload({
                     aria-label={`Mover imagen ${index + 1} a la derecha`}
                   >
                     <ChevronRight className="h-4 w-4" aria-hidden />
+                  </Button>
+                </div>
+              )}
+
+              {!preview.uploading && preview.error && (
+                <div className="absolute top-2 left-2 z-10">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="min-h-[36px] shadow-lg"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void handleRetry(index)
+                    }}
+                    disabled={disabled}
+                  >
+                    Reintentar
                   </Button>
                 </div>
               )}

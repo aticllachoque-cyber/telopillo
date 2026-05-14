@@ -8,7 +8,7 @@ import {
   isHeicLikeImage,
   removeStorageImageByPublicUrl,
   revokeImagePreview,
-  uploadStorageImage,
+  uploadStorageImageWithRetry,
   validateImageFile,
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
@@ -49,6 +49,8 @@ export function SingleImageUpload({
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [busyMessage, setBusyMessage] = useState<string | null>(null)
+  const [retryFile, setRetryFile] = useState<File | null>(null)
+  const [retryPath, setRetryPath] = useState<string | null>(null)
 
   useEffect(() => {
     setPreviewUrl(value)
@@ -92,10 +94,7 @@ export function SingleImageUpload({
     }
   }
 
-  const handleFileSelect = async (files: FileList | null) => {
-    if (!files || files.length === 0 || disabled || isUploading) return
-
-    const file = files[0]
+  const performUpload = async (file: File, storagePath = buildPath(userId)) => {
     if (!file) return
 
     const validation = validateImageFile(file)
@@ -107,6 +106,8 @@ export function SingleImageUpload({
 
     setIsUploading(true)
     setUploadError(null)
+    setRetryFile(file)
+    setRetryPath(storagePath)
     setBusyMessage(isHeicLikeImage(file) ? 'Procesando foto del iPhone...' : 'Procesando imagen...')
 
     const previousValue = value
@@ -116,11 +117,13 @@ export function SingleImageUpload({
     setPreviewUrl(tempPreview)
 
     try {
-      const { publicUrl } = await uploadStorageImage({
+      const { publicUrl } = await uploadStorageImageWithRetry({
         storage: supabase.storage,
         bucket,
-        path: buildPath(userId),
+        path: storagePath,
         file,
+        retries: 1,
+        retryExistingPath: true,
       })
 
       if (isStagedUpload(previousValue) && !isPersistedValue(previousValue)) {
@@ -130,6 +133,8 @@ export function SingleImageUpload({
       stagedUploadUrlsRef.current.add(publicUrl)
       clearTemporaryPreview()
       setPreviewUrl(publicUrl)
+      setRetryFile(null)
+      setRetryPath(null)
       onChange(publicUrl)
     } catch (uploadErr) {
       console.error('[SingleImageUpload] Upload failed:', uploadErr)
@@ -141,6 +146,14 @@ export function SingleImageUpload({
       setBusyMessage(null)
       resetInputs()
     }
+  }
+
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files || files.length === 0 || disabled || isUploading) return
+
+    const file = files[0]
+    if (!file) return
+    await performUpload(file)
   }
 
   const handleRemove = async () => {
@@ -156,6 +169,8 @@ export function SingleImageUpload({
 
     setPreviewUrl(null)
     onChange(null)
+    setRetryFile(null)
+    setRetryPath(null)
     resetInputs()
   }
 
@@ -227,6 +242,19 @@ export function SingleImageUpload({
                 Quitar
               </Button>
             </div>
+            {uploadError && retryFile && (
+              <div className="border-t border-border/60 px-3 pb-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="min-h-[44px] w-full touch-manipulation"
+                  onClick={() => void performUpload(retryFile, retryPath || buildPath(userId))}
+                  disabled={disabled || isUploading}
+                >
+                  Reintentar subida
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
@@ -260,6 +288,17 @@ export function SingleImageUpload({
               <CameraIcon className="mr-2 h-4 w-4" aria-hidden />
               Tomar foto
             </Button>
+            {uploadError && retryFile && (
+              <Button
+                type="button"
+                variant="secondary"
+                className="min-h-[44px] w-full touch-manipulation"
+                onClick={() => void performUpload(retryFile, retryPath || buildPath(userId))}
+                disabled={disabled || isUploading}
+              >
+                Reintentar subida
+              </Button>
+            )}
           </div>
         )}
       </div>
