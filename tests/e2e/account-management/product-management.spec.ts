@@ -41,7 +41,10 @@ test.describe('Account Management - Product Management', () => {
     await gotoMyProductsPage(page)
 
     await expect(page.getByRole('heading', { name: /mis productos/i })).toBeVisible()
+    await expect(page.getByText(/vista personal/i)).toBeVisible()
     await expect(page.getByText(/gestiona tus productos/i)).toBeVisible()
+    await expect(page.getByText(/esta vista es solo para ti/i)).toBeVisible()
+    await expect(page.getByRole('link', { name: /ver perfil público/i })).toBeVisible()
   })
 
   test('Product cards show title, price, status when products exist, or empty state', async ({

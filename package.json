@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "normalize:next-env": "node scripts/normalize-next-env.mjs",
+    "predev": "npm run normalize:next-env",
+    "prebuild": "npm run normalize:next-env",
+    "pretype-check": "npm run normalize:next-env",
     "dev": "next dev",
     "dev:https": "next dev --experimental-https -H 0.0.0.0 --experimental-https-key ./certificates/localhost-key.pem --experimental-https-cert ./certificates/localhost.pem",
     "dev:webpack": "next dev --webpack",

@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+npm run normalize:next-env
+git add -f next-env.d.ts
+
 npx lint-staged

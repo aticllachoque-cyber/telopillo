@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   Select,
@@ -13,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, Plus, Package, ArrowLeft, ArrowUpDown } from 'lucide-react'
+import { Loader2, Plus, Package, ArrowLeft, ArrowUpDown, Eye, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { ShareProfile } from '@/components/profile/ShareProfile'
 
@@ -182,6 +183,7 @@ export default function MisProductosPage() {
   }
 
   const hasProducts = products.length > 0
+  const publicProfileHref = businessSlug ? `/negocio/${businessSlug}` : `/vendedor/${userId}`
 
   return (
     <div className="min-h-dvh bg-background py-8">
@@ -199,10 +201,28 @@ export default function MisProductosPage() {
           <CardHeader className="pb-2">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
+                <Badge variant="secondary" className="mb-3 w-fit gap-1">
+                  <Eye className="h-3.5 w-3.5" aria-hidden />
+                  Vista personal
+                </Badge>
                 <h1 className="text-balance text-2xl font-bold sm:text-3xl">Mis productos</h1>
                 <p className="text-pretty mt-1 text-sm text-muted-foreground sm:text-base">
                   Gestiona tus productos
                 </p>
+                <p className="text-pretty mt-3 max-w-2xl text-sm text-muted-foreground">
+                  Esta vista es solo para ti. Si compartes tu perfil, otras personas verán tu perfil
+                  público y tus productos publicados, sin estos controles de gestión.
+                </p>
+                <Button
+                  asChild
+                  variant="link"
+                  className="mt-2 h-auto min-h-[44px] px-0 text-sm sm:min-h-10"
+                >
+                  <Link href={publicProfileHref}>
+                    Ver perfil público
+                    <ExternalLink className="ml-1 h-4 w-4 shrink-0" aria-hidden />
+                  </Link>
+                </Button>
               </div>
               <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
                 {userId && (
