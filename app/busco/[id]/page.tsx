@@ -1,9 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import Link from 'next/link'
+import { DemandPostPageClient } from '@/components/demand/DemandPostPageClient'
 import { createClient, createPublicClient, getOptionalUser } from '@/lib/supabase/server'
-import { DemandPostDetail } from '@/components/demand/DemandPostDetail'
-import { ArrowLeft } from 'lucide-react'
 import { getCategoryName } from '@/lib/data/categories'
 import { resolveDemandImageUrl } from '@/lib/utils/image'
 import { resolveUuidFromRouteParam } from '@/lib/utils/publicRoutes'
@@ -146,33 +144,25 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
     .eq('demand_post_id', id)
     .order('created_at', { ascending: false })
 
-  const mapped = ((rawOffers ?? []) as RawOffer[]).map((o) => ({
-    ...o,
-    products: Array.isArray(o.products) ? (o.products[0] ?? null) : o.products,
-    seller: Array.isArray(o.seller) ? (o.seller[0] ?? null) : o.seller,
+  const mapped = ((rawOffers ?? []) as RawOffer[]).map((offer) => ({
+    ...offer,
+    products: Array.isArray(offer.products) ? (offer.products[0] ?? null) : offer.products,
+    seller: Array.isArray(offer.seller) ? (offer.seller[0] ?? null) : offer.seller,
   }))
-  // Only pass offers with a valid product_id (OfferRow requires it)
-  const offers = mapped.filter((o): o is typeof o & { product_id: string } => o.product_id != null)
+
+  const offers = mapped.filter(
+    (offer): offer is typeof offer & { product_id: string } => offer.product_id != null
+  )
 
   return (
-    <div className="min-h-dvh bg-background py-8 pb-24 lg:pb-8">
-      <div className="container px-4 sm:px-6">
-        <Link
-          href="/busco"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6 min-h-[44px] -my-2 py-2 -ml-2 pl-2 pr-2 touch-manipulation"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />
-          Volver a solicitudes
-        </Link>
-
-        <DemandPostDetail
-          post={post}
-          poster={poster}
-          posterBusiness={posterBusiness}
-          offers={offers}
-          currentUserId={user?.id ?? null}
-        />
-      </div>
-    </div>
+    <DemandPostPageClient
+      initialData={{
+        post,
+        poster,
+        posterBusiness,
+        offers,
+        currentUserId: user?.id ?? null,
+      }}
+    />
   )
 }

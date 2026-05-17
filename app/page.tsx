@@ -1,8 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { CtaStrip } from '@/components/home/CtaStrip'
-import { HomeDemandsPreview } from '@/components/home/HomeDemandsPreview'
-import { HomeProductsPreview } from '@/components/home/HomeProductsPreview'
+import { getHomepagePreview } from '@/lib/home/getHomepagePreview'
 import { HeroSearchForm } from '@/components/home/HeroSearchForm'
+import { ResilientHomePreview } from '@/components/home/ResilientHomePreview'
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate'
 import Link from 'next/link'
 import {
@@ -17,7 +17,6 @@ import {
   Search,
 } from 'lucide-react'
 import { CATEGORIES, CATEGORY_ICONS } from '@/lib/data/categories'
-import { getHomepagePreview } from '@/lib/home/getHomepagePreview'
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 
@@ -72,7 +71,7 @@ const features = [
 ]
 
 export default async function Home() {
-  const { products, demands } = await getHomepagePreview()
+  const initialPreview = await getHomepagePreview()
   const categories = HOMEPAGE_CATEGORY_IDS.map((id) => {
     const cat = CATEGORIES.find((c) => c.id === id)
     return {
@@ -180,9 +179,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {products.length > 0 && <HomeProductsPreview products={products} />}
-
-      {demands.length > 0 && <HomeDemandsPreview demands={demands} />}
+      <ResilientHomePreview initialData={initialPreview} />
 
       {/* Trust Section */}
       <section

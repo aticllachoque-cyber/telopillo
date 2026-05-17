@@ -62,11 +62,13 @@ export function SearchBar({
         />
         <Input
           ref={inputRef}
-          type="search"
+          type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
           autoComplete="off"
+          inputMode="search"
+          enterKeyHint="search"
           className="pl-9 pr-9 min-h-[44px] sm:min-h-0"
           autoFocus={autoFocus}
           disabled={isSearching}

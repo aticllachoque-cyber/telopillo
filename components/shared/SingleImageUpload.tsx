@@ -11,6 +11,12 @@ import {
   uploadStorageImageWithRetry,
   validateImageFile,
 } from '@/lib/utils/image'
+import {
+  buildUploadRecoveryKey,
+  clearUploadRecovery,
+  loadUploadRecovery,
+  saveUploadRecovery,
+} from '@/lib/offline/upload-recovery'
 import { Button } from '@/components/ui/button'
 import { CameraIcon, ImageIcon, Loader2, Trash2, Upload } from 'lucide-react'
 
@@ -51,10 +57,19 @@ export function SingleImageUpload({
   const [busyMessage, setBusyMessage] = useState<string | null>(null)
   const [retryFile, setRetryFile] = useState<File | null>(null)
   const [retryPath, setRetryPath] = useState<string | null>(null)
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null)
+  const recoveryKey = buildUploadRecoveryKey(`${bucket}:${userId}`)
 
   useEffect(() => {
     setPreviewUrl(value)
   }, [value])
+
+  useEffect(() => {
+    const pendingRecovery = loadUploadRecovery(recoveryKey)
+    if (!pendingRecovery) return
+
+    setRecoveryMessage(pendingRecovery.data.message)
+  }, [recoveryKey])
 
   useEffect(() => {
     return () => {
@@ -135,12 +150,23 @@ export function SingleImageUpload({
       setPreviewUrl(publicUrl)
       setRetryFile(null)
       setRetryPath(null)
+      clearUploadRecovery(recoveryKey)
+      setRecoveryMessage(null)
       onChange(publicUrl)
     } catch (uploadErr) {
       console.error('[SingleImageUpload] Upload failed:', uploadErr)
       clearTemporaryPreview()
       setPreviewUrl(previousValue)
-      setUploadError(uploadErr instanceof Error ? uploadErr.message : 'No se pudo subir la imagen')
+      const message = uploadErr instanceof Error ? uploadErr.message : 'No se pudo subir la imagen'
+      setUploadError(message)
+      const recoveryNotice =
+        'La imagen no terminó de subirse. La puedes reintentar ahora o volver a seleccionarla después.'
+      setRecoveryMessage(recoveryNotice)
+      saveUploadRecovery(recoveryKey, {
+        bucket,
+        failedCount: 1,
+        message: recoveryNotice,
+      })
     } finally {
       setIsUploading(false)
       setBusyMessage(null)
@@ -171,6 +197,8 @@ export function SingleImageUpload({
     onChange(null)
     setRetryFile(null)
     setRetryPath(null)
+    clearUploadRecovery(recoveryKey)
+    setRecoveryMessage(null)
     resetInputs()
   }
 
@@ -184,6 +212,24 @@ export function SingleImageUpload({
       </div>
 
       <div className="space-y-3">
+        {recoveryMessage && !uploadError && (
+          <div className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            <div className="flex items-center justify-between gap-3">
+              <p>{recoveryMessage}</p>
+              <button
+                type="button"
+                className="shrink-0 text-xs font-medium underline underline-offset-2"
+                onClick={() => {
+                  clearUploadRecovery(recoveryKey)
+                  setRecoveryMessage(null)
+                }}
+              >
+                Ocultar
+              </button>
+            </div>
+          </div>
+        )}
+
         <input
           ref={fileInputRef}
           type="file"

@@ -14,6 +14,12 @@ import {
 } from '@/lib/utils/image'
 import { Button } from '@/components/ui/button'
 import { useSnackbar } from '@/components/ui/snackbar'
+import {
+  buildUploadRecoveryKey,
+  clearUploadRecovery,
+  loadUploadRecovery,
+  saveUploadRecovery,
+} from '@/lib/offline/upload-recovery'
 import { Upload, X, Loader2, CameraIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ImageUploadProps {
@@ -32,6 +38,7 @@ interface ImagePreview {
   uploaded: boolean
   error?: string
   retryKey?: string
+  recoverable?: boolean
 }
 
 const LOG_PREFIX = '[ImageUpload]'
@@ -65,8 +72,52 @@ export function ImageUpload({
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const uploadInProgressRef = useRef(false)
   const lastSyncedUploadedUrlsRef = useRef<string[]>(resolveProductImageUrls(value))
+  const recoveryKey = buildUploadRecoveryKey(`product-images:${userId}`)
   const supabase = createClient()
   const { showSnackbar } = useSnackbar()
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const pendingRecovery = loadUploadRecovery(recoveryKey)
+    const hasRecoverablePreviews = previews.some(
+      (preview) => preview.recoverable && preview.file && !preview.uploaded
+    )
+
+    if (!hasRecoverablePreviews) {
+      clearUploadRecovery(recoveryKey)
+      setRecoveryMessage(null)
+      return
+    }
+
+    if (pendingRecovery) {
+      setRecoveryMessage(pendingRecovery.data.message)
+    }
+  }, [previews, recoveryKey])
+
+  useEffect(() => {
+    const recoverableFailedCount = previews.filter(
+      (preview) => preview.recoverable && preview.file && !preview.uploaded
+    ).length
+
+    if (recoverableFailedCount === 0) {
+      clearUploadRecovery(recoveryKey)
+      setRecoveryMessage((current) => (current ? null : current))
+      return
+    }
+
+    const uploadedCount = previews.filter((preview) => preview.uploaded).length
+    const message =
+      uploadedCount > 0
+        ? 'Algunas imágenes fallaron. Las que sí subieron quedaron guardadas; vuelve a seleccionar solo las pendientes.'
+        : 'Las imágenes no terminaron de subirse. Puedes reintentarlas ahora o volver a seleccionar solo las pendientes después.'
+
+    saveUploadRecovery(recoveryKey, {
+      bucket: 'product-images',
+      failedCount: recoverableFailedCount,
+      message,
+    })
+    setRecoveryMessage(message)
+  }, [previews, recoveryKey])
 
   const setPreviewUploadState = (
     previewIndex: number,
@@ -116,6 +167,7 @@ export function ImageUpload({
           file: undefined,
           error: undefined,
           retryKey: undefined,
+          recoverable: false,
         }
       })
       return true
@@ -129,6 +181,7 @@ export function ImageUpload({
         error: message,
         file,
         retryKey: storagePath,
+        recoverable: true,
       }))
       return false
     } finally {
@@ -219,6 +272,7 @@ export function ImageUpload({
       file,
       uploading: true,
       uploaded: false,
+      recoverable: false,
     }))
 
     setPreviews((prev) => [...prev, ...newPreviews])
@@ -382,6 +436,24 @@ export function ImageUpload({
       <span id="image-upload-label" className="sr-only">
         Carga de imágenes del producto
       </span>
+
+      {recoveryMessage && uploadingCount === 0 && (
+        <div className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <div className="flex items-center justify-between gap-3">
+            <p>{recoveryMessage}</p>
+            <button
+              type="button"
+              className="shrink-0 text-xs font-medium underline underline-offset-2"
+              onClick={() => {
+                clearUploadRecovery(recoveryKey)
+                setRecoveryMessage(null)
+              }}
+            >
+              Ocultar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Upload Status (screen reader live region) */}
       <div role="status" aria-live="polite" className="sr-only">

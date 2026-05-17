@@ -1,6 +1,30 @@
 import { authenticatedTest, expect } from '../../fixtures'
 
 authenticatedTest.describe('Network Resilience', () => {
+  authenticatedTest(
+    'Homepage preview falls back to cached content when API fails',
+    async ({ page }) => {
+      await page.goto('/', { waitUntil: 'load' })
+
+      await page.waitForResponse((response) => response.url().includes('/api/home-preview'))
+
+      await page.route('**/api/home-preview', async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'forced failure' }),
+        })
+      })
+
+      await page.goto('/categorias', { waitUntil: 'load' })
+      await page.goto('/', { waitUntil: 'load' })
+
+      await expect(
+        page.getByText(/mostrando contenido guardado por una falla de conexión/i)
+      ).toBeVisible({ timeout: 15000 })
+    }
+  )
+
   authenticatedTest('Demand draft can be restored after reload', async ({ page }) => {
     await page.goto('/busco/publicar', { waitUntil: 'load' })
 
