@@ -15,7 +15,7 @@ export const productPresentation = {
   /** Description / section headings on detail */
   sectionHeading: 'text-base font-semibold sm:text-lg mb-2 sm:mb-3 text-balance',
   sectionBody:
-    'text-sm sm:text-base text-muted-foreground whitespace-pre-wrap leading-relaxed text-pretty',
+    'text-sm sm:text-base text-muted-foreground whitespace-pre-wrap break-words leading-relaxed text-pretty',
   /** Same outline WhatsApp treatment as listing cards */
   whatsappButtonClass:
     'min-h-[44px] border-green-700/80 bg-green-50 py-2 text-sm text-green-900 hover:bg-green-100 hover:text-green-950 dark:border-green-600 dark:bg-green-950/40 dark:text-green-50 dark:hover:bg-green-900/50',

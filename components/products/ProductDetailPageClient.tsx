@@ -127,10 +127,10 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
         )}
 
         <div className="grid gap-8 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
+          <div className="min-w-0 space-y-6 lg:col-span-2">
             <ProductGallery images={productImages} productTitle={product.title} />
 
-            <Card className="border-border/80 shadow-sm">
+            <Card className="min-w-0 border-border/80 shadow-sm">
               <CardContent className="space-y-4 p-4 sm:space-y-6 sm:p-6">
                 <div>
                   <h1 className={productPresentation.detailTitle}>{product.title}</h1>
@@ -206,8 +206,8 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
             </Card>
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
+          <div className="min-w-0 lg:col-span-1">
+            <div className="min-w-0 sticky top-8">
               <SellerCard
                 seller={sellerProfile}
                 productTitle={product.title}

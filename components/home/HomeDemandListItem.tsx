@@ -64,11 +64,11 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
           />
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
               <Badge variant="secondary" className="shrink-0 text-xs">
                 {categoryLabel}
               </Badge>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
+              <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground tabular-nums">
                 <Clock className="h-3 w-3 shrink-0" aria-hidden />
                 {formatRelativeDate(post.created_at)}
               </span>
@@ -82,9 +82,9 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
               {priceRange && (
                 <span className="font-medium text-primary tabular-nums">{priceRange}</span>
               )}
-              <span className="flex items-center gap-1">
+              <span className="flex min-w-0 items-center gap-1">
                 <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                <span className="truncate">
+                <span className="block min-w-0 flex-1 truncate">
                   {post.location_city}, {post.location_department}
                 </span>
               </span>

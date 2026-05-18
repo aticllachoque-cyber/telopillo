@@ -37,9 +37,9 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="w-full min-w-0 space-y-4">
       {/* Main Image */}
-      <div className="relative aspect-square bg-muted rounded-lg overflow-hidden group">
+      <div className="group relative aspect-square w-full overflow-hidden rounded-lg bg-muted">
         <Image
           src={selectedImage ?? ''}
           alt={`${productTitle} - Imagen ${selectedIndex + 1}`}
@@ -87,7 +87,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
 
       {/* Thumbnails (only if multiple images) */}
       {resolvedImages.length > 1 && (
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid w-full grid-cols-5 gap-2">
           {resolvedImages.map((image, index) => (
             <button
               key={index}

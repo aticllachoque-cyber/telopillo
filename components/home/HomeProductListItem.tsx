@@ -72,9 +72,9 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
             <p className="mt-2 text-xl font-bold leading-tight text-primary tabular-nums">
               Bs {product.price.toLocaleString('es-BO')}
             </p>
-            <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground sm:text-sm">
+            <div className="mt-2 flex min-w-0 items-center gap-1 text-xs text-muted-foreground sm:text-sm">
               <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              <span className="truncate">{location}</span>
+              <span className="block min-w-0 flex-1 truncate">{location}</span>
             </div>
           </div>
         </Link>

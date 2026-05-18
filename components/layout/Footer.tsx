@@ -12,9 +12,9 @@ export function Footer() {
         {/* Top row: Brand + Social + Links */}
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           {/* Brand + Social */}
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-bold">Telopillo</span>
-            <div className="flex gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <span className="shrink-0 text-sm font-bold">Telopillo</span>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <Link
                 href="https://www.facebook.com/profile.php?id=61589457988698"
                 target="_blank"

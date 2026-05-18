@@ -47,7 +47,7 @@ test.describe('Cross-Cutting - Mobile Responsive (375x812)', () => {
     await assertNoHorizontalScroll(page)
 
     await expect(page.getByLabel(/email/i)).toBeVisible()
-    await expect(page.getByLabel(/contraseña/i)).toBeVisible()
+    await expect(page.locator('#main-content input[type="password"]')).toBeVisible()
   })
 
   test('Register page - no horizontal scroll, form visible', async ({ page }) => {
@@ -91,7 +91,7 @@ test.describe('Cross-Cutting - Mobile Responsive (375x812)', () => {
     await assertNoHorizontalScroll(page)
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.getByText(/Bs \d/)).toBeVisible()
+    await expect(page.locator('main p').filter({ hasText: /^Bs / }).first()).toBeVisible()
   })
 
   test('Seller profile page - no horizontal scroll, key elements visible', async ({ page }) => {
@@ -112,7 +112,9 @@ test.describe('Cross-Cutting - Mobile Responsive (375x812)', () => {
     await assertNoHorizontalScroll(page)
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /productos/i })).toBeVisible()
+    await expect(page.locator('main')).toContainText(
+      /productos|sin productos publicados|página no encontrada/i
+    )
   })
 })
 

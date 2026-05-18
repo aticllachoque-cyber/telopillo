@@ -99,17 +99,19 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between gap-4">
+      <div className="container flex h-16 min-w-0 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-4">
         {/* Logo */}
         <Link
           href="/"
-          className="flex min-h-[44px] items-center space-x-2 shrink-0 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="flex min-w-0 flex-1 items-center space-x-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:flex-initial lg:shrink-0"
         >
-          <span className="text-2xl font-bold text-primary">Telopillo</span>
+          <span className="truncate text-[1.35rem] font-bold text-primary sm:text-2xl">
+            Telopillo
+          </span>
         </Link>
 
         {/* Desktop Search Bar (Suspense required for useSearchParams during static generation) */}
-        <div className="hidden md:flex flex-1 max-w-xl">
+        <div className="hidden lg:flex flex-1 max-w-xl min-w-0">
           <Suspense fallback={<div className="w-full min-h-10" />}>
             <SearchBar className="w-full" />
           </Suspense>
@@ -117,7 +119,7 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav
-          className="hidden md:flex items-center gap-2 shrink-0"
+          className="hidden lg:flex items-center gap-2 shrink-0"
           aria-label="Navegación principal"
         >
           <div
@@ -156,7 +158,7 @@ export function Header() {
         </nav>
 
         {/* Mobile controls: search + avatar/login + hamburger */}
-        <div className="flex md:hidden items-center gap-1">
+        <div className="flex shrink-0 items-center gap-0.5 lg:hidden sm:gap-1">
           {/* Mobile Search Icon */}
           <Button
             variant="ghost"
@@ -172,8 +174,8 @@ export function Header() {
           </Button>
 
           {!isAuthenticated ? (
-            <Button asChild className="min-h-[44px] touch-manipulation">
-              <Link href="/login">Ingresar</Link>
+            <Button asChild className="min-h-[44px] px-3 text-sm touch-manipulation sm:px-4">
+              <Link href="/login">Entrar</Link>
             </Button>
           ) : profile ? (
             <Link
@@ -240,19 +242,19 @@ export function Header() {
         createPortal(
           <>
             <div
-              className="fixed inset-0 z-50 bg-black/50 md:hidden"
+              className="fixed inset-0 z-50 bg-black/50 lg:hidden"
               onClick={closeSearch}
               aria-hidden="true"
             />
             <div
-              className="fixed inset-x-0 top-0 z-50 md:hidden bg-background shadow-lg"
+              className="fixed inset-x-0 top-0 z-50 bg-background shadow-lg lg:hidden"
               role="dialog"
               aria-label="Buscar productos"
               aria-modal="true"
             >
-              <div className="container flex items-center gap-2 h-16">
+              <div className="container flex h-16 min-w-0 items-center gap-2 px-3 sm:px-4">
                 <form
-                  className="flex flex-1 items-center gap-2"
+                  className="flex min-w-0 flex-1 items-center gap-2"
                   role="search"
                   aria-label="Buscar productos"
                   onSubmit={(e) => {
