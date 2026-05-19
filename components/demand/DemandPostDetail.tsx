@@ -434,9 +434,9 @@ function OfferCard({ offer }: { offer: OfferRow }) {
   return (
     <Card>
       <CardContent className="py-4">
-        <div className="flex gap-4">
+        <div className="flex items-start gap-3 sm:gap-4">
           {imageUrl && (
-            <div className="relative h-20 w-20 shrink-0 rounded-md overflow-hidden bg-muted">
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-muted sm:h-24 sm:w-24">
               <Image
                 src={imageUrl}
                 alt={product.title}
@@ -448,21 +448,19 @@ function OfferCard({ offer }: { offer: OfferRow }) {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
               <Link
                 href={getProductPath(product.id)}
-                className="font-medium hover:text-primary truncate"
+                className="min-w-0 font-medium leading-snug hover:text-primary sm:truncate"
               >
-                {product.title}
+                <span className="block line-clamp-2">{product.title}</span>
               </Link>
-              <span
-                className={cn(productPresentation.listingPrice, 'text-base sm:text-lg shrink-0')}
-              >
+              <span className={cn(productPresentation.listingPrice, 'shrink-0 text-lg sm:text-lg')}>
                 Bs {product.price.toLocaleString('es-BO')}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
               <Avatar className="h-5 w-5">
                 <AvatarImage
                   src={resolveAvatarUrl(seller.avatar_url) || undefined}
@@ -472,15 +470,15 @@ function OfferCard({ offer }: { offer: OfferRow }) {
                   {(seller.full_name ?? 'U').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span>{seller.full_name ?? 'Usuario'}</span>
-              <span className="flex items-center gap-1">
+              <span className="min-w-0 truncate">{seller.full_name ?? 'Usuario'}</span>
+              <span className="flex min-w-0 items-center gap-1">
                 <MapPin className="h-3 w-3" aria-hidden />
-                {product.location_city}
+                <span className="truncate">{product.location_city}</span>
               </span>
             </div>
 
             {offer.message && (
-              <p className="text-sm text-muted-foreground mt-2 italic">
+              <p className="mt-2 text-sm italic text-muted-foreground">
                 &ldquo;{offer.message}&rdquo;
               </p>
             )}
