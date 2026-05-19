@@ -22,7 +22,7 @@ interface HomeProductListItemProps {
 export function HomeProductListItem({ product, priority = false }: HomeProductListItemProps) {
   const imageUrl = resolveProductImageUrl(product.images[0])
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
-  const productPath = getProductPath(product.id)
+  const productPath = getProductPath(product.id, product.title)
   const sellerContact = resolveSellerWhatsAppDigits(
     product.seller_business_whatsapp,
     product.seller_profile_phone

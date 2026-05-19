@@ -321,7 +321,7 @@ export function ProductFormWizard({
 
         clearDraft(draftKey)
         showSnackbar('Producto publicado exitosamente.', { variant: 'success' })
-        router.push(getProductPath(product.id))
+        router.push(getProductPath(product.id, product.title))
       } else if (mode === 'edit' && productId) {
         const { error: updateError } = await supabase
           .from('products')
@@ -343,7 +343,7 @@ export function ProductFormWizard({
 
         clearDraft(draftKey)
         showSnackbar('Producto actualizado exitosamente.', { variant: 'success' })
-        router.push(getProductPath(productId))
+        router.push(getProductPath(productId, data.title))
       }
     } catch (err) {
       console.error('Error saving product:', err)

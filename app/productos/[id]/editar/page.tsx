@@ -66,7 +66,7 @@ export default function EditProductPage() {
       if (authError) throw authError
 
       if (!user) {
-        router.push(`/login?redirect=${encodeURIComponent(getProductEditPath(routeProductId))}`)
+        router.push(`/login?redirect=${encodeURIComponent(getProductEditPath(productId))}`)
         return
       }
 
@@ -153,7 +153,7 @@ export default function EditProductPage() {
         {/* Header */}
         <div className="mb-6">
           <Link
-            href={getProductPath(productId)}
+            href={getProductPath(productId, productData.title)}
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />

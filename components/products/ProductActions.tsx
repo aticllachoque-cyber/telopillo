@@ -51,7 +51,7 @@ export function ProductActions({
   const { showSnackbar } = useSnackbar()
   const [isProcessing, setIsProcessing] = useState(false)
   const [dialogAction, setDialogAction] = useState<ActionType>(null)
-  const productPath = getProductPath(productId)
+  const productPath = getProductPath(productId, productTitle)
 
   const handleEdit = () => {
     router.push(getProductEditPath(productId))
@@ -60,7 +60,7 @@ export function ProductActions({
   const handleShareProduct = async () => {
     const productUrl = `${BASE_URL}${productPath}`
     const shareTitle = productTitle || 'Producto en Telopillo'
-    const shareText = `Mira este producto: ${shareTitle}`
+    const shareText = `Mira esta publicación: ${shareTitle}`
 
     if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
       try {

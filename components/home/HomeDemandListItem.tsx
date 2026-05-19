@@ -6,8 +6,12 @@ import { DemandImageFrame } from '@/components/demand/DemandImageFrame'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
 import type { SearchDemandPost } from '@/types/database'
-import { buildWhatsAppMeUrlWithFallback } from '@/lib/utils/whatsapp'
+import {
+  buildDemandWhatsAppPrefillMessage,
+  buildWhatsAppMeUrlWithFallback,
+} from '@/lib/utils/whatsapp'
 import { getDemandPath } from '@/lib/utils/publicRoutes'
+import { absoluteUrl } from '@/lib/utils'
 
 interface HomeDemandListItemProps {
   post: SearchDemandPost
@@ -39,10 +43,13 @@ export function HomeDemandListItem({ post }: HomeDemandListItemProps) {
   const categoryLabel =
     CATEGORY_LABELS[post.category as keyof typeof CATEGORY_LABELS] || post.category
   const priceRange = formatPriceRange(post.price_min, post.price_max)
-  const demandPath = getDemandPath(post.id)
+  const demandPath = getDemandPath(post.id, post.title)
   const whatsappHref = buildWhatsAppMeUrlWithFallback(
     post.poster_phone,
-    `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.`
+    buildDemandWhatsAppPrefillMessage({
+      demandTitle: post.title,
+      demandAbsoluteUrl: absoluteUrl(demandPath),
+    })
   )
 
   return (

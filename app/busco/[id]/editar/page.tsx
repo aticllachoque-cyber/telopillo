@@ -29,7 +29,7 @@ export default async function EditDemandPostPage({ params }: EditDemandPostPageP
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(`/login?redirect=${encodeURIComponent(getDemandEditPath(routeId))}`)
+    redirect(`/login?redirect=${encodeURIComponent(getDemandEditPath(id))}`)
   }
 
   const { data: post, error } = await supabase
@@ -60,7 +60,7 @@ export default async function EditDemandPostPage({ params }: EditDemandPostPageP
       <div className="container max-w-2xl px-4 sm:px-6">
         <div className="mb-8">
           <Link
-            href={getDemandPath(id)}
+            href={getDemandPath(id, post.title)}
             className="mb-4 inline-flex min-h-[44px] touch-manipulation items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden />

@@ -6,13 +6,14 @@ import { Share2 } from 'lucide-react'
 
 interface ShareButtonProps {
   title: string
+  shareText?: string
   className?: string
 }
 
-export function ShareButton({ title, className }: ShareButtonProps) {
+export function ShareButton({ title, shareText, className }: ShareButtonProps) {
   const handleShare = () => {
     const url = window.location.href
-    const text = `Mira este producto: ${title} - ${url}`
+    const text = `${shareText ?? `Mira esta publicación: ${title}`}\n\n${url}`
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
   }

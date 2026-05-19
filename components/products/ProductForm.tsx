@@ -117,7 +117,7 @@ export function ProductForm({
         if (insertError) throw insertError
 
         // Redirect to product detail page
-        router.push(getProductPath(product.id))
+        router.push(getProductPath(product.id, product.title))
       } else if (mode === 'edit' && productId) {
         // Update existing product
         const { error: updateError } = await supabase
@@ -139,7 +139,7 @@ export function ProductForm({
         if (updateError) throw updateError
 
         // Redirect to product detail page
-        router.push(getProductPath(productId))
+        router.push(getProductPath(productId, data.title))
       }
     } catch (err) {
       console.error('Error saving product:', err)

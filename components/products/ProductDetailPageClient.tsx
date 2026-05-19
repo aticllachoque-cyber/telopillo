@@ -58,7 +58,7 @@ interface ProductDetailResponse {
 
 export function ProductDetailPageClient({ initialData }: ProductDetailPageClientProps) {
   const { product, sellerProfile, businessProfile, isOwner, normalizedSellerContact } = initialData
-  const productPath = getProductPath(product.id)
+  const productPath = getProductPath(product.id, product.title)
   const categoryName = getCategoryName(product.category)
   const conditionLabel = CONDITION_LABELS[product.condition as keyof typeof CONDITION_LABELS]
   const location = formatProductLocationDisplay(product.location_city, product.location_department)
@@ -188,6 +188,7 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
                   <div className="flex w-full gap-2 sm:w-auto sm:flex-1 sm:justify-start">
                     <ShareButton
                       title={product.title}
+                      shareText={`Mira esta publicación: ${product.title} por Bs ${product.price.toLocaleString('es-BO')}`}
                       className="flex-1 sm:min-w-[8rem] sm:flex-initial"
                     />
                     {!isOwner && (

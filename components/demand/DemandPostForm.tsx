@@ -334,7 +334,7 @@ export function DemandPostForm({
               .eq('id', demandPostId!)
               .eq('user_id', userId)
 
-      const { data: post, error } = await query.select('id').single()
+      const { data: post, error } = await query.select('id, title').single()
 
       if (error) throw error
 
@@ -347,7 +347,7 @@ export function DemandPostForm({
       }
 
       clearDraft(draftKey)
-      router.push(getDemandPath(post.id))
+      router.push(getDemandPath(post.id, post.title))
     } catch (error) {
       console.error('Error creating demand post:', error)
       setSubmitError(

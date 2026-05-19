@@ -129,10 +129,19 @@ export function buildProductWhatsAppPrefillMessage(args: {
 }): string {
   const priceLabel = `Bs ${args.price.toLocaleString('es-BO')}`
   return [
-    'Hola! Me interesa este producto en Telopillo:',
+    `Mira esta publicación: ${args.productTitle} por ${priceLabel}`,
     '',
-    args.productTitle,
-    `Precio: ${priceLabel}`,
     `Ver publicación: ${args.productAbsoluteUrl}`,
+  ].join('\n')
+}
+
+export function buildDemandWhatsAppPrefillMessage(args: {
+  demandTitle: string
+  demandAbsoluteUrl: string
+}): string {
+  return [
+    `Alguien busca esto en Telopillo: ${args.demandTitle}`,
+    '',
+    `Ver solicitud: ${args.demandAbsoluteUrl}`,
   ].join('\n')
 }

@@ -416,7 +416,7 @@ export default function DemandDashboardPage() {
                             </Badge>
                           </div>
                           <Link
-                            href={getDemandPath(post.id)}
+                            href={getDemandPath(post.id, post.title)}
                             className="line-clamp-2 font-medium text-balance hover:text-primary"
                           >
                             {post.title}
@@ -433,7 +433,7 @@ export default function DemandDashboardPage() {
                               asChild
                               className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
                             >
-                              <Link href={getDemandPath(post.id)}>
+                              <Link href={getDemandPath(post.id, post.title)}>
                                 <Eye className="h-4 w-4 shrink-0" aria-hidden />
                                 <span>Ver</span>
                               </Link>
@@ -445,7 +445,7 @@ export default function DemandDashboardPage() {
                               asChild
                               className="min-h-[44px] gap-1.5 touch-manipulation text-xs sm:min-h-9"
                             >
-                              <Link href={getDemandEditPath(post.id)}>
+                              <Link href={getDemandEditPath(post.id, post.title)}>
                                 <PencilLine className="h-4 w-4 shrink-0" aria-hidden />
                                 <span>Editar</span>
                               </Link>

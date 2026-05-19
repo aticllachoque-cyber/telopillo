@@ -21,7 +21,11 @@ import {
   shouldBypassNextImageOptimization,
 } from '@/lib/utils/image'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
-import { buildWhatsAppMeUrl, resolveSellerWhatsAppDigits } from '@/lib/utils/whatsapp'
+import {
+  buildWhatsAppMeUrl,
+  buildDemandWhatsAppPrefillMessage,
+  resolveSellerWhatsAppDigits,
+} from '@/lib/utils/whatsapp'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { cn, absoluteUrl } from '@/lib/utils'
 import { getDemandEditPath, getDemandPath, getProductPath } from '@/lib/utils/publicRoutes'
@@ -126,10 +130,13 @@ export function DemandPostDetail({
   const priceRange = formatPriceRange(post.price_min, post.price_max)
   const expiryDays = daysUntilExpiry(post.expires_at)
   const location = `${post.location_city}, ${post.location_department}`
-  const demandPath = getDemandPath(post.id)
-  const demandEditPath = getDemandEditPath(post.id)
+  const demandPath = getDemandPath(post.id, post.title)
+  const demandEditPath = getDemandEditPath(post.id, post.title)
 
-  const whatsappMessage = `Hola! Vi tu solicitud "${post.title}" en Telopillo. Tengo algo que podría interesarte.\n\nVer solicitud: ${absoluteUrl(demandPath)}`
+  const whatsappMessage = buildDemandWhatsAppPrefillMessage({
+    demandTitle: post.title,
+    demandAbsoluteUrl: absoluteUrl(demandPath),
+  })
   const posterContact = resolveSellerWhatsAppDigits(posterBusiness?.social_whatsapp, poster?.phone)
   const whatsappHref =
     posterContact.normalizedDigits != null
@@ -450,7 +457,7 @@ function OfferCard({ offer }: { offer: OfferRow }) {
           <div className="flex-1 min-w-0">
             <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
               <Link
-                href={getProductPath(product.id)}
+                href={getProductPath(product.id, product.title)}
                 className="min-w-0 font-medium leading-snug hover:text-primary sm:truncate"
               >
                 <span className="block line-clamp-2">{product.title}</span>

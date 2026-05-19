@@ -1,10 +1,11 @@
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { DemandPostPageClient } from '@/components/demand/DemandPostPageClient'
 import { createClient, createPublicClient, getOptionalUser } from '@/lib/supabase/server'
 import { getCategoryName } from '@/lib/data/categories'
 import { resolveDemandImageUrl } from '@/lib/utils/image'
-import { resolveUuidFromRouteParam } from '@/lib/utils/publicRoutes'
+import { getDemandPath, resolveUuidFromRouteParam } from '@/lib/utils/publicRoutes'
+import { absoluteUrl } from '@/lib/utils'
 
 interface DemandPageProps {
   params: Promise<{
@@ -56,6 +57,23 @@ interface RawOffer {
     | null
 }
 
+function formatDemandBudget(min: number | null, max: number | null): string | null {
+  if (min == null && max == null) return null
+  if (min != null && max != null) {
+    return `Bs ${min.toLocaleString('es-BO')} a Bs ${max.toLocaleString('es-BO')}`
+  }
+  if (min != null) return `Desde Bs ${min.toLocaleString('es-BO')}`
+  return `Hasta Bs ${max!.toLocaleString('es-BO')}`
+}
+
+function buildDemandSocialTitle(title: string, city: string): string {
+  const trimmed = title.trim()
+  if (/^(busco|buscan)\b/i.test(trimmed)) {
+    return `${trimmed} en ${city} | Telopillo`
+  }
+  return `Buscan ${trimmed} en ${city} | Telopillo`
+}
+
 export async function generateMetadata({ params }: DemandPageProps): Promise<Metadata> {
   const { id: routeId } = await params
   const id = resolveUuidFromRouteParam(routeId)
@@ -67,7 +85,7 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
 
   const { data: post } = await supabase
     .from('demand_posts')
-    .select('title, description, category, location_city, image_url')
+    .select('title, description, category, location_city, image_url, price_min, price_max')
     .eq('id', id)
     .single()
 
@@ -77,14 +95,34 @@ export async function generateMetadata({ params }: DemandPageProps): Promise<Met
 
   const categoryName = getCategoryName(post.category)
   const imageUrl = resolveDemandImageUrl(post.image_url)
+  const canonicalPath = getDemandPath(id, post.title)
+  const socialTitle = buildDemandSocialTitle(post.title, post.location_city)
+  const budgetLabel = formatDemandBudget(post.price_min, post.price_max)
+  const description = post.description.trim()
+  const socialDescription =
+    description.length > 0
+      ? description.slice(0, 160)
+      : budgetLabel
+        ? `Presupuesto ${budgetLabel} · Ver solicitud en Telopillo`
+        : 'Ver solicitud en Telopillo'
 
   return {
-    title: `${post.title} - ${post.location_city} | Telopillo`,
-    description: post.description.slice(0, 160),
+    title: socialTitle,
+    description: socialDescription,
+    alternates: {
+      canonical: canonicalPath,
+    },
     openGraph: {
-      title: `Solicitud: ${post.title}`,
-      description: post.description.slice(0, 160),
+      title: socialTitle,
+      description: socialDescription,
       type: 'website',
+      images: imageUrl ? [imageUrl] : undefined,
+      url: absoluteUrl(canonicalPath),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: socialTitle,
+      description: socialDescription,
       images: imageUrl ? [imageUrl] : undefined,
     },
     other: {
@@ -110,6 +148,11 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
 
   if (postError || !post) {
     notFound()
+  }
+  const canonicalPath = getDemandPath(id, post.title)
+  const canonicalRouteParam = canonicalPath.split('/').pop()
+  if (routeId !== canonicalRouteParam) {
+    permanentRedirect(canonicalPath)
   }
 
   const { data: poster } = await supabase

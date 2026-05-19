@@ -80,7 +80,7 @@ export function ProductCard({
   const contactResolution = whatsappContactPhone?.trim()
     ? resolveSellerWhatsAppDigits(whatsappContactPhone, null)
     : resolveProductSearchContactFields(product)
-  const productPath = getProductPath(product.id)
+  const productPath = getProductPath(product.id, product.title)
   const whatsappDigits = !showActions ? contactResolution.normalizedDigits : null
   const whatsappHref =
     whatsappDigits != null

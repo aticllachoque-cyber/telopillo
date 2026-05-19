@@ -1,5 +1,8 @@
 const BASE62_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const PUBLIC_ROUTE_SEPARATOR = '--'
+const MAX_SLUG_LENGTH = 60
+const MAX_SLUG_WORDS = 8
 
 function encodeBigIntBase62(value: bigint): string {
   if (value === 0n) return BASE62_ALPHABET.charAt(0)
@@ -52,24 +55,53 @@ export function decodePublicTokenToUuid(token: string): string | null {
   return isUuid(uuid) ? uuid : null
 }
 
+function extractPublicToken(value: string): string {
+  const [token] = value.split(PUBLIC_ROUTE_SEPARATOR)
+  return token || value
+}
+
+export function slugifyTitle(title: string): string {
+  const normalized = title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ñ/g, 'n')
+    .replace(/Ñ/g, 'N')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+
+  if (!normalized) return ''
+
+  const limitedWords = normalized.split('-').filter(Boolean).slice(0, MAX_SLUG_WORDS).join('-')
+  return limitedWords.slice(0, MAX_SLUG_LENGTH).replace(/-$/g, '')
+}
+
+function buildPublicRouteSegment(id: string, title?: string): string {
+  const token = encodeUuidToPublicToken(id)
+  const slug = title ? slugifyTitle(title) : ''
+  return slug ? `${token}${PUBLIC_ROUTE_SEPARATOR}${slug}` : token
+}
+
 export function resolveUuidFromRouteParam(value: string): string | null {
   if (!value) return null
-  if (isUuid(value)) return value
-  return decodePublicTokenToUuid(value)
+  const token = extractPublicToken(value)
+  if (isUuid(token)) return token
+  return decodePublicTokenToUuid(token)
 }
 
-export function getProductPath(id: string): string {
-  return `/productos/${encodeUuidToPublicToken(id)}`
+export function getProductPath(id: string, title?: string): string {
+  return `/productos/${buildPublicRouteSegment(id, title)}`
 }
 
-export function getProductEditPath(id: string): string {
-  return `${getProductPath(id)}/editar`
+export function getProductEditPath(id: string, title?: string): string {
+  return `${getProductPath(id, title)}/editar`
 }
 
-export function getDemandPath(id: string): string {
-  return `/busco/${encodeUuidToPublicToken(id)}`
+export function getDemandPath(id: string, title?: string): string {
+  return `/busco/${buildPublicRouteSegment(id, title)}`
 }
 
-export function getDemandEditPath(id: string): string {
-  return `${getDemandPath(id)}/editar`
+export function getDemandEditPath(id: string, title?: string): string {
+  return `${getDemandPath(id, title)}/editar`
 }
