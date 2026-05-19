@@ -98,7 +98,11 @@ export function SellerCard({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Seller Info */}
-        <div className="flex items-center gap-4">
+        <Link
+          href={`/vendedor/${seller.id}`}
+          className="flex items-center gap-4 rounded-lg p-2 -m-2 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label={`Ver perfil de ${seller.full_name || 'este vendedor'}`}
+        >
           <Avatar className="h-16 w-16">
             <AvatarImage
               src={resolveAvatarUrl(seller.avatar_url) || undefined}
@@ -122,22 +126,23 @@ export function SellerCard({
               <span className="truncate">{location}</span>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Business Info */}
         {business && (
-          <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+          <Link
+            href={`/negocio/${business.slug}`}
+            className="flex items-center gap-2 rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label={`Visitar tienda ${business.business_name}`}
+          >
             <Store className="h-4 w-4 text-primary flex-shrink-0" aria-hidden />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{business.business_name}</p>
             </div>
-            <Link
-              href={`/negocio/${business.slug}`}
-              className="text-xs text-primary hover:underline font-medium whitespace-nowrap"
-            >
+            <span className="text-xs text-primary font-medium whitespace-nowrap">
               Visitar tienda
-            </Link>
-          </div>
+            </span>
+          </Link>
         )}
 
         {/* Product preview for buyers — ties contact action to this listing */}

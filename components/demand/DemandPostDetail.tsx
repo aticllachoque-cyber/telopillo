@@ -315,7 +315,11 @@ export function DemandPostDetail({
                 </p>
               </div>
 
-              <div className="flex items-center gap-4">
+              <Link
+                href={`/vendedor/${poster.id}`}
+                className="flex items-center gap-4 rounded-lg p-2 -m-2 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label={`Ver perfil de ${poster.full_name}`}
+              >
                 <Avatar className="h-14 w-14">
                   <AvatarImage
                     src={resolveAvatarUrl(poster.avatar_url) || undefined}
@@ -336,16 +340,17 @@ export function DemandPostDetail({
                     <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
                     <span className="truncate">{location}</span>
                   </div>
-                  {posterBusiness && (
-                    <Link
-                      href={`/negocio/${posterBusiness.slug}`}
-                      className="mt-1 inline-flex items-center text-sm text-primary hover:underline"
-                    >
-                      {posterBusiness.business_name}
-                    </Link>
-                  )}
                 </div>
-              </div>
+              </Link>
+
+              {posterBusiness && (
+                <Link
+                  href={`/negocio/${posterBusiness.slug}`}
+                  className="flex items-center rounded-lg bg-muted/40 px-3 py-3 text-sm text-primary transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  {posterBusiness.business_name}
+                </Link>
+              )}
 
               {whatsappHref && !isOwner && (
                 <ProductWhatsAppLink
