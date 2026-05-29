@@ -51,6 +51,25 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_public: {
+        Row: {
+          id: string
+          full_name: string
+          avatar_url: string | null
+          location_city: string | null
+          location_department: string | null
+          rating_average: number | null
+          rating_count: number | null
+          is_verified: boolean | null
+          verification_level: number
+          account_type: string
+          phone_verified: boolean
+          onboarding_completed: boolean
+          created_at: string
+          updated_at: string
+        }
+        Relationships: []
+      }
       app_secrets: {
         Row: {
           key: string
@@ -399,6 +418,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_seller_contact_phone: {
+        Args: { p_user_id: string }
+        Returns: string | null
+      }
       increment_product_views: {
         Args: { product_id: string }
         Returns: undefined

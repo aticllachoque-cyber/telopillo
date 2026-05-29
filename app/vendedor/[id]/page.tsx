@@ -26,7 +26,6 @@ interface SellerProfile {
   avatar_url: string | null
   location_city: string | null
   location_department: string | null
-  phone: string | null
   verification_level: number
   rating_average: number | null
   rating_count: number | null
@@ -41,9 +40,9 @@ async function getSellerProfile(id: string) {
   const supabase = createPublicClient()
 
   const { data: profile, error } = await supabase
-    .from('profiles')
+    .from('profiles_public')
     .select(
-      'id, full_name, avatar_url, location_city, location_department, phone, verification_level, rating_average, rating_count, created_at'
+      'id, full_name, avatar_url, location_city, location_department, verification_level, rating_average, rating_count, created_at'
     )
     .eq('id', id)
     .single()
@@ -160,6 +159,7 @@ function buildJsonLd(profile: SellerProfile, productCount: number) {
 
 export default async function SellerProfilePage({ params }: SellerPageProps) {
   const { id } = await params
+  const supabase = createPublicClient()
 
   const [profile, businessInfo, products] = await Promise.all([
     getSellerProfile(id),
@@ -170,6 +170,15 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
   if (!profile) {
     notFound()
   }
+
+  const { data: sellerContactPhone } = await supabase.rpc('get_seller_contact_phone', {
+    p_user_id: profile.id,
+  })
+
+  const contactPhone =
+    typeof sellerContactPhone === 'string' && sellerContactPhone.trim()
+      ? sellerContactPhone.trim()
+      : null
 
   const jsonLd = buildJsonLd(profile, products.length)
 
@@ -199,6 +208,7 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
                 profile={profile}
                 businessSlug={businessInfo?.slug ?? null}
                 social_whatsapp={businessInfo?.social_whatsapp ?? null}
+                contactPhone={contactPhone}
                 productCount={products.length}
               />
             </CardContent>
@@ -220,7 +230,7 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
                 products={products}
                 showActions={false}
                 showStatusBadge={false}
-                whatsappContactPhone={profile.phone?.trim() || null}
+                whatsappContactPhone={contactPhone}
               />
             ) : (
               <Card>

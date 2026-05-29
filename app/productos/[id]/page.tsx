@@ -85,24 +85,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const user = await getOptionalUser()
   const supabase = user ? await createClient() : createPublicClient()
 
-  const { data: product, error } = await supabase
-    .from('products')
-    .select(
-      `
-      *,
-      profiles:user_id (
-        id,
-        full_name,
-        avatar_url,
-        location_city,
-        location_department,
-        phone,
-        verification_level
-      )
-    `
-    )
-    .eq('id', id)
-    .single()
+  const { data: product, error } = await supabase.from('products').select('*').eq('id', id).single()
 
   if (error || !product) {
     notFound()
@@ -128,15 +111,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
     await supabase.rpc('increment_product_views', { product_id: id })
   }
 
-  const sellerProfile = product.profiles as {
-    id: string
-    full_name: string | null
-    avatar_url: string | null
-    location_city: string | null
-    location_department: string | null
-    phone: string | null
-    verification_level: number
+  const { data: sellerProfile } = await supabase
+    .from('profiles_public')
+    .select('id, full_name, avatar_url, location_city, location_department, verification_level')
+    .eq('id', product.user_id)
+    .maybeSingle()
+
+  if (!sellerProfile) {
+    notFound()
   }
+
+  const { data: sellerContactPhone } = await supabase.rpc('get_seller_contact_phone', {
+    p_user_id: product.user_id,
+  })
 
   return (
     <ProductDetailPageClient
@@ -145,7 +132,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           ...product,
           views_count: isOwner ? product.views_count : product.views_count + 1,
         },
-        sellerProfile,
+        sellerProfile: {
+          ...sellerProfile,
+          phone:
+            typeof sellerContactPhone === 'string' && sellerContactPhone.trim()
+              ? sellerContactPhone.trim()
+              : null,
+        },
         businessProfile: businessProfile
           ? {
               business_name: businessProfile.business_name,
@@ -156,8 +149,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
         isOwner,
         currentUserId: user?.id ?? null,
         normalizedSellerContact:
-          resolveSellerWhatsAppDigits(businessProfile?.social_whatsapp, sellerProfile.phone)
-            .normalizedDigits ?? null,
+          resolveSellerWhatsAppDigits(
+            businessProfile?.social_whatsapp,
+            typeof sellerContactPhone === 'string' ? sellerContactPhone : null
+          ).normalizedDigits ?? null,
       }}
     />
   )

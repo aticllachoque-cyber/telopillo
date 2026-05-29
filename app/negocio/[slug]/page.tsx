@@ -24,22 +24,9 @@ interface StorefrontPageProps {
 async function getBusinessBySlug(slug: string) {
   const supabase = createPublicClient()
 
-  // Fetch business profile with its owner profile in a single query
   const { data: business, error } = await supabase
     .from('business_profiles')
-    .select(
-      `
-      *,
-      profiles:id (
-        id,
-        full_name,
-        avatar_url,
-        phone,
-        verification_level,
-        created_at
-      )
-    `
-    )
+    .select('*')
     .eq('slug', slug)
     .single()
 
@@ -110,14 +97,9 @@ export async function generateMetadata({ params }: StorefrontPageProps): Promise
 
 function buildJsonLd(
   business: NonNullable<Awaited<ReturnType<typeof getBusinessBySlug>>>,
-  storefrontUrl: string
+  storefrontUrl: string,
+  contactPhone: string | null
 ) {
-  const profile = business.profiles as {
-    id: string
-    full_name: string
-    phone: string | null
-  }
-
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -132,8 +114,8 @@ function buildJsonLd(
   if (businessLogoUrl) {
     jsonLd.image = businessLogoUrl
   }
-  if (profile?.phone) {
-    jsonLd.telephone = profile.phone
+  if (contactPhone) {
+    jsonLd.telephone = contactPhone
   }
   if (business.business_address || business.business_city) {
     jsonLd.address = {
@@ -162,26 +144,37 @@ function buildJsonLd(
 
 export default async function StorefrontPage({ params }: StorefrontPageProps) {
   const { slug } = await params
+  const supabase = createPublicClient()
   const business = await getBusinessBySlug(slug)
 
   if (!business) {
     notFound()
   }
 
-  const profile = business.profiles as {
-    id: string
-    full_name: string
-    avatar_url: string | null
-    phone: string | null
-    verification_level: number
-    created_at: string
+  const { data: profile } = await supabase
+    .from('profiles_public')
+    .select('id, full_name, avatar_url, verification_level, created_at')
+    .eq('id', business.id)
+    .maybeSingle()
+
+  if (!profile) {
+    notFound()
   }
+
+  const { data: sellerContactPhone } = await supabase.rpc('get_seller_contact_phone', {
+    p_user_id: profile.id,
+  })
+
+  const contactPhone =
+    typeof sellerContactPhone === 'string' && sellerContactPhone.trim()
+      ? sellerContactPhone.trim()
+      : null
 
   const products = await getBusinessProducts(profile.id)
 
-  const storefrontWhatsApp = business.social_whatsapp?.trim() || profile.phone?.trim() || null
+  const storefrontWhatsApp = business.social_whatsapp?.trim() || contactPhone
 
-  const jsonLd = buildJsonLd(business, absoluteUrl(`/negocio/${slug}`))
+  const jsonLd = buildJsonLd(business, absoluteUrl(`/negocio/${slug}`), contactPhone)
 
   return (
     <>
@@ -235,7 +228,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
           {/* Header Card */}
           <Card className="mb-6 sm:mb-8">
             <CardContent className="p-4 sm:p-6">
-              <BusinessHeader business={business} profile={profile} />
+              <BusinessHeader business={business} profile={{ ...profile, phone: contactPhone }} />
             </CardContent>
           </Card>
 
@@ -256,7 +249,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
                     social_tiktok: business.social_tiktok,
                     social_whatsapp: business.social_whatsapp,
                   }}
-                  phone={profile.phone}
+                  phone={contactPhone}
                 />
               </div>
             </div>

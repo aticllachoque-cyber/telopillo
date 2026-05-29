@@ -18,7 +18,6 @@ interface SellerProfileHeaderProps {
     avatar_url: string | null
     location_city: string | null
     location_department: string | null
-    phone: string | null
     verification_level: number
     rating_average: number | null
     rating_count: number | null
@@ -26,6 +25,7 @@ interface SellerProfileHeaderProps {
   }
   businessSlug: string | null
   social_whatsapp?: string | null
+  contactPhone?: string | null
   productCount: number
 }
 
@@ -43,6 +43,7 @@ export function SellerProfileHeader({
   profile,
   businessSlug,
   social_whatsapp,
+  contactPhone,
   productCount,
 }: SellerProfileHeaderProps) {
   const { showSnackbar } = useSnackbar()
@@ -57,7 +58,7 @@ export function SellerProfileHeader({
   const hasRatings = (profile.rating_count ?? 0) > 0
   const ratingAvg = profile.rating_average ?? 0
 
-  const whatsappNumber = social_whatsapp || profile.phone
+  const whatsappNumber = social_whatsapp || contactPhone
   const whatsappDigits = whatsappNumber ? normalizeBolivianWhatsAppDigits(whatsappNumber) : null
   const profileUrl = absoluteUrl(`/vendedor/${profile.id}`)
   const whatsappMessage = `Hola! Vi tu perfil "${profile.full_name || 'vendedor'}" en Telopillo y me gustaría hacerte una consulta.\n\nVer perfil: ${profileUrl}`

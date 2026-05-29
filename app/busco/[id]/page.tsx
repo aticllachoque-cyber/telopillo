@@ -39,22 +39,13 @@ interface RawOffer {
         location_department: string
       }[]
     | null
-  seller:
-    | {
-        id: string
-        full_name: string | null
-        avatar_url: string | null
-        phone: string | null
-        verification_level: number
-      }
-    | {
-        id: string
-        full_name: string | null
-        avatar_url: string | null
-        phone: string | null
-        verification_level: number
-      }[]
-    | null
+}
+
+interface PublicProfile {
+  id: string
+  full_name: string | null
+  avatar_url: string | null
+  verification_level: number
 }
 
 function formatDemandBudget(min: number | null, max: number | null): string | null {
@@ -156,8 +147,8 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
   }
 
   const { data: poster } = await supabase
-    .from('profiles')
-    .select('id, full_name, avatar_url, phone, verification_level')
+    .from('profiles_public')
+    .select('id, full_name, avatar_url, verification_level')
     .eq('id', post.user_id)
     .maybeSingle()
 
@@ -178,9 +169,6 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
       seller_id,
       products:product_id (
         id, title, price, images, status, location_city, location_department
-      ),
-      seller:seller_id (
-        id, full_name, avatar_url, phone, verification_level
       )
     `
     )
@@ -190,18 +178,52 @@ export default async function DemandPostPage({ params }: DemandPageProps) {
   const mapped = ((rawOffers ?? []) as RawOffer[]).map((offer) => ({
     ...offer,
     products: Array.isArray(offer.products) ? (offer.products[0] ?? null) : offer.products,
-    seller: Array.isArray(offer.seller) ? (offer.seller[0] ?? null) : offer.seller,
   }))
 
-  const offers = mapped.filter(
+  const offersWithoutSellers = mapped.filter(
     (offer): offer is typeof offer & { product_id: string } => offer.product_id != null
   )
+
+  const sellerIds = Array.from(new Set(offersWithoutSellers.map((offer) => offer.seller_id)))
+  const { data: sellerProfiles } =
+    sellerIds.length > 0
+      ? await supabase
+          .from('profiles_public')
+          .select('id, full_name, avatar_url, verification_level')
+          .in('id', sellerIds)
+      : { data: [] }
+
+  const sellerById = new Map(
+    ((sellerProfiles ?? []) as PublicProfile[]).map((seller) => [seller.id, seller])
+  )
+
+  const offers = offersWithoutSellers.map((offer) => {
+    const seller = sellerById.get(offer.seller_id)
+    return {
+      ...offer,
+      seller: seller ? { ...seller, phone: null } : null,
+    }
+  })
+
+  const { data: posterContactPhone } = await supabase.rpc('get_seller_contact_phone', {
+    p_user_id: post.user_id,
+  })
+
+  const posterWithContact = poster
+    ? {
+        ...poster,
+        phone:
+          typeof posterContactPhone === 'string' && posterContactPhone.trim()
+            ? posterContactPhone.trim()
+            : null,
+      }
+    : null
 
   return (
     <DemandPostPageClient
       initialData={{
         post,
-        poster,
+        poster: posterWithContact,
         posterBusiness,
         offers,
         currentUserId: user?.id ?? null,
