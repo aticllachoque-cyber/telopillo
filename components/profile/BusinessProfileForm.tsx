@@ -652,9 +652,16 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
               id="social_instagram"
               placeholder="@mitienda"
               className="h-11"
+              aria-invalid={!!errors.social_instagram}
+              aria-describedby={errors.social_instagram ? 'social_instagram-error' : undefined}
               {...register('social_instagram')}
               disabled={isSaving}
             />
+            {errors.social_instagram && (
+              <p id="social_instagram-error" className="text-sm text-destructive" role="alert">
+                {errors.social_instagram.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -663,9 +670,16 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
               id="social_tiktok"
               placeholder="@mitienda"
               className="h-11"
+              aria-invalid={!!errors.social_tiktok}
+              aria-describedby={errors.social_tiktok ? 'social_tiktok-error' : undefined}
               {...register('social_tiktok')}
               disabled={isSaving}
             />
+            {errors.social_tiktok && (
+              <p id="social_tiktok-error" className="text-sm text-destructive" role="alert">
+                {errors.social_tiktok.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, Package } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
 import { resolveAvatarUrl } from '@/lib/utils/image'
+import { serializeJsonLd } from '@/lib/utils/json-ld'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -177,7 +178,7 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
       {/* JSON-LD */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <div className="min-h-dvh bg-background py-8">

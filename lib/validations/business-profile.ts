@@ -1,6 +1,35 @@
 import { z } from 'zod'
 import { stripHtml } from './sanitize'
 
+const optionalSanitizedText = (max: number) =>
+  z.string().max(max).transform(stripHtml).optional().nullable()
+
+const isPlatformUrl = (value: string, allowedHosts: string[]) => {
+  try {
+    const url = new URL(value)
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return false
+
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, '')
+    return allowedHosts.some((host) => hostname === host || hostname.endsWith(`.${host}`))
+  } catch {
+    return false
+  }
+}
+
+const socialProfileSchema = (allowedHosts: string[], platform: string) =>
+  z
+    .string()
+    .max(2048)
+    .transform(stripHtml)
+    .optional()
+    .nullable()
+    .refine(
+      (value) => !value || /^@?[\w.]{1,50}$/.test(value) || isPlatformUrl(value, allowedHosts),
+      {
+        message: `Ingresa un usuario válido o una URL de ${platform}`,
+      }
+    )
+
 export const businessProfileSchema = z.object({
   business_name: z
     .string()
@@ -13,7 +42,7 @@ export const businessProfileSchema = z.object({
     .transform(stripHtml)
     .optional()
     .nullable(),
-  business_category: z.string().optional().nullable(),
+  business_category: optionalSanitizedText(100),
   nit: z
     .string()
     .regex(/^\d{1,15}$/, 'El NIT debe contener solo números')
@@ -26,8 +55,8 @@ export const businessProfileSchema = z.object({
     .optional()
     .nullable()
     .or(z.literal('')),
-  social_instagram: z.string().max(50).optional().nullable(),
-  social_tiktok: z.string().max(50).optional().nullable(),
+  social_instagram: socialProfileSchema(['instagram.com'], 'Instagram'),
+  social_tiktok: socialProfileSchema(['tiktok.com'], 'TikTok'),
   social_whatsapp: z
     .string()
     .regex(/^\+?[0-9\s-]{7,15}$/, 'Debe ser un número de teléfono válido')
@@ -35,9 +64,9 @@ export const businessProfileSchema = z.object({
     .nullable()
     .or(z.literal('')),
   business_hours: z.record(z.string(), z.string()).optional().nullable(),
-  business_address: z.string().max(200).optional().nullable(),
-  business_department: z.string().optional().nullable(),
-  business_city: z.string().optional().nullable(),
+  business_address: optionalSanitizedText(200),
+  business_department: optionalSanitizedText(100),
+  business_city: optionalSanitizedText(100),
 })
 
 export type BusinessProfileInput = z.infer<typeof businessProfileSchema>

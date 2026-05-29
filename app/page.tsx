@@ -17,6 +17,7 @@ import {
   Search,
 } from 'lucide-react'
 import { CATEGORIES, CATEGORY_ICONS } from '@/lib/data/categories'
+import { serializeJsonLd } from '@/lib/utils/json-ld'
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 
@@ -86,7 +87,7 @@ export default async function Home() {
       <OnboardingGate />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       {/* Hero Section */}

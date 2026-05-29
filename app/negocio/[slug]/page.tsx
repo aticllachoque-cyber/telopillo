@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Construction, Package, Store } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
 import { resolveBusinessLogoUrl } from '@/lib/utils/image'
+import { serializeJsonLd } from '@/lib/utils/json-ld'
 
 interface StorefrontPageProps {
   params: Promise<{
@@ -187,7 +188,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <div className="min-h-dvh bg-background py-8">
