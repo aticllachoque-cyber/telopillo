@@ -26,7 +26,7 @@ export const demandPostSchema = z
       message: 'Selecciona una categoría',
     }),
 
-    subcategory: z.string().optional(),
+    subcategory: z.string().optional().nullable(),
 
     location_department: z.enum(BOLIVIA_DEPARTMENTS, {
       message: 'Selecciona un departamento',
