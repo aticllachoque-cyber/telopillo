@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createClient } from '@/lib/supabase/client'
 import {
   productSchema,
   type ProductInput,
@@ -32,6 +31,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useSnackbar } from '@/components/ui/snackbar'
 import { cn, getSupabaseErrorMessage } from '@/lib/utils'
 import { resolveStorageImageUrl } from '@/lib/utils/image'
+import { createProductAction, updateProductAction } from '@/lib/actions/products'
 import { getProductPath } from '@/lib/utils/publicRoutes'
 import { clearDraft, loadDraft, saveDraft } from '@/lib/offline/drafts'
 import type { FieldErrors } from 'react-hook-form'
@@ -85,7 +85,6 @@ export function ProductFormWizard({
   mode = 'create',
 }: ProductFormWizardProps) {
   const router = useRouter()
-  const supabase = createClient()
   const { showSnackbar } = useSnackbar()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -299,47 +298,16 @@ export function ProductFormWizard({
 
     try {
       if (mode === 'create') {
-        const { data: product, error: insertError } = await supabase
-          .from('products')
-          .insert({
-            user_id: userId,
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            subcategory: data.subcategory || null,
-            price: data.price,
-            condition: data.condition,
-            location_department: data.location_department,
-            location_city: data.location_city,
-            images: data.images,
-            status: 'active',
-          })
-          .select()
-          .single()
-
-        if (insertError) throw insertError
+        const result = await createProductAction(data)
+        if (!result.success) throw new Error(result.error)
 
         clearDraft(draftKey)
         showSnackbar('Producto publicado exitosamente.', { variant: 'success' })
-        router.push(getProductPath(product.id, product.title))
+        router.push(getProductPath(result.data.id, result.data.title))
       } else if (mode === 'edit' && productId) {
-        const { error: updateError } = await supabase
-          .from('products')
-          .update({
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            subcategory: data.subcategory || null,
-            price: data.price,
-            condition: data.condition,
-            location_department: data.location_department,
-            location_city: data.location_city,
-            images: data.images,
-          })
-          .eq('id', productId)
-          .eq('user_id', userId)
-
-        if (updateError) throw updateError
+        const previousImages = defaultValues?.images ?? []
+        const result = await updateProductAction(productId, data, previousImages)
+        if (!result.success) throw new Error(result.error)
 
         clearDraft(draftKey)
         showSnackbar('Producto actualizado exitosamente.', { variant: 'success' })

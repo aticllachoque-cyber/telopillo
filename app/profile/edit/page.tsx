@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, ArrowLeft, Store, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { updateProfileAction } from '@/lib/actions/profile'
 import { profileSchema, type ProfileInput } from '@/lib/validations/profile'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -147,28 +148,13 @@ export default function ProfileEditPage() {
 
       if (!user) throw new Error('No autenticado')
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: data.full_name,
-          phone: data.phone,
-          location_department: data.location_department,
-          location_city: data.location_city,
-        })
-        .eq('id', user.id)
+      const result = await updateProfileAction(data)
 
-      if (error) throw error
-
-      // Re-fetch to get updated verification_level (auto-trigger on phone change)
-      const { data: updatedProfile } = await supabase
-        .from('profiles')
-        .select('verification_level')
-        .eq('id', user.id)
-        .single()
-
-      if (updatedProfile) {
-        setVerificationLevel(updatedProfile.verification_level ?? 0)
+      if (!result.success) {
+        throw new Error(result.error)
       }
+
+      setVerificationLevel(result.data.verification_level)
 
       setSuccess(true)
       setTimeout(() => {

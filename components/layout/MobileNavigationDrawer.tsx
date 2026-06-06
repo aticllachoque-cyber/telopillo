@@ -50,14 +50,14 @@ export function MobileNavigationDrawer({
   return (
     <>
       <div
-        className="fixed inset-0 z-50 bg-black/50 md:hidden"
+        className="fixed inset-0 z-50 bg-black/50 lg:hidden"
         onClick={() => onClose()}
         aria-hidden="true"
       />
       <div
         ref={panelRef}
         id="mobile-nav-dialog"
-        className="fixed inset-y-0 right-0 z-50 w-[280px] md:hidden bg-background shadow-2xl"
+        className="fixed inset-y-0 right-0 z-50 w-[280px] lg:hidden bg-background shadow-2xl"
         role="dialog"
         aria-label="Menú de navegación"
         aria-modal="true"

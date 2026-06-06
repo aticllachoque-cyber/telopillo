@@ -72,6 +72,7 @@ export function ImageUpload({
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const uploadInProgressRef = useRef(false)
   const lastSyncedUploadedUrlsRef = useRef<string[]>(resolveProductImageUrls(value))
+  const stagedUploadUrlsRef = useRef<Set<string>>(new Set())
   const recoveryKey = buildUploadRecoveryKey(`product-images:${userId}`)
   const supabase = createClient()
   const { showSnackbar } = useSnackbar()
@@ -170,6 +171,7 @@ export function ImageUpload({
           recoverable: false,
         }
       })
+      stagedUploadUrlsRef.current.add(publicUrl)
       return true
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al subir imagen'
@@ -336,24 +338,26 @@ export function ImageUpload({
     handleFileSelect(files)
   }
 
+  const isStagedUpload = (publicUrl: string) => stagedUploadUrlsRef.current.has(publicUrl)
+
   // Handle remove image
   const handleRemove = async (index: number) => {
     const preview = previews[index]
     if (!preview) return
 
-    // If uploaded to storage, delete it
     if (preview.uploaded) {
-      try {
-        await removeStorageImageByPublicUrl(supabase.storage, 'product-images', preview.url)
-      } catch (err) {
-        console.error('Error deleting image from storage:', err)
+      if (isStagedUpload(preview.url)) {
+        try {
+          await removeStorageImageByPublicUrl(supabase.storage, 'product-images', preview.url)
+        } catch (err) {
+          console.error('Error deleting image from storage:', err)
+        }
+        stagedUploadUrlsRef.current.delete(preview.url)
       }
     } else {
-      // Revoke object URL if not uploaded
       revokeImagePreview(preview.url)
     }
 
-    // Remove from previews
     const updated = previews.filter((_, i) => i !== index)
     setPreviews(updated)
   }

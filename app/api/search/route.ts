@@ -1,6 +1,10 @@
 // Public route: product search does not require authentication
 import { NextRequest, NextResponse } from 'next/server'
 import { createPublicClient } from '@/lib/supabase/server'
+import {
+  enrichProductSearchRows,
+  fetchSellerContactPhonesByUserId,
+} from '@/lib/search/enrichSearchContacts'
 import { expandQuery } from '@/lib/search/synonyms'
 import { fetchWithPolicy } from '@/lib/network/fetch'
 
@@ -222,7 +226,12 @@ export async function GET(request: NextRequest) {
     }
 
     const result = data?.[0] || { products: [], total_count: 0 }
-    const products = result.products || []
+    const rawProducts = (result.products || []) as Array<{ user_id?: string }>
+    const contactByUserId = await fetchSellerContactPhonesByUserId(
+      supabase,
+      rawProducts.map((product) => product.user_id).filter(Boolean) as string[]
+    )
+    const products = enrichProductSearchRows(rawProducts, contactByUserId)
     const totalCount = result.total_count || 0
     const totalMs = Date.now() - searchStartMs
 

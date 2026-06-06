@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createClient } from '@/lib/supabase/client'
 import {
   productSchema,
   type ProductInput,
@@ -30,6 +29,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { getProductPath } from '@/lib/utils/publicRoutes'
+import { createProductAction, updateProductAction } from '@/lib/actions/products'
 import { getSupabaseErrorMessage } from '@/lib/utils'
 
 interface ProductFormProps {
@@ -46,7 +46,6 @@ export function ProductForm({
   mode = 'create',
 }: ProductFormProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [subcategories, setSubcategories] = useState<string[]>([])
@@ -95,51 +94,14 @@ export function ProductForm({
 
     try {
       if (mode === 'create') {
-        // Create new product
-        const { data: product, error: insertError } = await supabase
-          .from('products')
-          .insert({
-            user_id: userId,
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            subcategory: data.subcategory || null,
-            price: data.price,
-            condition: data.condition,
-            location_department: data.location_department,
-            location_city: data.location_city,
-            images: data.images,
-            status: 'active',
-          })
-          .select()
-          .single()
-
-        if (insertError) throw insertError
-
-        // Redirect to product detail page
-        router.push(getProductPath(product.id, product.title))
+        const result = await createProductAction(data)
+        if (!result.success) throw new Error(result.error)
+        router.push(getProductPath(result.data.id, result.data.title))
       } else if (mode === 'edit' && productId) {
-        // Update existing product
-        const { error: updateError } = await supabase
-          .from('products')
-          .update({
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            subcategory: data.subcategory || null,
-            price: data.price,
-            condition: data.condition,
-            location_department: data.location_department,
-            location_city: data.location_city,
-            images: data.images,
-          })
-          .eq('id', productId)
-          .eq('user_id', userId) // Ensure user owns the product
-
-        if (updateError) throw updateError
-
-        // Redirect to product detail page
-        router.push(getProductPath(productId, data.title))
+        const previousImages = defaultValues?.images ?? []
+        const result = await updateProductAction(productId, data, previousImages)
+        if (!result.success) throw new Error(result.error)
+        router.push(getProductPath(result.data.id, result.data.title))
       }
     } catch (err) {
       console.error('Error saving product:', err)

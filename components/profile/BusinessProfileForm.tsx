@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Upload, X, Save } from 'lucide-react'
+import { upsertBusinessProfileAction } from '@/lib/actions/business-profile'
 import { createClient } from '@/lib/supabase/client'
 import {
   businessProfileSchema,
@@ -291,33 +292,16 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
       setIsSaving(true)
 
       const payload = {
-        business_name: data.business_name,
-        business_description: data.business_description || null,
-        business_category: data.business_category || null,
-        nit: data.nit || null,
-        website_url: data.website_url || null,
-        social_facebook: data.social_facebook || null,
-        social_instagram: data.social_instagram || null,
-        social_tiktok: data.social_tiktok || null,
-        social_whatsapp: data.social_whatsapp || null,
+        ...data,
         business_hours: Object.keys(businessHours).length > 0 ? businessHours : null,
-        business_address: data.business_address || null,
-        business_department: data.business_department || null,
-        business_city: data.business_city || null,
       }
 
-      if (hasExistingProfile) {
-        const { error } = await supabase.from('business_profiles').update(payload).eq('id', userId)
-        if (error) throw error
-      } else {
-        // Generate slug server-side via RPC
-        const { data: slugResult } = await supabase.rpc('generate_slug', {
-          input: data.business_name,
-        })
-        const { error } = await supabase
-          .from('business_profiles')
-          .insert({ id: userId, slug: slugResult || 'negocio', ...payload })
-        if (error) throw error
+      const result = await upsertBusinessProfileAction(payload, hasExistingProfile)
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      if (!hasExistingProfile) {
         setHasExistingProfile(true)
       }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { createDemandOfferAction } from '@/lib/actions/demand'
 import { createClient } from '@/lib/supabase/client'
 import {
   Dialog,
@@ -83,19 +84,15 @@ export function OfferProductModal({
     setError(null)
 
     try {
-      const { error: insertError } = await supabase.from('demand_offers').insert({
+      const result = await createDemandOfferAction({
         demand_post_id: demandPostId,
         product_id: selectedProductId,
-        seller_id: currentUserId,
         message: message.trim() || null,
       })
 
-      if (insertError) {
-        if (insertError.code === '23505') {
-          setError('Ya ofreciste este producto para esta solicitud.')
-          return
-        }
-        throw insertError
+      if (!result.success) {
+        setError(result.error)
+        return
       }
 
       onSuccess()

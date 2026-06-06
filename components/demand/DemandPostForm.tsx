@@ -6,6 +6,7 @@ import { useForm, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
 import { removeStorageImageByPublicUrl, resolveDemandImageUrl } from '@/lib/utils/image'
+import { createDemandPostAction, updateDemandPostAction } from '@/lib/actions/demand'
 import { demandPostSchema, type DemandPostInput } from '@/lib/validations/demand'
 import { getSubcategories } from '@/lib/data/categories'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
@@ -322,21 +323,16 @@ export function DemandPostForm({
         image_url: data.image_url ?? null,
       }
 
-      const query =
+      const result =
         mode === 'create'
-          ? supabase.from('demand_posts').insert({
-              user_id: userId,
-              ...payload,
-            })
-          : supabase
-              .from('demand_posts')
-              .update(payload)
-              .eq('id', demandPostId!)
-              .eq('user_id', userId)
+          ? await createDemandPostAction(payload)
+          : await updateDemandPostAction(demandPostId!, payload)
 
-      const { data: post, error } = await query.select('id, title').single()
+      if (!result.success) {
+        throw new Error(result.error)
+      }
 
-      if (error) throw error
+      const post = result.data
 
       if (mode === 'edit' && originalImageUrl && originalImageUrl !== payload.image_url) {
         try {
