@@ -16,8 +16,10 @@
 /.playwright-cli
 /logged-in
 
-# Playwright CLI skills (local agent tooling)
-.claude/skills/playwright-cli/
+# AI editor/agent config (local tooling, not project code)
+.claude/
+.cursor/
+.antigravitycli/
 
 # next.js
 /.next/
