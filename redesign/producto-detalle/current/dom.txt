@@ -1,0 +1,149 @@
+- generic [active] [ref=e1]:
+  - link "Saltar al contenido principal" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Telopillo" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]: Telopillo
+        - generic [ref=e160]:
+          - button "Buscar" [ref=e161]:
+            - img
+          - link "Entrar" [ref=e162] [cursor=pointer]:
+            - /url: /login
+          - button "Abrir menú" [ref=e163]:
+            - img
+    - main [ref=e22]:
+      - generic [ref=e24]:
+        - navigation "Breadcrumb" [ref=e25]:
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "Inicio" [ref=e28] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e29]: /
+            - listitem [ref=e30]:
+              - link "Para Bebés y Niños" [ref=e31] [cursor=pointer]:
+                - /url: /buscar?category=baby
+            - listitem [ref=e32]: /
+            - listitem [ref=e33]:
+              - generic [ref=e34]: Cuna convertible de madera con colchon
+        - link "Volver" [ref=e35] [cursor=pointer]:
+          - /url: /
+          - img [ref=e36]
+          - text: Volver
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]:
+                - img "Cuna convertible de madera con colchon - Imagen 1" [ref=e42]
+                - button "Imagen anterior" [ref=e43]:
+                  - img
+                - button "Imagen siguiente" [ref=e44]:
+                  - img
+                - status [ref=e45]: 1 / 2
+              - generic [ref=e46]:
+                - button "Ver imagen 1" [pressed] [ref=e47]:
+                  - img "Cuna convertible de madera con colchon - Miniatura 1" [ref=e48]
+                - button "Ver imagen 2" [ref=e49]:
+                  - img "Cuna convertible de madera con colchon - Miniatura 2" [ref=e50]
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - heading "Cuna convertible de madera con colchon" [level=1] [ref=e54]
+                - paragraph [ref=e55]: Bs 900
+              - list "Información del producto" [ref=e56]:
+                - listitem [ref=e57]:
+                  - img [ref=e58]
+                  - generic [ref=e61]: Estado · Usado - Como nuevo
+                - listitem [ref=e62]:
+                  - img [ref=e63]
+                  - generic [ref=e66]: Ubicación · El Alto, La Paz
+                - listitem [ref=e67]:
+                  - img [ref=e68]
+                  - generic [ref=e71]: Vistas · 4
+                - listitem [ref=e72]:
+                  - img [ref=e73]
+                  - generic [ref=e75]: Publicado · 13 de agosto de 2026
+              - generic [ref=e76]:
+                - heading "Descripción" [level=2] [ref=e77]
+                - paragraph [ref=e78]: Cuna convertible a cama infantil, madera firme y colchon incluido. Tiene tres niveles de altura y barandas seguras para recien nacido.
+              - generic [ref=e80]:
+                - button "Compartir" [ref=e81]:
+                  - img
+                  - text: Compartir
+                - button "Reportar" [ref=e82]:
+                  - img
+                  - text: Reportar
+          - generic [ref=e85]:
+            - generic [ref=e87]: Vendedor
+            - generic [ref=e88]:
+              - link "Ver perfil de Laura Rojas" [ref=e89] [cursor=pointer]:
+                - /url: /vendedor/b1000001-0000-0000-0000-000000000004
+                - generic [ref=e91]: LR
+                - generic [ref=e92]:
+                  - paragraph [ref=e93]: Laura Rojas
+                  - generic [ref=e94]:
+                    - img "Vendedor con Teléfono" [ref=e95]:
+                      - img [ref=e96]
+                      - text: Vendedor con Teléfono
+                      - img [ref=e98]
+                    - generic [ref=e101]: Este vendedor proporcionó un número de teléfono de contacto
+                  - generic [ref=e102]:
+                    - img [ref=e103]
+                    - generic [ref=e106]: El Alto, La Paz
+              - region "Resumen del producto para tu consulta" [ref=e107]:
+                - paragraph [ref=e108]: Tu consulta sobre
+                - generic [ref=e111]:
+                  - paragraph [ref=e112]: Cuna convertible de madera con colchon
+                  - paragraph [ref=e113]: Bs 900
+              - link "Contactar a Laura Rojas por WhatsApp sobre Cuna convertible de madera con colchon" [ref=e114] [cursor=pointer]:
+                - /url: https://wa.me/59170445566?text=Mira%20esta%20publicaci%C3%B3n%3A%20Cuna%20convertible%20de%20madera%20con%20colchon%20por%20Bs%20900%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F5U4vHZ2yHvSS9owlZsropg--cuna-convertible-de-madera-con-colchon
+                - img
+                - text: Contactar por WhatsApp
+              - link "Ver perfil del vendedor" [ref=e115] [cursor=pointer]:
+                - /url: /vendedor/b1000001-0000-0000-0000-000000000004
+                - img
+                - text: Ver perfil del vendedor
+              - generic [ref=e116]:
+                - paragraph [ref=e117]: "💡 Consejos de seguridad:"
+                - list [ref=e118]:
+                  - listitem [ref=e119]: Reúnete en lugares públicos
+                  - listitem [ref=e120]: Verifica el producto antes de pagar
+                  - listitem [ref=e121]: No compartas información personal
+    - contentinfo [ref=e122]:
+      - generic [ref=e123]:
+        - generic [ref=e124]:
+          - generic [ref=e125]:
+            - generic [ref=e126]: Telopillo
+            - generic [ref=e127]:
+              - link "Seguinos en Facebook" [ref=e128] [cursor=pointer]:
+                - /url: https://www.facebook.com/profile.php?id=61589457988698
+                - img [ref=e129]
+              - link "Seguinos en Instagram" [ref=e131] [cursor=pointer]:
+                - /url: https://www.instagram.com/telo.pillo/
+                - img [ref=e132]
+              - link "Seguinos en X" [ref=e134] [cursor=pointer]:
+                - /url: https://x.com/telopillo
+                - img [ref=e135]
+              - link "Seguinos en TikTok" [ref=e137] [cursor=pointer]:
+                - /url: https://www.tiktok.com/@telopillo
+                - img [ref=e138]
+          - navigation "Footer" [ref=e140]:
+            - link "Acerca de" [ref=e141] [cursor=pointer]:
+              - /url: /acerca
+            - link "Contacto" [ref=e142] [cursor=pointer]:
+              - /url: /contacto
+            - link "Ayuda" [ref=e143] [cursor=pointer]:
+              - /url: /ayuda
+            - link "Seguridad" [ref=e144] [cursor=pointer]:
+              - /url: /seguridad
+            - link "Términos" [ref=e145] [cursor=pointer]:
+              - /url: /terminos
+            - link "Privacidad" [ref=e146] [cursor=pointer]:
+              - /url: /privacidad
+            - link "Cookies" [ref=e147] [cursor=pointer]:
+              - /url: /cookies
+        - paragraph [ref=e148]: © 2026 Telopillo. Todos los derechos reservados.
+  - button "Open Next.js Dev Tools" [ref=e154] [cursor=pointer]:
+    - img [ref=e155]
+  - alert [ref=e159]

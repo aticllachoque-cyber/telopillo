@@ -1,0 +1,101 @@
+- link "Saltar al contenido principal":
+  - /url: "#main-content"
+- banner:
+  - link "Telopillo":
+    - /url: /
+  - search "Buscar productos":
+    - textbox "Buscar productos":
+      - /placeholder: Buscar productos...
+    - button "Buscar (escribe un término primero)" [disabled]: Buscar
+  - navigation "Navegación principal":
+    - text: Marketplace
+    - link "Productos":
+      - /url: /buscar
+    - link "Categorías":
+      - /url: /categorias
+    - link "Solicitudes":
+      - /url: /busco
+    - link "Publicar Gratis":
+      - /url: /crear
+    - link "Ingresar":
+      - /url: /login
+- main:
+  - navigation "Breadcrumb":
+    - list:
+      - listitem:
+        - link "Inicio":
+          - /url: /
+      - listitem:
+        - link "Para Bebés y Niños":
+          - /url: /buscar?category=baby
+      - listitem: Cuna convertible de madera con colchon
+  - button "Volver"
+  - img "Cuna convertible de madera con colchon - Imagen 1"
+  - button "Imagen anterior"
+  - button "Imagen siguiente"
+  - status: 1 / 2
+  - button "Ver imagen 1" [pressed]:
+    - img "Cuna convertible de madera con colchon - Miniatura 1"
+  - button "Ver imagen 2":
+    - img "Cuna convertible de madera con colchon - Miniatura 2"
+  - heading "Cuna convertible de madera con colchon" [level=1]
+  - paragraph: Bs 900
+  - list "Información del producto":
+    - listitem: Estado · Usado - Como nuevo
+    - listitem: Ubicación · El Alto, La Paz
+    - listitem: Vistas · 17
+    - listitem: Publicado · 13 de agosto de 2026
+  - heading "Descripción" [level=2]
+  - paragraph: Cuna convertible a cama infantil, madera firme y colchon incluido. Tiene tres niveles de altura y barandas seguras para recien nacido.
+  - button "Compartir"
+  - button "Reportar"
+  - text: Vendedor
+  - link "Ver perfil de Laura Rojas":
+    - /url: /vendedor/b1000001-0000-0000-0000-000000000004
+    - text: LR
+    - paragraph: Laura Rojas
+    - img "Vendedor con Teléfono"
+    - text: Este vendedor proporcionó un número de teléfono de contacto El Alto, La Paz
+  - region "Resumen del producto para tu consulta":
+    - paragraph: Tu consulta sobre
+    - paragraph: Cuna convertible de madera con colchon
+    - paragraph: Bs 900
+  - link "Contactar a Laura Rojas por WhatsApp sobre Cuna convertible de madera con colchon":
+    - /url: https://wa.me/59170445566?text=Mira%20esta%20publicaci%C3%B3n%3A%20Cuna%20convertible%20de%20madera%20con%20colchon%20por%20Bs%20900%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F5U4vHZ2yHvSS9owlZsropg--cuna-convertible-de-madera-con-colchon
+    - text: Contactar por WhatsApp
+  - link "Ver perfil del vendedor":
+    - /url: /vendedor/b1000001-0000-0000-0000-000000000004
+  - link "Ver catálogo del vendedor":
+    - /url: /vendedor/b1000001-0000-0000-0000-000000000004
+  - paragraph: "Consejos de seguridad:"
+  - list:
+    - listitem: Reúnete en lugares públicos
+    - listitem: Verifica el producto antes de pagar
+    - listitem: No compartas información personal
+- contentinfo:
+  - text: Telopillo
+  - link "Seguinos en Facebook":
+    - /url: https://www.facebook.com/profile.php?id=61589457988698
+  - link "Seguinos en Instagram":
+    - /url: https://www.instagram.com/telo.pillo/
+  - link "Seguinos en X":
+    - /url: https://x.com/telopillo
+  - link "Seguinos en TikTok":
+    - /url: https://www.tiktok.com/@telopillo
+  - navigation "Footer":
+    - link "Acerca de":
+      - /url: /acerca
+    - link "Contacto":
+      - /url: /contacto
+    - link "Ayuda":
+      - /url: /ayuda
+    - link "Seguridad":
+      - /url: /seguridad
+    - link "Términos":
+      - /url: /terminos
+    - link "Privacidad":
+      - /url: /privacidad
+    - link "Cookies":
+      - /url: /cookies
+  - paragraph: © 2026 Telopillo. Todos los derechos reservados.
+- alert
