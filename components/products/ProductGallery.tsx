@@ -71,7 +71,15 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
         className={`group relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted ${
           canHoverZoom ? 'cursor-zoom-in' : ''
         }`}
-        onMouseEnter={canHoverZoom ? () => setIsZooming(true) : undefined}
+        onMouseEnter={
+          canHoverZoom
+            ? (event) => {
+                // Reset to center so re-hovering does not jump to the previous origin.
+                handleZoomMove(event)
+                setIsZooming(true)
+              }
+            : undefined
+        }
         onMouseMove={canHoverZoom ? handleZoomMove : undefined}
         onMouseLeave={canHoverZoom ? () => setIsZooming(false) : undefined}
       >
@@ -79,7 +87,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
           src={selectedImage ?? ''}
           alt={`${productTitle} - Imagen ${selectedIndex + 1}`}
           fill
-          className="object-cover transition-transform duration-200 ease-out"
+          className="object-cover transition-transform duration-200 ease-out motion-reduce:transition-none"
           style={{
             transform: isZooming ? 'scale(2)' : 'scale(1)',
             transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
@@ -92,7 +100,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
         {/* Tap/click target for the fullscreen lightbox (pinch-zoom on mobile) */}
         <button
           type="button"
-          className="absolute inset-0 z-10 cursor-zoom-in"
+          className="absolute inset-0 z-10 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
           onClick={() => setIsLightboxOpen(true)}
           aria-label="Ampliar imagen"
         />
@@ -103,9 +111,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className={`absolute left-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
-                isZooming ? 'pointer-events-none opacity-0' : 'opacity-100'
-              }`}
+              className="absolute left-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg"
               onClick={handlePrevious}
               aria-label="Imagen anterior"
             >
@@ -114,9 +120,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className={`absolute right-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
-                isZooming ? 'pointer-events-none opacity-0' : 'opacity-100'
-              }`}
+              className="absolute right-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg"
               onClick={handleNext}
               aria-label="Imagen siguiente"
             >
