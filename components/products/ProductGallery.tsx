@@ -1,8 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Lightbox from 'yet-another-react-lightbox'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
+import 'yet-another-react-lightbox/styles.css'
+import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import { Button } from '@/components/ui/button'
 import { resolveProductImageUrls, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
@@ -13,9 +18,9 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [isZooming, setIsZooming] = useState(false)
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
-  const frameRef = useRef<HTMLDivElement>(null)
   // Hover zoom only makes sense with a precise pointer; touch devices swipe instead.
   const [canHoverZoom, setCanHoverZoom] = useState(false)
 
@@ -63,7 +68,6 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
     <div className="w-full min-w-0 space-y-4">
       {/* Main Image — 4:3 keeps title/price above the fold on desktop (F-4) */}
       <div
-        ref={frameRef}
         className={`group relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted ${
           canHoverZoom ? 'cursor-zoom-in' : ''
         }`}
@@ -85,13 +89,21 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 66vw"
         />
 
+        {/* Tap/click target for the fullscreen lightbox (pinch-zoom on mobile) */}
+        <button
+          type="button"
+          className="absolute inset-0 z-10 cursor-zoom-in"
+          onClick={() => setIsLightboxOpen(true)}
+          aria-label="Ampliar imagen"
+        />
+
         {/* Navigation Arrows (only if multiple images) — ≥44px touch targets (F-3) */}
         {resolvedImages.length > 1 && (
           <>
             <Button
               variant="secondary"
               size="icon"
-              className={`absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
+              className={`absolute left-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
                 isZooming ? 'pointer-events-none opacity-0' : 'opacity-100'
               }`}
               onClick={handlePrevious}
@@ -102,7 +114,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className={`absolute right-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
+              className={`absolute right-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
                 isZooming ? 'pointer-events-none opacity-0' : 'opacity-100'
               }`}
               onClick={handleNext}
@@ -113,7 +125,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
 
             {/* Image Counter */}
             <div
-              className="absolute bottom-4 right-4 bg-black/80 text-white px-3 py-1 rounded-full text-sm font-medium"
+              className="absolute bottom-4 right-4 z-20 bg-black/80 text-white px-3 py-1 rounded-full text-sm font-medium"
               role="status"
               aria-live="polite"
               aria-atomic="true"
@@ -151,6 +163,25 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
           ))}
         </div>
       )}
+
+      {/* Fullscreen viewer — pinch-zoom on touch, wheel/double-click on desktop */}
+      <Lightbox
+        open={isLightboxOpen}
+        close={() => setIsLightboxOpen(false)}
+        index={selectedIndex}
+        slides={resolvedImages.map((image) => ({ src: image }))}
+        plugins={[Zoom, Thumbnails]}
+        thumbnails={{ position: 'bottom' }}
+        zoom={{ doubleClickDelay: 300 }}
+        labels={{
+          Close: 'Cerrar',
+          Previous: 'Imagen anterior',
+          Next: 'Imagen siguiente',
+          'Zoom in': 'Acercar',
+          'Zoom out': 'Alejar',
+        }}
+        on={{ view: ({ index: viewIndex }) => setSelectedIndex(viewIndex) }}
+      />
     </div>
   )
 }
