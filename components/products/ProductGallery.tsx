@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,8 +13,31 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isZooming, setIsZooming] = useState(false)
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
+  const frameRef = useRef<HTMLDivElement>(null)
+  // Hover zoom only makes sense with a precise pointer; touch devices swipe instead.
+  const [canHoverZoom, setCanHoverZoom] = useState(false)
+
+  useEffect(() => {
+    const query = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const update = () => setCanHoverZoom(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
   const resolvedImages = resolveProductImageUrls(images)
   const selectedImage = resolvedImages[selectedIndex] ?? null
+
+  // Anchor the zoom to the cursor position so the point under the pointer stays put.
+  const handleZoomMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    setZoomOrigin({
+      x: ((event.clientX - rect.left) / rect.width) * 100,
+      y: ((event.clientY - rect.top) / rect.height) * 100,
+    })
+  }, [])
 
   if (resolvedImages.length === 0) {
     return (
@@ -39,12 +62,24 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
   return (
     <div className="w-full min-w-0 space-y-4">
       {/* Main Image — 4:3 keeps title/price above the fold on desktop (F-4) */}
-      <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted">
+      <div
+        ref={frameRef}
+        className={`group relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted ${
+          canHoverZoom ? 'cursor-zoom-in' : ''
+        }`}
+        onMouseEnter={canHoverZoom ? () => setIsZooming(true) : undefined}
+        onMouseMove={canHoverZoom ? handleZoomMove : undefined}
+        onMouseLeave={canHoverZoom ? () => setIsZooming(false) : undefined}
+      >
         <Image
           src={selectedImage ?? ''}
           alt={`${productTitle} - Imagen ${selectedIndex + 1}`}
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-200 ease-out"
+          style={{
+            transform: isZooming ? 'scale(2)' : 'scale(1)',
+            transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+          }}
           priority={selectedIndex === 0}
           unoptimized={shouldBypassNextImageOptimization(selectedImage)}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 66vw"
@@ -56,7 +91,9 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg"
+              className={`absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
+                isZooming ? 'pointer-events-none opacity-0' : 'opacity-100'
+              }`}
               onClick={handlePrevious}
               aria-label="Imagen anterior"
             >
@@ -65,7 +102,9 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg"
+              className={`absolute right-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg transition-opacity ${
+                isZooming ? 'pointer-events-none opacity-0' : 'opacity-100'
+              }`}
               onClick={handleNext}
               aria-label="Imagen siguiente"
             >
