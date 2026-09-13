@@ -1,0 +1,8 @@
+components/products/ProductDetailPageClient.tsx
+components/products/ProductGallery.tsx
+components/products/SellerCard.tsx
+components/products/OwnerListingNotice.tsx
+components/products/ProductActions.tsx
+components/products/ShareButton.tsx
+app/productos/[id]/page.tsx
+redesign/

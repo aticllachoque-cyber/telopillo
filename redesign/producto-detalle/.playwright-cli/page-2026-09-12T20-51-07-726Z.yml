@@ -1,0 +1,220 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "T Telopillo" [ref=e5] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e6]: T
+          - generic [ref=e7]: Telopillo
+        - generic [ref=e8]:
+          - generic [ref=e9]: Buscar productos en Telopillo
+          - generic:
+            - generic: search
+          - searchbox "Buscar productos en Telopillo" [ref=e10]
+      - navigation "Navegación principal" [ref=e11]:
+        - link "Categorías" [ref=e12] [cursor=pointer]:
+          - /url: "#"
+        - link "Ofertas" [ref=e13] [cursor=pointer]:
+          - /url: "#"
+        - link "Vender" [ref=e14] [cursor=pointer]:
+          - /url: "#"
+        - link "Ayuda" [ref=e15] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - button "Notificaciones" [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: notifications
+          - button "Favoritos" [ref=e20] [cursor=pointer]:
+            - generic [ref=e21]: favorite
+          - button "Carrito de compras" [ref=e22] [cursor=pointer]:
+            - generic [ref=e23]: shopping_cart
+        - button "Ingresar" [ref=e24] [cursor=pointer]
+        - button "add_circle Publicar" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26]: add_circle
+          - generic [ref=e27]: Publicar
+  - generic [ref=e29]:
+    - navigation "Ruta de navegación" [ref=e30]:
+      - list [ref=e31]:
+        - listitem [ref=e32]:
+          - link "Inicio" [ref=e33] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e34]:
+          - generic [ref=e35]: chevron_right
+        - listitem [ref=e36]:
+          - link "Bebés y Niños" [ref=e37] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e38]:
+          - generic [ref=e39]: chevron_right
+        - listitem [ref=e40]:
+          - link "Cunas y Dormitorio" [ref=e41] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e42]:
+          - generic [ref=e43]: chevron_right
+        - listitem [ref=e44]: Cuna convertible de madera con colchón
+    - link "arrow_back Volver" [ref=e45] [cursor=pointer]:
+      - /url: "#"
+      - generic [ref=e46]: arrow_back
+      - generic [ref=e47]: Volver
+  - main [ref=e48]:
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - region "Galería de fotos del producto" [ref=e51]:
+          - generic [ref=e52]:
+            - img "Cuna convertible de madera clara escandinava con barrotes de seguridad y colchón en habitación infantil luminosa" [ref=e53]
+            - generic [ref=e54]:
+              - generic [ref=e55]:
+                - generic [ref=e56]: verified
+                - text: Seminuevo
+              - generic [ref=e57]: Entrega Inmediata
+            - button "Foto anterior" [ref=e58] [cursor=pointer]:
+              - generic [ref=e59]: chevron_left
+            - button "Siguiente foto" [ref=e60] [cursor=pointer]:
+              - generic [ref=e61]: chevron_right
+            - generic [ref=e62]:
+              - generic [ref=e63]: photo_camera
+              - generic [ref=e64]: 1 / 2
+          - generic [ref=e65]:
+            - 'button "Ver vista 1: Cuna completa" [ref=e66] [cursor=pointer]':
+              - img "Miniatura cuna de madera vista completa" [ref=e67]
+            - 'button "Ver vista 2: Detalle de madera y colchón" [ref=e68] [cursor=pointer]':
+              - img "Miniatura ángulo lateral de cuna con colchón" [ref=e69]
+        - article [ref=e70]:
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - heading "Cuna convertible de madera con colchón" [level=1] [ref=e73]
+              - generic [ref=e74]:
+                - generic [ref=e75]:
+                  - generic [ref=e76]: storefront
+                  - text: Venta verificada
+                - generic [ref=e77]: •
+                - generic [ref=e78]: "Código #BOL-88492"
+            - generic [ref=e79]:
+              - generic [ref=e80]: Precio publicado
+              - text: Bs 900
+          - separator [ref=e81]
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e85]: arrow_back_ios_new
+              - generic [ref=e86]:
+                - generic [ref=e87]: Estado
+                - text: Usado - Como nuevo
+            - generic [ref=e88]:
+              - generic [ref=e90]: location_on
+              - generic [ref=e91]:
+                - generic [ref=e92]: Ubicación
+                - text: El Alto, La Paz
+            - generic [ref=e93]:
+              - generic [ref=e95]: visibility
+              - generic [ref=e96]:
+                - generic [ref=e97]: Vistas
+                - text: 20 visitas
+            - generic [ref=e98]:
+              - generic [ref=e100]: calendar_month
+              - generic [ref=e101]:
+                - generic [ref=e102]: Publicado
+                - text: 9 de sept. 2026
+          - separator [ref=e103]
+          - region "Descripción" [ref=e104]:
+            - heading "Descripción" [level=2] [ref=e105]:
+              - generic [ref=e106]: Descripción
+            - generic [ref=e107]:
+              - paragraph [ref=e108]: Hermosa cuna de madera maciza convertible en cama infantil. Incluye colchón hipoalergénico en excelente estado, sin manchas. Madera tratada con acabado natural no tóxico ideal para bebés.
+              - paragraph [ref=e109]: Muy poco uso, fácil armado y desarmado para traslado. Entrega coordinada en El Alto o zona central de La Paz.
+          - generic [ref=e110]:
+            - heading "Atributos del artículo" [level=3] [ref=e111]
+            - generic [ref=e112]:
+              - generic [ref=e113]: "Material: Madera de roble tratado"
+              - generic [ref=e114]: "Dimensiones: 130 x 70 cm"
+              - generic [ref=e115]: "Colchón incluido: Hipoalergénico"
+              - generic [ref=e116]: "Edad recomendada: 0 a 4 años"
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - button "share Compartir" [ref=e119] [cursor=pointer]:
+                - generic [ref=e120]: share
+                - generic [ref=e121]: Compartir
+              - button "flag Reportar" [ref=e122] [cursor=pointer]:
+                - generic [ref=e123]: flag
+                - generic [ref=e124]: Reportar
+            - generic [ref=e125]:
+              - generic [ref=e126]: check_circle
+              - text: Aviso regulado por normas comunitarias
+      - complementary [ref=e127]:
+        - generic [ref=e128]:
+          - generic [ref=e129]: Información del Vendedor
+          - generic [ref=e130]:
+            - generic [ref=e131]: LR
+            - generic [ref=e132]:
+              - heading "Laura Rojas" [level=3] [ref=e134]
+              - generic [ref=e136]:
+                - generic [ref=e137]: verified_user
+                - generic [ref=e138]: Vendedor con Teléfono
+              - paragraph [ref=e139]:
+                - generic [ref=e140]: location_on
+                - generic [ref=e141]: El Alto, La Paz
+          - generic [ref=e142]:
+            - img "Miniatura del artículo consultado" [ref=e143]
+            - generic [ref=e144]:
+              - paragraph [ref=e145]: "Tu consulta sobre:"
+              - paragraph [ref=e146]: Cuna convertible de madera
+              - paragraph [ref=e147]: Bs 900
+          - generic [ref=e148]:
+            - link "Contactar por WhatsApp" [ref=e149] [cursor=pointer]:
+              - /url: https://wa.me/59170000000?text=Hola%20Laura,%20vi%20tu%20anuncio%20de%20la%20Cuna%20convertible%20en%20Telopillo%20por%20Bs%20900
+              - img [ref=e150]
+              - generic [ref=e152]: Contactar por WhatsApp
+            - button "account_circle Ver perfil del vendedor" [ref=e153] [cursor=pointer]:
+              - generic [ref=e154]: account_circle
+              - generic [ref=e155]: Ver perfil del vendedor
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - generic [ref=e158]: shield
+              - heading "Consejos de seguridad" [level=4] [ref=e159]
+            - list [ref=e160]:
+              - listitem [ref=e161]:
+                - generic [ref=e163]: Reúnete en lugares públicos y concurridos.
+              - listitem [ref=e164]:
+                - generic [ref=e166]: Verifica el producto antes de pagar o transferir.
+              - listitem [ref=e167]:
+                - generic [ref=e169]: No compartas códigos de verificación bancarios.
+            - link "Leer guía para compras seguras en Bolivia arrow_outward" [ref=e171] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=e172]: Leer guía para compras seguras en Bolivia
+              - generic [ref=e173]: arrow_outward
+        - generic [ref=e174]:
+          - generic [ref=e176]: qr_code_2
+          - generic [ref=e177]:
+            - paragraph [ref=e178]: Pagos QR Simple aceptados
+            - paragraph [ref=e179]: Paga al momento de la entrega sin comisiones.
+  - contentinfo [ref=e180]:
+    - generic [ref=e181]:
+      - generic [ref=e182]:
+        - generic [ref=e183]:
+          - generic [ref=e184]: Telopillo
+          - paragraph [ref=e185]: El marketplace boliviano diseñado para conectar compradores y vendedores en La Paz, El Alto, Santa Cruz y Cochabamba con confianza, verificación y cercanía.
+        - generic [ref=e186]:
+          - text: Seguridad y Soporte
+          - list [ref=e187]:
+            - listitem [ref=e188]:
+              - link "Consejos de Seguridad" [ref=e189] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e190]:
+              - link "Soporte y Contacto" [ref=e191] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e192]:
+              - link "Preguntas Frecuentes" [ref=e193] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e194]:
+          - text: Legal y Regiones
+          - list [ref=e195]:
+            - listitem [ref=e196]:
+              - link "Términos y Condiciones" [ref=e197] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e198]:
+              - link "Políticas de Privacidad" [ref=e199] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e200]:
+              - link "Ciudades Disponibles" [ref=e201] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e202]:
+        - paragraph [ref=e203]: © 2025 Telopillo Marketplace Bolivia. Transacciones seguras y verificadas.
+        - generic [ref=e206]: Red activa en La Paz, El Alto, Cochabamba, Santa Cruz

@@ -125,6 +125,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
     p_user_id: product.user_id,
   })
 
+  // Related products: same category, active, most recent first (existing table + RLS, no new API).
+  const { data: relatedProducts } = await supabase
+    .from('products')
+    .select('id, title, price, location_city, location_department, images')
+    .eq('category', product.category)
+    .eq('status', 'active')
+    .neq('id', id)
+    .order('created_at', { ascending: false })
+    .limit(4)
+
   return (
     <ProductDetailPageClient
       initialData={{
@@ -153,6 +163,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
             businessProfile?.social_whatsapp,
             typeof sellerContactPhone === 'string' ? sellerContactPhone : null
           ).normalizedDigits ?? null,
+        relatedProducts: (relatedProducts ?? []).map((item) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          location_city: item.location_city,
+          location_department: item.location_department,
+          images: item.images,
+        })),
       }}
     />
   )

@@ -91,6 +91,9 @@ export function SellerCard({
       ? `${seller.location_city}, ${seller.location_department}`
       : seller.location_department || seller.location_city || 'Ubicación no especificada'
 
+  // Catalog destination: business storefront when available, public seller profile otherwise
+  const catalogHref = business ? `/negocio/${business.slug}` : `/vendedor/${seller.id}`
+
   return (
     <Card>
       <CardHeader>
@@ -219,6 +222,16 @@ export function SellerCard({
             >
               <User className="h-4 w-4" aria-hidden />
               Ver perfil del vendedor
+            </Link>
+          </Button>
+        )}
+
+        {/* Seller catalog (approved iteration 3) */}
+        {!hideContactActions && (
+          <Button asChild variant="outline" className="w-full" size="sm">
+            <Link href={catalogHref} className="flex items-center justify-center gap-2">
+              <Store className="h-4 w-4" aria-hidden />
+              Ver catálogo del vendedor
             </Link>
           </Button>
         )}

@@ -1,0 +1,9 @@
+producto-detalle — capturas Stage 3 (primer run real)
+URL: http://localhost:3000/productos/5U4vHZ2yHvSS9owlZsropg--cuna-convertible-de-madera-con-colchon
+Nota: producto de referencia del input del usuario (horquilla MASSI, www.telopillo.lat) no existe en Supabase local -> se captura producto local equivalente (misma página/patrón, app/productos/[id]). Item = componente, no producto.
+desktop.png: viewport 1920x1080, fullPage, deviceScaleFactor 2 (3840x3668), 2026-09-12, sin auth
+mobile.png: viewport 375x812, fullPage, deviceScaleFactor 2 (750x3908)
+tablet.png: viewport 768x1024, fullPage, deviceScaleFactor 2 (1536x4536), 2026-09-12, sin auth
+dom.txt: snapshot aria (contiene landmark "Descripción")
+http-status.txt: curl final URL
+proposal/stitch-render-*.png: render del mockup Stitch (proposal/stitch.html) a las MISMAS vistas/fullPage/dsf — par antes/después comparable

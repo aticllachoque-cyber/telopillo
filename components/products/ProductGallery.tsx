@@ -18,7 +18,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
 
   if (resolvedImages.length === 0) {
     return (
-      <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
+      <div className="aspect-[4/3] bg-muted rounded-lg flex items-center justify-center">
         <p className="text-muted-foreground">Sin imágenes</p>
       </div>
     )
@@ -38,8 +38,8 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
 
   return (
     <div className="w-full min-w-0 space-y-4">
-      {/* Main Image */}
-      <div className="group relative aspect-square w-full overflow-hidden rounded-lg bg-muted">
+      {/* Main Image — 4:3 keeps title/price above the fold on desktop (F-4) */}
+      <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted">
         <Image
           src={selectedImage ?? ''}
           alt={`${productTitle} - Imagen ${selectedIndex + 1}`}
@@ -47,29 +47,29 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
           className="object-cover"
           priority={selectedIndex === 0}
           unoptimized={shouldBypassNextImageOptimization(selectedImage)}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 66vw"
         />
 
-        {/* Navigation Arrows (only if multiple images) */}
+        {/* Navigation Arrows (only if multiple images) — ≥44px touch targets (F-3) */}
         {resolvedImages.length > 1 && (
           <>
             <Button
               variant="secondary"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 md:opacity-70 md:hover:opacity-100 md:focus:opacity-100 transition-opacity shadow-lg"
+              className="absolute left-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg"
               onClick={handlePrevious}
               aria-label="Imagen anterior"
             >
-              <ChevronLeft className="h-4 w-4" aria-hidden />
+              <ChevronLeft className="h-5 w-5" aria-hidden />
             </Button>
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 md:opacity-70 md:hover:opacity-100 md:focus:opacity-100 transition-opacity shadow-lg"
+              className="absolute right-2 top-1/2 size-11 -translate-y-1/2 rounded-full shadow-lg"
               onClick={handleNext}
               aria-label="Imagen siguiente"
             >
-              <ChevronRight className="h-4 w-4" aria-hidden />
+              <ChevronRight className="h-5 w-5" aria-hidden />
             </Button>
 
             {/* Image Counter */}
@@ -87,12 +87,12 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
 
       {/* Thumbnails (only if multiple images) */}
       {resolvedImages.length > 1 && (
-        <div className="grid w-full grid-cols-5 gap-2">
+        <div className="flex w-full flex-wrap gap-2">
           {resolvedImages.map((image, index) => (
             <button
               key={index}
               onClick={() => handleThumbnailClick(index)}
-              className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+              className={`relative size-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all sm:size-20 ${
                 index === selectedIndex
                   ? 'border-primary ring-2 ring-primary/20'
                   : 'border-transparent hover:border-muted-foreground/20'
@@ -106,7 +106,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
                 fill
                 className="object-cover"
                 unoptimized={shouldBypassNextImageOptimization(image)}
-                sizes="(max-width: 768px) 20vw, 10vw"
+                sizes="80px"
               />
             </button>
           ))}

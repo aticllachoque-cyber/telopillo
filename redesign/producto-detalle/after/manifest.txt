@@ -1,0 +1,9 @@
+producto-detalle — capturas after (Stage 8, branch redesign/producto-detalle, commit 205d5cf)
+URL: http://localhost:3000/productos/5U4vHZ2yHvSS9owlZsropg--cuna-convertible-de-madera-con-colchon
+Nota: mismo producto de referencia que current/ (misma página/patrón). Item = componente, no producto.
+desktop.png: viewport 1920x1080, fullPage, deviceScaleFactor 2, 2026-09-13, sin auth
+tablet.png: viewport 768x1024, fullPage, deviceScaleFactor 2, 2026-09-13, sin auth
+mobile.png: viewport 375x812, fullPage, deviceScaleFactor 2, 2026-09-13, sin auth
+dom.txt: aria snapshot (contiene landmark "Descripción")
+http-status.txt: curl final URL (200)
+Sección "Productos relacionados" no visible en captura: producto local de referencia no tiene otros productos activos en su categoría (sección condicional, renderiza solo con resultados).

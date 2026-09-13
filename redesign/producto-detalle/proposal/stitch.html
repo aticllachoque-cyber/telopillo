@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Telopillo - Cuna convertible de madera con colchón</title>
+<!-- Google Fonts -->
+<link href="https://fonts.preconnect.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary": "#ffffff",
+            "border-neutral": "#e5e5e5",
+            "surface-gray": "#f4f4f4",
+            "dark-btn": "#363636",
+            "dark-btn-hover": "#252525",
+            "text-main": "#252525",
+            "text-muted": "#707070",
+            "whatsapp-green": "#15803d",
+            "whatsapp-bg": "#f0fdf4"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "label-md": ["Inter", "sans-serif"],
+            "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "display-mobile": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+            "label-sm": ["Inter", "sans-serif"],
+            "label-lg": ["Inter", "sans-serif"],
+            "headline-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+            "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "display": ["Plus Jakarta Sans", "sans-serif"],
+            "body-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "body-md": ["Plus Jakarta Sans", "sans-serif"]
+          },
+          "fontSize": {
+            "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+            "headline-sm": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "display-mobile": ["30px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "headline-md": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+            "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "600"}],
+            "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.005em", "fontWeight": "600"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+            "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+            "display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "800"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+            "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="bg-[#ffffff] text-[#252525] font-body-md antialiased min-h-screen flex flex-col selection:bg-[#363636] selection:text-[#fafafa]">
+<!-- TopNavBar -->
+<header class="bg-[#ffffff] border-b border-[#e5e5e5] sticky top-0 z-50 shadow-xs w-full"><div class="flex items-center justify-between px-4 md:px-8 w-full max-w-7xl mx-auto h-16 gap-4"><div class="flex items-center gap-6 flex-1 max-w-xl"><a class="text-headline-md font-headline-md font-extrabold text-[#252525] tracking-tight shrink-0 flex items-center gap-1.5" href="#"><span class="w-8 h-8 rounded-lg bg-[#363636] text-[#fafafa] flex items-center justify-center font-display text-lg">T</span><span>Telopillo</span></a><form class="relative w-full hidden sm:flex items-center" onsubmit="return false;"><label class="sr-only" for="marketplace-search">Buscar productos</label><span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#707070]"><span class="material-symbols-outlined text-xl" data-icon="search">search</span></span><input class="w-full h-11 pl-10 pr-24 rounded-lg border border-[#e5e5e5] bg-[#ffffff] text-[#252525] text-body-md placeholder:text-[#707070] focus:outline-none focus:border-[#363636] focus:ring-1 focus:ring-[#363636] transition-all" id="marketplace-search" placeholder="Buscar productos..." type="search"/><button class="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 px-3 rounded-md bg-[#363636] hover:bg-[#252525] text-[#fafafa] font-label-md text-label-md font-semibold transition-colors" type="submit">Buscar</button></form></div><nav aria-label="Navegación principal" class="hidden md:flex items-center gap-6"><a class="text-[#707070] hover:text-[#252525] transition-colors font-label-lg text-label-lg" href="#">Productos</a><a class="text-[#252525] font-semibold border-b-2 border-[#252525] pb-1 font-label-lg text-label-lg transition-colors" href="#">Categorías</a><a class="text-[#707070] hover:text-[#252525] transition-colors font-label-lg text-label-lg" href="#">Solicitudes</a></nav><div class="flex items-center gap-3 shrink-0"><button class="h-11 px-3 rounded-lg font-label-lg text-label-lg font-medium text-[#707070] hover:text-[#252525] hover:bg-[#f4f4f4] transition-all active:scale-[0.98]" type="button">Ingresar</button><button class="h-11 px-5 rounded-lg font-label-lg text-label-lg font-semibold bg-[#363636] text-[#fafafa] hover:bg-[#252525] shadow-xs hover:shadow transition-all active:scale-[0.98] inline-flex items-center gap-1.5" type="button"><span class="material-symbols-outlined text-lg" data-icon="add_circle">add_circle</span><span>Publicar Gratis</span></button></div></div></header>
+<!-- Main Breadcrumb Sub-Header Bar -->
+<section class="border-b border-[#e5e5e5] bg-[#ffffff] py-3"><div class="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between gap-4"><nav aria-label="Ruta de navegación" class="overflow-x-auto whitespace-nowrap"><ol class="flex items-center gap-2 text-label-md font-label-md text-[#707070]"><li><a class="hover:text-[#252525] transition-colors" href="#">Inicio</a></li><li class="flex items-center text-[#707070]"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span></li><li><a class="hover:text-[#252525] transition-colors" href="#">Para Bebés y Niños</a></li><li class="flex items-center text-[#707070]"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span></li><li aria-current="page" class="text-[#252525] font-medium truncate max-w-[200px] sm:max-w-xs md:max-w-sm">Cuna convertible de madera con colchón</li></ol></nav><a class="inline-flex items-center gap-1 text-label-md font-label-md font-medium text-[#707070] hover:text-[#252525] transition-colors px-2 py-1 rounded hover:bg-[#f4f4f4] shrink-0" href="#"><span class="material-symbols-outlined text-base" data-icon="arrow_back">arrow_back</span><span>Volver</span></a></div></section>
+<!-- Main Canvas -->
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- LEFT COLUMN (2/3 width -> lg:col-span-8) -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- 1. Product Photo Gallery -->
+<section aria-label="Galería de fotos del producto" class="flex flex-col gap-3">
+<!-- Main Showcase Viewport (4:3 aspect ratio) -->
+<div class="relative w-full aspect-[4/3] bg-[#f4f4f4] rounded-xl border border-[#e5e5e5] overflow-hidden shadow-xs group">
+<img alt="Cuna convertible de madera clara escandinava con barrotes de seguridad y colchón en habitación infantil luminosa" class="w-full h-full object-cover select-none transition-transform duration-300 group-hover:scale-[1.01]" id="main-product-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM00TRTXeDp3VW3X1_1ffeJS5rEpozMZW_GIVg2lj52JdNculn3b3ISsbD2aIIcAHXNXKBxPBz8XOLHsCc9NTKxdb_OVJh5UClZ9Hv8YNByp68hcVi8GJgX4vFv-GTMXXQZjla5dMBP47Tnd78eHCl-AaMRl7vSTqWrs5Sjic9BXf5FhlUIs9yjKrFNRLlq4JyefsGGtoYPNhJpi7KcaCfqOC-M4fqGE0FCqLvNwRJJ2dGrV5FaYSy0Uu5a8SdvD3LjJfCd-QpmK7D"/>
+<!-- Floating Prev/Next Buttons (Min 44px touch ergonomics) -->
+<button aria-label="Foto anterior" class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#ffffff]/95 backdrop-blur-md shadow-sm hover:bg-[#ffffff] text-[#252525] flex items-center justify-center border border-[#e5e5e5] transition-all hover:scale-105 active:scale-95 z-10" onclick="switchPhoto(0)" type="button">
+<span class="material-symbols-outlined text-2xl" data-icon="chevron_left">chevron_left</span>
+</button>
+<button aria-label="Siguiente foto" class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#ffffff]/95 backdrop-blur-md shadow-sm hover:bg-[#ffffff] text-[#252525] flex items-center justify-center border border-[#e5e5e5] transition-all hover:scale-105 active:scale-95 z-10" onclick="switchPhoto(1)" type="button">
+<span class="material-symbols-outlined text-2xl" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Image counter pill -->
+<div class="absolute bottom-4 right-4 z-10 bg-[#252525]/80 text-[#fafafa] text-label-md font-label-md px-3 py-1 rounded-full backdrop-blur-sm shadow-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="photo_camera">photo_camera</span>
+<span id="gallery-counter">1 / 2</span>
+</div>
+</div>
+<!-- Thumbnail Navigation Strip -->
+<div class="flex items-center gap-3 pt-1">
+<button aria-label="Ver vista 1: Cuna completa" class="w-20 h-16 rounded-lg overflow-hidden border-2 border-[#363636] ring-1 ring-[#363636]/20 transition-all shrink-0 relative bg-[#f4f4f4]" id="thumb-btn-0" onclick="switchPhoto(0)" type="button">
+<img alt="Miniatura cuna de madera vista completa" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM00TRTXeDp3VW3X1_1ffeJS5rEpozMZW_GIVg2lj52JdNculn3b3ISsbD2aIIcAHXNXKBxPBz8XOLHsCc9NTKxdb_OVJh5UClZ9Hv8YNByp68hcVi8GJgX4vFv-GTMXXQZjla5dMBP47Tnd78eHCl-AaMRl7vSTqWrs5Sjic9BXf5FhlUIs9yjKrFNRLlq4JyefsGGtoYPNhJpi7KcaCfqOC-M4fqGE0FCqLvNwRJJ2dGrV5FaYSy0Uu5a8SdvD3LjJfCd-QpmK7D"/>
+</button>
+<button aria-label="Ver vista 2: Detalle de madera y colchón" class="w-20 h-16 rounded-lg overflow-hidden border border-[#e5e5e5] opacity-70 hover:opacity-100 hover:border-[#707070] transition-all shrink-0 relative bg-[#f4f4f4]" id="thumb-btn-1" onclick="switchPhoto(1)" type="button">
+<img alt="Miniatura ángulo lateral de cuna con colchón" class="w-full h-full object-cover scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM00TRTXeDp3VW3X1_1ffeJS5rEpozMZW_GIVg2lj52JdNculn3b3ISsbD2aIIcAHXNXKBxPBz8XOLHsCc9NTKxdb_OVJh5UClZ9Hv8YNByp68hcVi8GJgX4vFv-GTMXXQZjla5dMBP47Tnd78eHCl-AaMRl7vSTqWrs5Sjic9BXf5FhlUIs9yjKrFNRLlq4JyefsGGtoYPNhJpi7KcaCfqOC-M4fqGE0FCqLvNwRJJ2dGrV5FaYSy0Uu5a8SdvD3LjJfCd-QpmK7D"/>
+</button>
+</div>
+</section>
+<!-- 2. Main Details Card -->
+<article class="bg-[#ffffff] border border-[#e5e5e5] rounded-xl p-6 md:p-8 shadow-xs">
+<!-- Heading & Price Stack -->
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-4"><div class="space-y-1"><h1 class="text-headline-md md:text-headline-lg font-headline-lg font-bold text-[#252525] tracking-tight leading-tight">Cuna convertible de madera con colchón</h1></div><div class="shrink-0 flex items-center"><span class="text-display-mobile md:text-headline-lg font-display text-[#363636] font-extrabold tracking-tight">Bs 900</span></div></div>
+<!-- Subtle Divider -->
+<hr class="border-[#e5e5e5] my-5"/>
+<!-- Metadata 2-Column Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-lg bg-[#f4f4f4] border border-[#e5e5e5]">
+<!-- Estado -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center text-[#252525] shadow-xs">
+<span class="material-symbols-outlined text-xl" data-icon="sparkles">arrow_back_ios_new</span>
+</div>
+<div>
+<span class="block text-label-sm font-label-sm text-[#707070]">Estado</span>
+<span class="text-label-md font-label-md text-[#252525] font-semibold">Usado - Como nuevo</span>
+</div>
+</div>
+<!-- Ubicación -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center text-[#252525] shadow-xs">
+<span class="material-symbols-outlined text-xl" data-icon="location_on">location_on</span>
+</div>
+<div>
+<span class="block text-label-sm font-label-sm text-[#707070]">Ubicación</span>
+<span class="text-label-md font-label-md text-[#252525] font-semibold">El Alto, La Paz</span>
+</div>
+</div>
+<!-- Vistas -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center text-[#707070] shadow-xs">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</div>
+<div>
+<span class="block text-label-sm font-label-sm text-[#707070]">Vistas</span>
+<span class="text-label-md font-label-md text-[#252525] font-semibold">20 visitas</span>
+</div>
+</div>
+<!-- Publicado -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center text-[#707070] shadow-xs">
+<span class="material-symbols-outlined text-xl" data-icon="calendar_month">calendar_month</span>
+</div>
+<div>
+<span class="block text-label-sm font-label-sm text-[#707070]">Publicado</span>
+<span class="text-label-md font-label-md text-[#252525] font-semibold">9 de sept. 2026</span>
+</div>
+</div>
+</div>
+<!-- Mobile Price CTA Bar -->
+<div class="lg:hidden flex items-center justify-between gap-3 p-3.5 rounded-lg bg-[#f4f4f4] border border-[#e5e5e5] my-4"><div class="shrink-0"><span class="block text-label-sm font-label-sm text-[#707070]">Precio</span><span class="text-headline-md font-headline-md font-bold text-[#363636] whitespace-nowrap">Bs 900</span></div><a class="h-10 px-4 rounded-lg bg-[#f0fdf4] border border-[#15803d] hover:bg-[#dcfce7] text-[#15803d] font-label-md text-label-md font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs transition-colors shrink-0" href="https://wa.me/59170000000?text=Hola%20Laura,%20vi%20tu%20anuncio%20de%20la%20Cuna%20en%20Telopillo" target="_blank"><svg aria-hidden="true" class="w-4 h-4 fill-current" viewbox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.181-.076.355.101.173.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.203c.044.072.044.419-.1.824zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.434 5.174L2 22l4.98-1.306C8.423 21.536 10.15 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"></path></svg><span>Contactar WhatsApp</span></a></div><hr class="border-[#e5e5e5] my-6"/>
+<!-- Descripción Section -->
+<section aria-labelledby="desc-heading" class="space-y-3">
+<h2 class="text-headline-sm font-headline-sm text-[#252525] font-semibold flex items-center gap-2" id="desc-heading">
+<span>Descripción</span>
+</h2>
+<div class="text-body-md font-body-md text-[#252525] leading-relaxed space-y-3">
+<p>
+                Hermosa cuna de madera maciza convertible en cama infantil. Incluye colchón hipoalergénico en excelente estado, sin manchas. Madera tratada con acabado natural no tóxico ideal para bebés.
+              </p>
+<p>
+                Muy poco uso, fácil armado y desarmado para traslado. Entrega coordinada en El Alto o zona central de La Paz.
+              </p>
+</div>
+</section>
+<!-- Actions Row at bottom (Compartir & Reportar) -->
+<div class="mt-8 pt-5 border-t border-[#e5e5e5] flex flex-wrap items-center justify-between gap-3"><div class="flex items-center gap-3"><button class="min-h-[40px] px-4 rounded-lg border border-[#e5e5e5] hover:bg-[#f4f4f4] text-[#707070] hover:text-[#252525] font-label-lg text-label-lg font-medium transition-all active:scale-[0.98] inline-flex items-center gap-2 shadow-xs" onclick="navigator.clipboard &amp;&amp; navigator.clipboard.writeText(window.location.href); alert('¡Enlace de publicación copiado!');" type="button"><span class="material-symbols-outlined text-lg" data-icon="share">share</span><span>Compartir</span></button><button class="min-h-[40px] px-4 rounded-lg border border-[#e5e5e5] hover:border-red-300 hover:bg-red-50 text-[#707070] hover:text-red-700 font-label-lg text-label-lg font-medium transition-colors active:scale-[0.98] inline-flex items-center gap-2 shadow-xs" type="button"><span class="material-symbols-outlined text-lg" data-icon="flag">flag</span><span>Reportar</span></button></div></div>
+</article>
+</div>
+<!-- RIGHT COLUMN (1/3 width -> lg:col-span-4, sticky) -->
+<aside class="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+<!-- Vendedor Card -->
+<div class="bg-[#ffffff] border border-[#e5e5e5] rounded-xl p-6 shadow-xs">
+<span class="text-label-sm font-label-sm text-[#707070] uppercase tracking-wider block mb-4">Información del Vendedor</span>
+<!-- Seller Profile Header -->
+<div class="flex items-start gap-3.5">
+<!-- Avatar Circle Initials 'LR' -->
+<div class="w-12 h-12 rounded-full bg-[#f4f4f4] text-[#252525] font-headline-sm font-bold text-lg flex items-center justify-center border border-[#e5e5e5] shrink-0 select-none">
+              LR
+            </div>
+<div class="space-y-1.5 min-w-0">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm font-bold text-[#252525] text-base truncate">
+                  Laura Rojas
+                </h3>
+</div>
+<!-- Verified Seller Badge -->
+<div>
+<span class="bg-[#f0fdf4] text-[#15803d] border border-[#15803d] text-label-sm font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-[#15803d]" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span>Vendedor con Teléfono</span>
+</span>
+</div>
+<!-- Seller Location -->
+<p class="text-[#707070] font-label-md text-label-md flex items-center gap-1 pt-0.5">
+<span class="material-symbols-outlined text-sm text-[#707070]" data-icon="location_on">location_on</span>
+<span>El Alto, La Paz</span>
+</p>
+</div>
+</div>
+<!-- Compact Inquiry Preview Box -->
+<div class="bg-[#f4f4f4] border border-[#e5e5e5] rounded-lg p-3 my-5 flex items-center gap-3">
+<img alt="Miniatura del artículo consultado" class="w-12 h-12 rounded-md object-cover border border-[#e5e5e5] shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM00TRTXeDp3VW3X1_1ffeJS5rEpozMZW_GIVg2lj52JdNculn3b3ISsbD2aIIcAHXNXKBxPBz8XOLHsCc9NTKxdb_OVJh5UClZ9Hv8YNByp68hcVi8GJgX4vFv-GTMXXQZjla5dMBP47Tnd78eHCl-AaMRl7vSTqWrs5Sjic9BXf5FhlUIs9yjKrFNRLlq4JyefsGGtoYPNhJpi7KcaCfqOC-M4fqGE0FCqLvNwRJJ2dGrV5FaYSy0Uu5a8SdvD3LjJfCd-QpmK7D"/>
+<div class="min-w-0 flex-1">
+<p class="text-label-sm font-label-sm text-[#707070] truncate">Tu consulta sobre:</p>
+<p class="font-headline-sm text-label-md font-semibold text-[#252525] truncate">Cuna convertible de madera</p>
+<p class="font-display font-bold text-[#363636] text-label-lg">Bs 900</p>
+</div>
+</div>
+<!-- CTAs Stack -->
+<div class="space-y-3">
+<!-- Primary CTA: WhatsApp -->
+<a class="h-11 min-h-[44px] w-full bg-[#f0fdf4] border border-[#15803d] hover:bg-[#dcfce7] text-[#15803d] font-label-lg font-semibold rounded-lg flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98]" href="https://wa.me/59170000000?text=Hola%20Laura,%20vi%20tu%20anuncio%20de%20la%20Cuna%20convertible%20en%20Telopillo%20por%20Bs%20900" rel="noopener noreferrer" target="_blank">
+<!-- WhatsApp Icon -->
+<svg aria-hidden="true" class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.181-.076.355.101.173.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.203c.044.072.044.419-.1.824zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.434 5.174L2 22l4.98-1.306C8.423 21.536 10.15 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"></path>
+</svg>
+<span>Contactar por WhatsApp</span>
+</a>
+<!-- Secondary Button: Ver perfil -->
+<button class="h-10 w-full border border-[#e5e5e5] hover:bg-[#f4f4f4] text-[#252525] font-label-md font-medium rounded-lg text-sm transition-colors active:scale-[0.98] flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-base" data-icon="account_circle">account_circle</span>
+<span>Ver perfil del vendedor</span>
+</button><button class="h-11 min-h-[44px] w-full border border-[#e5e5e5] bg-[#ffffff] hover:bg-[#f4f4f4] text-[#252525] font-medium rounded-[10px] text-sm transition-colors active:scale-[0.98] flex items-center justify-center gap-2" type="button"><span class="material-symbols-outlined text-lg" data-icon="storefront">storefront</span><span>Ver catálogo del vendedor</span></button>
+</div>
+<!-- Security Advice Panel -->
+<div class="bg-[#f4f4f4] border border-[#e5e5e5] rounded-lg p-4 mt-5">
+<div class="flex items-center gap-2 mb-2.5">
+<span class="material-symbols-outlined text-[#707070] text-base" data-icon="shield">shield</span>
+<h4 class="text-label-sm font-label-sm font-bold text-[#252525] uppercase tracking-wider">
+                Consejos de seguridad
+              </h4>
+</div>
+<ul class="space-y-2 text-body-sm font-body-sm text-[#707070]">
+<li class="flex items-start gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-[#707070] mt-1.5 shrink-0"></span>
+<span>Reúnete en lugares públicos y concurridos.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-[#707070] mt-1.5 shrink-0"></span>
+<span>Verifica el producto antes de pagar o transferir.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-[#707070] mt-1.5 shrink-0"></span>
+<span>No compartas códigos de verificación bancarios.</span>
+</li>
+</ul>
+</div>
+</div>
+</aside>
+</div><section aria-label="Productos relacionados" class="mt-12 mb-6"><h2 class="text-xl md:text-2xl font-bold text-[#252525] mb-6 font-headline-md">Productos relacionados</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"><article class="bg-[#ffffff] border border-[#e5e5e5] rounded-[10px] overflow-hidden transition hover:shadow-sm cursor-pointer flex flex-col"><div class="w-full aspect-[4/3] bg-[#f4f4f4] overflow-hidden"><img alt="Silla de comer de madera para bebé" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGNlfElZpJ_y7nDidYfV35EpEE9z9QShqh3ZfMZMlCBgH2r_3Xvqgukzm9Xx9nwW233UI7nXpBiHBO3H3mBllzAsVpddFoggwiOftH3Aen5X7WiIsB9hmS7EYQ89xkOsSeMS-5MlMXJpTeLgeO6UyCDnkF7Bw9AgPoPrPt4-qgNnQR8Qv82GT789rXsEPa6SzaotRH2varVebx2WmLPqKA6xmfn7gc09eLfORH4CuN1tga-LjnY6_hHDC6bFt7Oj2xDXhoV8X_NzxK"/></div><div class="p-3 md:p-4 flex flex-col gap-1.5 flex-1 justify-between"><h3 class="text-sm font-semibold text-[#252525] line-clamp-2 min-h-[40px]">Silla de comer de madera para bebé</h3><div><p class="font-bold text-[#363636] text-base md:text-lg">Bs 250</p><p class="text-[#707070] text-xs flex items-center gap-1 mt-1"><span class="material-symbols-outlined text-xs" data-icon="location_on">location_on</span><span>El Alto, La Paz</span></p></div></div></article><article class="bg-[#ffffff] border border-[#e5e5e5] rounded-[10px] overflow-hidden transition hover:shadow-sm cursor-pointer flex flex-col"><div class="w-full aspect-[4/3] bg-[#f4f4f4] overflow-hidden"><img alt="Cómoda cambiador de madera maciza" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBse1zTXbWcTnD1oSLHkAX--T4dwystHwpp9T1da5FINXpnE1FmW16sqF7FXy5FDsayay7T1AfSKNyja8jkD1JnnSDAy8hiPTDgTk0uZVa54CsUSZXHlGQltR6ObvILJ-7CBsSJXXljOc0pd7UXqrlj7F7CQcIP9ITmxn2ybGeS8glp0tkM5C8dMxGX_l-lY2FXUZOdBMs95PTYnQu1nYgbu34BGH9OZo9iclopEJYpvnOMxGBZ3r550-fZtHrmtadNROlHpdIppWWl"/></div><div class="p-3 md:p-4 flex flex-col gap-1.5 flex-1 justify-between"><h3 class="text-sm font-semibold text-[#252525] line-clamp-2 min-h-[40px]">Cómoda cambiador de madera maciza</h3><div><p class="font-bold text-[#363636] text-base md:text-lg">Bs 1,200</p><p class="text-[#707070] text-xs flex items-center gap-1 mt-1"><span class="material-symbols-outlined text-xs" data-icon="location_on">location_on</span><span>El Alto, La Paz</span></p></div></div></article><article class="bg-[#ffffff] border border-[#e5e5e5] rounded-[10px] overflow-hidden transition hover:shadow-sm cursor-pointer flex flex-col"><div class="w-full aspect-[4/3] bg-[#f4f4f4] overflow-hidden"><img alt="Organizador juguetero con gavetas infantiles" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1zOShNRzF90zFWCNPOSbK1mNCgYN41iIvVQGSXyWqdSajBxHiG9q368ObeqJChzNOOmEZ4CHgTcDgKtJtltIpsTA5WUC5ZrQkmvPYf3Ks__GTTjrAfxstdBGB_w0lnBZVdA5UA_13SxxE7oaTPVKVk-4ZrDvdbu2u9OMhDgXhEerqQLBnncVYLgL_ZEs2r4Hn90lv6pIL1CKoSOMGOw5BHDEH-tONmkWIn9VJ0SUVGqK17Ub-4mMKioEhTupK5j12zwyCdj7RuWNC"/></div><div class="p-3 md:p-4 flex flex-col gap-1.5 flex-1 justify-between"><h3 class="text-sm font-semibold text-[#252525] line-clamp-2 min-h-[40px]">Organizador juguetero con gavetas infantiles</h3><div><p class="font-bold text-[#363636] text-base md:text-lg">Bs 180</p><p class="text-[#707070] text-xs flex items-center gap-1 mt-1"><span class="material-symbols-outlined text-xs" data-icon="location_on">location_on</span><span>El Alto, La Paz</span></p></div></div></article><article class="bg-[#ffffff] border border-[#e5e5e5] rounded-[10px] overflow-hidden transition hover:shadow-sm cursor-pointer flex flex-col"><div class="w-full aspect-[4/3] bg-[#f4f4f4] overflow-hidden"><img alt="Mecedora sillón de lactancia tapizado" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNQL0W-vIgV5AC4zyMyj9ne4goENiTn8nYPdVeTxQ4pWU-0xeGVhljG_Hu8Z7u787_-RBADjKquYYjEgPeU5rd3L_jTCTHMPERx5ba7gYU_JEELP1In7uKrIP7aNsXY71aw8y1rtk-fNZxyMK91mpsGIpOmem4FEnntaXfSiu8xmURPH9sqyndVmmURk9EEa0RfSoBcW7ozeLiNWDq9V5yRcUwUnn8CWLbQhnLGYzuEhhTq-TiRX4DIpqbflU8VNW3_vGOluQeSbUw"/></div><div class="p-3 md:p-4 flex flex-col gap-1.5 flex-1 justify-between"><h3 class="text-sm font-semibold text-[#252525] line-clamp-2 min-h-[40px]">Mecedora sillón de lactancia tapizado</h3><div><p class="font-bold text-[#363636] text-base md:text-lg">Bs 450</p><p class="text-[#707070] text-xs flex items-center gap-1 mt-1"><span class="material-symbols-outlined text-xs" data-icon="location_on">location_on</span><span>El Alto, La Paz</span></p></div></div></article></div></section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#ffffff] border-t border-[#e5e5e5] mt-16 w-full"><div class="w-full py-10 px-4 md:px-8 max-w-7xl mx-auto flex flex-col items-center justify-center gap-6 text-center"><div class="flex flex-col sm:flex-row items-center justify-between w-full gap-4 pb-6 border-b border-[#e5e5e5]"><a class="text-headline-sm font-headline-sm font-extrabold text-[#252525] tracking-tight flex items-center gap-1.5" href="#"><span class="w-7 h-7 rounded-lg bg-[#363636] text-[#fafafa] flex items-center justify-center font-display text-base">T</span><span>Telopillo</span></a><div class="flex items-center gap-3 text-[#707070]"><a aria-label="Facebook" class="w-9 h-9 rounded-full bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center hover:text-[#252525] hover:border-[#707070] transition-colors" href="#"><svg aria-hidden="true" class="w-4 h-4 fill-current" viewbox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg></a><a aria-label="Instagram" class="w-9 h-9 rounded-full bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center hover:text-[#252525] hover:border-[#707070] transition-colors" href="#"><svg aria-hidden="true" class="w-4 h-4 fill-current" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg></a><a aria-label="WhatsApp" class="w-9 h-9 rounded-full bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center hover:text-[#252525] hover:border-[#707070] transition-colors" href="#"><svg aria-hidden="true" class="w-4 h-4 fill-current" viewbox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.181-.076.355.101.173.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.203c.044.072.044.419-.1.824zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.434 5.174L2 22l4.98-1.306C8.423 21.536 10.15 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"></path></svg></a><a aria-label="Twitter / X" class="w-9 h-9 rounded-full bg-[#ffffff] border border-[#e5e5e5] flex items-center justify-center hover:text-[#252525] hover:border-[#707070] transition-colors" href="#"><svg aria-hidden="true" class="w-4 h-4 fill-current" viewbox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></a></div></div><nav aria-label="Enlaces secundarios" class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-label-md font-label-md text-[#707070]"><a class="hover:text-[#252525] transition-colors" href="#">Acerca de</a><span>·</span><a class="hover:text-[#252525] transition-colors" href="#">Contacto</a><span>·</span><a class="hover:text-[#252525] transition-colors" href="#">Ayuda</a><span>·</span><a class="hover:text-[#252525] transition-colors" href="#">Seguridad</a><span>·</span><a class="hover:text-[#252525] transition-colors" href="#">Términos</a><span>·</span><a class="hover:text-[#252525] transition-colors" href="#">Privacidad</a><span>·</span><a class="hover:text-[#252525] transition-colors" href="#">Cookies</a></nav><p class="text-body-sm font-body-sm text-[#707070]">© 2026 Telopillo. Todos los derechos reservados.</p></div></footer>
+<!-- Micro-interaction gallery script -->
+<script>
+    let currentPhotoIdx = 0;
+    const totalPhotos = 2;
+
+    function switchPhoto(index) {
+      currentPhotoIdx = index;
+      const mainImg = document.getElementById('main-product-image');
+      const counter = document.getElementById('gallery-counter');
+      const btn0 = document.getElementById('thumb-btn-0');
+      const btn1 = document.getElementById('thumb-btn-1');
+
+      if (index === 0) {
+        mainImg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuCM00TRTXeDp3VW3X1_1ffeJS5rEpozMZW_GIVg2lj52JdNculn3b3ISsbD2aIIcAHXNXKBxPBz8XOLHsCc9NTKxdb_OVJh5UClZ9Hv8YNByp68hcVi8GJgX4vFv-GTMXXQZjla5dMBP47Tnd78eHCl-AaMRl7vSTqWrs5Sjic9BXf5FhlUIs9yjKrFNRLlq4JyefsGGtoYPNhJpi7KcaCfqOC-M4fqGE0FCqLvNwRJJ2dGrV5FaYSy0Uu5a8SdvD3LjJfCd-QpmK7D";
+        counter.textContent = "1 / 2";
+        btn0.className = "w-20 h-16 rounded-lg overflow-hidden border-2 border-[#363636] ring-1 ring-[#363636]/20 transition-all shrink-0 relative bg-[#f4f4f4]";
+        btn1.className = "w-20 h-16 rounded-lg overflow-hidden border border-[#e5e5e5] opacity-70 hover:opacity-100 hover:border-[#707070] transition-all shrink-0 relative bg-[#f4f4f4]";
+      } else {
+        mainImg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuCM00TRTXeDp3VW3X1_1ffeJS5rEpozMZW_GIVg2lj52JdNculn3b3ISsbD2aIIcAHXNXKBxPBz8XOLHsCc9NTKxdb_OVJh5UClZ9Hv8YNByp68hcVi8GJgX4vFv-GTMXXQZjla5dMBP47Tnd78eHCl-AaMRl7vSTqWrs5Sjic9BXf5FhlUIs9yjKrFNRLlq4JyefsGGtoYPNhJpi7KcaCfqOC-M4fqGE0FCqLvNwRJJ2dGrV5FaYSy0Uu5a8SdvD3LjJfCd-QpmK7D";
+        counter.textContent = "2 / 2";
+        btn1.className = "w-20 h-16 rounded-lg overflow-hidden border-2 border-[#363636] ring-1 ring-[#363636]/20 transition-all shrink-0 relative bg-[#f4f4f4]";
+        btn0.className = "w-20 h-16 rounded-lg overflow-hidden border border-[#e5e5e5] opacity-70 hover:opacity-100 hover:border-[#707070] transition-all shrink-0 relative bg-[#f4f4f4]";
+      }
+    }
+  </script>
+</body></html>
