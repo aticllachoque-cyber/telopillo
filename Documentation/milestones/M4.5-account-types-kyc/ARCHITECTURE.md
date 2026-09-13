@@ -1044,7 +1044,7 @@ M4.5 extends Telopillo with a business-as-add-on model and minimal KYC through a
 
 **References:**
 - [PRD](./PRD.md) - Product requirements and user stories
-- [IMPLEMENTATION_PLAN](./IMPLEMENTATION_PLAN.md) - Phase-by-phase task breakdown
+- [IMPLEMENTATION_PLAN](../../archive/M4.5-account-types-kyc/IMPLEMENTATION_PLAN.md) - Phase-by-phase task breakdown
 - [Main ARCHITECTURE](../../ARCHITECTURE.md) - System-wide architecture
 
 ---

@@ -184,4 +184,4 @@ You're ready to move to **Phase 3: Development Tools** in the implementation pla
 
 ---
 
-**Need help?** See the [IMPLEMENTATION_PLAN.md](Documentation/milestones/M0-foundation-setup/IMPLEMENTATION_PLAN.md) for detailed instructions.
+**Need help?** See the [IMPLEMENTATION_PLAN.md](Documentation/archive/M0-foundation-setup/IMPLEMENTATION_PLAN.md) (archived M0 build plan) for detailed instructions.

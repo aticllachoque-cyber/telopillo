@@ -1,68 +1,113 @@
-# Architecture Documentation
+# Architecture — Telopillo
 
-This document outlines the architecture of the Telopillo.com project, a web application built with Next.js and Supabase.
+Documento canónico de arquitectura. Refleja el estado real del código (M4.7 completado, M5+ pendiente). Para detalle por feature, ver los `ARCHITECTURE.md` de cada milestone bajo `milestones/`. Para **deep-dives** (modelo de datos, RLS, decisiones) ver [`architecture/`](./architecture/README.md).
 
-## Overview
+> Última revisión: julio 2026. Idioma: documentación en español, código en inglés (`CLAUDE.md`).
 
-The project follows a component-based architecture, with a clear separation of concerns between the frontend, backend, and database. The frontend is built with React and Next.js, the backend is powered by Supabase, and the database is PostgreSQL.
+## 1. Visión general
 
-## Directory Structure
+Marketplace boliviano (compradores ↔ vendedores). Diferenciador: **búsqueda semántica híbrida** que entiende español boliviano, sinónimos y typos.
 
-The directory structure is organized as follows:
+- **Frontend:** Next.js 16.1.6 (App Router), React 19, TypeScript (strict), Tailwind CSS v4, shadcn/ui (Radix).
+- **Backend:** Supabase — PostgreSQL 15 + Auth + Storage + Realtime + Edge Functions (Deno) + **pgvector**.
+- **Mutaciones:** Server Actions (no API routes). **Lecturas públicas:** API routes + Supabase Client anónimo.
+- **Deploy:** Vercel (frontend) + Supabase Cloud (backend). **CI:** Husky pre-commit (`lint-staged`). No hay GitHub Actions.
 
--   `/app`: Contains the main application logic, including pages, layouts, and components.
--   `/components`: Contains reusable UI components.
--   `/lib`: Contains shared libraries and utility functions.
--   `/supabase`: Contains Supabase-related files, including migrations and functions.
--   `/tests`: Contains Playwright tests.
+### Estado actual
+Completado: M0–M4.7 (auth, productos, búsqueda híbrida, perfiles de negocio, share links, demand-side "Busco"). Pendiente: M5 chat realtime, M6 favoritos/ratings, M7+ (ver `milestones/README.md`). Backlog de bugs abierto: `status/BUG_AUDIT_2026-05-29.md`.
 
-## Frontend Architecture
+## 2. Estructura de directorios
 
-The frontend is built with Next.js, a React framework for building server-rendered applications. The UI is composed of reusable components, which are organized by feature in the `/components` directory. The main application logic is located in the `/app` directory, which contains the pages, layouts, and API routes.
+```
+app/            Páginas App Router, layouts, api/ (rutas públicas), route groups (auth)/(static)
+components/     UI por feature: auth, products, demand, profile, business, search,
+                layout, network, onboarding, providers, shared, ui/ (shadcn)
+lib/            actions/ (server actions), supabase/ (clients), validations/ (Zod),
+                search/ (synonyms + contactos), offline/ (resiliencia), network/ (fetch),
+                utils/, data/, constants/
+types/          database.ts — schema TS de la DB (generado)
+supabase/       migrations/ (24 SQL), functions/ (Edge Functions), config.toml
+tests/          e2e/ (Playwright, por journey) + unit/ (node:test)
+```
 
-### Authentication
+## 3. Capa de datos y clientes Supabase (`lib/supabase/`)
 
-Authentication is handled by Supabase Auth, which provides a secure and easy-to-use authentication solution. The authentication flow is as follows:
+Tres clientes según contexto. **Crítico:** elegir el correcto por operación.
 
-1.  The user signs up or logs in using their email and password.
-2.  Supabase Auth creates a new user and returns a JWT.
-3.  The JWT is stored in a cookie and sent with every request to the backend.
-4.  The backend verifies the JWT and authorizes the user to access protected resources.
+| Cliente | Uso | RLS |
+|---------|-----|-----|
+| `createClient()` (server.ts) | Server Components / Server Actions / API authd. Cookies httpOnly vía `@supabase/ssr`. | Sí, respeta `auth.uid()` |
+| `createPublicClient()` (server.ts) | Lecturas anónimas (búsqueda pública). Sin cookies. | Sí, sólo policies públicas |
+| `createClient()` (client.ts) | Browser. | Sí |
+| `createAdminClient()` (admin.ts) | Service role — **bypassa RLS**. Sólo backend con justificación (embeddings, jobs). | No |
+
+### Server Actions = capa de mutación
+`lib/actions/{auth,products,demand,profile,business-profile}.ts` con wrapper `result.ts`. Toda escritura de usuario pasa por aquí con validación Zod server-side + `stripHtml()`. **No** se escribe directo al Supabase desde el cliente (ver TELO-004 en bug audit — migración en curso).
+
+### Base de datos
+- **Tablas:** `profiles`, `business_profiles`, `products`, `demand_posts`, `demand_offers`, `app_config`.
+- **RLS habilitado en todas** con policies `auth.uid() = user_id`. Storage con paths user-scoped `{userId}/*`.
+- **Buckets:** `avatars`, `product-images`, `demand-images` (5MB, JPEG/PNG/WebP, compresión client-side en `lib/utils/image.ts`).
+- Schema tipado en `types/database.ts`.
+
+## 4. Autenticación
+
+Supabase Auth: **email/password + Google OAuth + Facebook OAuth**. JWT en cookies httpOnly. `middleware.ts` (+ `lib/supabase/middleware.ts`) refresca sesión en cada request y protege rutas: `/profile`, `/perfil`, `/publicar`, `/mensajes`, `/busco/publicar`, `/productos/[id]/editar`.
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant Frontend
-    participant Supabase Auth
-    User->>Frontend: Signs up or logs in
-    Frontend->>Supabase Auth: Sends email and password
-    Supabase Auth->>Frontend: Returns JWT
-    Frontend->>Frontend: Stores JWT in cookie
+    participant U as Usuario
+    participant F as Frontend (App Router)
+    participant M as Middleware
+    participant S as Supabase Auth
+    U->>F: Login (email/pass o OAuth)
+    F->>S: signIn / OAuth callback
+    S-->>F: JWT (httpOnly cookie)
+    U->>M: Request a ruta protegida
+    M->>S: getUser() + refresh
+    M-->>F: Session válida → render
 ```
 
-## Backend Architecture
+Dev bypass: `DISABLE_AUTH=true` (server-only, **nunca en producción**; middleware lo rechaza si `NODE_ENV=production`).
 
-The backend is powered by Supabase, a backend-as-a-service platform that provides a suite of tools for building modern web applications. The backend is responsible for handling API requests, interacting with the database, and managing user authentication.
+## 5. Búsqueda semántica híbrida (núcleo del producto)
 
-### API Routes
-
-The API routes are located in the `/app/api` directory and are implemented as Next.js API routes. These routes are responsible for handling requests from the frontend and interacting with the Supabase backend.
-
-### Database
-
-The database is a PostgreSQL database hosted on Supabase. The database schema is managed with Supabase Migrations, which allows for version-controlled database changes.
+Flujo público, sin auth. Combina Full-Text Search (Postgres) + búsqueda vectorial (pgvector) con **Reciprocal Rank Fusion (RRF)**.
 
 ```mermaid
 graph TD
-    A[Frontend] --> B{Next.js API Routes};
-    B --> C{Supabase Client};
-    C --> D[Supabase];
+    Q[Query usuario] --> EXP[expandQuery<br/>sinónimos bolivianos]
+    EXP --> FLAG{semantic_search_enabled?<br/>app_config}
+    FLAG -->|sí| EMB[Edge fn generate-embedding<br/>HF MiniLM-L12-v2 · 384d]
+    EMB --> SEM[RPC search_products_semantic]
+    FLAG -->|no| KW[RPC search_products]
+    SEM --> RRF[RRF: FTS + vector]
+    KW --> RRF
+    RRF --> ENR[enrichSearchContacts<br/>teléfonos vendedor]
+    ENR --> R[JSON resultados + score]
 ```
 
-## Testing
+- **API:** `GET /api/search` (público). Fallback graceful: si falla el embedding → cae a keyword-only.
+- **FTS:** `to_tsvector` / `plainto_tsquery`. **Vectorial:** pgvector, índice **HNSW** (`vector_cosine_ops`).
+- **RPCs:** `search_products` (keyword) y `search_products_semantic` (híbrido, RRF interno). Demanda usa `/api/search-demands` + `search_demands`.
+- **Embeddings:** Edge Function `generate-embedding` (Deno) vía Hugging Face Inference API. Modos: webhook de producto (INSERT/UPDATE), query, backfill, demand post. Cache en memoria 5 min.
 
-The project uses Playwright for end-to-end testing. The tests are located in the `/tests` directory and are run with the `npm run test:e2e` command. The tests cover the main user flows, including authentication, product creation, and search.
+## 6. Resiliencia
 
-## Deployment
+`lib/network/fetch.ts` — `fetchWithPolicy` con timeout + reintentos. `lib/offline/`: borradores (`drafts`), caché de lectura (`read-cache`), caché de búsqueda (`search-cache`), recuperación de subidas (`upload-recovery`).
 
-The project is deployed on Vercel, a cloud platform for static sites and serverless functions. The deployment process is automated with GitHub Actions, which builds and deples the application to Vercel on every push to the `main` branch.
+## 7. Testing
+
+- **E2E:** Playwright, organizado por journey en `tests/e2e/` (auth, buyer-journey, seller-journey, demand-side, search-discovery, cross-cutting). Scripts `test:{e2e,buyer,seller,demand,search,a11y,mobile}`.
+- **Unit:** `node:test` en `tests/unit/` (`test:unit`).
+- **Accesibilidad:** `@axe-core/playwright`. Meta: WCAG 2.2 AA.
+
+## 8. Deploy y CI
+
+- **Frontend:** Vercel. **Backend:** Supabase Cloud. Migrations vía `npx supabase db push`; Edge Functions vía `npx supabase functions deploy`.
+- **CI local (pre-commit, Husky + lint-staged):** ESLint + Prettier + `normalize-next-env`. Type-check vía `npm run type-check`.
+- **No hay GitHub Actions** (a la fecha). Deploy de Vercel dispara por integración git, no por workflow de Actions.
+
+## 9. Contexto boliviano
+
+UI en español (dialecto boliviano). Search entiende sinónimos locales (ej. "chompa" = "sudadera"). Moneda BOB (Bs. 1.234,56). Departamentos oficiales. NIT = tax ID (PII sensible).

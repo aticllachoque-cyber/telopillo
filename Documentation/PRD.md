@@ -5,7 +5,7 @@
 **Fecha:** 16 de febrero de 2026  
 **Autor:** Alcides Cardenas  
 **Estado:** Draft  
-**Última actualización:** Actualizado stack técnico (Next.js 16, React 19), añadida sección de testing E2E (229 test cases, Playwright), documentada infraestructura de agentes AI (9 subagentes), actualizado estado de milestones (M0-M4.5 completados)
+**Última actualización:** Actualizado stack técnico (Next.js 16, React 19), añadida sección de testing E2E (229 test cases, Playwright), documentada infraestructura de agentes AI (9 subagentes), actualizado estado de milestones (M0-M4.7 completados; M4.6 share-profile y M4.7 demand-side "Busco" finalizados)
 
 ---
 

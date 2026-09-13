@@ -51,8 +51,8 @@
 
 ## Documentation
 
-- **[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)** — Detailed 7-phase technical implementation plan
-- **[PROGRESS.md](./PROGRESS.md)** — Progress tracking (0% → 100%)
+- **[IMPLEMENTATION_PLAN.md](../../archive/M3-search-keyword/IMPLEMENTATION_PLAN.md)** — Detailed 7-phase technical implementation plan
+- **[PROGRESS.md](../../archive/M3-search-keyword/PROGRESS.md)** — Progress tracking (0% → 100%)
 
 ## Notes
 - Use PostgreSQL Full-Text Search

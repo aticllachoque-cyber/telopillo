@@ -13,7 +13,7 @@
 | [README.md](./README.md) | Overview, user stories, success criteria |
 | [PRD.md](./PRD.md) | Full product requirements document |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Technical architecture & design decisions |
-| [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) | Phased implementation plan with file-level tasks |
+| [IMPLEMENTATION_PLAN.md](../../archive/M4.6-share-profile/IMPLEMENTATION_PLAN.md) | Phased implementation plan with file-level tasks |
 
 ---
 

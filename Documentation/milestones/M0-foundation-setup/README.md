@@ -75,10 +75,10 @@ After the core milestone, the UI was reviewed and improved:
 This milestone has comprehensive documentation:
 
 - **[PRD.md](./PRD.md)** - Complete Product Requirements Document
-- **[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)** - Step-by-step implementation guide
-- **[PROGRESS.md](./PROGRESS.md)** - Detailed progress report with metrics
-- **[QUICK_START.md](./QUICK_START.md)** - Quick start guide
-- **[INDEX.md](./INDEX.md)** - Documentation index
+- **[IMPLEMENTATION_PLAN.md](../../archive/M0-foundation-setup/IMPLEMENTATION_PLAN.md)** - Step-by-step implementation guide
+- **[PROGRESS.md](../../archive/M0-foundation-setup/PROGRESS.md)** - Detailed progress report with metrics
+- **[QUICK_START.md](../../archive/M0-foundation-setup/QUICK_START.md)** - Quick start guide
+- **[INDEX.md](../../archive/M0-foundation-setup/INDEX.md)** - Documentation index
 
 ---
 
@@ -165,7 +165,6 @@ This milestone has comprehensive documentation:
 - README.md with setup instructions
 - `.env.example` documented
 - SUPABASE_SETUP.md created
-- SUPABASE_QUICK_CREATE.md created
 - PRD and Implementation Plan created
 - Progress report maintained
 
@@ -186,8 +185,7 @@ This milestone has comprehensive documentation:
 
 1. README.md - Project overview and setup
 2. .env.example - Environment variable template
-3. SUPABASE_SETUP.md - Supabase configuration guide
-4. SUPABASE_QUICK_CREATE.md - Quick project creation
+3. SUPABASE_SETUP.md - Supabase configuration guide (incl. quick project creation)
 5. PRD.md - Product Requirements Document
 6. IMPLEMENTATION_PLAN.md - Step-by-step guide
 7. PROGRESS.md - Detailed progress report
@@ -318,14 +316,14 @@ f696eea feat(m0): integrate Supabase client and middleware
 ## Troubleshooting
 
 Common issues and solutions are documented in:
-- [IMPLEMENTATION_PLAN.md - Section 8: Troubleshooting Guide](./IMPLEMENTATION_PLAN.md#8-troubleshooting-guide)
+- [IMPLEMENTATION_PLAN.md - Section 8: Troubleshooting Guide](../../archive/M0-foundation-setup/IMPLEMENTATION_PLAN.md#8-troubleshooting-guide)
 
 ---
 
 ## Verification Checklist
 
 Complete checklist available in:
-- [IMPLEMENTATION_PLAN.md - Section 9: Verification Checklist](./IMPLEMENTATION_PLAN.md#9-verification-checklist)
+- [IMPLEMENTATION_PLAN.md - Section 9: Verification Checklist](../../archive/M0-foundation-setup/IMPLEMENTATION_PLAN.md#9-verification-checklist)
 
 ---
 

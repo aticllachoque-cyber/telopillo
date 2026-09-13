@@ -311,9 +311,9 @@ USING (auth.uid() = user_id);
 
 ## 📚 Documentation
 
-- [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) - Detailed step-by-step plan
-- [PROGRESS.md](./PROGRESS.md) - Progress tracking
-- [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Testing guide
+- [IMPLEMENTATION_PLAN.md](../../archive/M2-product-listings/IMPLEMENTATION_PLAN.md) - Detailed step-by-step plan
+- [PROGRESS.md](../../archive/M2-product-listings/PROGRESS.md) - Progress tracking
+- [TESTING_CHECKLIST.md](../../archive/M2-product-listings/TESTING_CHECKLIST.md) - Testing guide
 - [API.md](./API.md) - API documentation
 
 ---

@@ -886,7 +886,7 @@ The following document types will be defined in the Strong KYC milestone:
 
 > **Note:** Phase 7 (Verification Documents UI) from the original plan has been removed. Document upload is deferred to Strong KYC milestone, saving ~3-4 hours.
 
-See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for detailed task breakdown per phase.
+See [IMPLEMENTATION_PLAN.md](../../archive/M4.5-account-types-kyc/IMPLEMENTATION_PLAN.md) for detailed task breakdown per phase.
 
 ---
 

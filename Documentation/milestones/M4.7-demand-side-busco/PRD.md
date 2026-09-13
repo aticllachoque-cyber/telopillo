@@ -184,7 +184,7 @@ Two new tables:
 - `demand_posts`: Public read for active, non-expired posts (`status = 'active' AND expires_at > NOW()`). Owners see their own regardless of status.
 - `demand_offers`: Public read for offers on active, non-expired demand posts. Anyone can see how many and which products are offered.
 
-Full SQL in [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) and [ARCHITECTURE.md](./ARCHITECTURE.md).
+Full SQL in [IMPLEMENTATION_PLAN.md](../../archive/M4.7-demand-side-busco/IMPLEMENTATION_PLAN.md) and [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ### 4.2 Out of Scope (Deferred)
 

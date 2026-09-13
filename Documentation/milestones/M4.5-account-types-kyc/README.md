@@ -11,8 +11,8 @@
 ## Documentation
 
 - **[PRD](./PRD.md)** - Complete requirements, user stories, technical design, and acceptance criteria
-- **[Implementation Plan](./IMPLEMENTATION_PLAN.md)** - Detailed step-by-step guide with code
-- **[Progress](./PROGRESS.md)** - Progress report and task tracking
+- **[Implementation Plan](../../archive/M4.5-account-types-kyc/IMPLEMENTATION_PLAN.md)** - Detailed step-by-step guide with code
+- **[Progress](../../archive/M4.5-account-types-kyc/PROGRESS.md)** - Progress report and task tracking
 
 ---
 

@@ -111,13 +111,13 @@
 ## 📚 Documentation
 
 - **[PRD](./PRD.md)** - Complete requirements and user stories
-- **[Implementation Plan](./IMPLEMENTATION_PLAN.md)** - Detailed step-by-step guide with code
-- **[DEVELOPMENT_SETUP.md](./DEVELOPMENT_SETUP.md)** - Development & testing setup (test users, auth bypass)
-- **[PHASE2_OAUTH_GUIDE.md](./PHASE2_OAUTH_GUIDE.md)** ⭐ - Step-by-step OAuth configuration (Google + Facebook)
-- **[PHASE5_TESTING_GUIDE.md](./PHASE5_TESTING_GUIDE.md)** - Avatar upload testing guide
-- **[PHASE7_TESTING_CHECKLIST.md](./PHASE7_TESTING_CHECKLIST.md)** ⭐ - Complete testing checklist
-- **[PROGRESS.md](./PROGRESS.md)** - Progress report and task tracking
-- **[Quick Start](./QUICK_START.md)** - Fast-track implementation guide
+- **[Implementation Plan](../../archive/M1-authentication-profiles/IMPLEMENTATION_PLAN.md)** - Detailed step-by-step guide with code
+- **[DEVELOPMENT_SETUP.md](../../archive/M1-authentication-profiles/DEVELOPMENT_SETUP.md)** - Development & testing setup (test users, auth bypass)
+- **[PHASE2_OAUTH_GUIDE.md](../../archive/M1-authentication-profiles/PHASE2_OAUTH_GUIDE.md)** ⭐ - Step-by-step OAuth configuration (Google + Facebook)
+- **[PHASE5_TESTING_GUIDE.md](../../archive/M1-authentication-profiles/PHASE5_TESTING_GUIDE.md)** - Avatar upload testing guide
+- **[PHASE7_TESTING_CHECKLIST.md](../../archive/M1-authentication-profiles/PHASE7_TESTING_CHECKLIST.md)** ⭐ - Complete testing checklist
+- **[PROGRESS.md](../../archive/M1-authentication-profiles/PROGRESS.md)** - Progress report and task tracking
+- **[Quick Start](../../archive/M1-authentication-profiles/QUICK_START.md)** - Fast-track implementation guide
 
 ## 🚀 Getting Started
 
@@ -158,7 +158,7 @@
 
 ### OAuth Setup
 
-Follow the [PHASE2_OAUTH_GUIDE.md](./PHASE2_OAUTH_GUIDE.md) for detailed OAuth configuration:
+Follow the [PHASE2_OAUTH_GUIDE.md](../../archive/M1-authentication-profiles/PHASE2_OAUTH_GUIDE.md) for detailed OAuth configuration:
 - Google OAuth setup
 - Facebook OAuth setup
 - Supabase configuration
@@ -179,7 +179,7 @@ Follow the [PHASE2_OAUTH_GUIDE.md](./PHASE2_OAUTH_GUIDE.md) for detailed OAuth c
 
 ### Documentation
 
-1. Read the [Quick Start Guide](./QUICK_START.md) for a 3-day implementation plan
-2. Follow the [Implementation Plan](./IMPLEMENTATION_PLAN.md) for detailed code and instructions
+1. Read the [Quick Start Guide](../../archive/M1-authentication-profiles/QUICK_START.md) for a 3-day implementation plan
+2. Follow the [Implementation Plan](../../archive/M1-authentication-profiles/IMPLEMENTATION_PLAN.md) for detailed code and instructions
 3. Reference the [PRD](./PRD.md) for requirements and acceptance criteria
-4. Check [PHASE7_TESTING_CHECKLIST.md](./PHASE7_TESTING_CHECKLIST.md) for testing guidelines
+4. Check [PHASE7_TESTING_CHECKLIST.md](../../archive/M1-authentication-profiles/PHASE7_TESTING_CHECKLIST.md) for testing guidelines

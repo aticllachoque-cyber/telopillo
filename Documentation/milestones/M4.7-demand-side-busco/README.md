@@ -21,8 +21,8 @@
 
 - **[PRD](./PRD.md)** — Complete requirements, user stories, UX specs, and acceptance criteria
 - **[Architecture](./ARCHITECTURE.md)** — Technical design, data model, search integration, security
-- **[Implementation Plan](./IMPLEMENTATION_PLAN.md)** — Phased implementation guide with code
-- **[Progress](./PROGRESS.md)** — Progress report and task tracking
+- **[Implementation Plan](../../archive/M4.7-demand-side-busco/IMPLEMENTATION_PLAN.md)** — Phased implementation guide with code
+- **[Progress](../../archive/M4.7-demand-side-busco/PROGRESS.md)** — Progress report and task tracking
 
 ---
 
