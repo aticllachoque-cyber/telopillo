@@ -1,0 +1,120 @@
+- link "Saltar al contenido principal":
+  - /url: "#main-content"
+- banner:
+  - link "Telopillo":
+    - /url: /
+  - search "Buscar productos":
+    - textbox "Buscar productos":
+      - /placeholder: Buscar productos...
+      - text: samsung
+    - button "Limpiar búsqueda"
+    - button "Buscar"
+  - navigation "Navegación principal":
+    - text: Marketplace
+    - link "Productos":
+      - /url: /buscar
+    - link "Categorías":
+      - /url: /categorias
+    - link "Solicitudes":
+      - /url: /busco
+    - link "Publicar Gratis":
+      - /url: /crear
+    - link "Ingresar":
+      - /url: /login
+- main:
+  - heading "Buscar Productos" [level=1]
+  - search "Buscar productos":
+    - textbox "Buscar productos":
+      - /placeholder: Buscar productos...
+      - text: samsung
+    - button "Limpiar búsqueda"
+    - button "Buscar"
+  - complementary "Filtros de productos":
+    - text: Filtros de productos
+    - heading "Filtros" [level=2]
+    - group "Filtros de productos":
+      - paragraph: Los filtros se aplican automáticamente al seleccionar.
+      - text: Categoría
+      - combobox "Filtrar por categoría": Todas las categorías
+      - text: Condición
+      - combobox "Filtrar por condición": Todas las condiciones
+      - text: Departamento
+      - combobox "Filtrar por departamento": Todos los departamentos
+      - group "Rango de precio (Bs)":
+        - text: Rango de precio (Bs) Precio mínimo
+        - spinbutton "Precio mínimo en bolivianos"
+        - text: Precio máximo
+        - spinbutton "Precio máximo en bolivianos"
+        - button "Aplicar precio" [disabled]
+      - text: Ordenar por
+      - combobox "Ordenar productos": Relevancia
+  - status:
+    - paragraph:
+      - text: 2 resultados para
+      - strong: samsung
+    - paragraph: Mostrando 2 de 2
+  - list:
+    - listitem:
+      - link "Ver Samsung Galaxy S23 Ultra 256GB impecable":
+        - /url: /productos/5U4vHZ2yHvSS9owlZsropb--samsung-galaxy-s23-ultra-256gb-impecable
+        - img "Samsung Galaxy S23 Ultra 256GB impecable"
+      - text: Activo
+      - link "Samsung Galaxy S23 Ultra 256GB impecable Bs 4.800 Santa Cruz de la Sierra, Santa Cruz":
+        - /url: /productos/5U4vHZ2yHvSS9owlZsropb--samsung-galaxy-s23-ultra-256gb-impecable
+        - heading "Samsung Galaxy S23 Ultra 256GB impecable" [level=3]
+        - paragraph: Bs 4.800
+        - text: Santa Cruz de la Sierra, Santa Cruz
+      - link "Diego Mamani":
+        - /url: /vendedor/b1000001-0000-0000-0000-000000000003
+      - link "Contactar por WhatsApp sobre este producto":
+        - /url: https://wa.me/59170334455?text=Mira%20esta%20publicaci%C3%B3n%3A%20Samsung%20Galaxy%20S23%20Ultra%20256GB%20impecable%20por%20Bs%204.800%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F5U4vHZ2yHvSS9owlZsropb--samsung-galaxy-s23-ultra-256gb-impecable
+        - text: WhatsApp
+      - text: 45 13 ago
+    - listitem:
+      - link "Ver Refrigeradora Samsung 300L no frost":
+        - /url: /productos/5U4vHZ2yHvSS9owlZsropy--refrigeradora-samsung-300l-no-frost
+        - img "Refrigeradora Samsung 300L no frost"
+      - text: Activo
+      - link "Refrigeradora Samsung 300L no frost Bs 3.150 Cochabamba, Cochabamba":
+        - /url: /productos/5U4vHZ2yHvSS9owlZsropy--refrigeradora-samsung-300l-no-frost
+        - heading "Refrigeradora Samsung 300L no frost" [level=3]
+        - paragraph: Bs 3.150
+        - text: Cochabamba, Cochabamba
+      - link "Casa Andina Hogar":
+        - /url: /negocio/casa-andina-hogar
+      - link "Contactar por WhatsApp sobre este producto":
+        - /url: https://wa.me/59170889900?text=Mira%20esta%20publicaci%C3%B3n%3A%20Refrigeradora%20Samsung%20300L%20no%20frost%20por%20Bs%203.150%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F5U4vHZ2yHvSS9owlZsropy--refrigeradora-samsung-300l-no-frost
+        - text: WhatsApp
+      - text: 13 ago
+  - paragraph: No hay más productos.
+  - paragraph: ¿No encontraste exactamente lo que buscas?
+  - paragraph: Publica una solicitud y deja que los vendedores te contacten.
+  - link "Publicar lo que busco →":
+    - /url: /busco/publicar
+- contentinfo:
+  - text: Telopillo
+  - link "Seguinos en Facebook":
+    - /url: https://www.facebook.com/profile.php?id=61589457988698
+  - link "Seguinos en Instagram":
+    - /url: https://www.instagram.com/telo.pillo/
+  - link "Seguinos en X":
+    - /url: https://x.com/telopillo
+  - link "Seguinos en TikTok":
+    - /url: https://www.tiktok.com/@telopillo
+  - navigation "Footer":
+    - link "Acerca de":
+      - /url: /acerca
+    - link "Contacto":
+      - /url: /contacto
+    - link "Ayuda":
+      - /url: /ayuda
+    - link "Seguridad":
+      - /url: /seguridad
+    - link "Términos":
+      - /url: /terminos
+    - link "Privacidad":
+      - /url: /privacidad
+    - link "Cookies":
+      - /url: /cookies
+  - paragraph: © 2026 Telopillo. Todos los derechos reservados.
+- alert

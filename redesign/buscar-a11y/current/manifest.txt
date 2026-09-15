@@ -1,0 +1,8 @@
+buscar-a11y — capturas Stage 3
+Estados: resultados (/buscar?q=samsung) y empty (/buscar?q=nonexistent). dsf=2, fullPage.
+resultados/desktop.png: viewport 1920x1080, fullPage, dsf 2, 2026-09-15, sin auth, HTTP 200, 1036380 bytes
+resultados/tablet.png: viewport 768x1024, fullPage, dsf 2, 2026-09-15, sin auth, HTTP 200, 1141310 bytes
+resultados/mobile.png: viewport 375x812, fullPage, dsf 2, 2026-09-15, sin auth, HTTP 200, 997339 bytes
+empty/desktop.png: viewport 1920x1080, fullPage, dsf 2, 2026-09-15, sin auth, HTTP 200, 203300 bytes
+empty/tablet.png: viewport 768x1024, fullPage, dsf 2, 2026-09-15, sin auth, HTTP 200, 159675 bytes
+empty/mobile.png: viewport 375x812, fullPage, dsf 2, 2026-09-15, sin auth, HTTP 200, 110505 bytes

@@ -1,0 +1,20 @@
+G0a: PASS
+G0b: PASS
+G0c: PASS
+G0d: PASS
+G1: PASS
+G2: PASS
+G3: PASS
+FLAG tokens:drift — hardcoded hex in proposal (advisory; map to app/globals.css tokens at implementation)
+G3c: PASS
+G3d: PASS
+G4a: PASS
+G4b: PASS
+G5a: PASS
+G5b: PASS
+G5c: PASS
+BLOCK: a11y suite failed
+G7: PASS
+G7b: PASS
+G8a: PASS
+G8b: PASS

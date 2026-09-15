@@ -1,0 +1,12 @@
+
+=== results (/buscar?q=samsung) dark mode: 1 violations ===
+- landmark-unique (moderate): 1 node(s)
+  target: .max-w-xl > form
+  Fix any of the following:
+
+=== empty (/buscar?q=zzzznoexiste) dark mode: 1 violations ===
+- landmark-unique (moderate): 1 node(s)
+  target: .max-w-xl > form
+  Fix any of the following:
+
+DARK-MODE AXE: 2 violations
