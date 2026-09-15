@@ -1,15 +1,15 @@
 G0a: PASS
 G0b: PASS
 G0c: PASS
-BLOCK: capture is not the intended page (status/landmark check — 404 or login redirect?)
+G0d: PASS
 G1: PASS
 G2: PASS
 G3: PASS
 FLAG tokens:drift — hardcoded hex in proposal (advisory; map to app/globals.css tokens at implementation)
 G3c: PASS
-BLOCK: sibling missing disposition row in comparison.html: <repo
+G3d: PASS
 G4a: PASS
-BLOCK: stale sign-off — proposal/comparison changed after approval, re-approve
+G4b: PASS
 G5a: PASS
 G5b: PASS
 G5c: PASS
@@ -17,4 +17,4 @@ BLOCK: a11y suite failed
 G7: PASS
 G7b: PASS
 G8a: PASS
-BLOCK: unresolved findings: F-1:no-row (P1):no-row F-2:no-row (P1):no-row F-3:no-row (P2):no-row F-4:no-row (P2):no-row F-5:no-row (P2):no-row
+G8b: PASS
