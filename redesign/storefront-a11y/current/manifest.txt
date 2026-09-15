@@ -1,0 +1,6 @@
+desktop.png | /negocio/tienda-electronica-la-paz | 1920x1080 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+404-desktop.png | /negocio/usuario-de-desarrollo | 1920x1080 | fullPage dsf=2 | HTTP 404 | 2026-09-15 | public
+tablet.png | /negocio/tienda-electronica-la-paz | 768x1024 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+404-tablet.png | /negocio/usuario-de-desarrollo | 768x1024 | fullPage dsf=2 | HTTP 404 | 2026-09-15 | public
+mobile.png | /negocio/tienda-electronica-la-paz | 375x812 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+404-mobile.png | /negocio/usuario-de-desarrollo | 375x812 | fullPage dsf=2 | HTTP 404 | 2026-09-15 | public

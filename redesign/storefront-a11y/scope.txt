@@ -1,0 +1,4 @@
+app/negocio/[slug]/page.tsx
+components/business/BusinessInfoSidebar.tsx
+tests/helpers/index.ts
+redesign/
