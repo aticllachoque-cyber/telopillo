@@ -1,0 +1,6 @@
+app/busco/publicar/page.tsx
+components/demand/DemandPostForm.tsx
+components/demand/DemandImageUpload.tsx
+components/products/CategoryGrid.tsx
+components/profile/LocationSelector.tsx
+redesign/

@@ -1,0 +1,28 @@
+G0a: PASS
+BLOCK: missing/empty desktop capture
+BLOCK: missing/empty mobile capture
+BLOCK: capture is not the intended page (status/landmark check — 404 or login redirect?)
+G1: PASS
+BLOCK: no findings
+BLOCK: finding(s) missing evidence line
+BLOCK: no proposal/comparison
+G3c: PASS
+BLOCK: sibling missing disposition row in comparison.html: app/busco/publicar/page.tsx
+BLOCK: sibling missing disposition row in comparison.html: components/demand/DemandPostForm.tsx
+BLOCK: sibling missing disposition row in comparison.html: components/shared/SingleImageUpload.tsx
+BLOCK: sibling missing disposition row in comparison.html: app/publicar/page.tsx
+BLOCK: sibling missing disposition row in comparison.html: components/products/ProductFormWizard.tsx
+BLOCK: sibling missing disposition row in comparison.html: app/busco/[id]/editar/page.tsx
+BLOCK: sibling missing disposition row in comparison.html: app/busco/page.tsx
+BLOCK: sibling missing disposition row in comparison.html: components/products/OwnerListingNotice.tsx
+BLOCK: not approved (rejected = skip, never implement)
+BLOCK: stale sign-off — proposal/comparison changed after approval, re-approve
+G5a: PASS
+G5b: PASS
+G5c: PASS
+G6: PASS
+BLOCK: wrong branch
+BLOCK: G7 needs branch redesign/busco-publicar-ui
+G7b: PASS
+BLOCK: missing/invalid after-capture (re-capture on the branch, same manifest discipline)
+G8b: PASS
