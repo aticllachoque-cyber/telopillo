@@ -1,0 +1,6 @@
+app/publicar/page.tsx
+app/busco/publicar/page.tsx
+components/products/ProductFormWizard.tsx
+components/demand/DemandPostForm.tsx
+tests/e2e/cross-cutting/accessibility-audit.spec.ts
+redesign/

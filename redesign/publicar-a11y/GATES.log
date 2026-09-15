@@ -1,0 +1,21 @@
+G0a: PASS
+G0b: PASS
+G0c: PASS
+G0d: PASS
+G1: PASS
+G2: PASS
+G3: PASS
+FLAG tokens:drift — hardcoded hex in proposal (advisory; map to app/globals.css tokens at implementation)
+G3c: PASS
+G3d: PASS
+BLOCK: not approved (rejected = skip, never implement)
+BLOCK: stale sign-off — proposal/comparison changed after approval, re-approve
+G5a: PASS
+G5b: PASS
+G5c: PASS
+BLOCK: a11y suite failed
+BLOCK: wrong branch
+BLOCK: G7 needs branch redesign/publicar-a11y
+G7b: PASS
+BLOCK: missing/invalid after-capture (re-capture on the branch, same manifest discipline)
+BLOCK: unresolved findings: F-1:no-row (P2):no-row F-2:no-row (P2):no-row F-3:no-row (P2):no-row F-4:no-row (P2):no-row

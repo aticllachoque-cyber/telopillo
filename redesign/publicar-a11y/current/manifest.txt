@@ -1,0 +1,6 @@
+desktop.png | /publicar | 1920x1080 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+demanda-desktop.png | /busco/publicar | 1920x1080 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+tablet.png | /publicar | 768x1024 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+demanda-tablet.png | /busco/publicar | 768x1024 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+mobile.png | /publicar | 375x812 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+demanda-mobile.png | /busco/publicar | 375x812 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in

@@ -1,0 +1,70 @@
+
+===== PRODUCTO [desktop] =====
+
+[desktop] producto-step1 — axe 2255ms, 0 violation(s)
+
+[desktop] producto-step1-errores — axe 1390ms, 0 violation(s)
+
+[desktop] producto-step2 — axe 2186ms, 0 violation(s)
+
+[desktop] producto-step3 — axe 2134ms, 0 violation(s)
+
+===== PRODUCTO [desktop] =====
+
+[desktop] producto-step1 — axe 1327ms, 0 violation(s)
+
+[desktop] producto-step1-errores — axe 1539ms, 0 violation(s)
+
+[desktop] producto-step2 — axe 1752ms, 0 violation(s)
+
+[desktop] producto-step3 — axe 1447ms, 0 violation(s)
+
+===== PRODUCTO [desktop] =====
+
+[desktop] producto-step1 — axe 1383ms, 0 violation(s)
+
+[desktop] producto-step1-errores — axe 956ms, 0 violation(s)
+
+[desktop] producto-step2 — axe 1510ms, 0 violation(s)
+
+[desktop] producto-step3 — axe 1086ms, 0 violation(s)
+
+[desktop] producto-step4-revisar — axe 1260ms, 0 violation(s)
+
+===== DEMANDA [desktop] =====
+
+[desktop] demanda-step1 — axe 1624ms, 0 violation(s)
+
+[desktop] demanda-step1-errores — axe 1461ms, 0 violation(s)
+
+[desktop] demanda-step2 — axe 1419ms, 0 violation(s)
+
+[desktop] demanda-step3 — axe 1044ms, 0 violation(s)
+
+[desktop] demanda-step4-revisar — axe 1127ms, 0 violation(s)
+
+===== PRODUCTO [mobile] =====
+
+[mobile] producto-step1 — axe 1793ms, 0 violation(s)
+
+[mobile] producto-step1-errores — axe 1397ms, 0 violation(s)
+
+[mobile] producto-step2 — axe 1718ms, 0 violation(s)
+
+[mobile] producto-step3 — axe 1246ms, 0 violation(s)
+
+[mobile] producto-step4-revisar — axe 1371ms, 0 violation(s)
+
+===== DEMANDA [mobile] =====
+
+[mobile] demanda-step1 — axe 1094ms, 0 violation(s)
+
+[mobile] demanda-step1-errores — axe 1504ms, 0 violation(s)
+
+[mobile] demanda-step2 — axe 1112ms, 0 violation(s)
+
+[mobile] demanda-step3 — axe 1046ms, 0 violation(s)
+
+[mobile] demanda-step4-revisar — axe 1088ms, 0 violation(s)
+
+STEPTHROUGH DONE
