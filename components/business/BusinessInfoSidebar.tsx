@@ -92,7 +92,7 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
               {isOpenToday ? (
                 <span
                   role="status"
-                  className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                  className="text-xs font-medium text-green-800 bg-green-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1"
                 >
                   <span className="size-1.5 rounded-full bg-green-500" aria-hidden="true" />
                   Abierto
@@ -100,7 +100,7 @@ export function BusinessInfoSidebar({ business, phone }: BusinessInfoSidebarProp
               ) : (
                 <span
                   role="status"
-                  className="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                  className="text-xs font-medium text-red-700 bg-red-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1"
                 >
                   <span className="size-1.5 rounded-full bg-red-500" aria-hidden="true" />
                   Cerrado

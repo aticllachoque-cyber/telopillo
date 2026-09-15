@@ -206,7 +206,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
 
           {/* MVP: set expectations — storefronts are still being enriched */}
           <div
-            className="mb-6 flex gap-3 rounded-xl border border-primary/35 bg-gradient-to-br from-primary/12 via-primary/5 to-amber-500/10 px-4 py-3 shadow-sm sm:px-5 sm:py-4"
+            className="mb-6 flex gap-3 rounded-xl border border-primary/35 bg-muted/40 px-4 py-3 shadow-sm sm:px-5 sm:py-4"
             role="status"
             aria-live="polite"
           >
@@ -217,7 +217,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
               <p className="text-sm font-semibold leading-snug text-foreground">
                 Tienda en construcción en Telopillo
               </p>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-sm leading-relaxed text-foreground/80">
                 Estamos ayudando a este negocio a completar su vitrina: datos, horarios y catálogo
                 pueden ir sumándose. Si ves algo que te interesa, contactá al vendedor — así les das
                 una mano a seguir mejorando.

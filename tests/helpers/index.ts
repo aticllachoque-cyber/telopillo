@@ -213,7 +213,7 @@ export function logViolations(
 export const TEST_DATA = {
   email: DEFAULT_EMAIL,
   password: DEFAULT_PASSWORD,
-  businessSlug: 'usuario-de-desarrollo',
+  businessSlug: 'tienda-electronica-la-paz',
   businessSellerId: '9b8794bb-d357-499a-8c10-d5413b6a7ccb',
   personalSellerId: '09a4ef63-b8ec-4931-9885-e4d785e79643',
 } as const
