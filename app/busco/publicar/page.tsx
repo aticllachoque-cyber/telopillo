@@ -76,7 +76,7 @@ export default function PublicarDemandaPage() {
   if (isLoading) {
     return (
       <div className="min-h-dvh bg-background py-8" aria-busy="true">
-        <div className="container max-w-2xl px-4 sm:px-6">
+        <div className="container mx-auto max-w-2xl px-4 sm:px-6">
           <div className="mb-8 space-y-3">
             <div className="h-4 w-32 rounded bg-muted animate-pulse" />
             <div className="h-8 w-64 rounded bg-muted animate-pulse" />
@@ -99,7 +99,7 @@ export default function PublicarDemandaPage() {
 
   return (
     <div className="min-h-dvh bg-background py-8">
-      <div className="container max-w-2xl px-4 sm:px-6">
+      <div className="container mx-auto max-w-2xl px-4 sm:px-6">
         <div className="mb-8">
           <Link
             href="/busco"

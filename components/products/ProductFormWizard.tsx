@@ -558,7 +558,6 @@ export function ProductFormWizard({
                 disabled={isSubmitting}
                 error={errors.images?.message}
               />
-              {errors.images && <p className="text-sm text-destructive">{errors.images.message}</p>}
             </div>
           </div>
         )}

@@ -148,6 +148,11 @@ test.describe('Cross-Cutting - Accessibility Audit (Auth Pages)', () => {
   })
 
   test('Publish page - no critical/serious a11y issues', async ({ page }) => {
+    // This test runs last in the [mobile] queue (31/31); dev-server on-demand
+    // compilation plus worker contention routinely ate the default 30s budget
+    // (3 consistent failures on 2026-09-15; isolated run of the same audit
+    // config takes ~1.6s). Triple the timeout instead of chasing flake.
+    test.slow()
     await login(page)
     await page.goto('/publicar')
     await page.waitForLoadState('networkidle')
