@@ -1,0 +1,6 @@
+desktop.png | /buscar?q=samsung | 1920x1080 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+empty-desktop.png | /buscar?q=zzzznoexiste | 1920x1080 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+tablet.png | /buscar?q=samsung | 768x1024 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+empty-tablet.png | /buscar?q=zzzznoexiste | 768x1024 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+mobile.png | /buscar?q=samsung | 375x812 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public
+empty-mobile.png | /buscar?q=zzzznoexiste | 375x812 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | public

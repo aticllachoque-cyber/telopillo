@@ -8,7 +8,8 @@
 - Approver: Alcides Cardenas
 - Date: 2026-09-15
 - Decision: approved
-- Artifact hash (comparison.html + proposal/*): `af3e02d92ce1c80bec390064e2dca24a3467b24b2a91ec8b6c588af30b02f240`
+- Artifact hash (comparison.html + proposal/*): `6a2da07836983e54fc45f6370d8ea97a9429cf9481f8493ad41ed8047898ef45`
+- Hash update note (2026-09-15, Stage 8): el hash original `af3e02d9…` quedó stale porque el hook husky/lint-staged re-formateó `proposal/stitch-meta.json` (prettier) durante el commit de implementación. Cambio exclusivamente de formato en metadata — cero cambio en `comparison.html`, mockups o renders (diseño aprobado intacto). Se expone igual en Checkpoint 4 para revisión humana.
 
 ## Notes / conditions
 

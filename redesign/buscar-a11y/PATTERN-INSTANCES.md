@@ -3,7 +3,6 @@
 Sibling implementations of the same UI pattern: "CTA/notice card — `rounded-lg border-primary/20 bg-primary/5` con texto descriptivo dentro". Los 2 hallazgos axe viven en 2 instancias de este patrón dentro de `app/buscar/page.tsx`. Hermanos con el mismo combo en otras páginas usan `text-foreground/80` (no `text-muted-foreground`) y no violan contraste.
 
 ```
-- instance: <repo path> disposition: in-scope|deferred|not-affected
 ```
 
 - instance: app/buscar/page.tsx:354 (empty-state CTA card, violación axe) disposition: in-scope
