@@ -283,9 +283,21 @@ function BuscarPageContent() {
             {results && !isLoading && (
               <div>
                 {cachedUpdatedAt && (
-                  <div className="mb-4 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                    Mostrando resultados guardados por una falla de conexión.{' '}
-                    {`Última actualización: ${new Date(cachedUpdatedAt).toLocaleString('es-BO')}.`}
+                  <div
+                    className="mb-4 rounded-lg border bg-muted px-4 py-3 text-sm text-foreground flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                    role="status"
+                  >
+                    <span>
+                      Mostrando resultados guardados por una falla de conexión.{' '}
+                      {`Última actualización: ${new Date(cachedUpdatedAt).toLocaleString('es-BO')}.`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => performSearch()}
+                      className="font-medium underline underline-offset-2 text-left sm:text-right"
+                    >
+                      Reintentar
+                    </button>
                   </div>
                 )}
                 {/* C4: Results count in aria-live region */}
@@ -318,42 +330,35 @@ function BuscarPageContent() {
                       </>
                     )}
                   </p>
-                  {results.totalCount > 0 && (
-                    <p className="text-xs text-muted-foreground tabular-nums">
-                      Mostrando {results.products.length} de {results.totalCount}
-                    </p>
-                  )}
                 </div>
 
                 {/* No Results State (I2: clear filters link) */}
                 {results.totalCount === 0 && (
-                  <div className="space-y-4">
-                    <div className="bg-muted/50 rounded-lg p-8 text-center">
-                      <h3 className="text-lg font-semibold mb-2">No encontramos productos</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Intenta con otras palabras clave o ajusta los filtros
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                        {hasActiveSearch && (
-                          <Link
-                            href="/buscar"
-                            className="inline-flex items-center text-primary hover:underline font-medium"
-                          >
-                            Limpiar filtros y búsqueda
-                          </Link>
-                        )}
+                  <div className="bg-muted/50 rounded-lg p-8 text-center">
+                    <h3 className="text-lg font-semibold mb-2">No encontramos productos</h3>
+                    <p className="text-foreground/80 mb-4">
+                      Intenta con otras palabras clave o ajusta los filtros
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                      {hasActiveSearch && (
                         <Link
-                          href="/categorias"
-                          className="inline-flex items-center text-primary hover:underline font-medium"
+                          href="/buscar"
+                          className="inline-flex items-center text-primary hover:underline font-medium min-h-[44px]"
                         >
-                          Ver todas las categorías →
+                          Limpiar filtros y búsqueda
                         </Link>
-                      </div>
+                      )}
+                      <Link
+                        href="/categorias"
+                        className="inline-flex items-center text-primary hover:underline font-medium min-h-[44px]"
+                      >
+                        Ver todas las categorías →
+                      </Link>
                     </div>
 
-                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center">
+                    <div className="border-t mt-6 pt-6">
                       <p className="font-medium mb-1">¿No encontraste lo que buscas?</p>
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <p className="text-sm text-foreground/80 mb-3">
                         Publica una solicitud y deja que los vendedores te contacten con ofertas.
                       </p>
                       <Link
@@ -390,9 +395,9 @@ function BuscarPageContent() {
                         >
                           Cargar más
                         </Button>
-                      ) : (
+                      ) : results.totalCount >= PAGE_SIZE ? (
                         <p className="text-sm text-muted-foreground">No hay más productos.</p>
-                      )}
+                      ) : null}
                     </div>
                   </>
                 )}
@@ -401,7 +406,7 @@ function BuscarPageContent() {
                 {results.totalCount > 0 && (
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center mt-8">
                     <p className="font-medium mb-1">¿No encontraste exactamente lo que buscas?</p>
-                    <p className="text-sm text-muted-foreground mb-3">
+                    <p className="text-sm text-foreground/80 mb-3">
                       Publica una solicitud y deja que los vendedores te contacten.
                     </p>
                     <Link

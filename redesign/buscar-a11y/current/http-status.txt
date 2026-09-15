@@ -1,0 +1,6 @@
+resultados desktop: 200 http://localhost:3000/buscar?q=samsung
+resultados tablet: 200 http://localhost:3000/buscar?q=samsung
+resultados mobile: 200 http://localhost:3000/buscar?q=samsung
+empty desktop: 200 http://localhost:3000/buscar?q=nonexistent
+empty tablet: 200 http://localhost:3000/buscar?q=nonexistent
+empty mobile: 200 http://localhost:3000/buscar?q=nonexistent

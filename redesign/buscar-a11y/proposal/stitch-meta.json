@@ -1,0 +1,20 @@
+{
+  "path": "fallback (mockup fiel sobre DOM real — loop 1: usuario rechazó mock Stitch por divergencia con tema actual)",
+  "generated": "2026-09-15",
+  "files": [
+    "proposal/mockup.html",
+    "proposal/mockup-empty.html",
+    "proposal/stitch-render-*.png",
+    "proposal/empty-render-*.png"
+  ],
+  "patchSet": [
+    "F-1: CTA resultados text-muted-foreground -> text-foreground/80 (~8.6:1 sobre bg-primary/5)",
+    "F-2/F-4/F-5: empty state consolidado en una card, textos text-foreground/80, CTA demanda como fila separada",
+    "F-3: banner offline inyectado en tokens neutros (border/bg-muted/text-foreground) — demo, estado no renderiza hoy",
+    "Mejora 1: remover 'Mostrando N de M' (redundante con conteo principal)",
+    "Mejora 2: omitir 'No hay más productos.' cuando totalCount < PAGE_SIZE",
+    "Mejora 3: banner offline con botón Reintentar (cablear a performSearch en Stage 8)"
+  ],
+  "note": "stitch:fallback — reruns reusan mockups, nunca re-spawn del proyecto Stitch descartado",
+  "loops": ["loop1: stitch descartado (divergencia)", "loop2: doblar mejoras 1-3 acordadas"]
+}
