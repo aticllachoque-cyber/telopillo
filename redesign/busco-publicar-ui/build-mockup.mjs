@@ -117,12 +117,16 @@ async function serialize({ chips, subcats: subs = [] }) {
         }
       }
     } else {
-      // F-5: paso 4 — replace advice card with data-driven verification checklist
+      // F-5 (iteración 2): paso 4 reestructurado —
+      //  (a) sin sidebar flaca: grid lg 2-col → stack en una columna
+      //  (b) Resumen como fila de 3 stats (Ubicación | Presupuesto | Imagen)
+      //  (c) checklist de verificación merged en la misma card (border-t)
       const lis = [...body.querySelectorAll('li')]
-      if (lis.some((li) => li.textContent.includes('Describe bien qué buscas'))) {
-        const card = lis.find((li) => li.textContent.includes('Describe bien qué buscas')).closest('.border-primary\\/20')
-        if (card) {
-          card.innerHTML = `
+      const adviceLi = lis.find((li) => li.textContent.includes('Describe bien qué buscas'))
+      if (adviceLi) {
+        const adviceCard = adviceLi.closest('[class~="border-primary/20"]')
+        if (adviceCard) {
+          adviceCard.innerHTML = `
             <p class="font-medium">Verificación de tu solicitud:</p>
             <ul class="mt-2 space-y-1">
               <li class="flex items-center gap-2"><span class="inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground" style="font-size:10px">✓</span> Título y categoría completos</li>
@@ -130,6 +134,35 @@ async function serialize({ chips, subcats: subs = [] }) {
               <li class="flex items-center gap-2"><span class="inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground" style="font-size:10px">✓</span> Ubicación: Santa Cruz de la Sierra, Santa Cruz</li>
               <li class="flex items-center gap-2"><span class="inline-flex h-4 w-4 items-center justify-center rounded-full bg-muted text-muted-foreground" style="font-size:10px">–</span> Presupuesto: Bs. 3.000 – Bs. 5.500</li>
             </ul>`
+        }
+
+        const resumenH4 = [...body.querySelectorAll('h4')].find((h) => h.textContent.trim() === 'Resumen')
+        if (resumenH4) {
+          const resumenCard = resumenH4.closest('.rounded-lg')
+
+          // (c) merge checklist card into Resumen card, separated by border-t
+          if (adviceCard) {
+            const merged = document.createElement('div')
+            merged.setAttribute('style', 'margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border, #e5e5e5)')
+            merged.innerHTML = adviceCard.innerHTML
+            resumenCard.appendChild(merged)
+            adviceCard.remove()
+          }
+
+          // (b) Resumen stats as a 3-across row on sm+ (1 col mobile)
+          const stats = resumenCard.querySelector('.mt-4')
+          if (stats) {
+            stats.setAttribute('data-mock-stats', '')
+            stats.style.gap = '1rem'
+          }
+
+          // (a) kill the skinny sidebar: 2-col lg grid → single column stack
+          const layout = resumenCard.closest('[class*="lg:grid-cols"]')
+          if (layout) layout.style.gridTemplateColumns = 'minmax(0,1fr)'
+
+          const media = document.createElement('style')
+          media.textContent = '[data-mock-stats]{display:grid}@media (min-width:640px){[data-mock-stats]{grid-template-columns:repeat(3,1fr)}}'
+          clone.querySelector('head').appendChild(media)
         }
       }
     }

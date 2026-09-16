@@ -69,6 +69,8 @@ Los 3 bullets de revisión repiten lo que cada paso ya dijo como helper ("Descri
 
 evidence: components/demand/DemandPostForm.tsx:826-834 card "Antes de publicar:" con 3 <li>
 evidence: components/demand/DemandPostForm.tsx:525 (helper paso 1 ya cubre imagen), :649 (paso 2 cubre detalle), :669 (paso 3 cubre ubicación/presupuesto)
+**Iteración 2 (Checkpoint 3, feedback humano):** el layout del paso 4 también resultó "raro" — Resumen y Antes de publicar viven en una sidebar derecha (lg:grid-cols-[1.2fr_0.8fr]) que en viewports medios queda flaca (~200px). Fix revisto: eliminar sidebar → stack en 1 columna; Resumen como fila de 3 stats (sm+); checklist merged en la misma card bajo border-t.
+evidence: components/demand/DemandPostForm.tsx:757 grid lg:grid-cols-[1.2fr_0.8fr] (sidebar flaca en viewports medios)
 Fix: reemplazar card de consejos por checklist de verificación contra datos ingresados (✓ Título · ✓ Categoría · ✓ Ubicación · Presupuesto: opcional) — feedback real del estado del formulario.
 
 ## No-repeat / fuera de alcance
