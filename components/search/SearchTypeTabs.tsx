@@ -119,9 +119,7 @@ export function SearchTypeTabs({
                 aria-hidden
                 className={cn(
                   'inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-xs tabular-nums',
-                  active
-                    ? 'bg-primary-foreground/20 text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
+                  active ? 'bg-primary-foreground text-primary' : 'bg-muted text-foreground'
                 )}
               >
                 {count}

@@ -17,3 +17,13 @@ Notas:
 - Contadores de tabs: 3 requests extra por búsqueda, `limit=1`, debounce 400ms + AbortController — solo con búsqueda activa.
 - suites: search-discovery + header-monkey + navigation-layout 110 passed; accessibility-audit 31/31 (tablist pasa axe); type-check clean; lint 0 errores.
 - Commits: a2ba67f (stages 1-6), 8db8752+d80cc00 (fase 1-2 backend), 5d02dd8 (fase 3), 8e8865c (fase 4), 50e8c9e (fix selector), c5bb0bf (fase 5 e2e).
+
+## Post-gates upgrade: negocios/personas a búsqueda híbrida (2026-09-16, decisión del usuario)
+
+El usuario pidió elevar negocios/personas al nivel elaborado de productos. Implementado con el mismo pipeline M4 (commits a793ba4, 3091157, e8c2d24):
+
+- Migración `20260916130000_hybrid_search_businesses_and_profiles.sql`: `embedding vector(384)` + HNSW parcial en `business_profiles` y `profiles`; triggers pg_net (patrón `trigger_generate_embedding`) con text builders SQL compartidos; `profiles_public` expone `embedding` (vista owner-scoped, sin phone — TELO-003 intacto; necesario porque search_profiles es SECURITY INVOKER y anon no tiene SELECT en `profiles`); RPCs `search_businesses`/`search_profiles` con `query_embedding vector(384) DEFAULT NULL` y RRF adaptativo k=60 (2x semántico cuando keyword = 0 hits, template `search_demands_hybrid`). Path keyword-only sin embedding: comportamiento anterior intacto.
+- Edge Function `generate-embedding`: modos `BUSINESS`/`PROFILE` (texto pre-built del trigger, mismo contrato que `DEMAND`) + backfill multi-tabla `{backfill:true, table}` (products|businesses|profiles); backfill de profiles hace merge del contexto del negocio dueño.
+- `lib/search/query-embedding.ts`: helpers extraídos de /api/search (`isSemanticSearchEnabled` + `getQueryEmbedding` con cache TTL 5min) — las 3 rutas comparten pipeline; business/profile routes reportan `searchMode: 'hybrid'|'keyword'` + logs `embedding_failure`.
+
+Verificación local (flag `semantic_search_enabled=true` + app_config webhook + edge runtime local): backfill 55/55 productos, 6/6 negocios, 17/17 perfiles; triggers fire → 200 BUSINESS+PROFILE en net._http_response; smoke híbrido real vía API: "reparacion de pantalla" → TecnoService #1 (keyword puro daba 0), "muebles" → dueña de Muebles El Roble #1, lenguaje natural "donde puedo comprar ropa" → Moda Bolivia Express #1. Suites: search-discovery 68 passed (incl. unified-search 19/19 + assertion searchMode), cross-cutting 73 passed (header-monkey + navigation-layout + accessibility-audit). scope.txt += 4 archivos.
