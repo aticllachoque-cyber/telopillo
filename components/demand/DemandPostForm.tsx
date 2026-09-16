@@ -19,6 +19,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useSnackbar } from '@/components/ui/snackbar'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import {
   AlertCircle,
@@ -615,38 +622,29 @@ export function DemandPostForm({
             </div>
 
             {subcategories.length > 0 && (
-              <div
-                id="subcategory"
-                role="group"
-                aria-label="Subcategoría (opcional)"
-                className="space-y-2"
-              >
-                <Label>Subcategoría</Label>
-                <div className="flex flex-wrap gap-2">
-                  {subcategories.map((sub) => {
-                    const isSelected = watchAll.subcategory === sub
-                    return (
-                      <button
-                        key={sub}
-                        type="button"
-                        aria-pressed={isSelected}
-                        onClick={() =>
-                          setValue('subcategory', isSelected ? undefined : sub, {
-                            shouldValidate: true,
-                          })
-                        }
-                        className={cn(
-                          'inline-flex min-h-[44px] sm:min-h-0 items-center rounded-full border px-4 py-2 text-sm transition-colors',
-                          isSelected
-                            ? 'border-primary bg-primary font-medium text-primary-foreground'
-                            : 'border-border bg-card text-foreground hover:bg-muted/50'
-                        )}
-                      >
+              <div className="space-y-2">
+                <Label htmlFor="subcategory">Subcategoría</Label>
+                <Select
+                  value={watchAll.subcategory || ''}
+                  onValueChange={(val) =>
+                    setValue('subcategory', val || undefined, { shouldValidate: true })
+                  }
+                >
+                  <SelectTrigger
+                    id="subcategory"
+                    className="w-full min-h-[44px] sm:min-h-0"
+                    aria-invalid={errors.subcategory ? 'true' : 'false'}
+                  >
+                    <SelectValue placeholder="Seleccioná una subcategoría" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subcategories.map((sub) => (
+                      <SelectItem key={sub} value={sub}>
                         {sub}
-                      </button>
-                    )
-                  })}
-                </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 

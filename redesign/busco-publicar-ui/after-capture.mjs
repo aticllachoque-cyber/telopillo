@@ -38,27 +38,30 @@ for (const [vp, viewport] of Object.entries(VIEWPORTS)) {
   manifest.push(`${vp}.png | /busco/publicar paso1 | ${viewport.width}x${viewport.height} | fullPage dsf=2 | HTTP ${resp.status()} | 2026-09-15 | logged-in`)
   if (vp === 'desktop') doms.push(await page.evaluate(() => document.body.innerText))
 
-  // walk to paso 2 (F-2 heading asserted live), fill, click first F-4 chip
+  // walk to paso 2 (F-2 heading asserted live), fill, pick subcategory from
+  // F-4 Select dropdown (producto pattern, post-done feedback 3)
   await page.locator('#title').fill('Busco iPhone 13 en buen estado')
   await page.locator('[role="radio"]').first().click()
   await page.getByRole('button', { name: /Siguiente/i }).click()
   await page.waitForSelector('text=Descripción de lo que buscás', { timeout: 15_000 })
   await page.locator('#description').fill('Busco iPhone 13 de 128GB, batería sobre 85 por ciento, con caja y accesorios originales.')
-  const chip = page.locator('#subcategory button[aria-pressed]').first()
-  if (await chip.count()) await chip.click()
+  const subTrigger = page.locator('#subcategory')
+  if (await subTrigger.count()) {
+    await subTrigger.click()
+    await page.waitForTimeout(400)
+    await page.getByRole('option').first().click()
+  }
   await page.waitForTimeout(300)
   if (vp === 'desktop') await page.screenshot({ path: `${DIR}${vp}-paso2.png`, fullPage: true })
 
-  // walk to paso 4 revisión
+  // walk to paso 4 revisión (department = only combobox; city is free text)
   await page.getByRole('button', { name: /Siguiente/i }).click()
   await page.waitForTimeout(700)
   await page.locator('button[role="combobox"]').first().click()
   await page.waitForTimeout(400)
   await page.getByRole('option').first().click()
   await page.waitForTimeout(400)
-  await page.locator('button[role="combobox"]').nth(1).click()
-  await page.waitForTimeout(400)
-  await page.getByRole('option').first().click()
+  await page.locator('#city').fill('La Paz')
   await page.waitForTimeout(300)
   await page.locator('#price_min').fill('3000')
   await page.locator('#price_max').fill('5500')
