@@ -10,6 +10,12 @@
  *    -> finds products without embeddings, generates and stores them
  * 4. Demand post (M4.7): receives { type: 'DEMAND', record: { id, text } }
  *    -> calls HF with pre-built text, updates demand_posts.embedding
+ * 5. Business profile (unified search): receives { type: 'BUSINESS', record: { id, text } }
+ *    -> calls HF with pre-built text, updates business_profiles.embedding
+ * 6. Profile (unified search): receives { type: 'PROFILE', record: { id, text } }
+ *    -> calls HF with pre-built text, updates profiles.embedding
+ * 7. Backfill accepts { backfill: true, table?: 'products' | 'businesses' | 'profiles' }
+ *    (default: products)
  *
  * Model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (384 dims)
  */
@@ -73,6 +79,63 @@ function buildProductText(record: Record<string, unknown>): string {
     parts.push(`Categoría: ${catParts.join(', ')}`)
   }
 
+  return parts.join('. ')
+}
+
+/**
+ * Edge-side text builders for businesses / profiles. Only used by the
+ * backfill mode — the database triggers send pre-built text (built by the
+ * SQL builders in the migration) so trigger and backfill wording stays
+ * identical: name repeated twice, description truncated to ~150 words.
+ */
+function truncateWords(text: string, maxWords: number): string {
+  const words = text.split(/\s+/)
+  return words.length > maxWords ? words.slice(0, maxWords).join(' ') + '...' : text
+}
+
+function buildBusinessEmbeddingText(record: Record<string, unknown>): string {
+  const name = String(record.business_name ?? '')
+  const parts: string[] = []
+  if (name) {
+    parts.push(name)
+    parts.push(`Negocio: ${name}`)
+  }
+  if (record.business_category) {
+    parts.push(String(record.business_category))
+  }
+  if (record.business_description) {
+    parts.push(`Descripción: ${truncateWords(String(record.business_description), 150)}`)
+  }
+  return parts.join('. ')
+}
+
+interface ProfileWithBusiness {
+  id: string
+  full_name?: string | null
+  business?: {
+    business_name?: string | null
+    business_category?: string | null
+    business_description?: string | null
+  } | null
+}
+
+function buildProfileEmbeddingText(record: ProfileWithBusiness): string {
+  const name = String(record.full_name ?? '')
+  const biz = record.business
+  const parts: string[] = []
+  if (name) {
+    parts.push(name)
+    parts.push(`Vendedor: ${name}`)
+  }
+  if (biz?.business_name) {
+    parts.push(String(biz.business_name))
+  }
+  if (biz?.business_category) {
+    parts.push(String(biz.business_category))
+  }
+  if (biz?.business_description) {
+    parts.push(`Descripción: ${truncateWords(String(biz.business_description), 150)}`)
+  }
   return parts.join('. ')
 }
 
@@ -163,6 +226,132 @@ Deno.serve(async (req: Request) => {
     )
 
     const body = await req.json()
+
+    // --- Modes 5/6: Business / Profile embedding (unified search) ---
+    // Same contract as DEMAND: the DB trigger sends pre-built text.
+    if (body.type === 'BUSINESS' || body.type === 'PROFILE') {
+      const table = body.type === 'BUSINESS' ? 'business_profiles' : 'profiles'
+      const record = body.record
+      if (!record?.id || !record?.text?.trim()) {
+        return json({ error: 'Falta el id o el texto' }, 400)
+      }
+
+      const embedding = await callHuggingFace(record.text)
+      if (!embedding) {
+        return json({ error: 'No se pudo generar el embedding' }, 500)
+      }
+
+      const { error } = await supabase.from(table).update({ embedding }).eq('id', record.id)
+
+      if (error) {
+        console.error(`Supabase update error (${table}):`, error)
+        return json({ error: 'No se pudo guardar el embedding en la base de datos' }, 500)
+      }
+      return json({ success: true, table, id: record.id })
+    }
+
+    // --- Backfill for businesses / profiles (products backfill below) ---
+    if (body.backfill === true && (body.table === 'businesses' || body.table === 'profiles')) {
+      const batchLimit = Math.min(body.limit ?? 50, 100)
+      const isBusiness = body.table === 'businesses'
+      const table = isBusiness ? 'business_profiles' : 'profiles'
+
+      let rows: ProfileWithBusiness[] = []
+      const businessColumns = 'id, business_name, business_category, business_description'
+      const batch = isBusiness
+        ? await supabase
+            .from('business_profiles')
+            .select(businessColumns)
+            .is('embedding', null)
+            .limit(batchLimit)
+        : await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .is('embedding', null)
+            .limit(batchLimit)
+
+      if (batch.error) {
+        console.error('[generate-embedding] Backfill fetch error:', batch.error)
+        return json({ error: 'No se pudieron leer las filas para el proceso' }, 500)
+      }
+
+      if (isBusiness) {
+        rows = (batch.data ?? []) as ProfileWithBusiness[]
+      } else {
+        const profileRows = batch.data ?? []
+        // Merge owning-business context so profile embeddings cover what the
+        // seller sells, not just their name.
+        const businessMap = new Map<string, ProfileWithBusiness['business']>()
+        if (profileRows.length > 0) {
+          const { data: bizRows } = await supabase
+            .from('business_profiles')
+            .select('id, business_name, business_category, business_description')
+            .in(
+              'id',
+              profileRows.map((r) => r.id)
+            )
+          for (const b of bizRows ?? []) {
+            businessMap.set(b.id, b)
+          }
+        }
+        rows = profileRows.map((r) => ({ ...r, business: businessMap.get(r.id) ?? null }))
+      }
+
+      if (rows.length === 0) {
+        return json({
+          message: 'Ninguna fila necesita embedding',
+          processed: 0,
+          remaining: 0,
+        })
+      }
+
+      let success = 0
+      let failed = 0
+      const errors: string[] = []
+
+      for (const row of rows) {
+        const text = isBusiness ? buildBusinessEmbeddingText(row) : buildProfileEmbeddingText(row)
+        if (!text?.trim()) {
+          failed++
+          errors.push(`${row.id}: sin texto`)
+          continue
+        }
+
+        const embedding = await callHuggingFace(text)
+        if (!embedding) {
+          failed++
+          errors.push(`${row.id}: falló el servicio de embedding`)
+          continue
+        }
+
+        const { error: updateError } = await supabase
+          .from(table)
+          .update({ embedding })
+          .eq('id', row.id)
+
+        if (updateError) {
+          failed++
+          console.error(`[generate-embedding] Backfill update error for ${row.id}:`, updateError)
+          errors.push(`${row.id}: error al guardar el embedding`)
+        } else {
+          success++
+        }
+      }
+
+      const { count } = await supabase
+        .from(table)
+        .select('id', { count: 'exact', head: true })
+        .is('embedding', null)
+
+      return json({
+        table: body.table,
+        processed: success + failed,
+        success,
+        failed,
+        remaining: count ?? 0,
+        errors: errors.length > 0 ? errors : undefined,
+      })
+    }
 
     // --- Mode 3: Backfill (batch generate embeddings for products missing them) ---
     if (body.backfill === true) {

@@ -1,0 +1,3 @@
+render-tabs-productos-desktop.png | mockup-tabs-productos | 1920x1080 | fullPage dsf=2 | 2026-09-16
+render-tabs-negocios-desktop.png | mockup-tabs-negocios | 1920x1080 | fullPage dsf=2 | 2026-09-16
+render-mobile-overlay-mobile.png | mockup-mobile-overlay | 375x812 | fullPage dsf=2 | 2026-09-16

@@ -21,11 +21,29 @@ import {
   CATEGORY_LABELS,
   CONDITION_LABELS,
 } from '@/lib/validations/product'
+import { BUSINESS_CATEGORIES } from '@/lib/validations/business-profile'
+
+/**
+ * Which filter blocks are visible for the current search entity.
+ * Undefined property = shown (product variant where applicable).
+ */
+export interface SearchEnabledFilters {
+  /** false hides the category select; 'business' swaps options to BUSINESS_CATEGORIES */
+  category?: 'product' | 'business' | false
+  condition?: boolean
+  department?: boolean
+  price?: boolean
+  sort?: boolean
+}
 
 interface SearchFiltersProps {
   className?: string
   /** Callback when filters are applied (used to close mobile panel) */
   onApply?: () => void
+  /** Per-entity filter visibility (unified search). Default: all product filters. */
+  enabledFilters?: SearchEnabledFilters
+  /** Subset of sort options to offer (unified search). Default: all four. */
+  sortOptions?: ReadonlyArray<'relevance' | 'newest' | 'price_asc' | 'price_desc'>
 }
 
 const SORT_OPTIONS = [
@@ -45,7 +63,19 @@ function isActiveFilter(filter: ActiveFilter | null): filter is ActiveFilter {
   return filter !== null
 }
 
-export function SearchFilters({ className = '', onApply }: SearchFiltersProps) {
+export function SearchFilters({
+  className = '',
+  onApply,
+  enabledFilters,
+  sortOptions,
+}: SearchFiltersProps) {
+  const showCategory = enabledFilters?.category !== false
+  const categorySource =
+    enabledFilters?.category === 'business' ? 'business' : ('product' as 'business' | 'product')
+  const showCondition = enabledFilters?.condition !== false
+  const showDepartment = enabledFilters?.department !== false
+  const showPrice = enabledFilters?.price !== false
+  const showSort = enabledFilters?.sort !== false
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isOpen, setIsOpen] = useState(false)
@@ -110,15 +140,17 @@ export function SearchFilters({ className = '', onApply }: SearchFiltersProps) {
 
   const sortIsActive = currentSort !== defaultSort
   const activeFilters = [
-    currentCategory
+    showCategory && currentCategory
       ? {
           key: 'category',
           label:
-            CATEGORY_LABELS[currentCategory as keyof typeof CATEGORY_LABELS] || currentCategory,
+            categorySource === 'business'
+              ? currentCategory
+              : CATEGORY_LABELS[currentCategory as keyof typeof CATEGORY_LABELS] || currentCategory,
           onRemove: () => applyFilters({ category: '' }),
         }
       : null,
-    currentCondition
+    showCondition && currentCondition
       ? {
           key: 'condition',
           label:
@@ -126,14 +158,14 @@ export function SearchFilters({ className = '', onApply }: SearchFiltersProps) {
           onRemove: () => applyFilters({ condition: '' }),
         }
       : null,
-    currentDepartment
+    showDepartment && currentDepartment
       ? {
           key: 'department',
           label: currentDepartment,
           onRemove: () => applyFilters({ department: '' }),
         }
       : null,
-    currentPriceMin || currentPriceMax
+    showPrice && (currentPriceMin || currentPriceMax)
       ? {
           key: 'price',
           label: `Bs ${currentPriceMin || '0'}-${currentPriceMax || 'sin límite'}`,
@@ -207,153 +239,173 @@ export function SearchFilters({ className = '', onApply }: SearchFiltersProps) {
         </div>
       )}
 
-      <div className="space-y-1">
-        <Label htmlFor="filter-product-category" className="text-sm">
-          Categoría
-        </Label>
-        <Select
-          value={currentCategory || '__all__'}
-          onValueChange={(value) => applyFilters({ category: value === '__all__' ? '' : value })}
-        >
-          <SelectTrigger
-            id="filter-product-category"
-            className="min-h-[44px] w-full touch-manipulation"
-            aria-label="Filtrar por categoría"
-          >
-            <SelectValue placeholder="Todas las categorías" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">Todas las categorías</SelectItem>
-            {PRODUCT_CATEGORIES.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {CATEGORY_LABELS[cat]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-1">
-        <Label htmlFor="filter-product-condition" className="text-sm">
-          Condición
-        </Label>
-        <Select
-          value={currentCondition || '__all__'}
-          onValueChange={(value) => applyFilters({ condition: value === '__all__' ? '' : value })}
-        >
-          <SelectTrigger
-            id="filter-product-condition"
-            className="min-h-[44px] w-full touch-manipulation"
-            aria-label="Filtrar por condición"
-          >
-            <SelectValue placeholder="Todas las condiciones" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">Todas las condiciones</SelectItem>
-            {PRODUCT_CONDITIONS.map((cond) => (
-              <SelectItem key={cond} value={cond}>
-                {CONDITION_LABELS[cond]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-1">
-        <Label htmlFor="filter-product-department" className="text-sm">
-          Departamento
-        </Label>
-        <Select
-          value={currentDepartment || '__all__'}
-          onValueChange={(value) => applyFilters({ department: value === '__all__' ? '' : value })}
-        >
-          <SelectTrigger
-            id="filter-product-department"
-            className="min-h-[44px] w-full touch-manipulation"
-            aria-label="Filtrar por departamento"
-          >
-            <SelectValue placeholder="Todos los departamentos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">Todos los departamentos</SelectItem>
-            {BOLIVIA_DEPARTMENTS.map((dept) => (
-              <SelectItem key={dept} value={dept}>
-                {dept}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <fieldset className="space-y-3">
-        <legend className="text-sm font-medium">Rango de precio (Bs)</legend>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="price-min" className="sr-only">
-            Precio mínimo
+      {showCategory && (
+        <div className="space-y-1">
+          <Label htmlFor="filter-product-category" className="text-sm">
+            Categoría
           </Label>
-          <Input
-            id="price-min"
-            type="number"
-            placeholder="Mín"
-            value={priceMin}
-            onChange={(e) => setPriceMin(e.target.value)}
-            className="min-h-[44px] w-full touch-manipulation"
-            min="0"
-            aria-label="Precio mínimo en bolivianos"
-          />
-          <span className="text-muted-foreground" aria-hidden>
-            -
-          </span>
-          <Label htmlFor="price-max" className="sr-only">
-            Precio máximo
-          </Label>
-          <Input
-            id="price-max"
-            type="number"
-            placeholder="Máx"
-            value={priceMax}
-            onChange={(e) => setPriceMax(e.target.value)}
-            className="min-h-[44px] w-full touch-manipulation"
-            min="0"
-            aria-label="Precio máximo en bolivianos"
-          />
+          <Select
+            value={currentCategory || '__all__'}
+            onValueChange={(value) => applyFilters({ category: value === '__all__' ? '' : value })}
+          >
+            <SelectTrigger
+              id="filter-product-category"
+              className="min-h-[44px] w-full touch-manipulation"
+              aria-label="Filtrar por categoría"
+            >
+              <SelectValue placeholder="Todas las categorías" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Todas las categorías</SelectItem>
+              {categorySource === 'business'
+                ? BUSINESS_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))
+                : PRODUCT_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {CATEGORY_LABELS[cat]}
+                    </SelectItem>
+                  ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={applyPriceFilter}
-          className="min-h-[44px] w-full touch-manipulation"
-          disabled={!priceMin && !priceMax}
-        >
-          Aplicar precio
-        </Button>
-      </fieldset>
+      )}
 
-      <div className="space-y-1">
-        <Label htmlFor="filter-product-sort" className="text-sm">
-          Ordenar por
-        </Label>
-        <Select
-          value={currentSort}
-          onValueChange={(value) => applyFilters({ sort: value === defaultSort ? '' : value })}
-        >
-          <SelectTrigger
-            id="filter-product-sort"
-            className="min-h-[44px] w-full touch-manipulation"
-            aria-label="Ordenar productos"
+      {showCondition && (
+        <div className="space-y-1">
+          <Label htmlFor="filter-product-condition" className="text-sm">
+            Condición
+          </Label>
+          <Select
+            value={currentCondition || '__all__'}
+            onValueChange={(value) => applyFilters({ condition: value === '__all__' ? '' : value })}
           >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+            <SelectTrigger
+              id="filter-product-condition"
+              className="min-h-[44px] w-full touch-manipulation"
+              aria-label="Filtrar por condición"
+            >
+              <SelectValue placeholder="Todas las condiciones" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Todas las condiciones</SelectItem>
+              {PRODUCT_CONDITIONS.map((cond) => (
+                <SelectItem key={cond} value={cond}>
+                  {CONDITION_LABELS[cond]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {showDepartment && (
+        <div className="space-y-1">
+          <Label htmlFor="filter-product-department" className="text-sm">
+            Departamento
+          </Label>
+          <Select
+            value={currentDepartment || '__all__'}
+            onValueChange={(value) =>
+              applyFilters({ department: value === '__all__' ? '' : value })
+            }
+          >
+            <SelectTrigger
+              id="filter-product-department"
+              className="min-h-[44px] w-full touch-manipulation"
+              aria-label="Filtrar por departamento"
+            >
+              <SelectValue placeholder="Todos los departamentos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Todos los departamentos</SelectItem>
+              {BOLIVIA_DEPARTMENTS.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {showPrice && (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-medium">Rango de precio (Bs)</legend>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="price-min" className="sr-only">
+              Precio mínimo
+            </Label>
+            <Input
+              id="price-min"
+              type="number"
+              placeholder="Mín"
+              value={priceMin}
+              onChange={(e) => setPriceMin(e.target.value)}
+              className="min-h-[44px] w-full touch-manipulation"
+              min="0"
+              aria-label="Precio mínimo en bolivianos"
+            />
+            <span className="text-muted-foreground" aria-hidden>
+              -
+            </span>
+            <Label htmlFor="price-max" className="sr-only">
+              Precio máximo
+            </Label>
+            <Input
+              id="price-max"
+              type="number"
+              placeholder="Máx"
+              value={priceMax}
+              onChange={(e) => setPriceMax(e.target.value)}
+              className="min-h-[44px] w-full touch-manipulation"
+              min="0"
+              aria-label="Precio máximo en bolivianos"
+            />
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={applyPriceFilter}
+            className="min-h-[44px] w-full touch-manipulation"
+            disabled={!priceMin && !priceMax}
+          >
+            Aplicar precio
+          </Button>
+        </fieldset>
+      )}
+
+      {showSort && (
+        <div className="space-y-1">
+          <Label htmlFor="filter-product-sort" className="text-sm">
+            Ordenar por
+          </Label>
+          <Select
+            value={currentSort}
+            onValueChange={(value) => applyFilters({ sort: value === defaultSort ? '' : value })}
+          >
+            <SelectTrigger
+              id="filter-product-sort"
+              className="min-h-[44px] w-full touch-manipulation"
+              aria-label="Ordenar productos"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.filter((opt) =>
+                sortOptions ? (sortOptions as readonly string[]).includes(opt.value) : true
+              ).map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   )
 

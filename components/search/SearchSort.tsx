@@ -12,15 +12,33 @@ import { Label } from '@/components/ui/label'
 
 type SortOption = 'relevance' | 'newest' | 'price_asc' | 'price_desc'
 
+const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
+  { value: 'relevance', label: 'Relevancia' },
+  { value: 'newest', label: 'Más recientes' },
+  { value: 'price_asc', label: 'Precio: menor a mayor' },
+  { value: 'price_desc', label: 'Precio: mayor a menor' },
+]
+
+/** Options offered for non-product entities (no price sorting). */
+const ENTITY_SORT_OPTIONS: ReadonlyArray<'relevance' | 'newest'> = ['relevance', 'newest']
+
 interface SearchSortProps {
   className?: string
   showLabel?: boolean
+  /** Restrict offered options (unified search per-type). Default: all four. */
+  options?: ReadonlyArray<SortOption>
 }
 
-export function SearchSort({ className = '', showLabel = true }: SearchSortProps) {
+export function SearchSort({
+  className = '',
+  showLabel = true,
+  options = SORT_OPTIONS.map((opt) => opt.value),
+}: SearchSortProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentSort = (searchParams?.get('sort') as SortOption) || 'relevance'
+
+  const available = SORT_OPTIONS.filter((opt) => options.includes(opt.value))
 
   const handleSortChange = (value: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '')
@@ -47,12 +65,15 @@ export function SearchSort({ className = '', showLabel = true }: SearchSortProps
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="relevance">Relevancia</SelectItem>
-          <SelectItem value="newest">Más recientes</SelectItem>
-          <SelectItem value="price_asc">Precio: menor a mayor</SelectItem>
-          <SelectItem value="price_desc">Precio: mayor a menor</SelectItem>
+          {available.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
   )
 }
+
+export { ENTITY_SORT_OPTIONS as SEARCH_ENTITY_SORT_OPTIONS }
