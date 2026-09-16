@@ -1,10 +1,19 @@
 'use client'
 
 import { useState, useEffect, useCallback, Suspense, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchBar } from '@/components/search/SearchBar'
-import { SearchFilters } from '@/components/search/SearchFilters'
+import { SearchFilters, type SearchEnabledFilters } from '@/components/search/SearchFilters'
+import {
+  SearchTypeTabs,
+  SEARCH_ENTITY_TYPES,
+  parseSearchEntityType,
+  type SearchEntityType,
+} from '@/components/search/SearchTypeTabs'
+import { BusinessResultCard } from '@/components/search/BusinessResultCard'
+import { PersonResultCard } from '@/components/search/PersonResultCard'
 import { ProductGrid } from '@/components/products/ProductGrid'
+import { DemandPostCard } from '@/components/demand/DemandPostCard'
 import { Loader2, Search as SearchIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -12,6 +21,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 import { fetchWithPolicy, getNetworkErrorMessage } from '@/lib/network/fetch'
 import { buildSearchCacheKey, loadSearchCache, saveSearchCache } from '@/lib/offline/search-cache'
+import type { SearchBusiness, SearchPerson, SearchDemandPost } from '@/types/database'
 
 interface Product {
   id: string
@@ -42,8 +52,7 @@ interface Product {
   seller_profile_phone?: string | null
 }
 
-interface SearchResponse {
-  products: Product[]
+interface CommonEnvelope {
   totalCount: number
   page: number
   limit: number
@@ -51,13 +60,81 @@ interface SearchResponse {
   hasMore: boolean
 }
 
+interface ProductsResponse extends CommonEnvelope {
+  products: Product[]
+}
+
+interface DemandsResponse extends CommonEnvelope {
+  demands: SearchDemandPost[]
+}
+
+interface BusinessesResponse extends CommonEnvelope {
+  businesses: SearchBusiness[]
+}
+
+interface ProfilesResponse extends CommonEnvelope {
+  profiles: SearchPerson[]
+}
+
+type SearchResponse = ProductsResponse | DemandsResponse | BusinessesResponse | ProfilesResponse
+
+const ENDPOINTS: Record<SearchEntityType, string> = {
+  productos: '/api/search',
+  negocios: '/api/search-businesses',
+  solicitudes: '/api/search-demands',
+  personas: '/api/search-profiles',
+}
+
+/** URL params kept when switching to each entity type (F-4: strip the rest). */
+const KEPT_PARAMS: Record<SearchEntityType, string[]> = {
+  productos: ['q', 'category', 'condition', 'department', 'priceMin', 'priceMax', 'sort'],
+  negocios: ['q', 'category', 'department', 'sort'],
+  solicitudes: ['q', 'category', 'department', 'sort'],
+  personas: ['q', 'department', 'sort'],
+}
+
+/** Filter blocks visible per entity type (F-4). */
+const ENABLED_FILTERS: Record<SearchEntityType, SearchEnabledFilters> = {
+  productos: {},
+  negocios: { category: 'business', department: true, condition: false, price: false },
+  solicitudes: { category: 'product', department: true, condition: false, price: false },
+  personas: { category: false, department: true, condition: false, price: false },
+}
+
+/** Sort options offered per entity type (only products support price sort). */
+const SORT_OPTIONS_BY_TYPE: Record<
+  SearchEntityType,
+  ReadonlyArray<'relevance' | 'newest' | 'price_asc' | 'price_desc'>
+> = {
+  productos: ['relevance', 'newest', 'price_asc', 'price_desc'],
+  negocios: ['relevance', 'newest'],
+  solicitudes: ['relevance', 'newest'],
+  personas: ['relevance', 'newest'],
+}
+
+/** Per-entity UI copy (voseo, F-5). */
+const ENTITY_LABELS: Record<SearchEntityType, string> = {
+  productos: 'productos',
+  negocios: 'negocios',
+  solicitudes: 'solicitudes',
+  personas: 'vendedores',
+}
+
+const ENTITY_EMPTY_TITLE: Record<SearchEntityType, string> = {
+  productos: 'No encontramos productos',
+  negocios: 'No encontramos negocios',
+  solicitudes: 'No encontramos solicitudes',
+  personas: 'No encontramos vendedores',
+}
+
 const PAGE_SIZE = 24
 const SEARCH_CACHE_VERSION = 1
+const TAB_COUNTS_DEBOUNCE_MS = 400
 
 function BuscarPageSkeleton() {
   return (
     <div className="container mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <h1 className="text-2xl font-bold mb-4">Buscar Productos</h1>
+      <h1 className="text-2xl font-bold mb-4">Buscar</h1>
       <div className="flex gap-2 mb-6">
         <Skeleton className="h-11 flex-1 max-w-xl" />
         <Skeleton className="h-11 w-24" />
@@ -77,7 +154,9 @@ function BuscarPageSkeleton() {
 
 function BuscarPageContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const query = searchParams?.get('q') || ''
+  const activeType = parseSearchEntityType(searchParams?.get('type'))
   const [results, setResults] = useState<SearchResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
@@ -85,9 +164,10 @@ function BuscarPageContent() {
   const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [cachedUpdatedAt, setCachedUpdatedAt] = useState<string | null>(null)
+  const [tabCounts, setTabCounts] = useState<Partial<Record<SearchEntityType, number | null>>>({})
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const searchParamsString = searchParams?.toString() || ''
-  const cacheKey = buildSearchCacheKey('products:search', searchParamsString)
+  const cacheKey = buildSearchCacheKey(`${activeType}:search`, searchParamsString)
 
   // Check if any search criteria is active (query or filters)
   const hasActiveSearch = !!(
@@ -109,29 +189,69 @@ function BuscarPageContent() {
       setError(null)
 
       try {
-        // Build query string from all search params
-        const params = new URLSearchParams(searchParamsString)
+        const endpoint = ENDPOINTS[activeType]
+        let params: URLSearchParams
+
+        if (activeType === 'productos') {
+          // Reuse every URL param, but never leak the internal `type` param.
+          params = new URLSearchParams(searchParamsString)
+          params.delete('type')
+        } else {
+          params = new URLSearchParams()
+          const kept = KEPT_PARAMS[activeType]
+          for (const key of kept) {
+            const value = searchParams?.get(key)
+            if (value) params.set(key, value)
+          }
+        }
         params.set('page', String(pageToLoad))
         params.set('limit', String(PAGE_SIZE))
 
-        const response = await fetchWithPolicy(`/api/search?${params.toString()}`, {
+        const response = await fetchWithPolicy(`${endpoint}?${params.toString()}`, {
           timeoutMs: 12_000,
           retries: 1,
         })
 
         if (!response.ok) {
-          throw new Error('Error al buscar productos')
+          throw new Error('Error al buscar')
         }
 
-        const data: SearchResponse = await response.json()
+        const data = (await response.json()) as SearchResponse
         setResults((current) => {
           if (!append || !current) return data
-          const existingIds = new Set(current.products.map((product) => product.id))
-          const uniqueNextProducts = data.products.filter((product) => !existingIds.has(product.id))
+
+          const currentItems: Array<{ id: string }> =
+            'products' in current
+              ? current.products
+              : 'demands' in current
+                ? current.demands
+                : 'businesses' in current
+                  ? current.businesses
+                  : current.profiles
+          const nextItems: Array<{ id: string }> =
+            'products' in data
+              ? data.products
+              : 'demands' in data
+                ? data.demands
+                : 'businesses' in data
+                  ? data.businesses
+                  : data.profiles
+          const itemsKey =
+            'products' in current
+              ? 'products'
+              : 'demands' in current
+                ? 'demands'
+                : 'businesses' in current
+                  ? 'businesses'
+                  : 'profiles'
+
+          const existingIds = new Set(currentItems.map((item) => item.id))
+          const uniqueNext = nextItems.filter((item) => !existingIds.has(item.id))
+
           return {
             ...data,
-            products: [...current.products, ...uniqueNextProducts],
-          }
+            [itemsKey]: [...currentItems, ...uniqueNext],
+          } as SearchResponse
         })
         setLoadedPage(pageToLoad)
         setHasMore(Boolean(data.hasMore))
@@ -152,17 +272,17 @@ function BuscarPageContent() {
             return
           }
         }
-        setError(getNetworkErrorMessage(err, 'Error al buscar productos'))
+        setError(getNetworkErrorMessage(err, 'Error al buscar'))
       } finally {
         setIsLoading(false)
         setIsLoadingMore(false)
       }
     },
-    [cacheKey, searchParamsString]
+    [activeType, cacheKey, searchParams, searchParamsString]
   )
 
   useEffect(() => {
-    document.title = query ? `Buscar: ${query} - Telopillo` : 'Buscar Productos - Telopillo'
+    document.title = query ? `Buscar: ${query} - Telopillo` : 'Buscar - Telopillo'
 
     const cached = loadSearchCache<SearchResponse>(cacheKey, SEARCH_CACHE_VERSION)
     if (cached) {
@@ -178,6 +298,64 @@ function BuscarPageContent() {
     }
     performSearch(1, false)
   }, [cacheKey, performSearch, query])
+
+  // F-1: tab counters — one limit=1 request per non-active entity, debounced,
+  // aborted on the next navigation commit.
+  useEffect(() => {
+    if (!hasActiveSearch) return
+
+    const controller = new AbortController()
+    const timer = setTimeout(async () => {
+      const targets = SEARCH_ENTITY_TYPES.filter((type) => type !== activeType)
+      try {
+        const counts = await Promise.all(
+          targets.map(async (type) => {
+            let params: URLSearchParams
+            if (type === 'productos') {
+              params = new URLSearchParams(searchParamsString)
+              params.delete('type')
+            } else {
+              params = new URLSearchParams()
+              for (const key of KEPT_PARAMS[type]) {
+                const value = searchParams?.get(key)
+                if (value) params.set(key, value)
+              }
+            }
+            params.set('page', '1')
+            params.set('limit', '1')
+            const res = await fetch(`${ENDPOINTS[type]}?${params.toString()}`, {
+              signal: controller.signal,
+            })
+            if (!res.ok) throw new Error('count failed')
+            const data = (await res.json()) as CommonEnvelope
+            return [type, data.totalCount] as const
+          })
+        )
+        setTabCounts(Object.fromEntries(counts))
+      } catch {
+        // Aborted or transient failure — leave previous counts in place.
+      }
+    }, TAB_COUNTS_DEBOUNCE_MS)
+
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [activeType, hasActiveSearch, searchParams, searchParamsString])
+
+  const handleTypeChange = useCallback(
+    (nextType: SearchEntityType) => {
+      if (nextType === activeType) return
+      const params = new URLSearchParams()
+      params.set('type', nextType)
+      for (const key of KEPT_PARAMS[nextType]) {
+        const value = searchParams?.get(key)
+        if (value) params.set(key, value)
+      }
+      router.push(`/buscar?${params.toString()}`)
+    },
+    [activeType, router, searchParams]
+  )
 
   const loadMore = useCallback(() => {
     if (isLoading || isLoadingMore || !hasMore) return
@@ -199,16 +377,67 @@ function BuscarPageContent() {
     return () => observer.disconnect()
   }, [hasMore, loadMore])
 
+  const totalCount = results?.totalCount ?? 0
+  const countsForTabs: Partial<Record<SearchEntityType, number | null>> = {
+    ...tabCounts,
+    [activeType]: results ? results.totalCount : null,
+  }
+
+  const renderResults = () => {
+    if (!results) return null
+    switch (activeType) {
+      case 'productos':
+        return 'products' in results ? (
+          <ProductGrid products={results.products} showStatusBadge={true} />
+        ) : null
+      case 'negocios':
+        return 'businesses' in results ? (
+          <ul role="list" className="flex flex-col gap-3">
+            {results.businesses.map((business) => (
+              <BusinessResultCard key={business.id} business={business} />
+            ))}
+          </ul>
+        ) : null
+      case 'solicitudes':
+        return 'demands' in results ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {results.demands.map((post) => (
+              <DemandPostCard key={post.id} post={post} />
+            ))}
+          </div>
+        ) : null
+      case 'personas':
+        return 'profiles' in results ? (
+          <ul role="list" className="flex flex-col gap-3">
+            {results.profiles.map((person) => (
+              <PersonResultCard key={person.id} person={person} />
+            ))}
+          </ul>
+        ) : null
+    }
+  }
+
   return (
     <div className="min-h-dvh bg-background">
       <div className="container mx-auto max-w-6xl py-8 px-4 sm:px-6">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4 text-balance">Buscar Productos</h1>
+          <h1 className="text-3xl font-bold mb-4 text-balance">Buscar</h1>
 
           {/* Search Bar */}
-          <SearchBar autoFocus={!query} />
+          <SearchBar autoFocus={!query} withTypeSelector />
         </div>
+
+        {/* F-1: entity tabs (only when a search is active) */}
+        {hasActiveSearch && (
+          <div className="mb-6">
+            <SearchTypeTabs
+              activeType={activeType}
+              counts={countsForTabs}
+              onTypeChange={handleTypeChange}
+            />
+          </div>
+        )}
 
         {/* Layout: Filters + Results */}
         <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
@@ -216,13 +445,16 @@ function BuscarPageContent() {
             <div className="lg:sticky lg:top-24">
               <Card className="gap-0 border border-border/60 py-0 shadow-md">
                 <CardContent className="p-4 sm:p-5">
-                  <SearchFilters />
+                  <SearchFilters
+                    enabledFilters={ENABLED_FILTERS[activeType]}
+                    sortOptions={SORT_OPTIONS_BY_TYPE[activeType]}
+                  />
                 </CardContent>
               </Card>
             </div>
           </div>
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1" id="search-results-panel" role="tabpanel">
             {/* Loading State — skeleton grid (I4) */}
             {isLoading && (
               <div>
@@ -233,7 +465,7 @@ function BuscarPageContent() {
                       aria-hidden
                     />
                     <p className="text-muted-foreground" role="status" aria-live="polite">
-                      Buscando productos...
+                      Buscando {ENTITY_LABELS[activeType]}...
                     </p>
                   </div>
                 </div>
@@ -270,11 +502,11 @@ function BuscarPageContent() {
                 <SearchIcon className="h-16 w-16 text-muted-foreground/50 mb-4" aria-hidden />
                 <h2 className="text-xl font-semibold mb-2">¿Qué estás buscando?</h2>
                 <p className="text-muted-foreground mb-6 max-w-md">
-                  Usa la barra de búsqueda para encontrar productos por nombre, descripción o
+                  Usá la barra de búsqueda para encontrar productos por nombre, descripción o
                   categoría
                 </p>
                 <Link href="/categorias" className="text-primary hover:underline font-medium">
-                  O explora por categorías →
+                  O explorá por categorías →
                 </Link>
               </div>
             )}
@@ -308,7 +540,7 @@ function BuscarPageContent() {
                   aria-atomic="true"
                 >
                   <p className="text-sm text-muted-foreground">
-                    {results.totalCount === 0 ? (
+                    {totalCount === 0 ? (
                       <>
                         No se encontraron resultados
                         {query && (
@@ -320,7 +552,7 @@ function BuscarPageContent() {
                       </>
                     ) : (
                       <>
-                        {results.totalCount} resultado{results.totalCount !== 1 ? 's' : ''}
+                        {totalCount} resultado{totalCount !== 1 ? 's' : ''}
                         {query && (
                           <>
                             {' '}
@@ -333,16 +565,16 @@ function BuscarPageContent() {
                 </div>
 
                 {/* No Results State (I2: clear filters link) */}
-                {results.totalCount === 0 && (
+                {totalCount === 0 && (
                   <div className="bg-muted/50 rounded-lg p-8 text-center">
-                    <h3 className="text-lg font-semibold mb-2">No encontramos productos</h3>
+                    <h3 className="text-lg font-semibold mb-2">{ENTITY_EMPTY_TITLE[activeType]}</h3>
                     <p className="text-foreground/80 mb-4">
-                      Intenta con otras palabras clave o ajusta los filtros
+                      Intentá con otras palabras clave o ajustá los filtros
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                       {hasActiveSearch && (
                         <Link
-                          href="/buscar"
+                          href={`/buscar${activeType === 'productos' ? '' : `?type=${activeType}`}`}
                           className="inline-flex items-center text-primary hover:underline font-medium min-h-[44px]"
                         >
                           Limpiar filtros y búsqueda
@@ -356,27 +588,28 @@ function BuscarPageContent() {
                       </Link>
                     </div>
 
-                    <div className="border-t mt-6 pt-6">
-                      <p className="font-medium mb-1">¿No encontraste lo que buscas?</p>
-                      <p className="text-sm text-foreground/80 mb-3">
-                        Publica una solicitud y deja que los vendedores te contacten con ofertas.
-                      </p>
-                      <Link
-                        href="/busco/publicar"
-                        className="inline-flex items-center text-sm font-medium text-primary hover:underline min-h-[44px] touch-manipulation"
-                      >
-                        Publicar lo que busco →
-                      </Link>
-                    </div>
+                    {/* Demand CTA only for product results (F-4) */}
+                    {activeType === 'productos' && (
+                      <div className="border-t mt-6 pt-6">
+                        <p className="font-medium mb-1">¿No encontraste lo que buscás?</p>
+                        <p className="text-sm text-foreground/80 mb-3">
+                          Publicá una solicitud y dejá que los vendedores te contacten con ofertas.
+                        </p>
+                        <Link
+                          href="/busco/publicar"
+                          className="inline-flex items-center text-sm font-medium text-primary hover:underline min-h-[44px] touch-manipulation"
+                        >
+                          Publicá lo que buscás →
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Product Grid */}
-                {results.totalCount > 0 && (
-                  <ProductGrid products={results.products} showStatusBadge={true} />
-                )}
+                {/* Results by entity type */}
+                {totalCount > 0 && renderResults()}
 
-                {results.totalCount > 0 && (
+                {totalCount > 0 && (
                   <>
                     <div ref={loadMoreRef} className="h-1" aria-hidden />
 
@@ -384,7 +617,7 @@ function BuscarPageContent() {
                       {isLoadingMore ? (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Loader2 className="size-4 motion-safe:animate-spin" aria-hidden />
-                          Cargando más productos...
+                          Cargando más {ENTITY_LABELS[activeType]}...
                         </div>
                       ) : hasMore ? (
                         <Button
@@ -395,25 +628,27 @@ function BuscarPageContent() {
                         >
                           Cargar más
                         </Button>
-                      ) : results.totalCount >= PAGE_SIZE ? (
-                        <p className="text-sm text-muted-foreground">No hay más productos.</p>
+                      ) : totalCount >= PAGE_SIZE ? (
+                        <p className="text-sm text-muted-foreground">
+                          No hay más {ENTITY_LABELS[activeType]}.
+                        </p>
                       ) : null}
                     </div>
                   </>
                 )}
 
-                {/* Demand CTA at bottom of results */}
-                {results.totalCount > 0 && (
+                {/* Demand CTA at bottom of results (productos only, F-4) */}
+                {totalCount > 0 && activeType === 'productos' && (
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center mt-8">
-                    <p className="font-medium mb-1">¿No encontraste exactamente lo que buscas?</p>
+                    <p className="font-medium mb-1">¿No encontraste exactamente lo que buscás?</p>
                     <p className="text-sm text-foreground/80 mb-3">
-                      Publica una solicitud y deja que los vendedores te contacten.
+                      Publicá una solicitud y dejá que los vendedores te contacten.
                     </p>
                     <Link
                       href="/busco/publicar"
                       className="inline-flex items-center text-sm font-medium text-primary hover:underline min-h-[44px] touch-manipulation"
                     >
-                      Publicar lo que busco →
+                      Publicá lo que buscás →
                     </Link>
                   </div>
                 )}
