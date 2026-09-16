@@ -27,9 +27,12 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createPublicClient()
 
-    // Semantic: only when flag on and there is a query (same gate as products)
+    // Semantic: only when flag on and there is a query (same gate as products).
+    // Tab counters on /buscar fetch limit=1 and only read total_count; skip
+    // the embedding call there — keyword-only total_count is exact while the
+    // hybrid count is capped at the RRF union of top matches.
     const semanticEnabled = await isSemanticSearchEnabled(supabase)
-    const useHybrid = semanticEnabled && (q?.length ?? 0) > 0
+    const useHybrid = semanticEnabled && (q?.length ?? 0) > 0 && limit > 1
 
     let searchMode: 'hybrid' | 'keyword' | 'browse' = q ? 'keyword' : 'browse'
     let embeddingCached = false

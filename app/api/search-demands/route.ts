@@ -6,87 +6,9 @@ import {
   fetchSellerContactPhonesByUserId,
 } from '@/lib/search/enrichSearchContacts'
 import { expandQuery } from '@/lib/search/synonyms'
-import { fetchWithPolicy } from '@/lib/network/fetch'
+import { getQueryEmbedding, isSemanticSearchEnabled } from '@/lib/search/query-embedding'
 
 export const dynamic = 'force-dynamic'
-
-type SupabaseClient = ReturnType<typeof createPublicClient>
-
-async function isSemanticSearchEnabled(supabase: SupabaseClient): Promise<boolean> {
-  if (process.env.SEMANTIC_SEARCH_ENABLED === 'true') return true
-  if (process.env.SEMANTIC_SEARCH_ENABLED !== undefined) return false
-  const { data, error } = await supabase
-    .from('app_config')
-    .select('value')
-    .eq('key', 'semantic_search_enabled')
-    .single()
-  if (error) return false
-  return data?.value === 'true'
-}
-
-interface EmbeddingCacheEntry {
-  embedding: number[]
-  expiresAt: number
-}
-
-const EMBEDDING_CACHE = new Map<string, EmbeddingCacheEntry>()
-const CACHE_TTL_MS = 5 * 60 * 1000
-const CACHE_MAX_SIZE = 200
-
-function getCachedEmbedding(query: string): number[] | null {
-  const entry = EMBEDDING_CACHE.get(query)
-  if (!entry) return null
-  if (Date.now() > entry.expiresAt) {
-    EMBEDDING_CACHE.delete(query)
-    return null
-  }
-  return entry.embedding
-}
-
-function setCachedEmbedding(query: string, embedding: number[]): void {
-  if (EMBEDDING_CACHE.size >= CACHE_MAX_SIZE) {
-    const firstKey = EMBEDDING_CACHE.keys().next().value
-    if (firstKey) EMBEDDING_CACHE.delete(firstKey)
-  }
-  EMBEDDING_CACHE.set(query, {
-    embedding,
-    expiresAt: Date.now() + CACHE_TTL_MS,
-  })
-}
-
-async function getQueryEmbedding(
-  text: string
-): Promise<{ embedding: number[] | null; cached: boolean }> {
-  const normalizedQuery = text.toLowerCase().trim()
-
-  const cached = getCachedEmbedding(normalizedQuery)
-  if (cached) return { embedding: cached, cached: true }
-
-  try {
-    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-embedding`
-    const res = await fetchWithPolicy(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text }),
-      timeoutMs: 6_000,
-      retries: 1,
-    })
-
-    if (!res.ok) return { embedding: null, cached: false }
-
-    const { embedding } = await res.json()
-    if (!Array.isArray(embedding)) return { embedding: null, cached: false }
-
-    setCachedEmbedding(normalizedQuery, embedding)
-    return { embedding, cached: false }
-  } catch (error) {
-    console.warn('generate-embedding failed for demand search:', error)
-    return { embedding: null, cached: false }
-  }
-}
 
 export async function GET(request: NextRequest) {
   const startMs = Date.now()
@@ -112,7 +34,12 @@ export async function GET(request: NextRequest) {
 
     if (q) {
       searchMode = 'keyword'
-      semanticEnabled = await isSemanticSearchEnabled(supabase)
+      // Tab counters on /buscar fetch limit=1 and only read total_count;
+      // skip the embedding call there — keyword-only total_count is exact
+      // while the hybrid count is capped at the RRF union of top matches.
+      if (limit > 1) {
+        semanticEnabled = await isSemanticSearchEnabled(supabase)
+      }
 
       if (semanticEnabled) {
         const { embedding, cached } = await getQueryEmbedding(q)

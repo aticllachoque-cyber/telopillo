@@ -76,8 +76,11 @@ export async function GET(request: NextRequest) {
       result_offset: offset,
     }
 
+    // Tab counters on /buscar fetch limit=1 and only read total_count; skip
+    // the embedding call there — keyword-only total_count is exact while the
+    // hybrid count is capped at the RRF union of top matches.
     const semanticEnabled = await isSemanticSearchEnabled(supabase)
-    const useHybrid = semanticEnabled && (params.q?.trim()?.length ?? 0) > 0
+    const useHybrid = semanticEnabled && (params.q?.trim()?.length ?? 0) > 0 && limit > 1
 
     let data: { products: unknown[]; total_count: number }[] | null
     let error: { message: string } | null = null

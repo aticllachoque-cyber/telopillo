@@ -258,7 +258,7 @@ Deno.serve(async (req: Request) => {
 
       let rows: ProfileWithBusiness[] = []
       const businessColumns = 'id, business_name, business_category, business_description'
-      const fetch = isBusiness
+      const batch = isBusiness
         ? await supabase
             .from('business_profiles')
             .select(businessColumns)
@@ -270,15 +270,15 @@ Deno.serve(async (req: Request) => {
             .is('embedding', null)
             .limit(batchLimit)
 
-      if (fetch.error) {
-        console.error('[generate-embedding] Backfill fetch error:', fetch.error)
+      if (batch.error) {
+        console.error('[generate-embedding] Backfill fetch error:', batch.error)
         return json({ error: 'No se pudieron leer las filas para el proceso' }, 500)
       }
 
       if (isBusiness) {
-        rows = (fetch.data ?? []) as ProfileWithBusiness[]
+        rows = (batch.data ?? []) as ProfileWithBusiness[]
       } else {
-        const profileRows = fetch.data ?? []
+        const profileRows = batch.data ?? []
         // Merge owning-business context so profile embeddings cover what the
         // seller sells, not just their name.
         const businessMap = new Map<string, ProfileWithBusiness['business']>()
