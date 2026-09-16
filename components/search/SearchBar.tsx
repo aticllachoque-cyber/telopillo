@@ -11,11 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  parseSearchEntityType,
-  getEntityTypeLabel,
-  type SearchEntityType,
-} from '@/components/search/SearchTypeTabs'
+import { getEntityTypeLabel, type SearchEntityType } from '@/components/search/SearchTypeTabs'
 import { cn } from '@/lib/utils'
 
 /** Entities offered in the header type selector. "todo" lands on the productos tab. */
@@ -42,10 +38,6 @@ function selectorValueToType(value: SelectorValue): SearchEntityType | null {
   return value === 'todo' ? null : (value as SearchEntityType)
 }
 
-function typeToSelectorValue(type: SearchEntityType): SelectorValue {
-  return type
-}
-
 interface SearchBarProps {
   placeholder?: string
   className?: string
@@ -70,15 +62,18 @@ export function SearchBar({
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Selector state derived from the URL (type param); 'todo' when absent.
-  const urlType = parseSearchEntityType(searchParams?.get('type'))
-  const [selectorValue, setSelectorValue] = useState<SelectorValue>(
-    withTypeSelector ? typeToSelectorValue(urlType) : 'todo'
+  const selectorFromUrl = (): SelectorValue => {
+    const raw = searchParams?.get('type')
+    return SELECTOR_OPTIONS.some((opt) => opt.value === raw) ? (raw as SelectorValue) : 'todo'
+  }
+  const [selectorValue, setSelectorValue] = useState<SelectorValue>(() =>
+    withTypeSelector ? selectorFromUrl() : 'todo'
   )
 
   useEffect(() => {
     setQuery(searchParams?.get('q') || '')
     if (withTypeSelector) {
-      setSelectorValue(typeToSelectorValue(parseSearchEntityType(searchParams?.get('type'))))
+      setSelectorValue(selectorFromUrl())
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
@@ -124,7 +119,7 @@ export function SearchBar({
         <DropdownMenu>
           <DropdownMenuTrigger
             asChild
-            aria-label={`Buscar en ${activeSelectorLabel === 'productos' && selectorValue === 'todo' ? 'todo Telopillo' : activeSelectorLabel}`}
+            aria-label={`Buscar en ${selectorValue === 'todo' ? 'todo Telopillo' : activeSelectorLabel}`}
           >
             <Button
               type="button"
