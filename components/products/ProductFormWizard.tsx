@@ -103,6 +103,9 @@ export function ProductFormWizard({
   const hydrateCompleteRef = useRef(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSavedSnapshotRef = useRef<string | null>(null)
+  // Synchronous lock against double-submit: state updates flush asynchronously,
+  // so two rapid clicks can both enter onSubmit before the disabled state renders.
+  const submitLockRef = useRef(false)
 
   const {
     register,
@@ -293,6 +296,9 @@ export function ProductFormWizard({
   }
 
   const onSubmit = async (data: ProductInput) => {
+    if (submitLockRef.current) return
+    submitLockRef.current = true
+
     setIsSubmitting(true)
     setError(null)
 
@@ -322,6 +328,7 @@ export function ProductFormWizard({
         document.querySelector<HTMLElement>('[role="alert"]')?.focus()
       })
     } finally {
+      submitLockRef.current = false
       setIsSubmitting(false)
     }
   }

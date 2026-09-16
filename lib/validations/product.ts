@@ -31,7 +31,7 @@ export const LOCATION_CITY_PLACEHOLDERS = [
   'ejemplo',
 ] as const
 
-function isPlaceholderCity(value: string): boolean {
+export function isPlaceholderCity(value: string): boolean {
   const normalized = value.toLowerCase().trim()
   return LOCATION_CITY_PLACEHOLDERS.some((p) => normalized === p)
 }

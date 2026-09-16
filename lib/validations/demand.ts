@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { stripHtml } from './sanitize'
-import { PRODUCT_CATEGORIES, BOLIVIA_DEPARTMENTS } from './product'
+import { PRODUCT_CATEGORIES, BOLIVIA_DEPARTMENTS, isPlaceholderCity } from './product'
 import { isPlaceholderDescription } from '@/lib/utils/demand'
 
 export const demandPostSchema = z
@@ -32,7 +32,14 @@ export const demandPostSchema = z
       message: 'Selecciona un departamento',
     }),
 
-    location_city: z.string().min(1, 'Selecciona una ciudad').trim(),
+    location_city: z
+      .string()
+      .min(1, 'Ingresá tu ciudad')
+      .max(100, 'El nombre de la ciudad es demasiado largo')
+      .trim()
+      .refine((val) => !isPlaceholderCity(val), {
+        message: 'Ingresá el nombre real de la ciudad (ej: La Paz, Cochabamba)',
+      }),
 
     price_min: z
       .number()

@@ -4,4 +4,8 @@ components/demand/DemandImageUpload.tsx
 components/products/CategoryGrid.tsx
 components/profile/LocationSelector.tsx
 lib/utils/demand.ts
+lib/validations/demand.ts
+lib/validations/product.ts
 redesign/
+components/products/ProductFormWizard.tsx
+tests/e2e/cross-cutting/double-submit-guard.spec.ts
