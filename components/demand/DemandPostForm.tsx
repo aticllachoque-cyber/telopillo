@@ -130,6 +130,9 @@ export function DemandPostForm({
   const hydrateCompleteRef = useRef(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSavedSnapshotRef = useRef<string | null>(null)
+  // Synchronous lock against double-submit: state updates flush asynchronously,
+  // so two rapid clicks can both enter onSubmit before the disabled state renders.
+  const submitLockRef = useRef(false)
 
   const {
     register,
@@ -321,6 +324,9 @@ export function DemandPostForm({
   }
 
   const onSubmit = async (data: DemandPostInput) => {
+    if (submitLockRef.current) return
+    submitLockRef.current = true
+
     setIsSubmitting(true)
     setSubmitError(null)
 
@@ -369,6 +375,7 @@ export function DemandPostForm({
         )
       )
     } finally {
+      submitLockRef.current = false
       setIsSubmitting(false)
     }
   }
@@ -535,8 +542,8 @@ export function DemandPostForm({
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Referencia de la Solicitud</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Explicá rápido qué estás buscando y agregá una imagen opcional para orientar mejor
-                a los vendedores.
+                Explicá rápido qué estás buscando y agregá una imagen opcional para orientar mejor a
+                los vendedores.
               </p>
             </div>
 
@@ -879,11 +886,7 @@ export function DemandPostForm({
           </p>
 
           {currentStep < STEPS.length ? (
-            <Button
-              type="button"
-              className="min-h-[44px] sm:min-h-0"
-              onClick={handleNext}
-            >
+            <Button type="button" className="min-h-[44px] sm:min-h-0" onClick={handleNext}>
               Siguiente
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
             </Button>
