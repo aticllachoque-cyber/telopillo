@@ -37,3 +37,7 @@ Revisión adversarial de los cambios recientes (8 hallazgos, ninguno crítico). 
 - Edge fn backfill: `const fetch` → `const batch` (no shadowear el fetch global).
 
 Verificado: limit=1 → `searchMode:'keyword'` (sin call HF), limit=12 → `'hybrid'`; search-discovery 70 passed; type-check clean. No aplicados: #8 cosmético (`|| ''` en migración ya commiteada) y flags de diseño heredados del template (total_count híbrido ~cap 100, orden de deploy db→routes, embedding enumerable vía profiles_public — dato derivado, no reversible).
+
+## Remote production prep executed (2026-09-16)
+
+`redesign/unified-search/prod-prepare.sh` (keys fetched at runtime, never printed): db push `20260916130000` ✓ · app_config `supabase_url`/`service_role_key` inserted + `semantic_search_enabled=true` (flag was false and secret rows absent — prod had never run hybrid) · edge fn redeployed (was v13 from Feb) · backfill: products 0 missing (already embedded), businesses 3/3, profiles 18/18 · smoke on prod: keyword "electronica" → 0 (correct, no match), hybrid "reparacion de pantalla" → 3 ranked, MultiVibe #1 score 2/61 (adaptive RRF, 2x semantic weight with 0 keyword hits). Deploy order respected — merge to main is now safe for Vercel.
