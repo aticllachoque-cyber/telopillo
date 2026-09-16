@@ -27,3 +27,13 @@ El usuario pidió elevar negocios/personas al nivel elaborado de productos. Impl
 - `lib/search/query-embedding.ts`: helpers extraídos de /api/search (`isSemanticSearchEnabled` + `getQueryEmbedding` con cache TTL 5min) — las 3 rutas comparten pipeline; business/profile routes reportan `searchMode: 'hybrid'|'keyword'` + logs `embedding_failure`.
 
 Verificación local (flag `semantic_search_enabled=true` + app_config webhook + edge runtime local): backfill 55/55 productos, 6/6 negocios, 17/17 perfiles; triggers fire → 200 BUSINESS+PROFILE en net._http_response; smoke híbrido real vía API: "reparacion de pantalla" → TecnoService #1 (keyword puro daba 0), "muebles" → dueña de Muebles El Roble #1, lenguaje natural "donde puedo comprar ropa" → Moda Bolivia Express #1. Suites: search-discovery 68 passed (incl. unified-search 19/19 + assertion searchMode), cross-cutting 73 passed (header-monkey + navigation-layout + accessibility-audit). scope.txt += 4 archivos.
+
+## Post-upgrade review fixes (2026-09-16, commit 2fd2858)
+
+Revisión adversarial de los cambios recientes (8 hallazgos, ninguno crítico). Aplicados los 3 recomendados:
+
+- `app/api/search-demands/route.ts` importa `isSemanticSearchEnabled`/`getQueryEmbedding` de `lib/search/query-embedding.ts` (antes copia privada — una instancia de cache por bundle de ruta).
+- Las 4 rutas de búsqueda saltan el fetch de embedding cuando `limit=1`: los contadores de tabs de /buscar solo leen `total_count`; el conteo keyword-only es exacto (el híbrido queda truncado a la unión RRF de top-50) y se ahorran 3 calls a Hugging Face por keystroke con debounce.
+- Edge fn backfill: `const fetch` → `const batch` (no shadowear el fetch global).
+
+Verificado: limit=1 → `searchMode:'keyword'` (sin call HF), limit=12 → `'hybrid'`; search-discovery 70 passed; type-check clean. No aplicados: #8 cosmético (`|| ''` en migración ya commiteada) y flags de diseño heredados del template (total_count híbrido ~cap 100, orden de deploy db→routes, embedding enumerable vía profiles_public — dato derivado, no reversible).
