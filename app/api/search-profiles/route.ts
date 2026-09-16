@@ -1,10 +1,13 @@
 // Public route: seller-profile search does not require authentication.
-// Keyword-only (profiles have no embeddings) and phone-free by design: the
-// search_profiles RPC projects profiles_public fields only (TELO-003) and is
-// restricted to profiles with at least one active listing.
+// Hybrid keyword + semantic when the semantic_search_enabled flag is on
+// (profiles.embedding comes from full_name + owning business context) and
+// phone-free by design: the search_profiles RPC projects profiles_public
+// fields only (TELO-003) and is restricted to profiles with at least one
+// active listing.
 import { NextRequest, NextResponse } from 'next/server'
 import { createPublicClient } from '@/lib/supabase/server'
 import { expandQuery } from '@/lib/search/synonyms'
+import { getQueryEmbedding, isSemanticSearchEnabled } from '@/lib/search/query-embedding'
 import type { SearchPerson } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
@@ -24,12 +27,31 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createPublicClient()
 
+    // Semantic: only when flag on and there is a query (same gate as products)
+    const semanticEnabled = await isSemanticSearchEnabled(supabase)
+    const useHybrid = semanticEnabled && (q?.length ?? 0) > 0
+
+    let searchMode: 'hybrid' | 'keyword' | 'browse' = q ? 'keyword' : 'browse'
+    let embeddingCached = false
+    let queryEmbedding: number[] | null = null
+    if (useHybrid && q) {
+      const { embedding, cached } = await getQueryEmbedding(q, 'profile search')
+      embeddingCached = cached
+      if (embedding) {
+        queryEmbedding = embedding
+        searchMode = 'hybrid'
+      } else {
+        console.warn(JSON.stringify({ event: 'embedding_failure', type: 'profiles', query: q }))
+      }
+    }
+
     // Pass expanded FTS query in search_query. SQL detects tsquery format
     // (contains " | " or " & ") and uses to_tsquery.
     const searchQueryForRpc = q ? (expandQuery(q) ?? q) : null
 
     const { data, error } = await supabase.rpc('search_profiles', {
       search_query: searchQueryForRpc,
+      query_embedding: queryEmbedding,
       location_department_filter: department || null,
       sort_by: sort,
       result_limit: limit,
@@ -51,7 +73,9 @@ export async function GET(request: NextRequest) {
         event: 'search',
         type: 'profiles',
         query: q ?? null,
-        mode: q ? 'keyword' : 'browse',
+        mode: searchMode,
+        embeddingCached,
+        embeddingFailed: searchMode === 'keyword' && semanticEnabled && !!q,
         results: totalCount,
         latencyMs: totalMs,
         zeroResults: totalCount === 0 && !!q,
@@ -65,7 +89,7 @@ export async function GET(request: NextRequest) {
       limit,
       totalPages: Math.ceil(totalCount / limit),
       hasMore: page * limit < totalCount,
-      searchMode: q ? 'keyword' : 'browse',
+      searchMode,
       latencyMs: totalMs,
     })
   } catch (err) {
