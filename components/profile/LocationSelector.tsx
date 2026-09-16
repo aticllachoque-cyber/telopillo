@@ -64,11 +64,13 @@ export function LocationSelector({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="space-y-2">
-        <Label htmlFor="department">Departamento *</Label>
+        <Label htmlFor="department">
+          Departamento <span className="text-destructive">*</span>
+        </Label>
         <Select value={department || ''} onValueChange={handleDepartmentChange} disabled={disabled}>
           <SelectTrigger
             id="department"
-            className="h-11"
+            className="w-full min-h-[44px] sm:min-h-0"
             aria-invalid={!!errors?.department}
             aria-describedby={errors?.department ? 'department-error' : undefined}
           >
@@ -90,11 +92,13 @@ export function LocationSelector({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="city">Ciudad *</Label>
+        <Label htmlFor="city">
+          Ciudad <span className="text-destructive">*</span>
+        </Label>
         <Select value={city || ''} onValueChange={onCityChange} disabled={disabled || !department}>
           <SelectTrigger
             id="city"
-            className="h-11"
+            className="w-full min-h-[44px] sm:min-h-0"
             aria-invalid={!!errors?.city}
             aria-describedby={errors?.city ? 'city-error' : undefined}
           >
