@@ -9,7 +9,7 @@ Wizard multi-paso "Publicá lo que buscás" (`/busco/publicar`) — publicación
 - **F-1 (P1):** unificar TODO el copy del wizard a **voseo boliviano** — voz de marca de la app ("Publicá", "Elegí", "Subí"). Hoy mezcla tuteo (Explica/Asegúrate/Selecciona…) con voseo (Publicá/Incluí/Elegí). NUNCA proponer copy en tuteo.
 - **F-2 (P2):** heading paso 2 → title case consistente con hermanos ("Descripción de lo que buscás"), sin duplicar el label del textarea.
 - **F-3 (P2):** banner "Borrador guardado localmente." → aviso efímero/inline; banner rico solo para restored/error.
-- **F-4 (P2):** paso 2 densificado — dos columnas sm+ (subcategoría | descripción) manteniendo 1 columna mobile.
+- **F-4 (P2):** paso 2 densificado — subcategoría como **grupo de chips seleccionables** (misma familia visual que las radio-cards de CategoryGrid del paso 1), columna única. **Iteración 1 (feedback humano):** la propuesta original de 2 columnas sm+ con Select fue rechazada — el dropdown radial tapa la columna vecina al abrirse ("lo de subcategorias no me convence"). NO usar select en 2 columnas; chips envueltos en flex-wrap.
 - **F-5 (P2):** card "Antes de publicar:" → checklist de verificación contra datos reales del formulario (✓ Título, ✓ Categoría, ✓ Ubicación; Presupuesto opcional) en vez de consejos genéricos.
 
 ## Component inventory

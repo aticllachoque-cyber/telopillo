@@ -60,6 +60,7 @@ Paso 2 = un Select opcional + un Textarea; en desktop 1920 (container max-w-2xl)
 
 evidence: components/demand/DemandPostForm.tsx:602-662 paso 2 completo = Select subcategoría + Textarea
 evidence: input/intake-paso2.png (captura intake del paso 2 en desktop 1920: whitespace dominante bajo el textarea)
+**Iteración 1 (Checkpoint 3, feedback humano):** la solución de 2 columnas con Select se rechazó — el dropdown abierto tapa la columna vecina. Fix revisto: subcategoría como grupo de chips seleccionables (flex-wrap), columna única — misma familia visual que CategoryGrid (radio-cards) del paso 1.
 evidence: app/busco/publicar/page.tsx:102 container max-w-2xl
 Fix propuesto: dos columnas en sm+ (subcategoría + descripción lado a lado) o mover imagen de referencia del paso 1 al paso 2 para densificar; mantener mobile de una columna.
 

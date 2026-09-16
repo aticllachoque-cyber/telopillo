@@ -55,8 +55,15 @@ await page.getByRole('button', { name: /Siguiente/i }).click()
 await page.waitForTimeout(700)
 await page.locator('#description').fill('Busco iPhone 13 de 128GB, batería sobre 85 por ciento, con caja y accesorios originales.')
 
-async function serialize({ twoColumn }) {
-  return await page.evaluate(async ({ twoColumn, patches }) => {
+// capture real subcategory options (for the F-4 chips mock)
+await page.locator('button[role="combobox"]').first().click()
+await page.waitForTimeout(500)
+const subcats = await page.getByRole('option').allInnerTexts()
+await page.keyboard.press('Escape')
+await page.waitForTimeout(300)
+
+async function serialize({ chips, subcats: subs = [] }) {
+  return await page.evaluate(async ({ chips, subcats, patches }) => {
     const clone = document.documentElement.cloneNode(true)
 
     // strip scripts + nextjs-portal
@@ -84,10 +91,10 @@ async function serialize({ twoColumn }) {
       }
     }
 
-    if (twoColumn) {
-      // F-4: step-2 blocks side by side on sm+ — patch the two direct child
-      // wrappers (subcategoría field + descripción field) into a 2-col grid;
-      // heading block spans full width.
+    if (chips) {
+      // F-4 (iteración 1): subcategoría como grupo de chips seleccionables —
+      // misma familia visual que CategoryGrid (radio-cards) del paso 1.
+      // Sin dropdown: el Select se reemplaza por flex-wrap de chips.
       const textarea = body.querySelector('#description')
       if (textarea) {
         const step2 = textarea.closest('[class*="space-y-6"]')
@@ -95,13 +102,18 @@ async function serialize({ twoColumn }) {
           ? [...step2.children].filter((c) => /(^|\s)space-y-2(\s|$)/.test(c.getAttribute('class') || ''))
           : []
         if (step2 && blocks.length >= 2) {
-          step2.style.display = 'grid'
-          step2.style.gap = '1.5rem'
-          step2.children[0].style.gridColumn = '1 / -1' // heading spans full width
-          const media = document.createElement('style')
-          media.textContent = '[data-mock-two-col]{grid-template-columns:minmax(0,1fr)}@media (min-width:640px){[data-mock-two-col]{grid-template-columns:minmax(0,0.8fr) minmax(0,1.2fr)}}'
-          clone.querySelector('head').appendChild(media)
-          step2.setAttribute('data-mock-two-col', '')
+          const label = blocks[0].querySelector('label')
+          const chipsHtml = subcats
+            .map((s, i) =>
+              i === 0
+                ? `<button type="button" class="inline-flex items-center rounded-full border border-primary bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">${s}</button>`
+                : `<button type="button" class="inline-flex items-center rounded-full border border-border bg-card px-4 py-2 text-sm text-foreground hover:bg-muted/50">${s}</button>`,
+            )
+            .join('\n')
+          blocks[0].innerHTML = `${label ? label.outerHTML : ''}<div class="flex flex-wrap gap-2" style="padding-top:.5rem">${chipsHtml}</div>`
+          // densify: taller textarea so the paso fills the desktop viewport better
+          const ta = body.querySelector('#description')
+          if (ta) ta.style.minHeight = '14rem'
         }
       }
     } else {
@@ -131,10 +143,10 @@ async function serialize({ twoColumn }) {
     }
 
     return '<!doctype html>\n' + clone.outerHTML
-  }, { twoColumn, patches: TEXT_PATCHES })
+  }, { chips, subcats, patches: TEXT_PATCHES })
 }
 
-const paso2 = await serialize({ twoColumn: true })
+const paso2 = await serialize({ chips: true, subcats })
 writeFileSync(DIR + 'mockup-paso2.html', paso2)
 
 // walk to paso 4
@@ -153,7 +165,7 @@ await page.locator('#price_max').fill('5500')
 await page.getByRole('button', { name: /Siguiente/i }).click()
 await page.waitForTimeout(1000)
 
-const paso4 = await serialize({ twoColumn: false })
+const paso4 = await serialize({ chips: false })
 writeFileSync(DIR + 'mockup-paso4.html', paso4)
 
 await ctx.close()

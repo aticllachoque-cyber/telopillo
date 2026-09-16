@@ -10,9 +10,9 @@ def data_uri(path: Path) -> str:
     return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode()
 
 PAIRS = [
-    ("paso2-desktop", "current/desktop.png", "proposal/render-paso2-desktop.png", "Paso 2 — desktop 1920×1080", "F-1 voseo · F-2 heading/label · F-4 dos columnas sm+"),
-    ("paso2-tablet", "current/tablet.png", "proposal/render-paso2-tablet.png", "Paso 2 — tablet 768×1024", "F-1 voseo · F-2 heading/label · F-4 dos columnas sm+"),
-    ("paso2-mobile", "current/mobile.png", "proposal/render-paso2-mobile.png", "Paso 2 — mobile 375×812", "F-1 voseo · F-2 heading/label (mobile mantiene 1 columna, F-4 no aplica <640px)"),
+    ("paso2-desktop", "current/desktop.png", "proposal/render-paso2-desktop.png", "Paso 2 — desktop 1920×1080", "F-1 voseo · F-2 heading/label · F-4 subcategoría chips (iteración 1)"),
+    ("paso2-tablet", "current/tablet.png", "proposal/render-paso2-tablet.png", "Paso 2 — tablet 768×1024", "F-1 voseo · F-2 heading/label · F-4 subcategoría chips (iteración 1)"),
+    ("paso2-mobile", "current/mobile.png", "proposal/render-paso2-mobile.png", "Paso 2 — mobile 375×812", "F-1 voseo · F-2 heading/label · F-4 subcategoría chips (wrap en mobile)"),
     ("revision-desktop", "current/desktop-revision.png", "proposal/render-paso4-desktop.png", "Paso 4 revisión — desktop 1920×1080", "F-1 voseo · F-3 banner borrador removido · F-5 checklist de verificación"),
     ("revision-tablet", "current/tablet-revision.png", "proposal/render-paso4-tablet.png", "Paso 4 revisión — tablet 768×1024", "F-1 voseo · F-3 banner borrador removido · F-5 checklist de verificación"),
     ("revision-mobile", "current/mobile-revision.png", "proposal/render-paso4-mobile.png", "Paso 4 revisión — mobile 375×812", "F-1 voseo · F-3 banner borrador removido · F-5 checklist de verificación"),
@@ -22,7 +22,7 @@ G3C = [
     ("F-1", "P1", "Voz mixta voseo/tuteo — unificar a voseo boliviano", "addressed", "mockup-paso2.html + mockup-paso4.html: 14 reemplazos de texto (Explicá, elegí, Mencioná, Indicá, Podés, Asegurate, Seleccioná…); heredan edit-routes vía componente compartido"),
     ("F-2", "P2", "Heading paso 2 casing roto + duplica label", "addressed", "mockup-paso2.html: heading → 'Descripción de lo que buscás', label → 'Detalles de la solicitud'"),
     ("F-3", "P2", "Banner 'Borrador guardado localmente.' permanente sin dismiss", "addressed", "mockup-paso4.html: banner removido del estado guardado (aviso efímero/inline propuesto en impl); banner rico restored/error se conserva"),
-    ("F-4", "P2", "Paso 2 densidad mínima en desktop", "addressed", "mockup-paso2.html: grid 0.8fr/1.2fr en sm+ (heading full-width); mobile mantiene 1 columna"),
+    ("F-4", "P2", "Paso 2 densidad mínima en desktop", "addressed", "mockup-paso2.html (iteración 1): subcategoría como chips flex-wrap (familia CategoryGrid), sin dropdown; textarea min-h 14rem; columna única en todos los viewports"),
     ("F-5", "P2", "Card 'Antes de publicar' duplica consejos de pasos previos", "addressed", "mockup-paso4.html: reemplazada por checklist de verificación contra datos reales (✓ Título/categoría, ✓ Descripción, ✓ Ubicación, – Presupuesto)"),
 ]
 
@@ -90,7 +90,7 @@ html = f"""<!doctype html>
   <li><strong>F-1 (P1):</strong> todo el wizard unificado a voseo boliviano — voz de marca de la app ("Publicá", "Elegí", "Subí"). Hoy mezcla tuteo (Explica, Asegúrate, Selecciona).</li>
   <li><strong>F-2:</strong> heading paso 2 "Descripción de lo que buscás" (title case, sin duplicar label "Detalles de la solicitud").</li>
   <li><strong>F-3:</strong> aviso de autoguardado degradado a efímero/inline — sin card permanente por 4 pasos.</li>
-  <li><strong>F-4:</strong> paso 2 en dos columnas sm+ (subcategoría 0.8fr | descripción 1.2fr); mobile 1 columna.</li>
+  <li><strong>F-4 (iteración 1):</strong> subcategoría como chips seleccionables (flex-wrap, familia visual CategoryGrid del paso 1) — reemplaza al Select; textarea más alto. 2 columnas descartada por feedback humano (dropdown tapa contenido).</li>
   <li><strong>F-5:</strong> "Antes de publicar:" → checklist de verificación contra datos reales del formulario.</li>
 </ul>
 
@@ -111,6 +111,7 @@ html = f"""<!doctype html>
 <h2>Notas de transparencia (defectos del mockup)</h2>
 <ul>
   <li>El mock es DOM real congelado: sin JS. Interacciones (selects, upload) están muertas; el estado "después" es el objetivo, no interactivo.</li>
+  <li>F-4 chips: primer chip marcado seleccionado (Smartphones, la opción real del walkthrough); lista capturada del dropdown real de la categoría del walkthrough — en impl son las subcategorías de la categoría elegida.</li>
   <li>Checklist F-5: los ítems ✓/– son estáticos con datos del walkthrough (Santa Cruz, Bs. 3.000–5.500); en impl se computan del formulario real.</li>
   <li>El banner de borrador (F-3) en "antes" aparece tras autoguardado durante el walkthrough; en el mock "después" se representa el estado objetivo sin banner.</li>
   <li>Stepper en mock puede mostrar separadores "-" artefacto del congelado (lib opcional sin hidratar); en real son iconos.</li>
