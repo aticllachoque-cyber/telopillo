@@ -42,6 +42,10 @@ test.describe('Unified search APIs', () => {
     expect(business).toBeTruthy()
     expect(business.business_name).toBe('Tienda Electronica La Paz')
     expect(business.active_listings_count).toBeGreaterThan(0)
+
+    // Hybrid pipeline reports its mode ('hybrid' when semantic flag is on and
+    // the query embedding succeeds; 'keyword' fallback must always work).
+    expect(['keyword', 'hybrid']).toContain(data.searchMode)
   })
 
   test('GET /api/search-profiles returns sellers with active listings only', async ({

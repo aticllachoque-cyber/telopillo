@@ -13,3 +13,7 @@ types/database.ts
 tests/e2e/search-discovery/unified-search.spec.ts
 redesign/
 scripts/seed-test-data.sql
+supabase/migrations/20260916130000_hybrid_search_businesses_and_profiles.sql
+supabase/functions/generate-embedding/index.ts
+lib/search/query-embedding.ts
+app/api/search/route.ts
