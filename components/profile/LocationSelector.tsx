@@ -1,5 +1,6 @@
 'use client'
 
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -39,6 +40,11 @@ interface LocationSelectorProps {
   onDepartmentChange: (value: string) => void
   onCityChange: (value: string) => void
   disabled?: boolean
+  /**
+   * Render the city field as a free-text input (product wizard pattern)
+   * instead of a dependent dropdown. Used by the demand wizard.
+   */
+  cityInput?: boolean
   errors?: {
     department?: string
     city?: string
@@ -51,6 +57,7 @@ export function LocationSelector({
   onDepartmentChange,
   onCityChange,
   disabled,
+  cityInput = false,
   errors,
 }: LocationSelectorProps) {
   const cities = department ? CITIES_BY_DEPARTMENT[department] || [] : []
@@ -95,29 +102,48 @@ export function LocationSelector({
         <Label htmlFor="city">
           Ciudad <span className="text-destructive">*</span>
         </Label>
-        <Select value={city || ''} onValueChange={onCityChange} disabled={disabled || !department}>
-          <SelectTrigger
+        {cityInput ? (
+          <Input
             id="city"
+            placeholder="Ej: La Paz"
             className="w-full min-h-[44px] sm:min-h-0"
+            autoComplete="address-level2"
+            maxLength={100}
+            value={city || ''}
+            onChange={(e) => onCityChange(e.target.value)}
+            disabled={disabled}
             aria-invalid={!!errors?.city}
             aria-describedby={errors?.city ? 'city-error' : undefined}
+          />
+        ) : (
+          <Select
+            value={city || ''}
+            onValueChange={onCityChange}
+            disabled={disabled || !department}
           >
-            <SelectValue placeholder="Seleccioná ciudad" />
-          </SelectTrigger>
-          <SelectContent>
-            {cities.length > 0 ? (
-              cities.map((cityName) => (
-                <SelectItem key={cityName} value={cityName}>
-                  {cityName}
-                </SelectItem>
-              ))
-            ) : (
-              <div className="p-2 text-sm text-muted-foreground">
-                Primero seleccioná un departamento
-              </div>
-            )}
-          </SelectContent>
-        </Select>
+            <SelectTrigger
+              id="city"
+              className="w-full min-h-[44px] sm:min-h-0"
+              aria-invalid={!!errors?.city}
+              aria-describedby={errors?.city ? 'city-error' : undefined}
+            >
+              <SelectValue placeholder="Seleccioná ciudad" />
+            </SelectTrigger>
+            <SelectContent>
+              {cities.length > 0 ? (
+                cities.map((cityName) => (
+                  <SelectItem key={cityName} value={cityName}>
+                    {cityName}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="p-2 text-sm text-muted-foreground">
+                  Primero seleccioná un departamento
+                </div>
+              )}
+            </SelectContent>
+          </Select>
+        )}
         {errors?.city && (
           <p id="city-error" className="text-sm text-destructive" role="alert">
             {errors.city}

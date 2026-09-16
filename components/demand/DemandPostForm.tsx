@@ -692,6 +692,7 @@ export function DemandPostForm({
             <LocationSelector
               department={selectedDepartment || null}
               city={selectedCity || null}
+              cityInput
               onDepartmentChange={(val) =>
                 setValue('location_department', val as DemandPostInput['location_department'], {
                   shouldValidate: true,
