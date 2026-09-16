@@ -8,14 +8,13 @@ G3: PASS
 FLAG tokens:drift — hardcoded hex in proposal (advisory; map to app/globals.css tokens at implementation)
 G3c: PASS
 G3d: PASS
-BLOCK: not approved (rejected = skip, never implement)
-BLOCK: stale sign-off — proposal/comparison changed after approval, re-approve
+G4a: PASS
+G4b: PASS
 G5a: PASS
 G5b: PASS
 G5c: PASS
 G6: PASS
-BLOCK: wrong branch
-BLOCK: G7 needs branch redesign/busco-publicar-ui
+G7: PASS
 G7b: PASS
-BLOCK: missing/invalid after-capture (re-capture on the branch, same manifest discipline)
-BLOCK: unresolved findings: F-1:no-row (P1):no-row F-2:no-row (P2):no-row F-3:no-row (P2):no-row F-4:no-row (P2):no-row F-5:no-row (P2):no-row
+G8a: PASS
+G8b: PASS
