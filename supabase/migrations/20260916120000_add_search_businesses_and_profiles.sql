@@ -132,19 +132,19 @@ BEGIN
       jsonb_agg(
         jsonb_build_object(
           'id', ordered.id,
-          'businessName', ordered.business_name,
+          'business_name', ordered.business_name,
           'slug', ordered.slug,
-          'businessDescription', ordered.business_description,
-          'businessCategory', ordered.business_category,
-          'businessLogoUrl', ordered.business_logo_url,
-          'businessDepartment', ordered.business_department,
-          'businessCity', ordered.business_city,
-          'isNitVerified', ordered.is_nit_verified,
-          'ownerName', ordered.owner_name,
-          'verificationLevel', ordered.verification_level,
-          'activeListingsCount', ordered.active_listings_count,
-          'relevanceScore', ordered.relevance_score,
-          'createdAt', ordered.created_at
+          'business_description', ordered.business_description,
+          'business_category', ordered.business_category,
+          'business_logo_url', ordered.business_logo_url,
+          'business_department', ordered.business_department,
+          'business_city', ordered.business_city,
+          'is_nit_verified', ordered.is_nit_verified,
+          'owner_name', ordered.owner_name,
+          'verification_level', ordered.verification_level,
+          'active_listings_count', ordered.active_listings_count,
+          'relevance_score', ordered.relevance_score,
+          'created_at', ordered.created_at
         ) ORDER BY
           CASE WHEN sort_by = 'relevance' THEN relevance_score END DESC NULLS LAST,
           created_at DESC
@@ -251,18 +251,18 @@ BEGIN
       jsonb_agg(
         jsonb_build_object(
           'id', ordered.id,
-          'fullName', ordered.full_name,
-          'avatarUrl', ordered.avatar_url,
-          'locationDepartment', ordered.location_department,
-          'locationCity', ordered.location_city,
-          'verificationLevel', ordered.verification_level,
-          'ratingAverage', ordered.rating_average,
-          'ratingCount', ordered.rating_count,
-          'accountType', ordered.account_type,
-          'businessSlug', ordered.business_slug,
-          'activeListingsCount', ordered.active_listings_count,
-          'relevanceScore', ordered.relevance_score,
-          'createdAt', ordered.created_at
+          'full_name', ordered.full_name,
+          'avatar_url', ordered.avatar_url,
+          'location_department', ordered.location_department,
+          'location_city', ordered.location_city,
+          'verification_level', ordered.verification_level,
+          'rating_average', ordered.rating_average,
+          'rating_count', ordered.rating_count,
+          'account_type', ordered.account_type,
+          'business_slug', ordered.business_slug,
+          'active_listings_count', ordered.active_listings_count,
+          'relevance_score', ordered.relevance_score,
+          'created_at', ordered.created_at
         ) ORDER BY
           CASE WHEN sort_by = 'relevance' THEN relevance_score END DESC NULLS LAST,
           created_at DESC

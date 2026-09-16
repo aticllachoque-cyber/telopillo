@@ -707,6 +707,46 @@ export interface SearchDemandPost {
   poster_business_slug: string | null
 }
 
+// ---------------------------------------------------------------------------
+// SearchBusiness: typed shape returned by search_businesses RPC (unified search)
+// ---------------------------------------------------------------------------
+export interface SearchBusiness {
+  id: string
+  business_name: string
+  slug: string
+  business_description: string | null
+  business_category: string | null
+  business_logo_url: string | null
+  business_department: string | null
+  business_city: string | null
+  is_nit_verified: boolean
+  owner_name: string | null
+  verification_level: number
+  active_listings_count: number
+  relevance_score: number
+  created_at: string
+}
+
+// ---------------------------------------------------------------------------
+// SearchPerson: typed shape returned by search_profiles RPC (unified search).
+// profiles_public projection only — never contains phone (TELO-003).
+// ---------------------------------------------------------------------------
+export interface SearchPerson {
+  id: string
+  full_name: string
+  avatar_url: string | null
+  location_department: string | null
+  location_city: string | null
+  verification_level: number
+  rating_average: number | null
+  rating_count: number
+  account_type: string
+  business_slug: string | null
+  active_listings_count: number
+  relevance_score: number
+  created_at: string
+}
+
 export const Constants = {
   graphql_public: {
     Enums: {},
