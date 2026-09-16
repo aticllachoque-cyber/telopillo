@@ -1,7 +1,7 @@
 G0a: PASS
-BLOCK: missing/empty desktop capture
-BLOCK: missing/empty mobile capture
-BLOCK: capture is not the intended page (status/landmark check — 404 or login redirect?)
+G0b: PASS
+G0c: PASS
+G0d: PASS
 G1: PASS
 BLOCK: no findings
 BLOCK: finding(s) missing evidence line
@@ -9,7 +9,9 @@ BLOCK: no proposal/comparison
 G3c: PASS
 BLOCK: sibling missing disposition row in comparison.html: app/busco/publicar/page.tsx
 BLOCK: sibling missing disposition row in comparison.html: components/demand/DemandPostForm.tsx
-BLOCK: sibling missing disposition row in comparison.html: components/shared/SingleImageUpload.tsx
+BLOCK: sibling missing disposition row in comparison.html: components/demand/DemandImageUpload.tsx
+BLOCK: sibling missing disposition row in comparison.html: components/products/CategoryGrid.tsx
+BLOCK: sibling missing disposition row in comparison.html: components/profile/LocationSelector.tsx
 BLOCK: sibling missing disposition row in comparison.html: app/publicar/page.tsx
 BLOCK: sibling missing disposition row in comparison.html: components/products/ProductFormWizard.tsx
 BLOCK: sibling missing disposition row in comparison.html: app/busco/[id]/editar/page.tsx

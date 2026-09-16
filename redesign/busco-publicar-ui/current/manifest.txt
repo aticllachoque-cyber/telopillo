@@ -1,0 +1,6 @@
+desktop.png | /busco/publicar paso1 | 1920x1080 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+desktop-revision.png | /busco/publicar paso4 revisión | 1920x1080 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+tablet.png | /busco/publicar paso1 | 768x1024 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+tablet-revision.png | /busco/publicar paso4 revisión | 768x1024 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+mobile.png | /busco/publicar paso1 | 375x812 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in
+mobile-revision.png | /busco/publicar paso4 revisión | 375x812 | fullPage dsf=2 | HTTP 200 | 2026-09-15 | logged-in

@@ -1,0 +1,6 @@
+render-paso2-desktop.png | mockup-paso2 | 1920x1080 | fullPage dsf=2 | 2026-09-15
+render-paso2-tablet.png | mockup-paso2 | 768x1024 | fullPage dsf=2 | 2026-09-15
+render-paso2-mobile.png | mockup-paso2 | 375x812 | fullPage dsf=2 | 2026-09-15
+render-paso4-desktop.png | mockup-paso4 | 1920x1080 | fullPage dsf=2 | 2026-09-15
+render-paso4-tablet.png | mockup-paso4 | 768x1024 | fullPage dsf=2 | 2026-09-15
+render-paso4-mobile.png | mockup-paso4 | 375x812 | fullPage dsf=2 | 2026-09-15
