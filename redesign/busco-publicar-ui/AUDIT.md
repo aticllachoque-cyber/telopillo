@@ -53,6 +53,7 @@ Fix: heading "Descripción de lo que buscás" (title case, sin duplicar label) +
 evidence: components/demand/DemandPostForm.tsx:409-417 banner draftStatus !== 'idle' sin dismiss
 evidence: components/demand/DemandPostForm.tsx:412 texto 'Borrador guardado localmente.'
 evidence: components/demand/DemandPostForm.tsx:388-405 banner de borrador recuperado (Restaurar/Descartar) — caso con acción ya cubierto
+Nota de consistencia: el wizard producto tiene el MISMO banner permanente sin dismiss (components/products/ProductFormWizard.tsx:383-388, mismo draftStatus, mismo texto). El fix F-3 solo en demanda crea divergencia temporal con el wizard producto; ProductFormWizard está fuera de scope de este item (Checkpoint 1) → fix recomendado doblarse a /publicar en item futuro (candidato: doblar al siguiente item del wizard producto).
 Fix: degradar "saved" a aviso efímero (auto-hide 3-4s o texto inline de una línea en el footer junto al botón Publicar); "restored"/"error" conservan banner.
 
 ### F-4 (P2) Paso 2 con densidad mínima en desktop
@@ -72,6 +73,20 @@ evidence: components/demand/DemandPostForm.tsx:525 (helper paso 1 ya cubre image
 **Iteración 2 (Checkpoint 3, feedback humano):** el layout del paso 4 también resultó "raro" — Resumen y Antes de publicar viven en una sidebar derecha (lg:grid-cols-[1.2fr_0.8fr]) que en viewports medios queda flaca (~200px). Fix revisto: eliminar sidebar → stack en 1 columna; Resumen como fila de 3 stats (sm+); checklist merged en la misma card bajo border-t.
 evidence: components/demand/DemandPostForm.tsx:757 grid lg:grid-cols-[1.2fr_0.8fr] (sidebar flaca en viewports medios)
 Fix: reemplazar card de consejos por checklist de verificación contra datos ingresados (✓ Título · ✓ Categoría · ✓ Ubicación · Presupuesto: opcional) — feedback real del estado del formulario.
+
+### F-6 (P2) Touch targets inconsistentes con el wizard producto
+Demanda fuerza `min-h-[44px]` fijo también en desktop (inputs y botones nav más altos que el hermano); producto usa `min-h-[44px] sm:min-h-0` — 44px solo mobile, altura nativa en desktop. F-6 = alinear el patrón demanda al patrón producto (hermanos consistentes, mandato del usuario en sign-off).
+
+evidence: components/demand/DemandPostForm.tsx:537 Input título min-h-[44px] fijo
+evidence: components/demand/DemandPostForm.tsx:702,727 Inputs presupuesto min-h-[44px] fijo
+evidence: components/demand/DemandPostForm.tsx:844,853,860 botones nav min-h-[44px] fijo
+evidence: components/products/ProductFormWizard.tsx:584,746,1021,1031,1041 patrón hermano min-h-[44px] sm:min-h-0
+Fix: `min-h-[44px] sm:min-h-0` en inputs y botones nav del wizard demanda (mismo patrón que ProductFormWizard); chips F-4 heredan el patrón.
+
+## Observaciones de consistencia vs wizard producto (sin finding propio)
+
+- Draft banner idéntico en ambos wizards (:383-388 producto vs :410-417 demanda) — ver nota en F-3.
+- Voz: producto 100% voseo; demanda mixta (F-1). Casing headings: producto title case consistente; demanda "Describe lo que Necesitas" rompe (F-2).
 
 ## No-repeat / fuera de alcance
 

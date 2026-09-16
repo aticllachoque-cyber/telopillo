@@ -24,6 +24,7 @@ G3C = [
     ("F-3", "P2", "Banner 'Borrador guardado localmente.' permanente sin dismiss", "addressed", "mockup-paso4.html: banner removido del estado guardado (aviso efímero/inline propuesto en impl); banner rico restored/error se conserva"),
     ("F-4", "P2", "Paso 2 densidad mínima en desktop", "addressed", "mockup-paso2.html (iteración 1): subcategoría como chips flex-wrap (familia CategoryGrid), sin dropdown; textarea min-h 14rem; columna única en todos los viewports"),
     ("F-5", "P2", "Card 'Antes de publicar' duplica consejos + layout 'raro' (Resumen/checklist en sidebar flaca)", "addressed", "mockup-paso4.html (iteración 2): sidebar eliminada — stack en 1 columna; Resumen como fila de 3 stats (Ubicación | Presupuesto | Imagen) en sm+; checklist de verificación merged en la misma card bajo border-t"),
+    ("F-6", "P2", "Touch targets min-h-[44px] fijo en desktop, divergente del patrón hermano producto", "addressed", "impl (Stage 8): patrón min-h-[44px] sm:min-h-0 en inputs y botones nav — cambio de altura desktop, no visible en mock estático"),
 ]
 
 G3D = [
@@ -92,6 +93,7 @@ html = f"""<!doctype html>
   <li><strong>F-3:</strong> aviso de autoguardado degradado a efímero/inline — sin card permanente por 4 pasos.</li>
   <li><strong>F-4 (iteración 1):</strong> subcategoría como chips seleccionables (flex-wrap, familia visual CategoryGrid del paso 1) — reemplaza al Select; textarea más alto. 2 columnas descartada por feedback humano (dropdown tapa contenido).</li>
   <li><strong>F-5 (iteración 2):</strong> paso 4 reestructurado — sin sidebar: preview → título → card Resumen (fila de 3 stats) → checklist de verificación merged bajo border-t. Consejos genéricos reemplazados por verificación contra datos reales del formulario.</li>
+  <li><strong>F-6 (sign-off):</strong> touch targets alineados al patrón hermano producto (<code>min-h-[44px] sm:min-h-0</code>) — se aplica en implementación, sin efecto visual en el mock estático.</li>
 </ul>
 
 {''.join(pairs_html)}

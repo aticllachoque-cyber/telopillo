@@ -3,4 +3,5 @@ components/demand/DemandPostForm.tsx
 components/demand/DemandImageUpload.tsx
 components/products/CategoryGrid.tsx
 components/profile/LocationSelector.tsx
+lib/utils/demand.ts
 redesign/

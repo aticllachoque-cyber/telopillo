@@ -11,6 +11,7 @@ Wizard multi-paso "Publicá lo que buscás" (`/busco/publicar`) — publicación
 - **F-3 (P2):** banner "Borrador guardado localmente." → aviso efímero/inline; banner rico solo para restored/error.
 - **F-4 (P2):** paso 2 densificado — subcategoría como **grupo de chips seleccionables** (misma familia visual que las radio-cards de CategoryGrid del paso 1), columna única. **Iteración 1 (feedback humano):** la propuesta original de 2 columnas sm+ con Select fue rechazada — el dropdown radial tapa la columna vecina al abrirse ("lo de subcategorias no me convence"). NO usar select en 2 columnas; chips envueltos en flex-wrap.
 - **F-5 (P2):** card "Antes de publicar:" → checklist de verificación contra datos reales del formulario (✓ Título, ✓ Categoría, ✓ Ubicación; Presupuesto opcional) en vez de consejos genéricos. **Iteración 2 (feedback humano):** el layout del paso 4 también se rehace — sin sidebar derecha (queda flaca en viewports medios): stack en 1 columna, Resumen como fila de 3 stats en sm+ (Ubicación | Presupuesto | Imagen), checklist merged en la misma card bajo border-t.
+- **F-6 (P2, sign-off):** touch targets alineados al patrón hermano producto: `min-h-[44px] sm:min-h-0` en inputs y botones nav (44px solo mobile, altura nativa desktop).
 
 ## Component inventory
 
