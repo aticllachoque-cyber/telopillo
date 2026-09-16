@@ -1,6 +1,9 @@
 const PLACEHOLDER_PATTERNS = [
   /publica lo que buscas/i,
+  /public[áa] lo que busc[áa]s/i,
   /describe lo que necesitas/i,
+  /describ[íi] lo que necesit[áa]s/i,
+  /descripci[óo]n de lo que busc[áa]s/i,
   /los vendedores te contactar[áa]n/i,
 ]
 

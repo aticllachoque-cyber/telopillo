@@ -72,7 +72,7 @@ export function LocationSelector({
             aria-invalid={!!errors?.department}
             aria-describedby={errors?.department ? 'department-error' : undefined}
           >
-            <SelectValue placeholder="Selecciona departamento" />
+            <SelectValue placeholder="Seleccioná departamento" />
           </SelectTrigger>
           <SelectContent>
             {DEPARTMENTS.map((dept) => (
@@ -98,7 +98,7 @@ export function LocationSelector({
             aria-invalid={!!errors?.city}
             aria-describedby={errors?.city ? 'city-error' : undefined}
           >
-            <SelectValue placeholder="Selecciona ciudad" />
+            <SelectValue placeholder="Seleccioná ciudad" />
           </SelectTrigger>
           <SelectContent>
             {cities.length > 0 ? (
@@ -109,7 +109,7 @@ export function LocationSelector({
               ))
             ) : (
               <div className="p-2 text-sm text-muted-foreground">
-                Primero selecciona un departamento
+                Primero seleccioná un departamento
               </div>
             )}
           </SelectContent>

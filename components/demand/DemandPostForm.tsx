@@ -19,13 +19,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useSnackbar } from '@/components/ui/snackbar'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import {
   AlertCircle,
@@ -82,6 +75,20 @@ function formatPriceRange(
     return `Bs ${min.toLocaleString('es-BO')} - Bs ${max.toLocaleString('es-BO')}`
   if (min != null) return `Desde Bs ${min.toLocaleString('es-BO')}`
   return `Hasta Bs ${max!.toLocaleString('es-BO')}`
+}
+
+function ChecklistMark({ done }: { done: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full',
+        done ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+      )}
+    >
+      {done ? <Check className="h-3 w-3" /> : '–'}
+    </span>
+  )
 }
 
 export function DemandPostForm({
@@ -407,9 +414,8 @@ export function DemandPostForm({
         </div>
       )}
 
-      {!pendingDraft && draftStatus !== 'idle' && (
+      {!pendingDraft && (draftStatus === 'restored' || draftStatus === 'error') && (
         <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-          {draftStatus === 'saved' && 'Borrador guardado localmente.'}
           {draftStatus === 'restored' && 'Estás trabajando sobre un borrador recuperado.'}
           {draftStatus === 'error' &&
             'No pudimos guardar el borrador localmente en este dispositivo.'}
@@ -522,8 +528,8 @@ export function DemandPostForm({
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Referencia de la Solicitud</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Explica rápido qué estás buscando y agrega una imagen opcional para orientar mejor a
-                los vendedores.
+                Explicá rápido qué estás buscando y agregá una imagen opcional para orientar mejor
+                a los vendedores.
               </p>
             </div>
 
@@ -534,7 +540,7 @@ export function DemandPostForm({
               <Input
                 id="title"
                 placeholder="Ej: iPhone 13 128GB en buen estado"
-                className="min-h-[44px]"
+                className="min-h-[44px] sm:min-h-0"
                 maxLength={100}
                 aria-invalid={errors.title ? 'true' : 'false'}
                 aria-describedby={errors.title ? 'title-error' : 'title-help'}
@@ -578,7 +584,7 @@ export function DemandPostForm({
               />
               {!errors.category && (
                 <p id="category-help" className="text-xs text-muted-foreground">
-                  Si no ves una categoría perfecta, elige la más cercana y acláralo en la
+                  Si no ves una categoría perfecta, elegí la más cercana y acláralo en la
                   descripción.
                 </p>
               )}
@@ -602,43 +608,56 @@ export function DemandPostForm({
         {currentStep === 2 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300 motion-reduce:animate-none">
             <div className="mb-2">
-              <h2 className="text-xl font-semibold text-balance">Describe lo que Necesitas</h2>
+              <h2 className="text-xl font-semibold text-balance">Descripción de lo que buscás</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Dale suficiente contexto a los vendedores para que puedan ofrecerte algo útil.
               </p>
             </div>
 
             {subcategories.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="subcategory">Subcategoría</Label>
-                <Select
-                  value={watchAll.subcategory || ''}
-                  onValueChange={(val) =>
-                    setValue('subcategory', val || undefined, { shouldValidate: true })
-                  }
-                >
-                  <SelectTrigger id="subcategory" className="min-h-[44px]">
-                    <SelectValue placeholder="Opcional" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subcategories.map((sub) => (
-                      <SelectItem key={sub} value={sub}>
+              <div
+                id="subcategory"
+                role="group"
+                aria-label="Subcategoría (opcional)"
+                className="space-y-2"
+              >
+                <Label>Subcategoría</Label>
+                <div className="flex flex-wrap gap-2">
+                  {subcategories.map((sub) => {
+                    const isSelected = watchAll.subcategory === sub
+                    return (
+                      <button
+                        key={sub}
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() =>
+                          setValue('subcategory', isSelected ? undefined : sub, {
+                            shouldValidate: true,
+                          })
+                        }
+                        className={cn(
+                          'inline-flex min-h-[44px] sm:min-h-0 items-center rounded-full border px-4 py-2 text-sm transition-colors',
+                          isSelected
+                            ? 'border-primary bg-primary font-medium text-primary-foreground'
+                            : 'border-border bg-card text-foreground hover:bg-muted/50'
+                        )}
+                      >
                         {sub}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             )}
 
             <div className="space-y-2">
               <Label htmlFor="description">
-                Describe lo que necesitas <span className="text-destructive">*</span>
+                Detalles de la solicitud <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="description"
                 placeholder="Ej: Busco iPhone nuevo o usado, en buen estado, preferiblemente con batería sana y sin la pantalla rota."
-                className="min-h-[140px] resize-y"
+                className="min-h-[14rem] resize-y"
                 maxLength={1000}
                 aria-invalid={errors.description ? 'true' : 'false'}
                 aria-describedby={errors.description ? 'description-error' : 'description-help'}
@@ -646,7 +665,7 @@ export function DemandPostForm({
               />
               <div className="flex items-center justify-between gap-3">
                 <p id="description-help" className="text-xs text-muted-foreground">
-                  Menciona estado, marca, modelo, urgencia o cualquier detalle importante.
+                  Mencioná estado, marca, modelo, urgencia o cualquier detalle importante.
                 </p>
                 <p className="shrink-0 text-xs text-muted-foreground">
                   {watchAll.description?.length || 0}/1000
@@ -666,7 +685,7 @@ export function DemandPostForm({
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Ubicación y Presupuesto</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Indica dónde estás y, si quieres, el rango que estás dispuesto a pagar.
+                Indicá dónde estás y, si querés, el rango que estás dispuesto a pagar.
               </p>
             </div>
 
@@ -688,7 +707,7 @@ export function DemandPostForm({
             <fieldset className="space-y-2">
               <legend className="text-sm font-medium">Presupuesto</legend>
               <p className="text-xs text-muted-foreground">
-                Puedes dejarlo vacío si prefieres recibir propuestas primero.
+                Podés dejarlo vacío si preferís recibir propuestas primero.
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -699,7 +718,7 @@ export function DemandPostForm({
                     min={0}
                     step="0.01"
                     placeholder="0"
-                    className="min-h-[44px]"
+                    className="min-h-[44px] sm:min-h-0"
                     aria-invalid={errors.price_min ? 'true' : 'false'}
                     aria-describedby={errors.price_min ? 'price-min-error' : undefined}
                     value={watchAll.price_min ?? ''}
@@ -724,7 +743,7 @@ export function DemandPostForm({
                     min={0}
                     step="0.01"
                     placeholder="0"
-                    className="min-h-[44px]"
+                    className="min-h-[44px] sm:min-h-0"
                     aria-invalid={errors.price_max ? 'true' : 'false'}
                     aria-describedby={errors.price_max ? 'price-max-error' : undefined}
                     value={watchAll.price_max ?? ''}
@@ -751,64 +770,56 @@ export function DemandPostForm({
             <div className="mb-2">
               <h2 className="text-xl font-semibold text-balance">Revisa tu Solicitud</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Asegúrate de que la información sea clara antes de publicarla.
+                Asegurate de que la información sea clara antes de publicarla.
               </p>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="space-y-6">
-                <DemandImageFrame
-                  imageUrl={previewImageUrl}
-                  category={watchAll.category || 'electronics'}
-                  title={watchAll.title || 'Vista previa de tu solicitud'}
-                  aspectClassName="aspect-[16/9] sm:aspect-[2/1]"
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                />
+            <DemandImageFrame
+              imageUrl={previewImageUrl}
+              category={watchAll.category || 'electronics'}
+              title={watchAll.title || 'Vista previa de tu solicitud'}
+              aspectClassName="aspect-[16/9] sm:aspect-[2/1]"
+              sizes="100vw"
+            />
 
-                <div className="rounded-lg border border-border/70 bg-card shadow-sm">
-                  <div className="space-y-4 p-4 sm:p-6">
-                    <div>
-                      <h3 className={productPresentation.detailTitle}>
-                        {watchAll.title || 'Sin título todavía'}
-                      </h3>
-                      {categoryLabel && (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {categoryLabel}
-                          {watchAll.subcategory ? ` · ${watchAll.subcategory}` : ''}
-                        </p>
-                      )}
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <h4 className={cn(productPresentation.sectionHeading, 'mb-2')}>
-                        Descripción
-                      </h4>
-                      {isPlaceholderDescription(watchAll.description || '') ? (
-                        <p className="italic text-muted-foreground">
-                          Agrega más detalles para que los vendedores entiendan mejor tu búsqueda.
-                        </p>
-                      ) : (
-                        <p className={productPresentation.sectionBody}>
-                          {watchAll.description || 'Sin descripción todavía'}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+            <div className="rounded-lg border border-border/70 bg-card shadow-sm">
+              <div className="space-y-4 p-4 sm:p-6">
+                <div>
+                  <h3 className={productPresentation.detailTitle}>
+                    {watchAll.title || 'Sin título todavía'}
+                  </h3>
+                  {categoryLabel && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {categoryLabel}
+                      {watchAll.subcategory ? ` · ${watchAll.subcategory}` : ''}
+                    </p>
+                  )}
                 </div>
-              </div>
 
-              <div className="space-y-4">
-                <div className="rounded-lg border border-border/70 bg-card p-4 shadow-sm sm:p-5">
-                  <h4 className="font-semibold">Resumen</h4>
-                  <div className="mt-4 space-y-3 text-sm">
+                <Separator />
+
+                <div>
+                  <h4 className={cn(productPresentation.sectionHeading, 'mb-2')}>Descripción</h4>
+                  {isPlaceholderDescription(watchAll.description || '') ? (
+                    <p className="italic text-muted-foreground">
+                      Agregá más detalles para que los vendedores entiendan mejor tu búsqueda.
+                    </p>
+                  ) : (
+                    <p className={productPresentation.sectionBody}>
+                      {watchAll.description || 'Sin descripción todavía'}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <h4 className="mb-3 font-semibold">Resumen</h4>
+                  <div className="grid gap-4 text-sm sm:grid-cols-3">
                     <div>
                       <p className="text-muted-foreground">Ubicación</p>
                       <p className="font-medium">
                         {watchAll.location_city && watchAll.location_department
                           ? `${watchAll.location_city}, ${watchAll.location_department}`
-                          : 'Completa tu ubicación'}
+                          : 'Completá tu ubicación'}
                       </p>
                     </div>
                     <div>
@@ -824,12 +835,27 @@ export function DemandPostForm({
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
-                  <p className="font-medium">Antes de publicar:</p>
-                  <ul className="mt-2 space-y-1 text-foreground/80">
-                    <li>Describe bien qué buscas para recibir mejores ofertas.</li>
-                    <li>Incluye una imagen si ayuda a identificar el producto.</li>
-                    <li>Revisa ubicación y presupuesto antes de confirmar.</li>
+                <div className="border-t pt-4 text-sm">
+                  <p className="font-medium">Verificación de tu solicitud:</p>
+                  <ul className="mt-2 space-y-1">
+                    <li className="flex items-center gap-2">
+                      <ChecklistMark done={!!watchAll.title && !!selectedCategory} />
+                      Título y categoría completos
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <ChecklistMark done={!!watchAll.description} />
+                      Descripción presente
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <ChecklistMark
+                        done={!!(watchAll.location_city && watchAll.location_department)}
+                      />
+                      Ubicación completa
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <ChecklistMark done={!!priceRange} />
+                      {priceRange ? `Presupuesto: ${priceRange}` : 'Presupuesto: opcional'}
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -841,7 +867,7 @@ export function DemandPostForm({
           <Button
             type="button"
             variant="outline"
-            className={cn('min-h-[44px]', currentStep === 1 && 'invisible')}
+            className={cn('min-h-[44px] sm:min-h-0', currentStep === 1 && 'invisible')}
             onClick={handleBack}
             disabled={currentStep === 1 || isSubmitting}
           >
@@ -849,15 +875,23 @@ export function DemandPostForm({
             Atrás
           </Button>
 
+          <p aria-live="polite" className="order-last text-xs text-muted-foreground sm:order-none">
+            {draftStatus === 'saved' ? 'Borrador guardado localmente.' : ''}
+          </p>
+
           {currentStep < STEPS.length ? (
-            <Button type="button" className="min-h-[44px]" onClick={handleNext}>
+            <Button
+              type="button"
+              className="min-h-[44px] sm:min-h-0"
+              onClick={handleNext}
+            >
               Siguiente
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
             </Button>
           ) : (
             <Button
               type="button"
-              className="min-h-[44px]"
+              className="min-h-[44px] sm:min-h-0"
               onClick={handleSubmit(onSubmit, handleSubmitError)}
               disabled={isSubmitting}
             >
