@@ -12,3 +12,4 @@ app/api/search-profiles/route.ts
 types/database.ts
 tests/e2e/search-discovery/unified-search.spec.ts
 redesign/
+scripts/seed-test-data.sql
