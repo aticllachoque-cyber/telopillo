@@ -30,7 +30,6 @@ export function Header() {
   const router = useRouter()
   const pathname = usePathname()
   const menuRef = useRef<HTMLDivElement>(null)
-  const searchInputRef = useRef<HTMLInputElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
 
   const closeMenu = useCallback((restoreFocus = true) => {
@@ -66,13 +65,6 @@ export function Header() {
     if (searchOpen) setSearchOpen(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
-
-  // Autofocus search input when overlay opens
-  useEffect(() => {
-    if (searchOpen) {
-      requestAnimationFrame(() => searchInputRef.current?.focus())
-    }
-  }, [searchOpen])
 
   // Focus first focusable element when menu opens (WCAG 2.1.2 - No Keyboard Trap)
   useEffect(() => {
@@ -113,7 +105,7 @@ export function Header() {
         {/* Desktop Search Bar (Suspense required for useSearchParams during static generation) */}
         <div className="hidden lg:flex flex-1 max-w-xl min-w-0">
           <Suspense fallback={<div className="w-full min-h-10" />}>
-            <SearchBar className="w-full" />
+            <SearchBar className="w-full" withTypeSelector />
           </Suspense>
         </div>
 
@@ -237,7 +229,8 @@ export function Header() {
           />,
           document.body
         )}
-      {/* Mobile Search Overlay */}
+      {/* Mobile Search Overlay — F-3: reuses SearchBar (selector included) instead
+          of a duplicated inline form */}
       {searchOpen &&
         createPortal(
           <>
@@ -249,42 +242,18 @@ export function Header() {
             <div
               className="fixed inset-x-0 top-0 z-50 bg-background shadow-lg lg:hidden"
               role="dialog"
-              aria-label="Buscar productos"
+              aria-label="Buscar en Telopillo"
               aria-modal="true"
             >
-              <div className="container flex h-16 min-w-0 items-center gap-2 px-3 sm:px-4">
-                <form
-                  className="flex min-w-0 flex-1 items-center gap-2"
-                  role="search"
-                  aria-label="Buscar productos"
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    const input = searchInputRef.current
-                    const q = input?.value.trim()
-                    if (!q) return
-                    router.push(`/buscar?q=${encodeURIComponent(q)}`)
-                    setSearchOpen(false)
-                  }}
-                >
-                  <div className="relative flex-1">
-                    <Search
-                      className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-                      aria-hidden
-                    />
-                    <input
-                      ref={searchInputRef}
-                      type="search"
-                      placeholder="Buscar productos..."
-                      autoComplete="off"
-                      maxLength={200}
-                      className="flex h-11 w-full rounded-md border border-input bg-background pl-9 pr-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      aria-label="Buscar productos"
-                    />
-                  </div>
-                  <Button type="submit" size="icon" className="min-h-[44px] min-w-[44px] shrink-0">
-                    <Search className="h-4 w-4" aria-hidden />
-                  </Button>
-                </form>
+              <div className="container flex items-center gap-2 py-3 px-3 sm:px-4">
+                <Suspense fallback={<div className="min-h-[44px] flex-1" />}>
+                  <SearchBar
+                    className="flex-1"
+                    autoFocus
+                    withTypeSelector
+                    onSubmitted={closeSearch}
+                  />
+                </Suspense>
                 <Button
                   variant="ghost"
                   size="icon"
