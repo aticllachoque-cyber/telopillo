@@ -1,0 +1,4 @@
+unified-search current captures — 2026-09-16
+desktop: resultados "Saltar al contenido principal" | vacío "Saltar al contenido principal"
+tablet: resultados "Saltar al contenido principal" | vacío "Saltar al contenido principal"
+mobile: resultados "Saltar al contenido principal" | vacío "Saltar al contenido principal"

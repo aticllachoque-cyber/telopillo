@@ -1,0 +1,5 @@
+unified-search intake — 2026-09-16
+user screenshot: header with logo + "Buscar productos..." input + Buscar button + nav (see header-desktop.png / header-mobile.png)
+buscar-resultados-desktop.png — http://localhost:3000/buscar?q=samsung
+header-mobile.png — mobile header, collapsed search
+header-mobile-search-overlay.png — mobile search overlay (duplicate inline form F-finding candidate)

@@ -1,0 +1,14 @@
+components/search/SearchBar.tsx
+components/layout/Header.tsx
+app/buscar/page.tsx
+components/search/SearchTypeTabs.tsx
+components/search/BusinessResultCard.tsx
+components/search/PersonResultCard.tsx
+components/search/SearchFilters.tsx
+components/search/SearchSort.tsx
+supabase/migrations/20260916120000_add_search_businesses_and_profiles.sql
+app/api/search-businesses/route.ts
+app/api/search-profiles/route.ts
+types/database.ts
+tests/e2e/search-discovery/unified-search.spec.ts
+redesign/
