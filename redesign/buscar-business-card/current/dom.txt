@@ -1,0 +1,7 @@
+# /buscar?type=negocios&q=electronica — viewport desktop
+
+- tablist "Tipo de búsqueda":
+  - tab "Productos"
+  - tab "Negocios" [selected]
+  - tab "Solicitudes"
+  - tab "Personas"

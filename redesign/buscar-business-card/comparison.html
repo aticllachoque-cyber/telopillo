@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>buscar-business-card — comparación antes / después</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: #fafafa; color: #171717; }
+  header { padding: 24px 32px; border-bottom: 1px solid #e5e5e5; background: #fff; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  header p { margin: 0; color: #525252; font-size: 13px; }
+  main { padding: 24px 32px 64px; max-width: 1600px; margin: 0 auto; }
+  h2 { font-size: 15px; margin: 32px 0 8px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 28px; }
+  @media (max-width: 900px) { .pair { grid-template-columns: 1fr; } }
+  .shot { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
+  .shot > span { display: block; padding: 6px 10px; font-size: 12px; color: #525252; border-bottom: 1px solid #eee; }
+  .shot img { display: block; width: 100%; height: auto; }
+  .after { border-color: #16a34a; }
+  .after > span { color: #166534; font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; background: #fff; font-size: 13px; }
+  th, td { border: 1px solid #e5e5e5; padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: #f5f5f5; }
+  code { background: #f5f5f5; padding: 1px 4px; border-radius: 4px; font-size: 12px; }
+  .note { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px 16px; font-size: 13px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 4px 0; }
+  .addr { color: #16a34a; font-weight: 600; }
+  .defer { color: #a16207; font-weight: 600; }
+</style>
+</head>
+<body>
+<header>
+  <h1>buscar-business-card — propuesta Stage 6 (mockup fiel sobre DOM real)</h1>
+  <p>/buscar?type=negocios &amp; type=personas · q=electronica · datos reales de la API local · 2026-09-16 · ruta stitch:fallback (precedente buscar/storefront/publicar/busco)</p>
+</header>
+<main>
+
+  <h2>1. Negocios — desktop 1920</h2>
+  <div class="pair">
+    <div class="shot"><span>ANTES — fila única, avatar 56px, sin descripción</span><img src="current/desktop.png" alt="Antes negocios desktop" /></div>
+    <div class="shot after"><span>DESPUÉS — grid 3 col, card similar a producto</span><img src="proposal/render-desktop.png" alt="Después negocios desktop" /></div>
+  </div>
+
+  <h2>2. Negocios — tablet 768</h2>
+  <div class="pair">
+    <div class="shot"><span>ANTES</span><img src="current/tablet.png" alt="Antes negocios tablet" /></div>
+    <div class="shot after"><span>DESPUÉS — grid 2 col</span><img src="proposal/render-tablet.png" alt="Después negocios tablet" /></div>
+  </div>
+
+  <h2>3. Negocios — mobile 375</h2>
+  <div class="pair">
+    <div class="shot"><span>ANTES</span><img src="current/mobile.png" alt="Antes negocios mobile" /></div>
+    <div class="shot after"><span>DESPUÉS — 1 col, tile 16/9</span><img src="proposal/render-mobile.png" alt="Después negocios mobile" /></div>
+  </div>
+
+  <h2>4. Personas (hermano de familia) — desktop 1920</h2>
+  <div class="pair">
+    <div class="shot"><span>ANTES — mismas filas planas</span><img src="current/desktop-personas.png" alt="Antes personas desktop" /></div>
+    <div class="shot after"><span>DESPUÉS — mismo chrome de card, sin descripción</span><img src="proposal/render-personas-desktop.png" alt="Después personas desktop" /></div>
+  </div>
+
+  <h2>5. Personas — mobile 375</h2>
+  <div class="pair">
+    <div class="shot"><span>ANTES</span><img src="current/mobile-personas.png" alt="Antes personas mobile" /></div>
+    <div class="shot after"><span>DESPUÉS</span><img src="proposal/render-personas-mobile.png" alt="Después personas mobile" /></div>
+  </div>
+
+  <h2>G3c — cobertura de findings (AUDIT.md)</h2>
+  <table>
+    <tr><th>Finding</th><th>Estado en propuesta</th><th>Dónde</th></tr>
+    <tr><td>F-1 (P1) jerarquía visual</td><td class="addr">addressed</td><td>Card con tile de identidad, h3, categoría, descripción, ubicación y footer — anatomía de ProductCard</td></tr>
+    <tr><td>F-2 (P1) columna única en desktop</td><td class="addr">addressed</td><td><code>grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6</code> (espejo de ProductGrid.tsx:52) — negocios y personas</td></tr>
+    <tr><td>F-3 (P2) tile de identidad 56px</td><td class="addr">addressed</td><td>Tile <code>aspect-[16/9]</code> móvil / <code>aspect-[16/10]</code> ≥sm con avatar 80–96px centrado (iniciales sobre paleta <code>getAvatarColor</code> o foto)</td></tr>
+    <tr><td>F-4 (P2) descripción nunca renderizada</td><td class="addr">addressed</td><td><code>business_description</code> con <code>line-clamp-2</code> (si falta, se omite el bloque)</td></tr>
+    <tr><td>F-5 (P2) badge emerald inline</td><td class="addr">addressed</td><td>Chip con las clases exactas de <code>VerificationBadge</code> size="sm" ("Negocio con Teléfono" / "Vendedor con Teléfono"); en Stage 8 se usa el componente compartido (tooltip + sr-only incluidos)</td></tr>
+    <tr><td>F-6 (P2) nombre como &lt;p&gt;</td><td class="addr">addressed</td><td><code>h3</code> con <code>truncate</code> y <code>group-hover:text-primary</code>, igual que ProductCard</td></tr>
+  </table>
+
+  <h2>G3d — instancias del patrón (PATTERN-INSTANCES.md)</h2>
+  <table>
+    <tr><th>Instancia</th><th>Disposition</th><th>Nota</th></tr>
+    <tr><td><code>components/search/BusinessResultCard.tsx</code></td><td>addressed</td><td>Rebuild product-like (F-1..F-6)</td></tr>
+    <tr><td><code>components/search/PersonResultCard.tsx</code></td><td>addressed</td><td>Mismo chrome de card, sin descripción; conserva regla de link negocio/vendedor</td></tr>
+    <tr><td><code>components/demand/DemandPostCard.tsx</code></td><td>not-affected</td><td>Feed-style con respuestas — no es listado de directorio</td></tr>
+    <tr><td><code>components/products/ProductCard.tsx</code></td><td>not-affected</td><td>Patrón de referencia — no se toca</td></tr>
+    <tr><td><code>components/products/ProductGrid.tsx</code></td><td>not-affected</td><td>Grid de referencia; /buscar mantiene su propio wrapper</td></tr>
+    <tr><td><code>components/products/SellerCard.tsx</code></td><td>not-affected</td><td>Fuente de la regla de link persona→negocio/vendedor — sin cambios</td></tr>
+  </table>
+
+  <h2>Notas de transparencia</h2>
+  <div class="note">
+    <ul>
+      <li>Mockup fiel: DOM real hidratado de <code>/buscar</code> (scripts + nextjs-portal removidos, CSS built inlineeado). Los 6 negocios y 16 personas son datos reales de la API local con <code>q=electronica</code> — nombres, descripciones, conteos y verificación reales del seed.</li>
+      <li>Todos los negocios del seed están NIT-verificados → todas las cards llevan chip. En producción las no verificadas simplemente no llevan chip (sin estado "Nuevo Negocio" en resultados para no ensuciar el listado — decisión tomable en feedback).</li>
+      <li>El chip del mock usa las clases exactas del <code>VerificationBadge</code> compartido; la implementación usa el componente real (agrega tooltip hover/focus + descripción sr-only). Ningún negocio del seed tiene logo → tiles de iniciales; con logo se centra la imagen igual que el avatar.</li>
+      <li>Footer personas: etiqueta ámbar "Vendedor" a la derecha es un agregado del mock para balancear — abierta a feedback (se puede omitir).</li>
+      <li>Personas sin rating en el seed → línea de estrellas no aparece en el mock; si <code>rating_count &gt; 0</code> se renderiza (estrella + promedio, como la card actual).</li>
+      <li>Fotos/avatar en renders sin lazy-load JS: todas cargaron vía <code>&lt;base&gt;</code> al dev server local.</li>
+      <li>Plan de implementación (Stage 8): solo <code>BusinessResultCard.tsx</code>, <code>PersonResultCard.tsx</code> y el contenedor en <code>app/buscar/page.tsx</code> (negocios + personas). Sin cambios de backend — todos los campos ya vienen en el payload RPC.</li>
+    </ul>
+  </div>
+
+</main>
+</body>
+</html>

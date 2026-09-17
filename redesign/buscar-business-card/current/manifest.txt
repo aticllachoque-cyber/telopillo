@@ -1,0 +1,6 @@
+buscar-business-card current captures — 2026-09-16
+desktop: negocios q=electronica | vacio | productos reference (viewport 1920x1080, fullPage, dsf=2)
+tablet: negocios q=electronica | vacio | productos reference (viewport 768x1024, fullPage, dsf=2)
+mobile: negocios q=electronica | vacio | productos reference (viewport 375x667, fullPage, dsf=2)
+desktop-personas: personas q=electronica (viewport 1920x1080, fullPage, dsf=2)
+mobile-personas: personas q=electronica (viewport 375x667, fullPage, dsf=2)
