@@ -1,0 +1,3 @@
+/ (dark): no critical/serious violations
+/buscar (dark): no critical/serious violations
+/busco (dark): no critical/serious violations

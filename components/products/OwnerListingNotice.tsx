@@ -20,18 +20,18 @@ export function OwnerListingNotice({ hasBuyerContactConfigured }: OwnerListingNo
         <div className="min-w-0 space-y-2 text-sm">
           <p className="font-semibold text-foreground">Este es tu producto</p>
           {hasBuyerContactConfigured ? (
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-foreground/80 leading-relaxed">
               Los compradores ven el botón para escribirte por WhatsApp con un mensaje que ya
               incluye el enlace a esta publicación. Por eso no ves ese botón mientras estás con tu
               cuenta.
             </p>
           ) : (
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-foreground/80 leading-relaxed">
               Configura un número válido en tu perfil o en WhatsApp del negocio para que aparezca el
               contacto a los compradores.
             </p>
           )}
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-foreground/80 leading-relaxed">
             Para ver la página como la ven otros, ábrela en una{' '}
             <strong className="font-medium text-foreground">ventana privada</strong> o sin iniciar
             sesión.

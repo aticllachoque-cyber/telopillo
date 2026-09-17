@@ -372,7 +372,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="font-medium text-foreground">Encontramos un borrador guardado</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-foreground/80">
                 {draftUpdatedAt
                   ? `Guardado por última vez el ${new Date(draftUpdatedAt).toLocaleString('es-BO')}.`
                   : 'Podés restaurarlo o descartarlo.'}
@@ -391,7 +391,7 @@ export function BusinessProfileForm({ userId, onSaved }: BusinessProfileFormProp
       )}
 
       {!pendingDraft && draftStatus !== 'idle' && (
-        <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+        <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground/80">
           {draftStatus === 'saved' && 'Borrador guardado localmente.'}
           {draftStatus === 'restored' && 'Estás trabajando sobre un borrador recuperado.'}
           {draftStatus === 'error' &&

@@ -1,0 +1,4 @@
+tinted-card-contrast-sweep intake captures — 2026-09-17
+owner-notice-desktop.png | /productos/b3bed804… | 1920x1080 | fullPage dsf=2 | logged-in (owner)
+usermenu-desktop.png | / | 1920x1080 | viewport dsf=2 | logged-in, dropdown abierto
+drawer-mobile.png | / | 375x812 | viewport dsf=2 | logged-out, drawer abierto
