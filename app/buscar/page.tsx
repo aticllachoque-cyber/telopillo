@@ -392,7 +392,10 @@ function BuscarPageContent() {
         ) : null
       case 'negocios':
         return 'businesses' in results ? (
-          <ul role="list" className="flex flex-col gap-3">
+          <ul
+            role="list"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6"
+          >
             {results.businesses.map((business) => (
               <BusinessResultCard key={business.id} business={business} />
             ))}
@@ -408,7 +411,10 @@ function BuscarPageContent() {
         ) : null
       case 'personas':
         return 'profiles' in results ? (
-          <ul role="list" className="flex flex-col gap-3">
+          <ul
+            role="list"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6"
+          >
             {results.profiles.map((person) => (
               <PersonResultCard key={person.id} person={person} />
             ))}

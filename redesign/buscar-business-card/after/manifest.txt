@@ -1,0 +1,4 @@
+buscar-business-card after captures — 2026-09-16 (post-impl)
+desktop: negocios + personas q=electronica (viewport 1920x1080, fullPage, dsf=2)
+tablet: negocios + personas q=electronica (viewport 768x1024, fullPage, dsf=2)
+mobile: negocios + personas q=electronica (viewport 375x667, fullPage, dsf=2)
