@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
 }
 
-const CONTACT_EMAIL = 'alcides.ticlla@gmail.com'
+const CONTACT_EMAIL = 'aticllachoque@gmail.com'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
