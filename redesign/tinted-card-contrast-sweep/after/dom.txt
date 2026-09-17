@@ -1,0 +1,87 @@
+# http://localhost:3000/productos/b3bed804-7a25-40af-bc27-28e3746930b1 — desktop (canonical)
+
+- main:
+  - navigation "Breadcrumb":
+    - list:
+      - listitem:
+        - link "Inicio":
+          - /url: /
+      - listitem:
+        - link "Electrónica y Tecnología":
+          - /url: /buscar?category=electronics
+      - listitem: Auriculares inalámbricos con cancelación de ruido activa
+  - button "Volver"
+  - paragraph: Este es tu producto
+  - paragraph: Configura un número válido en tu perfil o en WhatsApp del negocio para que aparezca el contacto a los compradores.
+  - paragraph:
+    - text: Para ver la página como la ven otros, ábrela en una
+    - strong: ventana privada
+    - text: o sin iniciar sesión.
+  - button "Editar"
+  - button "Marcar como vendido"
+  - button "Marcar como inactivo"
+  - button "Eliminar"
+  - img "Auriculares inalámbricos con cancelación de ruido activa - Imagen 1"
+  - button "Ampliar imagen"
+  - button "Imagen anterior"
+  - button "Imagen siguiente"
+  - status: 1 / 2
+  - button "Ver imagen 1" [pressed]:
+    - img "Auriculares inalámbricos con cancelación de ruido activa - Miniatura 1"
+  - button "Ver imagen 2":
+    - img "Auriculares inalámbricos con cancelación de ruido activa - Miniatura 2"
+  - heading "Auriculares inalámbricos con cancelación de ruido activa" [level=1]
+  - paragraph: Bs 420
+  - list "Información del producto":
+    - listitem: Estado · Usado - Buen estado
+    - listitem: Ubicación · La Paz, La Paz
+    - listitem: Vistas · 0
+    - listitem: Publicado · 13 de agosto de 2026
+  - heading "Descripción" [level=2]
+  - paragraph: Auriculares Bluetooth con estuche de carga USB-C y cancelación de ruido. Batería de larga duración. Cuenta de prueba asociada a dev@telopillo.test; producto ficticio para desarrollo y pruebas de listados en Telopillo.
+  - button "Compartir"
+  - text: Vendedor
+  - link "Ver perfil de Usuario de Desarrollo":
+    - /url: /vendedor/dc7a90d3-046c-43c3-8e1d-60a4052fd5f1
+    - text: UD
+    - paragraph: Usuario de Desarrollo
+    - img "Nuevo Vendedor"
+    - text: Este vendedor se registró recientemente en Telopillo La Paz, La Paz
+  - link "Ver perfil público":
+    - /url: /vendedor/dc7a90d3-046c-43c3-8e1d-60a4052fd5f1
+  - paragraph: "Consejos de seguridad:"
+  - list:
+    - listitem: Reúnete en lugares públicos
+    - listitem: Verifica el producto antes de pagar
+    - listitem: No compartas información personal
+  - region "Productos relacionados":
+    - heading "Productos relacionados" [level=2]
+    - list:
+      - listitem:
+        - link "Servicio de cambio de pantalla celular Servicio de cambio de pantalla celular Bs 180 Santa Cruz de la Sierra, Santa Cruz":
+          - /url: /productos/3wva0jIUWkvF3qjwng2qCG--servicio-de-cambio-de-pantalla-celular
+          - img "Servicio de cambio de pantalla celular"
+          - paragraph: Servicio de cambio de pantalla celular
+          - paragraph: Bs 180
+          - paragraph: Santa Cruz de la Sierra, Santa Cruz
+      - listitem:
+        - link "Limpieza interna laptop con cambio pasta Limpieza interna laptop con cambio pasta Bs 120 Santa Cruz de la Sierra, Santa Cruz":
+          - /url: /productos/6wXAobOZpGfydHyUMP76j8--limpieza-interna-laptop-con-cambio-pasta
+          - img "Limpieza interna laptop con cambio pasta"
+          - paragraph: Limpieza interna laptop con cambio pasta
+          - paragraph: Bs 120
+          - paragraph: Santa Cruz de la Sierra, Santa Cruz
+      - listitem:
+        - link "Recuperacion de datos disco duro o SSD Recuperacion de datos disco duro o SSD Bs 250 Santa Cruz de la Sierra, Santa Cruz":
+          - /url: /productos/5O1yhu5EC9GxXH8KsloSPX--recuperacion-de-datos-disco-duro-o-ssd
+          - img "Recuperacion de datos disco duro o SSD"
+          - paragraph: Recuperacion de datos disco duro o SSD
+          - paragraph: Bs 250
+          - paragraph: Santa Cruz de la Sierra, Santa Cruz
+      - listitem:
+        - link "Producto double-click 1789566646866 Producto double-click 1789566646866 Bs 5.000 La Paz, La Paz":
+          - /url: /productos/2HwcwwbuFoXVeljdiO9K1m--producto-double-click-1789566646866
+          - img "Producto double-click 1789566646866"
+          - paragraph: Producto double-click 1789566646866
+          - paragraph: Bs 5.000
+          - paragraph: La Paz, La Paz

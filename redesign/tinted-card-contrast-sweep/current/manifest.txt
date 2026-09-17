@@ -1,0 +1,10 @@
+tinted-card-contrast-sweep current captures — 2026-09-17
+desktop.png | /productos/b3bed804… | 1920x1080 | fullPage dsf=2 | HTTP 200 | logged-in owner
+tablet.png | /productos/b3bed804… | 768x1024 | fullPage dsf=2 | logged-in owner
+mobile.png | /productos/b3bed804… | 375x812 | fullPage dsf=2 | logged-in owner
+usermenu-desktop.png | / | 1920x1080 | viewport dsf=2 | logged-in, dropdown abierto
+draft-demand-desktop.png | /busco/publicar | 1920x1080 | fullPage dsf=2 | logged-in, draft seeded | banner: visible
+draft-product-desktop.png | /publicar | 1920x1080 | fullPage dsf=2 | logged-in, draft seeded | banner: visible
+draft-business-desktop.png | /profile/edit | 1920x1080 | fullPage dsf=2 | logged-in (ivan.patino negocio, tests/.auth/business.json), draft seeded | banner: visible
+drawer-mobile.png | / | 375x812 | viewport dsf=2 | logged-out, drawer abierto
+drawer-tablet.png | / | 768x1024 | viewport dsf=2 | logged-out, drawer abierto

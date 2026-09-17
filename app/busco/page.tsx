@@ -408,7 +408,7 @@ function BuscoPageContent() {
             ) : (
               <>
                 {cachedUpdatedAt && (
-                  <div className="mb-4 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  <div className="mb-4 rounded-lg border border-border/60 bg-muted/40 px-4 py-3 text-sm text-foreground/80">
                     Mostrando solicitudes guardadas por una falla de conexión.{' '}
                     {`Última actualización: ${new Date(cachedUpdatedAt).toLocaleString('es-BO')}.`}
                   </div>

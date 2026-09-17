@@ -119,7 +119,7 @@ export function MobileNavigationDrawer({
           {!isAuthenticated && (
             <div className="mx-4 mt-4 rounded-lg border bg-primary/5 p-4">
               <p className="text-sm font-semibold">Creá tu cuenta gratis</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-foreground/80 mt-0.5">
                 Publicá, ofertá y contactá vendedores
               </p>
               <Button asChild size="sm" className="w-full mt-3 min-h-[40px]">

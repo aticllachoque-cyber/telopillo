@@ -100,7 +100,7 @@ export function UserMenu() {
         >
           <p
             id="user-menu-publicaciones-label"
-            className="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+            className="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-foreground/80"
           >
             Publicaciones
           </p>
@@ -125,7 +125,7 @@ export function UserMenu() {
         >
           <p
             id="user-menu-cuenta-label"
-            className="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+            className="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-foreground/80"
           >
             Cuenta
           </p>
