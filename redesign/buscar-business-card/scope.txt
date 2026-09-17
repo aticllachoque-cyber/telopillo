@@ -1,0 +1,4 @@
+components/search/BusinessResultCard.tsx
+components/search/PersonResultCard.tsx
+app/buscar/page.tsx
+redesign/
