@@ -183,11 +183,13 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
         index={selectedIndex}
         slides={resolvedImages.map((image) => ({ src: image }))}
         plugins={[Zoom, Thumbnails, Counter]}
-        // Disable Prev/Next at the ends (and block swiping past them) instead of looping.
-        carousel={{ finite: true }}
+        // Finite (no wrap-around) and edge-to-edge: no padding so the photo uses the full viewport.
+        carousel={{ finite: true, padding: 0, spacing: '16px' }}
         // "1 / 5" position indicator (top-left corner by default; thumbnails occupy the bottom)
         counter={{ separator: '/' }}
-        thumbnails={{ position: 'bottom' }}
+        // Compact thumbnail strip so it takes less vertical space away from the photo.
+        thumbnails={{ position: 'bottom', width: 64, height: 48, padding: 0, gap: 8, border: 2 }}
+        styles={{ thumbnailsContainer: { padding: '8px' } }}
         zoom={{ doubleClickDelay: 300 }}
         labels={{
           Close: 'Cerrar',
