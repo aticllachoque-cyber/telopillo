@@ -7,6 +7,7 @@ interface Product {
   price: number
   images: string[]
   status: string
+  condition?: string
   location_city: string
   location_department: string
   views_count: number
@@ -16,9 +17,6 @@ interface Product {
   seller_business_name?: string | null
   seller_business_slug?: string | null
   seller_verification_level?: number
-  seller_whatsapp_phone?: string | null
-  seller_business_whatsapp?: string | null
-  seller_profile_phone?: string | null
 }
 
 interface ProductGridProps {
@@ -28,11 +26,6 @@ interface ProductGridProps {
   variant?: 'default' | 'preview'
   /** Show or hide status badges on cards (hide on public-facing pages) */
   showStatusBadge?: boolean
-  /**
-   * When set (e.g. shared storefront / seller profile), each card shows WhatsApp with a
-   * prefilled message for that listing. Omit on owner dashboard and mixed-seller grids.
-   */
-  whatsappContactPhone?: string | null
 }
 
 export function ProductGrid({
@@ -41,7 +34,6 @@ export function ProductGrid({
   showActions = false,
   variant = 'default',
   showStatusBadge,
-  whatsappContactPhone,
 }: ProductGridProps) {
   if (products.length === 0) {
     return null
@@ -49,11 +41,11 @@ export function ProductGrid({
 
   return (
     <ul
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6 list-none p-0 m-0"
+      className="grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-3 sm:gap-5 lg:gap-6 list-none p-0 m-0"
       role="list"
     >
       {products.map((product, index) => (
-        <li key={product.id}>
+        <li key={product.id} className="min-w-0">
           <ProductCard
             product={product}
             onUpdate={onUpdate}
@@ -61,7 +53,6 @@ export function ProductGrid({
             variant={variant}
             showStatusBadge={showStatusBadge ?? showActions}
             priority={index === 0}
-            whatsappContactPhone={whatsappContactPhone}
           />
         </li>
       ))}

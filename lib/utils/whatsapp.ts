@@ -52,29 +52,6 @@ export function resolveSellerWhatsAppDigits(
 }
 
 /**
- * Search API: use split business/profile fields when present; otherwise legacy COALESCE field.
- */
-export function resolveProductSearchContactFields(product: {
-  seller_business_whatsapp?: string | null
-  seller_profile_phone?: string | null
-  seller_whatsapp_phone?: string | null
-}): ResolvedSellerWhatsApp {
-  const split = resolveSellerWhatsAppDigits(
-    product.seller_business_whatsapp,
-    product.seller_profile_phone
-  )
-  if (split.normalizedDigits) return split
-  const legacy = product.seller_whatsapp_phone?.trim() ?? ''
-  if (!legacy) return split
-  const d = normalizeBolivianWhatsAppDigits(legacy)
-  if (d) return { normalizedDigits: d, anyRawPresent: true }
-  return {
-    normalizedDigits: null,
-    anyRawPresent: split.anyRawPresent || legacy.length > 0,
-  }
-}
-
-/**
  * Builds https://wa.me/{digits} or wa.me/?text= when digits is null but text is set.
  * Encodes `prefilledText` when present.
  */
