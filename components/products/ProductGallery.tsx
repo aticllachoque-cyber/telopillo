@@ -6,8 +6,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Lightbox from 'yet-another-react-lightbox'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
+import Counter from 'yet-another-react-lightbox/plugins/counter'
 import 'yet-another-react-lightbox/styles.css'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
+import 'yet-another-react-lightbox/plugins/counter.css'
 import { Button } from '@/components/ui/button'
 import { resolveProductImageUrls, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 
@@ -52,12 +54,16 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
     )
   }
 
+  // Finite navigation: arrows stop at the first/last image instead of wrapping around.
+  const isFirstImage = selectedIndex === 0
+  const isLastImage = selectedIndex === resolvedImages.length - 1
+
   const handlePrevious = () => {
-    setSelectedIndex((prev) => (prev === 0 ? resolvedImages.length - 1 : prev - 1))
+    setSelectedIndex((prev) => Math.max(prev - 1, 0))
   }
 
   const handleNext = () => {
-    setSelectedIndex((prev) => (prev === resolvedImages.length - 1 ? 0 : prev + 1))
+    setSelectedIndex((prev) => Math.min(prev + 1, resolvedImages.length - 1))
   }
 
   const handleThumbnailClick = (index: number) => {
@@ -113,6 +119,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
               size="icon"
               className="absolute left-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg"
               onClick={handlePrevious}
+              disabled={isFirstImage}
               aria-label="Imagen anterior"
             >
               <ChevronLeft className="h-5 w-5" aria-hidden />
@@ -122,6 +129,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
               size="icon"
               className="absolute right-2 top-1/2 z-20 size-11 -translate-y-1/2 rounded-full shadow-lg"
               onClick={handleNext}
+              disabled={isLastImage}
               aria-label="Imagen siguiente"
             >
               <ChevronRight className="h-5 w-5" aria-hidden />
@@ -174,7 +182,11 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
         close={() => setIsLightboxOpen(false)}
         index={selectedIndex}
         slides={resolvedImages.map((image) => ({ src: image }))}
-        plugins={[Zoom, Thumbnails]}
+        plugins={[Zoom, Thumbnails, Counter]}
+        // Disable Prev/Next at the ends (and block swiping past them) instead of looping.
+        carousel={{ finite: true }}
+        // "1 / 5" position indicator (top-left corner by default; thumbnails occupy the bottom)
+        counter={{ separator: '/' }}
         thumbnails={{ position: 'bottom' }}
         zoom={{ doubleClickDelay: 300 }}
         labels={{
