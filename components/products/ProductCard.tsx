@@ -10,16 +10,8 @@ import { Clock, Eye, MapPin, Package, Store, User } from 'lucide-react'
 import { ProductActions } from './ProductActions'
 import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
 import { formatFullDate, formatPublishedLabel } from '@/lib/utils/date'
-import { absoluteUrl } from '@/lib/utils'
-import {
-  buildProductWhatsAppPrefillMessage,
-  buildWhatsAppMeUrl,
-  resolveProductSearchContactFields,
-  resolveSellerWhatsAppDigits,
-} from '@/lib/utils/whatsapp'
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { cn } from '@/lib/utils'
-import { ProductWhatsAppLink } from './ProductWhatsAppLink'
 import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
 import { getProductPath } from '@/lib/utils/publicRoutes'
 
@@ -42,10 +34,6 @@ interface ProductCardProps {
     seller_business_name?: string | null
     seller_business_slug?: string | null
     seller_verification_level?: number
-    /** From search RPC: COALESCE(business social_whatsapp, profile phone) */
-    seller_whatsapp_phone?: string | null
-    seller_business_whatsapp?: string | null
-    seller_profile_phone?: string | null
   }
   onUpdate?: () => void
   showActions?: boolean
@@ -56,8 +44,6 @@ interface ProductCardProps {
    * (showActions) — on public pages every listing is active, so the badge would be noise.
    */
   showStatusBadge?: boolean
-  /** Public shared-profile / storefront only: seller WhatsApp for this grid */
-  whatsappContactPhone?: string | null
   variant?: 'default' | 'preview'
 }
 
@@ -98,7 +84,6 @@ export function ProductCard({
   showActions = false,
   priority = false,
   showStatusBadge = true,
-  whatsappContactPhone = null,
   variant = 'default',
 }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
@@ -122,28 +107,7 @@ export function ProductCard({
   const publishedFullDate = formatFullDate(product.created_at)
   const viewsLabel = `${product.views_count} ${product.views_count === 1 ? 'vista' : 'vistas'}`
 
-  const contactResolution = whatsappContactPhone?.trim()
-    ? resolveSellerWhatsAppDigits(whatsappContactPhone, null)
-    : resolveProductSearchContactFields(product)
   const productPath = getProductPath(product.id, product.title)
-  const whatsappDigits = !showActions ? contactResolution.normalizedDigits : null
-  const whatsappHref =
-    whatsappDigits != null
-      ? buildWhatsAppMeUrl(
-          whatsappDigits,
-          buildProductWhatsAppPrefillMessage({
-            productTitle: product.title,
-            price: product.price,
-            productAbsoluteUrl: absoluteUrl(productPath),
-          })
-        )
-      : null
-
-  const showContactUnavailableHint =
-    !showActions &&
-    !whatsappHref &&
-    contactResolution.anyRawPresent &&
-    contactResolution.normalizedDigits == null
 
   return (
     <Card className="group flex h-full flex-col gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg focus-within:shadow-lg">
@@ -307,33 +271,19 @@ export function ProductCard({
         </dl>
       </CardContent>
 
-      {/* Footer — full-width CTA pinned to the card bottom (WhatsApp, or the listing itself) */}
+      {/* Footer — single full-width CTA to the listing, pinned to the card bottom */}
       {!showActions && (
         <CardFooter
           className={cn(
-            'mt-auto flex flex-col items-stretch gap-2 pt-0',
+            'mt-auto flex flex-col items-stretch pt-0',
             isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4'
           )}
         >
-          {showContactUnavailableHint && (
-            <p className="text-xs text-muted-foreground leading-snug" role="status">
-              Contacto WhatsApp no disponible (número no válido).
-            </p>
-          )}
-          {whatsappHref ? (
-            <ProductWhatsAppLink
-              href={whatsappHref}
-              ariaLabel={`Contactar por WhatsApp sobre ${product.title}`}
-              label="Contactar por WhatsApp"
-              size="sm"
-            />
-          ) : (
-            <Button asChild variant="outline" size="sm" className="w-full min-h-[44px]">
-              <Link href={productPath} aria-label={`Ver publicación: ${product.title}`}>
-                Ver publicación
-              </Link>
-            </Button>
-          )}
+          <Button asChild variant="outline" size="sm" className="w-full min-h-[44px]">
+            <Link href={productPath} aria-label={`Ver publicación: ${product.title}`}>
+              Ver publicación
+            </Link>
+          </Button>
         </CardFooter>
       )}
     </Card>

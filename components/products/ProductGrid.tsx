@@ -17,9 +17,6 @@ interface Product {
   seller_business_name?: string | null
   seller_business_slug?: string | null
   seller_verification_level?: number
-  seller_whatsapp_phone?: string | null
-  seller_business_whatsapp?: string | null
-  seller_profile_phone?: string | null
 }
 
 interface ProductGridProps {
@@ -29,11 +26,6 @@ interface ProductGridProps {
   variant?: 'default' | 'preview'
   /** Show or hide status badges on cards (hide on public-facing pages) */
   showStatusBadge?: boolean
-  /**
-   * When set (e.g. shared storefront / seller profile), each card shows WhatsApp with a
-   * prefilled message for that listing. Omit on owner dashboard and mixed-seller grids.
-   */
-  whatsappContactPhone?: string | null
 }
 
 export function ProductGrid({
@@ -42,7 +34,6 @@ export function ProductGrid({
   showActions = false,
   variant = 'default',
   showStatusBadge,
-  whatsappContactPhone,
 }: ProductGridProps) {
   if (products.length === 0) {
     return null
@@ -62,7 +53,6 @@ export function ProductGrid({
             variant={variant}
             showStatusBadge={showStatusBadge ?? showActions}
             priority={index === 0}
-            whatsappContactPhone={whatsappContactPhone}
           />
         </li>
       ))}

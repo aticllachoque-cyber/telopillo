@@ -226,12 +226,7 @@ export default async function SellerProfilePage({ params }: SellerPageProps) {
             </h2>
 
             {products.length > 0 ? (
-              <ProductGrid
-                products={products}
-                showActions={false}
-                showStatusBadge={false}
-                whatsappContactPhone={contactPhone}
-              />
+              <ProductGrid products={products} showActions={false} showStatusBadge={false} />
             ) : (
               <Card>
                 <CardContent
