@@ -1,0 +1,41 @@
+# /busco/f8609770-80c1-441f-8c37-9729816ef450 — viewport desktop, anon, 3 offers
+
+- main:
+  - link "Volver a solicitudes":
+    - /url: /busco
+  - text: Activo Electrónica y Tecnología
+  - heading "Busco celular Android gama media con buena cámara" [level=1]
+  - text: La Paz, La Paz 13 de agosto de 2026 28 días restantes
+  - paragraph: Busco
+  - paragraph: Electrónica
+  - text: Ubicación · La Paz, La Paz Publicado · 13 de agosto de 2026 Vigencia · 28 días restantes Presupuesto · Bs 800 - Bs 3.500
+  - heading "Descripción" [level=2]
+  - paragraph: Necesito un smartphone Android de gama media o alta con buena cámara para fotos diurnas. Preferencia por 128 GB o más y batería duradera. Puede ser usado en buen estado con cargador.
+  - heading "Ofertas (3)" [level=2]
+  - img "Auriculares inalámbricos con cancelación de ruido activa"
+  - link "Auriculares inalámbricos con cancelación de ruido activa":
+    - /url: /productos/2K6mkhSWElWfltyosZ7PGx--auriculares-inalambricos-con-cancelacion-de-ruido-activa
+  - text: Bs 420 M Mariela Quispe La Paz
+  - paragraph: “Hola, tengo este artículo publicado y encaja con lo que buscas. Coordinamos entrega cuando te venga bien.”
+  - img "Auriculares inalámbricos con cancelación de ruido activa"
+  - link "Auriculares inalámbricos con cancelación de ruido activa":
+    - /url: /productos/5P0btaz3EjRZczD5qzfLyg--auriculares-inalambricos-con-cancelacion-de-ruido-activa
+  - text: Bs 420 R Rodrigo Vargas La Paz
+  - paragraph: “Hola, tengo este artículo publicado y encaja con lo que buscas. Coordinamos entrega cuando te venga bien.”
+  - img "Auriculares inalámbricos con cancelación de ruido activa"
+  - link "Auriculares inalámbricos con cancelación de ruido activa":
+    - /url: /productos/39huxLdSSIWdDsxWZ9fHEQ--auriculares-inalambricos-con-cancelacion-de-ruido-activa
+  - text: Bs 420 C Carlos Camba La Paz
+  - paragraph: “Hola, tengo este artículo publicado y encaja con lo que buscas. Coordinamos entrega cuando te venga bien.”
+  - heading "Comprador" [level=2]
+  - paragraph: Esta persona publicó la necesidad y recibirá las ofertas.
+  - link "Ver perfil de Usuario de Desarrollo":
+    - /url: /vendedor/dc7a90d3-046c-43c3-8e1d-60a4052fd5f1
+    - text: UD
+    - paragraph: Usuario de Desarrollo
+    - text: La Paz, La Paz
+  - link "Ver perfil público":
+    - /url: /vendedor/dc7a90d3-046c-43c3-8e1d-60a4052fd5f1
+  - paragraph: ¿Tienes lo que esta persona busca?
+  - link "Inicia sesión para ofrecer":
+    - /url: /login?redirect=%2Fbusco%2F7yGeQRESV99zQn0UrXKFZ6--busco-celular-android-gama-media-con-buena-camara

@@ -172,24 +172,21 @@ export function DemandPostDetail({
           </div>
 
           <h1 className={productPresentation.detailTitle}>{post.title}</h1>
-
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
-            <span className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" aria-hidden />
-              {location}
-            </span>
-            <span className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" aria-hidden />
-              {formatDate(post.created_at)}
-            </span>
-            {isActive && (
-              <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4" aria-hidden />
-                {expiryDays} {expiryDays === 1 ? 'día' : 'días'} restantes
-              </span>
-            )}
-          </div>
         </div>
+
+        {/* Compact near-top CTA on mobile (F-2, mirrors product detail pattern) */}
+        {!currentUserId && isActive && (
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border/80 p-3 lg:hidden">
+            <p className="min-w-0 text-pretty text-sm text-foreground/80">
+              ¿Tenés lo que esta persona busca?
+            </p>
+            <Button asChild className="min-h-[44px] shrink-0">
+              <Link href={`/login?redirect=${encodeURIComponent(demandPath)}`}>
+                Iniciá sesión para ofrecer
+              </Link>
+            </Button>
+          </div>
+        )}
 
         <DemandImageFrame
           imageUrl={post.image_url}
@@ -201,23 +198,23 @@ export function DemandPostDetail({
 
         <Card className="border-border/80 shadow-sm">
           <CardContent className="space-y-5 p-4 sm:p-6">
-            <div className="grid gap-2 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-3" aria-label="Resumen">
-              <div className={productPresentation.metaRow}>
+            <ul className="grid gap-2 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-3" aria-label="Resumen">
+              <li className={productPresentation.metaRow}>
                 <MapPin className={productPresentation.metaIcon} aria-hidden />
                 <span className="min-w-0">
                   <span className={productPresentation.metaLabel}>Ubicación · </span>
                   <span className="font-medium">{location}</span>
                 </span>
-              </div>
-              <div className={productPresentation.metaRow}>
+              </li>
+              <li className={productPresentation.metaRow}>
                 <Calendar className={productPresentation.metaIcon} aria-hidden />
                 <span className="min-w-0">
                   <span className={productPresentation.metaLabel}>Publicado · </span>
                   <span className="font-medium">{formatDate(post.created_at)}</span>
                 </span>
-              </div>
+              </li>
               {isActive && (
-                <div className={productPresentation.metaRow}>
+                <li className={productPresentation.metaRow}>
                   <Clock className={productPresentation.metaIcon} aria-hidden />
                   <span className="min-w-0">
                     <span className={productPresentation.metaLabel}>Vigencia · </span>
@@ -225,18 +222,18 @@ export function DemandPostDetail({
                       {expiryDays} {expiryDays === 1 ? 'día restante' : 'días restantes'}
                     </span>
                   </span>
-                </div>
+                </li>
               )}
               {priceRange && (
-                <div className={productPresentation.metaRow}>
+                <li className={productPresentation.metaRow}>
                   <MessageSquare className={productPresentation.metaIcon} aria-hidden />
                   <span className="min-w-0">
                     <span className={productPresentation.metaLabel}>Presupuesto · </span>
                     <span className="font-medium">{priceRange}</span>
                   </span>
-                </div>
+                </li>
               )}
-            </div>
+            </ul>
 
             <Separator />
 
@@ -332,7 +329,7 @@ export function DemandPostDetail({
                     src={resolveAvatarUrl(poster.avatar_url) || undefined}
                     alt={poster.full_name}
                   />
-                  <AvatarFallback className="text-base font-medium">
+                  <AvatarFallback className="text-foreground/80 text-base font-medium">
                     {poster.full_name
                       .split(' ')
                       .map((n) => n[0])
@@ -382,14 +379,14 @@ export function DemandPostDetail({
         )}
 
         {!currentUserId && isActive && (
-          <Card className="border-border/80 shadow-sm">
+          <Card className="hidden border-border/80 shadow-sm lg:block">
             <CardContent className="p-4 text-center sm:p-6">
               <p className="mb-3 text-sm text-muted-foreground text-pretty">
-                ¿Tienes lo que esta persona busca?
+                ¿Tenés lo que esta persona busca?
               </p>
               <Button asChild className="w-full min-h-[44px]">
                 <Link href={`/login?redirect=${encodeURIComponent(demandPath)}`}>
-                  Inicia sesión para ofrecer
+                  Iniciá sesión para ofrecer
                 </Link>
               </Button>
             </CardContent>
@@ -473,7 +470,7 @@ function OfferCard({ offer }: { offer: OfferRow }) {
                   src={resolveAvatarUrl(seller.avatar_url) || undefined}
                   alt={seller.full_name ?? undefined}
                 />
-                <AvatarFallback className="text-[10px]">
+                <AvatarFallback className="text-foreground/80 text-[10px]">
                   {(seller.full_name ?? 'U').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>

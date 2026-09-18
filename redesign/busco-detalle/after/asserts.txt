@@ -1,0 +1,5 @@
+F-1 avatar-fallback classes: bg-muted flex size-full items-center justify-center rounded-full group-data-[size=sm]/avatar:text-xs text-foreground/80 text-base font-medium
+F-2 compact CTA: present classes=flex items-center justify-between gap-3 rounded-lg border border-border/80 p-3 lg:hidden
+F-3 h1+div muted meta row: removed
+F-4 voseo: ok / ok
+F-6 Resumen ul[role implicit list]: present, 4 li
