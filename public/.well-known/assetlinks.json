@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "lat.telopillo.app",
+      "sha256_cert_fingerprints": [
+        "A9:84:B3:B4:F0:B1:2C:00:3E:8F:71:C4:B1:70:49:90:BA:B3:AA:F0:6D:05:DF:B1:18:07:05:75:32:89:59:41"
+      ]
+    }
+  }
+]
