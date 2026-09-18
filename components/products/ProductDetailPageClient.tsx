@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ProductGallery } from '@/components/products/ProductGallery'
+import { ProductGrid } from '@/components/products/ProductGrid'
 import { SellerCard } from '@/components/products/SellerCard'
 import { ProductActions } from '@/components/products/ProductActions'
 import { ShareButton } from '@/components/products/ShareButton'
@@ -38,13 +38,26 @@ import {
   resolveSellerWhatsAppDigits,
 } from '@/lib/utils/whatsapp'
 
-interface RelatedProduct {
+/** Row shape returned by the search_products RPC — same fields the /buscar listing cards use. */
+export interface RelatedProduct {
   id: string
+  user_id: string
   title: string
   price: number
-  location_city: string | null
-  location_department: string | null
   images: string[]
+  status: string
+  condition: string
+  location_city: string
+  location_department: string
+  views_count: number
+  created_at: string
+  seller_name: string | null
+  seller_business_name: string | null
+  seller_business_slug: string | null
+  seller_verification_level?: number
+  seller_whatsapp_phone?: string | null
+  seller_business_whatsapp?: string | null
+  seller_profile_phone?: string | null
 }
 
 interface ProductDetailPageClientProps {
@@ -334,7 +347,7 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
           </div>
         </div>
 
-        {/* Related products: same category, minimal marketplace card (approved iteration 3) */}
+        {/* Related products: same category, same listing card as /buscar */}
         {relatedProducts.length > 0 && (
           <section aria-labelledby="related-products-heading" className="mt-12">
             <h2
@@ -343,55 +356,7 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
             >
               Productos relacionados
             </h2>
-            <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 sm:gap-4 lg:grid-cols-4">
-              {relatedProducts.map((item) => {
-                const itemImages = resolveProductImageUrls(item.images)
-                return (
-                  <li key={item.id} className="min-w-0">
-                    <Link
-                      href={getProductPath(item.id, item.title)}
-                      className="group block h-full overflow-hidden rounded-lg border border-border/80 bg-card shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                        {itemImages[0] ? (
-                          <Image
-                            src={itemImages[0]}
-                            alt={item.title}
-                            fill
-                            className="object-cover transition-transform group-hover:scale-[1.02]"
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          />
-                        ) : (
-                          <div
-                            className="flex h-full w-full items-center justify-center text-muted-foreground"
-                            aria-hidden
-                          >
-                            Sin imagen
-                          </div>
-                        )}
-                      </div>
-                      <div className="space-y-1 p-3">
-                        <p className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug text-foreground">
-                          {item.title}
-                        </p>
-                        <p className="text-base font-bold tabular-nums text-primary">
-                          Bs {item.price.toLocaleString('es-BO')}
-                        </p>
-                        <p className={productPresentation.locationRow}>
-                          <MapPin className={productPresentation.locationIcon} aria-hidden />
-                          <span className="truncate">
-                            {formatProductLocationDisplay(
-                              item.location_city ?? '',
-                              item.location_department ?? ''
-                            )}
-                          </span>
-                        </p>
-                      </div>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
+            <ProductGrid products={relatedProducts} />
           </section>
         )}
       </div>
