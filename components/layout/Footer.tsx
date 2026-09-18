@@ -60,6 +60,12 @@ export function Footer() {
             className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"
           >
             <Link
+              href="/descargar"
+              className="hover:text-primary transition-colors inline-flex items-center min-h-[44px] sm:min-h-0 touch-manipulation font-medium text-foreground"
+            >
+              App Android
+            </Link>
+            <Link
               href="/acerca"
               className="hover:text-primary transition-colors inline-flex items-center min-h-[44px] sm:min-h-0 touch-manipulation"
             >
