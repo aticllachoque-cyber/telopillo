@@ -1,0 +1,26 @@
+# /busco/679962b7-ddfd-4a65-ab27-50d0b47d1859 (canonical redirect) — viewport desktop, anon
+
+- main:
+  - link "Volver a solicitudes":
+    - /url: /busco
+  - text: Activo Electrónica y Tecnología Tablets
+  - heading "necesito un TV smart mini 23 pulgadas" [level=1]
+  - text: La Paz, La Paz 16 de septiembre de 2026 28 días restantes
+  - img "necesito un TV smart mini 23 pulgadas"
+  - text: Ubicación · La Paz, La Paz Publicado · 16 de septiembre de 2026 Vigencia · 28 días restantes Presupuesto · Bs 100 - Bs 2.000
+  - heading "Descripción" [level=2]
+  - paragraph: busco TRV de 23 pulgadasd min i par adisfrutal el mundoas
+  - heading "Ofertas (0)" [level=2]
+  - paragraph: Aún no hay ofertas. Sé el primero en proponer un producto.
+  - heading "Comprador" [level=2]
+  - paragraph: Esta persona publicó la necesidad y recibirá las ofertas.
+  - link "Ver perfil de Usuario de Desarrollo":
+    - /url: /vendedor/dc7a90d3-046c-43c3-8e1d-60a4052fd5f1
+    - text: UD
+    - paragraph: Usuario de Desarrollo
+    - text: La Paz, La Paz
+  - link "Ver perfil público":
+    - /url: /vendedor/dc7a90d3-046c-43c3-8e1d-60a4052fd5f1
+  - paragraph: ¿Tienes lo que esta persona busca?
+  - link "Inicia sesión para ofrecer":
+    - /url: /login?redirect=%2Fbusco%2F39uj2vfipD9MUuJBeIXJfr--necesito-un-tv-smart-mini-23-pulgadas

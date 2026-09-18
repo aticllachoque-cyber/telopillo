@@ -1,0 +1,4 @@
+## primary / desktop (1920x1080) — 0 violations
+## primary / mobile (375x812) — 0 violations
+## ofertas / desktop (1920x1080) — 0 violations
+## ofertas / mobile (375x812) — 0 violations

@@ -1,0 +1,4 @@
+busco-detalle current captures — 2026-09-18
+desktop: primary 679962b7-ddfd-4a65-ab27-50d0b47d1859 | ofertas f8609770-80c1-441f-8c37-9729816ef450 (viewport 1920x1080, fullPage, dsf=2, anon)
+tablet: primary 679962b7-ddfd-4a65-ab27-50d0b47d1859 | ofertas f8609770-80c1-441f-8c37-9729816ef450 (viewport 768x1024, fullPage, dsf=2, anon)
+mobile: primary 679962b7-ddfd-4a65-ab27-50d0b47d1859 | ofertas f8609770-80c1-441f-8c37-9729816ef450 (viewport 375x812, fullPage, dsf=2, anon)

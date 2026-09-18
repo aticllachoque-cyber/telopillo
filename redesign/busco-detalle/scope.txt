@@ -1,0 +1,7 @@
+app/busco/[id]/page.tsx
+components/demand/DemandPostPageClient.tsx
+components/demand/DemandPostDetail.tsx
+components/demand/DemandStatusBadge.tsx
+components/demand/DemandImageFrame.tsx
+components/demand/OfferProductModal.tsx
+redesign/
