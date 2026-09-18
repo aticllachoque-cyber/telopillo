@@ -1,8 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <!-- Telopillo brand icon: T monogram, crossbar hooks right and catches an accent dot ("te lo pillo") -->
+  <!-- Bold geometry: 64px strokes + 22px-radius dot (dark outline) stay legible at 48px launcher size -->
   <rect x="16" y="16" width="480" height="480" rx="112" fill="#1E1E1E"/>
-  <path d="M 160 172 H 308 Q 352 172 352 216 V 268 Q 352 300 320 300"
-        fill="none" stroke="#F7F7F5" stroke-width="46" stroke-linecap="round"/>
-  <path d="M 256 172 V 356" fill="none" stroke="#F7F7F5" stroke-width="46" stroke-linecap="round"/>
-  <circle cx="304" cy="272" r="18" fill="#F59E0B"/>
+  <path d="M 140 166 H 324 Q 368 166 368 210 V 252 Q 368 282 340 282"
+        fill="none" stroke="#F7F7F5" stroke-width="64" stroke-linecap="round"/>
+  <path d="M 242 166 V 378" fill="none" stroke="#F7F7F5" stroke-width="64" stroke-linecap="round"/>
+  <circle cx="305" cy="232" r="20" fill="#F59E0B" stroke="#1E1E1E" stroke-width="6"/>
 </svg>
