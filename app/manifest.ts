@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Telopillo — Comprar y Vender en Bolivia',
+    name: 'Telopillo',
     short_name: 'Telopillo',
     description: 'El marketplace 100% boliviano para comprar y vender de todo. Sin comisiones.',
     lang: 'es-BO',
