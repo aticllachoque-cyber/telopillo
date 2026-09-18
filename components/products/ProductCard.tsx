@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Clock, Eye, MapPin, Package, Store, User } from 'lucide-react'
 import { ProductActions } from './ProductActions'
 import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
@@ -59,6 +60,10 @@ interface ProductCardProps {
   whatsappContactPhone?: string | null
   variant?: 'default' | 'preview'
 }
+
+/** Icon + text rows of the card meta block (location, seller, views, published). */
+const CARD_META_ROW = 'flex items-center gap-1.5 min-w-0'
+const CARD_META_ICON = 'h-3.5 w-3.5 shrink-0'
 
 /** Short condition labels that fit a card badge (full labels live in CONDITION_LABELS). */
 const CONDITION_BADGE_LABELS: Record<keyof typeof CONDITION_LABELS, string> = {
@@ -213,12 +218,11 @@ export function ProductCard({
       </div>
 
       {/* Content — flex-1 so every card's footer sits at the same bottom edge */}
-      <CardContent className={cn('flex-1', isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4')}>
-        <Link
-          href={productPath}
-          className={cn('block space-y-1 sm:space-y-2', isPreview && 'space-y-1')}
-        >
-          {/* Title — reserve two lines so price/location rows line up across cards */}
+      <CardContent
+        className={cn('flex flex-1 flex-col', isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4')}
+      >
+        <Link href={productPath} className="block space-y-1 sm:space-y-1.5">
+          {/* Title — reserve two lines so the rows below line up across cards */}
           <h3
             className={cn(
               productPresentation.listingTitle,
@@ -232,105 +236,104 @@ export function ProductCard({
           <p className={productPresentation.listingPrice}>
             Bs {product.price.toLocaleString('es-BO')}
           </p>
-
-          {/* Location */}
-          <div className={productPresentation.locationRow}>
-            <MapPin className={productPresentation.locationIcon} aria-hidden />
-            <span className="truncate">{location}</span>
-          </div>
         </Link>
 
-        {/* Seller Info — hidden in owner view (showActions=true) */}
-        {!isPreview && !showActions && (product.seller_business_name || product.seller_name) && (
-          <div className="mt-1.5 pt-1.5 sm:mt-2 sm:pt-2 border-t">
-            {product.seller_business_slug && product.seller_business_name ? (
-              <Link
-                href={`/negocio/${product.seller_business_slug}`}
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-                title={`Ver tienda: ${product.seller_business_name}`}
-              >
-                <Store className="h-3 w-3 flex-shrink-0 text-primary/70" aria-hidden />
-                <span className="truncate font-medium">{product.seller_business_name}</span>
-              </Link>
-            ) : product.seller_name && product.user_id ? (
-              <Link
-                href={`/vendedor/${product.user_id}`}
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                title={`Ver perfil de ${product.seller_name}`}
-              >
-                <User className="h-3 w-3 flex-shrink-0" aria-hidden />
-                <span className="truncate">{product.seller_name}</span>
-              </Link>
-            ) : product.seller_name ? (
-              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                <User className="h-3 w-3 flex-shrink-0" aria-hidden />
-                <span className="truncate">{product.seller_name}</span>
-              </span>
-            ) : null}
+        {/* Meta block — location, seller, views, published: one compact list, same row style */}
+        <dl className="mt-2 space-y-1 text-xs text-muted-foreground sm:mt-2.5 sm:text-sm">
+          <div className={CARD_META_ROW}>
+            <dt className="sr-only">Ubicación</dt>
+            <MapPin className={CARD_META_ICON} aria-hidden />
+            <dd className="truncate">{location}</dd>
           </div>
-        )}
-      </CardContent>
 
-      {/* Footer — meta on the left, optional WhatsApp on the right, pinned to the card bottom */}
-      {!isPreview && (
-        <CardFooter
-          className={cn('mt-auto flex flex-col items-stretch gap-2 pt-0', 'p-3 sm:p-4 sm:gap-2.5')}
-        >
-          {showContactUnavailableHint && (
-            <p className="text-xs text-muted-foreground leading-snug" role="status">
-              Contacto WhatsApp no disponible (número no válido).{' '}
-              <Link
-                href={productPath}
-                className="text-primary underline-offset-2 hover:underline font-medium"
-              >
-                Ver publicación
-              </Link>
-            </p>
+          {!isPreview && !showActions && (product.seller_business_name || product.seller_name) && (
+            <div className={CARD_META_ROW}>
+              <dt className="sr-only">Vendedor</dt>
+              {product.seller_business_slug && product.seller_business_name ? (
+                <>
+                  <Store className={cn(CARD_META_ICON, 'text-primary/70')} aria-hidden />
+                  <dd className="truncate">
+                    <Link
+                      href={`/negocio/${product.seller_business_slug}`}
+                      className="font-medium hover:text-primary transition-colors"
+                      title={`Ver tienda: ${product.seller_business_name}`}
+                    >
+                      {product.seller_business_name}
+                    </Link>
+                  </dd>
+                </>
+              ) : (
+                <>
+                  <User className={CARD_META_ICON} aria-hidden />
+                  <dd className="truncate">
+                    {product.user_id ? (
+                      <Link
+                        href={`/vendedor/${product.user_id}`}
+                        className="hover:text-foreground transition-colors"
+                        title={`Ver perfil de ${product.seller_name}`}
+                      >
+                        {product.seller_name}
+                      </Link>
+                    ) : (
+                      product.seller_name
+                    )}
+                  </dd>
+                </>
+              )}
+            </div>
           )}
-          <div className="flex w-full items-center justify-between gap-3">
-            {/* Meta: views + published date, labelled so they read as information, not stray numbers */}
-            <div className="flex min-w-0 flex-col gap-1 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                <span className="tabular-nums">{viewsLabel}</span>
-              </span>
+
+          {!isPreview && (
+            <>
+              <div className={CARD_META_ROW}>
+                <dt className="sr-only">Vistas</dt>
+                <Eye className={CARD_META_ICON} aria-hidden />
+                <dd className="tabular-nums">{viewsLabel}</dd>
+              </div>
               {publishedLabel && (
-                <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                  <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <span>
+                <div className={CARD_META_ROW}>
+                  <dt className="sr-only">Publicado</dt>
+                  <Clock className={CARD_META_ICON} aria-hidden />
+                  <dd>
                     Publicado{' '}
                     <time dateTime={product.created_at} title={publishedFullDate}>
                       {publishedLabel}
                     </time>
-                  </span>
-                </span>
+                  </dd>
+                </div>
               )}
-            </div>
-            {whatsappHref && (
-              <ProductWhatsAppLink
-                href={whatsappHref}
-                ariaLabel="Contactar por WhatsApp sobre este producto"
-                fullWidth={false}
-                size="xs"
-                variant="text"
-                label="WhatsApp"
-                className="shrink-0 text-xs no-underline"
-              />
-            )}
-          </div>
-        </CardFooter>
-      )}
-      {isPreview && whatsappHref && (
-        <CardFooter className="mt-auto flex justify-end p-3 pt-0 sm:p-3.5 sm:pt-0">
-          <ProductWhatsAppLink
-            href={whatsappHref}
-            ariaLabel="Contactar por WhatsApp sobre este producto"
-            fullWidth={false}
-            size="xs"
-            variant="text"
-            label="WhatsApp"
-            className="text-xs no-underline"
-          />
+            </>
+          )}
+        </dl>
+      </CardContent>
+
+      {/* Footer — full-width CTA pinned to the card bottom (WhatsApp, or the listing itself) */}
+      {!showActions && (
+        <CardFooter
+          className={cn(
+            'mt-auto flex flex-col items-stretch gap-2 pt-0',
+            isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4'
+          )}
+        >
+          {showContactUnavailableHint && (
+            <p className="text-xs text-muted-foreground leading-snug" role="status">
+              Contacto WhatsApp no disponible (número no válido).
+            </p>
+          )}
+          {whatsappHref ? (
+            <ProductWhatsAppLink
+              href={whatsappHref}
+              ariaLabel={`Contactar por WhatsApp sobre ${product.title}`}
+              label="Contactar por WhatsApp"
+              size="sm"
+            />
+          ) : (
+            <Button asChild variant="outline" size="sm" className="w-full min-h-[44px]">
+              <Link href={productPath} aria-label={`Ver publicación: ${product.title}`}>
+                Ver publicación
+              </Link>
+            </Button>
+          )}
         </CardFooter>
       )}
     </Card>
