@@ -185,10 +185,19 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
         plugins={[Zoom, Thumbnails, Counter]}
         // Finite (no wrap-around) and edge-to-edge: no padding so the photo uses the full viewport.
         carousel={{ finite: true, padding: 0, spacing: '16px' }}
-        // "1 / 5" position indicator (top-left corner by default; thumbnails occupy the bottom)
+        // "1 / 5" position indicator in the top-left corner
         counter={{ separator: '/' }}
-        // Compact thumbnail strip so it takes less vertical space away from the photo.
-        thumbnails={{ position: 'bottom', width: 64, height: 48, padding: 0, gap: 8, border: 2 }}
+        // Thumbnails start hidden so the photo gets the full height; a toolbar button toggles them.
+        thumbnails={{
+          position: 'bottom',
+          width: 64,
+          height: 48,
+          padding: 0,
+          gap: 8,
+          border: 2,
+          hidden: true,
+          showToggle: true,
+        }}
         styles={{ thumbnailsContainer: { padding: '8px' } }}
         zoom={{ doubleClickDelay: 300 }}
         labels={{
@@ -197,6 +206,8 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
           Next: 'Imagen siguiente',
           'Zoom in': 'Acercar',
           'Zoom out': 'Alejar',
+          'Show thumbnails': 'Mostrar miniaturas',
+          'Hide thumbnails': 'Ocultar miniaturas',
         }}
         on={{ view: ({ index: viewIndex }) => setSelectedIndex(viewIndex) }}
       />
