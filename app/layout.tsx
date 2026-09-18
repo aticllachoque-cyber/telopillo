@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { SnackbarProvider } from '@/components/providers/SnackbarProvider'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import { NetworkStatusProvider } from '@/components/providers/NetworkStatusProvider'
+import { ServiceWorkerRegister } from '@/components/providers/ServiceWorkerRegister'
 import { NetworkStatusBanner } from '@/components/network/NetworkStatusBanner'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -60,6 +61,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
+        <ServiceWorkerRegister />
         <SnackbarProvider>
           <NetworkStatusProvider>
             <AuthProvider>
