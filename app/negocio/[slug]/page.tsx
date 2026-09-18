@@ -40,7 +40,7 @@ async function getBusinessProducts(userId: string) {
   const { data: products } = await supabase
     .from('products')
     .select(
-      'id, title, price, images, status, location_city, location_department, views_count, created_at'
+      'id, title, price, images, status, condition, location_city, location_department, views_count, created_at'
     )
     .eq('user_id', userId)
     .eq('status', 'active')

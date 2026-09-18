@@ -7,6 +7,7 @@ interface Product {
   price: number
   images: string[]
   status: string
+  condition?: string
   location_city: string
   location_department: string
   views_count: number

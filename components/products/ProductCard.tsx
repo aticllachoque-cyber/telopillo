@@ -5,9 +5,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Eye, MapPin, Package, Store, User } from 'lucide-react'
+import { Clock, Eye, MapPin, Package, Store, User } from 'lucide-react'
 import { ProductActions } from './ProductActions'
-import { formatProductLocationDisplay } from '@/lib/validations/product'
+import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
+import { formatFullDate, formatPublishedLabel } from '@/lib/utils/date'
 import { absoluteUrl } from '@/lib/utils'
 import {
   buildProductWhatsAppPrefillMessage,
@@ -29,6 +30,8 @@ interface ProductCardProps {
     price: number
     images: string[]
     status: string
+    /** Product condition (new / used_*); shown as a badge when present */
+    condition?: string
     location_city: string
     location_department: string
     views_count: number
@@ -47,11 +50,41 @@ interface ProductCardProps {
   showActions?: boolean
   /** Mark the product image as LCP priority (use for the first visible card) */
   priority?: boolean
-  /** Show or hide the status badge (hide on public-facing pages) */
+  /**
+   * Allow the listing status badge. "Activo" is only rendered in owner view
+   * (showActions) — on public pages every listing is active, so the badge would be noise.
+   */
   showStatusBadge?: boolean
   /** Public shared-profile / storefront only: seller WhatsApp for this grid */
   whatsappContactPhone?: string | null
   variant?: 'default' | 'preview'
+}
+
+/** Short condition labels that fit a card badge (full labels live in CONDITION_LABELS). */
+const CONDITION_BADGE_LABELS: Record<keyof typeof CONDITION_LABELS, string> = {
+  new: 'Nuevo',
+  used_like_new: 'Como nuevo',
+  used_good: 'Buen estado',
+  used_fair: 'Estado regular',
+}
+
+/**
+ * Card location: drop the department when the city already names it
+ * ("Santa Cruz de la Sierra, Santa Cruz" -> "Santa Cruz de la Sierra") so it fits on one line.
+ */
+function formatCardLocation(city: string, department: string): string {
+  const full = formatProductLocationDisplay(city, department)
+  const trimmedCity = (city || '').trim()
+  const trimmedDept = (department || '').trim()
+  if (
+    trimmedCity &&
+    trimmedDept &&
+    full === `${trimmedCity}, ${trimmedDept}` &&
+    trimmedCity.toLowerCase().startsWith(trimmedDept.toLowerCase())
+  ) {
+    return trimmedCity
+  }
+  return full
 }
 
 export function ProductCard({
@@ -73,9 +106,16 @@ export function ProductCard({
   }
 
   const status = statusConfig[product.status as keyof typeof statusConfig] || statusConfig.active
+  const showStatus = showStatusBadge && (showActions || product.status !== 'active')
+  const conditionLabel = product.condition
+    ? CONDITION_BADGE_LABELS[product.condition as keyof typeof CONDITION_BADGE_LABELS]
+    : undefined
   const imageUrl = !imageError ? resolveProductImageUrl(product.images[0]) : null
-  const location = formatProductLocationDisplay(product.location_city, product.location_department)
+  const location = formatCardLocation(product.location_city, product.location_department)
   const isPreview = variant === 'preview'
+  const publishedLabel = formatPublishedLabel(product.created_at)
+  const publishedFullDate = formatFullDate(product.created_at)
+  const viewsLabel = `${product.views_count} ${product.views_count === 1 ? 'vista' : 'vistas'}`
 
   const contactResolution = whatsappContactPhone?.trim()
     ? resolveSellerWhatsAppDigits(whatsappContactPhone, null)
@@ -138,12 +178,23 @@ export function ProductCard({
           )}
         </Link>
 
-        {/* Status Badge */}
-        {showStatusBadge && (
-          <div className="absolute top-2 left-2 pointer-events-none">
-            <Badge variant={status.variant} className="shadow-md">
-              {status.label}
-            </Badge>
+        {/* Condition + status badges */}
+        {(conditionLabel || showStatus) && (
+          <div className="absolute top-2 left-2 flex flex-wrap gap-1 pointer-events-none">
+            {conditionLabel && (
+              <Badge
+                variant="secondary"
+                className="shadow-md bg-background/90 text-foreground backdrop-blur-sm"
+              >
+                <span className="sr-only">Estado: </span>
+                {conditionLabel}
+              </Badge>
+            )}
+            {showStatus && (
+              <Badge variant={status.variant} className="shadow-md">
+                {status.label}
+              </Badge>
+            )}
           </div>
         )}
 
@@ -248,30 +299,26 @@ export function ProductCard({
             </Link>
           </p>
         )}
-        <div
-          className={cn(
-            'flex w-full items-center gap-3 text-muted-foreground',
-            isPreview ? 'text-xs' : 'text-xs sm:text-sm'
-          )}
-        >
-          {!isPreview && product.views_count > 0 && (
-            <div className="flex items-center gap-1">
-              <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden />
-              <span aria-label={`${product.views_count} vistas`}>{product.views_count}</span>
-            </div>
-          )}
-          {!isPreview && (
-            <span
-              className="text-xs"
-              aria-label={`Publicado el ${new Date(product.created_at).toLocaleDateString('es-BO', { day: 'numeric', month: 'long', year: 'numeric' })}`}
-            >
-              {new Date(product.created_at).toLocaleDateString('es-BO', {
-                day: 'numeric',
-                month: 'short',
-              })}
+        {/* Meta: views + published date, labelled so they read as information, not stray numbers */}
+        {!isPreview && (
+          <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+              <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              <span className="tabular-nums">{viewsLabel}</span>
             </span>
-          )}
-        </div>
+            {publishedLabel && (
+              <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                <span>
+                  Publicado{' '}
+                  <time dateTime={product.created_at} title={publishedFullDate}>
+                    {publishedLabel}
+                  </time>
+                </span>
+              </span>
+            )}
+          </div>
+        )}
       </CardFooter>
     </Card>
   )
