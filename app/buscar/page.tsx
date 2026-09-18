@@ -133,13 +133,13 @@ const TAB_COUNTS_DEBOUNCE_MS = 400
 
 function BuscarPageSkeleton() {
   return (
-    <div className="container mx-auto max-w-6xl px-4 sm:px-6 py-8">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-bold mb-4">Buscar</h1>
       <div className="flex gap-2 mb-6">
         <Skeleton className="h-11 flex-1 max-w-xl" />
         <Skeleton className="h-11 w-24" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-3 sm:gap-5 lg:gap-6">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="space-y-2">
             <Skeleton className="aspect-[4/3] lg:aspect-square rounded-lg" />
@@ -394,7 +394,7 @@ function BuscarPageContent() {
         return 'businesses' in results ? (
           <ul
             role="list"
-            className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6"
+            className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 sm:gap-5 lg:gap-6"
           >
             {results.businesses.map((business) => (
               <BusinessResultCard key={business.id} business={business} />
@@ -403,7 +403,7 @@ function BuscarPageContent() {
         ) : null
       case 'solicitudes':
         return 'demands' in results ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
             {results.demands.map((post) => (
               <DemandPostCard key={post.id} post={post} />
             ))}
@@ -413,7 +413,7 @@ function BuscarPageContent() {
         return 'profiles' in results ? (
           <ul
             role="list"
-            className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6"
+            className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 sm:gap-5 lg:gap-6"
           >
             {results.profiles.map((person) => (
               <PersonResultCard key={person.id} person={person} />
@@ -425,7 +425,7 @@ function BuscarPageContent() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <div className="container mx-auto max-w-6xl py-8 px-4 sm:px-6">
+      <div className="w-full py-8 px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4 text-balance">Buscar</h1>
@@ -475,7 +475,7 @@ function BuscarPageContent() {
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))] gap-3 sm:gap-5 lg:gap-6">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="space-y-2">
                       <Skeleton className="aspect-[4/3] lg:aspect-square rounded-lg" />

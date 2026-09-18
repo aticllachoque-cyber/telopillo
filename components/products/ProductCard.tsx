@@ -141,7 +141,7 @@ export function ProductCard({
     contactResolution.normalizedDigits == null
 
   return (
-    <Card className="overflow-hidden transition-shadow group hover:shadow-lg focus-within:shadow-lg">
+    <Card className="group flex h-full flex-col gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg focus-within:shadow-lg">
       {/* Image */}
       <div
         className={cn(
@@ -212,15 +212,18 @@ export function ProductCard({
         )}
       </div>
 
-      {/* Content */}
-      <CardContent className={cn(isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4')}>
+      {/* Content — flex-1 so every card's footer sits at the same bottom edge */}
+      <CardContent className={cn('flex-1', isPreview ? 'p-3 sm:p-3.5' : 'p-3 sm:p-4')}>
         <Link
           href={productPath}
           className={cn('block space-y-1 sm:space-y-2', isPreview && 'space-y-1')}
         >
-          {/* Title */}
+          {/* Title — reserve two lines so price/location rows line up across cards */}
           <h3
-            className={cn(productPresentation.listingTitle, 'hover:text-primary transition-colors')}
+            className={cn(
+              productPresentation.listingTitle,
+              'min-h-[2.75em] hover:text-primary transition-colors'
+            )}
           >
             {product.title}
           </h3>
@@ -268,58 +271,68 @@ export function ProductCard({
         )}
       </CardContent>
 
-      {/* Footer — optional WhatsApp (shared seller / storefront pages only) */}
-      <CardFooter
-        className={cn(
-          'flex flex-col gap-2 pt-0',
-          isPreview ? 'p-3 sm:p-3.5 sm:gap-2.5' : 'p-3 sm:p-4 sm:gap-3'
-        )}
-      >
-        {whatsappHref && (
-          <div className="flex w-full justify-end">
-            <ProductWhatsAppLink
-              href={whatsappHref}
-              ariaLabel="Contactar por WhatsApp sobre este producto"
-              fullWidth={false}
-              size="xs"
-              variant="text"
-              label="WhatsApp"
-              className="text-xs no-underline"
-            />
-          </div>
-        )}
-        {showContactUnavailableHint && (
-          <p className="text-xs text-muted-foreground leading-snug" role="status">
-            Contacto WhatsApp no disponible (número no válido).{' '}
-            <Link
-              href={productPath}
-              className="text-primary underline-offset-2 hover:underline font-medium"
-            >
-              Ver publicación
-            </Link>
-          </p>
-        )}
-        {/* Meta: views + published date, labelled so they read as information, not stray numbers */}
-        {!isPreview && (
-          <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1 whitespace-nowrap">
-              <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              <span className="tabular-nums">{viewsLabel}</span>
-            </span>
-            {publishedLabel && (
+      {/* Footer — meta on the left, optional WhatsApp on the right, pinned to the card bottom */}
+      {!isPreview && (
+        <CardFooter
+          className={cn('mt-auto flex flex-col items-stretch gap-2 pt-0', 'p-3 sm:p-4 sm:gap-2.5')}
+        >
+          {showContactUnavailableHint && (
+            <p className="text-xs text-muted-foreground leading-snug" role="status">
+              Contacto WhatsApp no disponible (número no válido).{' '}
+              <Link
+                href={productPath}
+                className="text-primary underline-offset-2 hover:underline font-medium"
+              >
+                Ver publicación
+              </Link>
+            </p>
+          )}
+          <div className="flex w-full items-center justify-between gap-3">
+            {/* Meta: views + published date, labelled so they read as information, not stray numbers */}
+            <div className="flex min-w-0 flex-col gap-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                <span>
-                  Publicado{' '}
-                  <time dateTime={product.created_at} title={publishedFullDate}>
-                    {publishedLabel}
-                  </time>
-                </span>
+                <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                <span className="tabular-nums">{viewsLabel}</span>
               </span>
+              {publishedLabel && (
+                <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                  <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  <span>
+                    Publicado{' '}
+                    <time dateTime={product.created_at} title={publishedFullDate}>
+                      {publishedLabel}
+                    </time>
+                  </span>
+                </span>
+              )}
+            </div>
+            {whatsappHref && (
+              <ProductWhatsAppLink
+                href={whatsappHref}
+                ariaLabel="Contactar por WhatsApp sobre este producto"
+                fullWidth={false}
+                size="xs"
+                variant="text"
+                label="WhatsApp"
+                className="shrink-0 text-xs no-underline"
+              />
             )}
           </div>
-        )}
-      </CardFooter>
+        </CardFooter>
+      )}
+      {isPreview && whatsappHref && (
+        <CardFooter className="mt-auto flex justify-end p-3 pt-0 sm:p-3.5 sm:pt-0">
+          <ProductWhatsAppLink
+            href={whatsappHref}
+            ariaLabel="Contactar por WhatsApp sobre este producto"
+            fullWidth={false}
+            size="xs"
+            variant="text"
+            label="WhatsApp"
+            className="text-xs no-underline"
+          />
+        </CardFooter>
+      )}
     </Card>
   )
 }
