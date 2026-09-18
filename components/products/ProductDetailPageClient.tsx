@@ -325,7 +325,6 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
                   isOwner
                     ? undefined
                     : {
-                        imageUrl: productImages[0] ?? null,
                         price: Number(product.price),
                         productPageUrl: absoluteUrl(productPath),
                       }
