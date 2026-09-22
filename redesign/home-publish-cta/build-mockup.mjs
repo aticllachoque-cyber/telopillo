@@ -1,11 +1,9 @@
-// Stage 6 faithful mockup for home-publish-cta
-// Real hydrated DOM of / + minimal patches (F-1..F-5). Precedent: stitch:fallback x8.
-// Patches:
-//   P-1 mobile/tablet header: compact primary "Publicá gratis" button (clone Entrar) in lg:hidden controls
-//   P-2 desktop header label: "Publicar Gratis" -> "Publicá gratis"
-//   P-3 hero: seller action row — primary "Publicá gratis" (/crear) + existing muted /busco link
-//   P-4 CtaStrip: primary "Publicá gratis" first, "Crear cuenta gratis" outline, login link kept
-//   P-5 drawer label handled in impl (portal not in static DOM)
+// Stage 6 faithful mockup for home-publish-cta — ITERATION 1 (Checkpoint 4 feedback)
+// Dev server serves impl v1: P-2/P-3/P-4/P-5 already live in DOM (idempotent guards skip).
+// Iteration delta:
+//   D-1 remove mobile header publish button (declutter: 5 controls -> 4 on 375px)
+//   D-2 inject FAB: fixed bottom pill "Publicá gratis" (<1024px only), token values
+//      read live from a real primary button via getComputedStyle (no fabricated values)
 import { chromium } from '@playwright/test'
 import { writeFileSync, mkdirSync } from 'fs'
 
@@ -25,78 +23,68 @@ await page.waitForTimeout(1500)
 await page.evaluate((megaphoneSvg) => {
   const log = []
 
-  // ---- P-2: desktop header label voseo
-  for (const a of document.querySelectorAll('header a[href="/crear"]')) {
+  // ---- P-2: desktop header label voseo (idempotent — impl v1 already live)
+  let p2 = false
+  for (const a of document.querySelectorAll('header nav a[href="/crear"]')) {
     if (a.textContent.trim() === 'Publicar Gratis') {
       a.textContent = 'Publicá gratis'
-      log.push('P-2 desktop header label -> Publicá gratis')
+      p2 = true
     }
   }
+  log.push(p2 ? 'P-2 desktop header label -> Publicá gratis' : 'P-2 skip: desktop label already voseo (impl v1)')
 
-  // ---- P-1: mobile controls publish button (clone Entrar for exact button classes)
-  const mobileControls = document.querySelector('header div.lg\\:hidden')
-  const entrar = mobileControls?.querySelector('a[href="/login"]')
-  if (mobileControls && entrar) {
-    const pub = entrar.cloneNode(true)
-    pub.setAttribute('href', '/crear')
-    pub.setAttribute('aria-label', 'Publicá gratis')
-    pub.innerHTML = `${megaphoneSvg}<span>Publicá</span><span class="hidden sm:inline"> gratis</span>`
-    mobileControls.insertBefore(pub, entrar)
-    log.push('P-1 mobile publish button injected before Entrar')
+  // ---- P-3/P-4 skip check (impl v1 live)
+  const heroRowDone = !!document.querySelector('#hero-heading')?.closest('div')?.querySelector('a[href="/crear"]')
+  log.push(heroRowDone ? 'P-3 skip: hero action row already in DOM (impl v1)' : 'P-3 MISSING: hero action row not found')
+  const stripDone = !!document.querySelector('a[href="/crear"][aria-label*="sin costo"]')
+  log.push(stripDone ? 'P-4 skip: CtaStrip publish primary already in DOM (impl v1)' : 'P-4 MISSING: CtaStrip publish not found')
+
+  // ---- D-1: remove mobile header publish button (declutter — Checkpoint 4 feedback)
+  const mobilePub = document.querySelector('header div.lg\\:hidden a[href="/crear"]')
+  if (mobilePub) {
+    mobilePub.remove()
+    log.push('D-1 mobile header publish button removed')
   } else {
-    log.push('P-1 FAILED: mobile controls or Entrar not found')
+    log.push('D-1 FAILED: mobile header publish button not found')
   }
 
-  // ---- P-3: hero seller action row
-  const heroCard = document.getElementById('hero-heading')?.closest('div')
-  const mutedLinkP = heroCard?.querySelector('p a[href="/busco"]')?.closest('p')
-  if (heroCard && mutedLinkP) {
-    const registerBtn = document.querySelector('a[href="/register"]') // CtaStrip primary (anon state) — exact default button classes
-    const row = document.createElement('div')
-    row.className = 'mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4'
-    const pubA = document.createElement('a')
-    pubA.setAttribute('href', '/crear')
-    pubA.className = registerBtn
-      ? registerBtn.className + ' min-h-[44px] touch-manipulation px-6'
-      : 'inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90'
-    pubA.setAttribute('aria-label', 'Publicá gratis — sin costo ni comisiones')
-    pubA.innerHTML = `${megaphoneSvg}<span>Publicá gratis</span>`
-    row.appendChild(pubA)
-    // keep the seller-discovery link, copy clarified (F-3)
-    const link = mutedLinkP.querySelector('a')
-    if (link) {
-      const span = link.querySelector('span.text-pretty')
-      if (span) span.textContent = '¿Vendés? Mirá qué buscan los compradores'
-    }
-    row.appendChild(mutedLinkP.cloneNode(true))
-    mutedLinkP.replaceWith(row)
-    log.push('P-3 hero action row: publish primary + /busco link kept')
+  // ---- D-2: FAB fixed bottom pill (<1024px), token values from live primary button
+  const tokenSrc = document.querySelector('a[href="/crear"][aria-label*="sin costo"]') // hero primary (impl v1)
+  if (tokenSrc) {
+    const cs = getComputedStyle(tokenSrc)
+    const fab = document.createElement('a')
+    fab.id = 'publish-fab'
+    fab.setAttribute('href', '/crear')
+    fab.setAttribute('aria-label', 'Publicá gratis — sin costo ni comisiones')
+    fab.style.cssText = [
+      'position: fixed',
+      'bottom: calc(env(safe-area-inset-bottom, 0px) + 12px)',
+      'left: 50%',
+      'transform: translateX(-50%)',
+      'z-index: 40',
+      'display: inline-flex',
+      'align-items: center',
+      'gap: 8px',
+      'min-height: 48px',
+      'padding: 0 22px',
+      'border-radius: 9999px',
+      `background-color: ${cs.backgroundColor}`,
+      `color: ${cs.color}`,
+      `font-family: ${cs.fontFamily}`,
+      'font-size: 15px',
+      'font-weight: 600',
+      'text-decoration: none',
+      'box-shadow: 0 4px 16px rgb(0 0 0 / 0.25)',
+      'border: none',
+    ].join('; ')
+    fab.innerHTML = `${megaphoneSvg.replace('width="16" height="16"', 'width="20" height="20"')}<span>Publicá gratis</span>`
+    const mq = document.createElement('style')
+    mq.textContent = '@media (min-width: 1024px) { #publish-fab { display: none !important; } }'
+    document.head.appendChild(mq)
+    document.body.appendChild(fab)
+    log.push(`D-2 FAB injected (bg ${cs.backgroundColor}, fg ${cs.color}) — desktop-hidden via media query`)
   } else {
-    log.push('P-3 FAILED: hero muted link not found')
-  }
-
-  // ---- P-4: CtaStrip reorder — publish first, register outline
-  const stripCard = entrar && document.querySelector('a[href="/register"]')?.closest('[data-slot="card-content"], .card') || null
-  const regBtn = document.querySelector('a[href="/register"]')
-  if (regBtn) {
-    const container = regBtn.closest('div')
-    const loginLink = container?.querySelector('a[href="/login"]')
-    // publish primary (clone register default button)
-    const pubA = regBtn.cloneNode(true)
-    pubA.setAttribute('href', '/crear')
-    pubA.innerHTML = `${megaphoneSvg}<span>Publicá gratis</span>`
-    pubA.setAttribute('aria-label', 'Publicá gratis — sin costo ni comisiones')
-    // register -> outline variant (shadcn outline classes)
-    regBtn.className = regBtn.className
-      .replace(/bg-primary\s*/, '')
-      .replace(/text-primary-foreground\s*/, '')
-      .replace(/hover:bg-primary\/90\s*/, '') +
-      ' border border-input bg-background text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground'
-    regBtn.textContent = 'Crear cuenta gratis'
-    container.insertBefore(pubA, regBtn)
-    log.push('P-4 CtaStrip: publish primary first, register outline, login link kept' + (loginLink ? '' : ' (login link missing?)'))
-  } else {
-    log.push('P-4 FAILED: register button not found (authed state?)')
+    log.push('D-2 FAILED: token source primary button not found')
   }
 
   window.__patchLog = log

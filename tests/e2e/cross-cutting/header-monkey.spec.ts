@@ -260,13 +260,40 @@ test.describe('Header Monkey - Responsive Transitions', () => {
     await expect(page.getByRole('button', { name: /abrir menú/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /categorías/i })).not.toBeVisible()
 
-    // 768px = desktop
+    // 768px = tablet layout (<1024px): publish CTA is the sticky landing FAB
     await page.setViewportSize({ width: 768, height: 600 })
     await page.waitForTimeout(400)
     await expect(page.getByRole('search', { name: /buscar productos/i })).toBeVisible()
+    await expect(page.locator('#publish-fab')).toBeVisible()
+  })
+
+  test('Sticky publish FAB: visible mobile/tablet, hidden desktop, navigates to /crear', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+
+    // Mobile + tablet (<1024px): FAB visible
+    for (const width of [375, 768]) {
+      await page.setViewportSize({ width, height: 800 })
+      await page.waitForTimeout(300)
+      await expect(page.locator('#publish-fab')).toBeVisible()
+    }
+
+    // Desktop (>=1024px): FAB hidden — header nav carries the CTA
+    await page.setViewportSize({ width: 1024, height: 768 })
+    await page.waitForTimeout(300)
+    await expect(page.locator('#publish-fab')).not.toBeVisible()
     await expect(
       page.getByRole('banner').getByRole('link', { name: /publicá gratis/i })
     ).toBeVisible()
+
+    // Tap FAB on mobile -> publish chooser
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.waitForTimeout(300)
+    await page.locator('#publish-fab').click()
+    await page.waitForURL(/\/crear/, { timeout: 5000 })
+    await expect(page.getByRole('heading', { name: /qué querés publicar/i })).toBeVisible()
   })
 })
 

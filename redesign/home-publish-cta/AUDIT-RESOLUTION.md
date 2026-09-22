@@ -1,18 +1,19 @@
-# AUDIT-RESOLUTION — home-publish-cta
+# AUDIT-RESOLUTION — home-publish-cta (ITERACIÓN 1)
 
 > Stage 8 verification. One row per F-<n>: resolved / deferred (sign-off-approved) / open.
 > P0/P1 open blocks; P2 open allowed but recorded.
 
-Branch: `redesign/home-publish-cta` (from main `436af44`) | Date: 2026-09-22
+Branch: `redesign/home-publish-cta` (iter.1 sobre 15ca67c) | Date: 2026-09-22
+Delta iter.1 (sign-off "procede"): FAB sticky bottom reemplaza botón header móvil; header desktop/hero/strip/drawer sin cambios vs iter.0.
 
 | F | Severity | Disposition | Evidence |
 |---|----------|-------------|----------|
-| F-1 (P1) | resolved | Botón "Publicá" en header móvil/tablet (clon de Entrar, `min-h-[44px] min-w-[44px]`, Megaphone + texto expandible `Publicá`→`Publicá gratis` en sm+). Live: after/manifest.txt — publish links visible: desktop=3, tablet=3, mobile=3 (antes 1/0/0); after/asserts.txt "mobile header publish visible+44px: true 44px"; after/crop-mobile-header.png |
-| F-2 (P1) | resolved | Fila de acción en hero: botón primario "Publicá gratis" → `/crear` (aria-label "Publicá gratis — sin costo ni comisiones") + link secundario ¿Vendés? `/busco`. Live: after/asserts.txt "hero publish link: true"; after/desktop.png, after/mobile.png |
-| F-3 (P2) | resolved | ¿Vendés? deja de competir como CTA principal del hero: de `<p>` muted a link secundario junto al botón primario de publicar (jerarquía visual clara). Live: after/dom.txt (link secundario con ChevronRight bajo botón primario) |
-| F-4 (P2) | resolved | CtaStrip reordena: primario `size="lg"` "Publicá gratis" → `/crear`, "Crear cuenta gratis" pasa a `variant="outline"`; copy "Publicá tu primer aviso en 2 minutos. Gratis, sin tarjeta, sin comisiones.". Live: after/asserts.txt "hero+strip publish links (aria-label): 2" |
-| F-5 (P2) | resolved | Vocabulario unificado a voseo "Publicá gratis": label desktop Header, footer MobileNavigationDrawer (:434), tests/e2e/cross-cutting/header-monkey.spec.ts (5 regexes `/publicá gratis/i` + banner-scoping en :267/:374). Live: after/asserts.txt "old label gone: true", "desktop header label voseo: true" |
+| F-1 (P1) | resolved | ITER.1: FAB pill sticky bottom "Publicá gratis" → `/crear` (48px, tokens primary, safe-area inset, z-40 bajo drawer z-50, `lg:hidden`) visible siempre en mobile+tablet; botón header móvil REMOVIDO (declutter 5→4). Montado en `app/page.tsx` (landing) — NOTA IMPL: layout global descartado por colisión con barras bottom propias de /busco/[id] (DemandPostDetail fixed bottom z-40) y wizard (sticky bottom); cero regresiones. Live: after/manifest.txt FAB 158×48 mobile y=752 / tablet y=964 / desktop ausente; after/asserts.txt 12/12 true; after/crop-mobile-fab.png |
+| F-2 (P1) | resolved | Hero botón primario + CtaStrip primario (heredado iter.0, sin cambios). Live: asserts "hero publish link: true", "hero+strip: 2" |
+| F-3 (P2) | resolved | ¿Vendés? secundario junto a hero primario (heredado iter.0). Live: after/dom.txt |
+| F-4 (P2) | resolved | CtaStrip publish primario + register outline (heredado iter.0). Live: after/desktop.png |
+| F-5 (P2) | resolved | Voseo unificado — FAB usa mismo label "Publicá gratis"; specs actualizados iter.1 (768px assert → FAB; test nuevo FAB visible/hidden/navega). Live: "old label gone: true" |
 
-Resumen: 5 resolved, 0 deferred, 0 open.
+Resumen iter.1: 5 resolved, 0 deferred, 0 open.
 
-Verificación adicional: sin overflow horizontal a 375px (`scrollWidth <= clientWidth`), 4 links publish totales por viewport (3 visibles + 1 en drawer cerrado), type-check limpio, lint 0 errores (12 warnings pre-existentes en scripts redesign/).
+Verificación adicional: header móvil sin Publicá pero Entrar intacto; footer clearance en scroll bottom (copyright bottom 6819 ≤ FAB top 6855); sin overflow horizontal 375px; type-check limpio; lint 0 errores (11 warnings pre-existentes scripts redesign/); publish links visibles 3/3/3 viewports (hero+strip+FAB en móvil, nav+hero+strip en desktop).

@@ -265,6 +265,25 @@ export default async function Home() {
 
       {/* CTA Strip - only shown to unauthenticated users */}
       <CtaStrip />
+
+      {/* Sticky publish CTA (approved iter.1) — mobile/tablet only; desktop uses header nav.
+          Landing-only mount: /busco/[id] and publish wizards render their own bottom CTAs. */}
+      <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] left-1/2 z-40 -translate-x-1/2 lg:hidden">
+        <Button
+          asChild
+          size="lg"
+          className="h-12 rounded-full px-6 text-sm font-semibold shadow-lg"
+        >
+          <Link
+            href="/crear"
+            id="publish-fab"
+            aria-label="Publicá gratis — sin costo ni comisiones"
+          >
+            <Megaphone className="size-5" aria-hidden />
+            Publicá gratis
+          </Link>
+        </Button>
+      </div>
     </div>
   )
 }

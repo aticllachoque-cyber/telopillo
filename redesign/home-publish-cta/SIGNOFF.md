@@ -1,12 +1,9 @@
-# SIGNOFF — home-publish-cta
+# SIGNOFF — home-publish-cta (iteración 1)
 
 - Approver: Alcides
 - Date: 2026-09-22
-- Decision: approved (verbatim: "aprobar")
-- Iteration: 0
-- sha256 (content-only, comparison.html + proposal/*): 1afb37854ae5c52845883d82a73c5fb839da119d7f048a9ff996dcb03585717c
-- Coverage approved: F-1..F-5 all addressed, 0 deferred; siblings 4 addressed / 7 not-affected / 1 deferred (WelcomeScreen, already voseo)
-- Transparency notes (in comparison.html):
-  - Stitch render kept as reference only (own design system) — proposal of record = faithful DOM mockup
-  - Drawer label "Publicá gratis" changes at impl time (portal, not in static DOM)
-  - header-monkey.spec.ts updated in Stage 8 (label voseo F-5), scope.txt grows with the spec
+- Decision: approved (verbatim: "procede")
+- Iteration: 1 (Checkpoint 4 feedback: FAB sticky inferior en vez de botón header)
+- sha256 (content-only, comparison.html + proposal/*): 4a8bd5c1659525f39922a01c6d271c5c409c612b5f93bf8fdf21fec4c0eba84c
+- Coverage approved: F-1 vía FAB bottom <1024px + header móvil decluttered; F-2..F-5 sin cambios vs impl v1; hermanos: Header/Footer addressed, resto igual que iter.0
+- Transparencia iter.1: FAB fullPage renders anclado a primer viewport (Chromium stitch — crops viewport documentan real); tokens leídos getComputedStyle del botón primario vivo; Stitch iter.0 sigue reference-only

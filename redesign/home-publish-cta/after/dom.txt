@@ -1,4 +1,4 @@
-# / — viewport desktop, anon, branch redesign/home-publish-cta
+# / — viewport desktop, anon, branch redesign/home-publish-cta iter.1 (FAB)
 
 - main:
   - region "Lo buscás, ¡te lo pillo!":

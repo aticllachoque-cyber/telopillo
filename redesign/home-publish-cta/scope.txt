@@ -1,5 +1,6 @@
 app/page.tsx
 components/home/CtaStrip.tsx
+components/layout/Footer.tsx
 components/layout/Header.tsx
 components/layout/MobileNavigationDrawer.tsx
 redesign/

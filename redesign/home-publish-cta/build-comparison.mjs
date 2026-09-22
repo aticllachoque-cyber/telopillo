@@ -1,34 +1,38 @@
-// Build comparison.html for home-publish-cta — 3 before/after pairs + crops + G3c/G3d tables
+// Build comparison.html for home-publish-cta — ITERATION 1 (Checkpoint 4 feedback: FAB bottom)
+// Pairs: ANTES = impl v1 as-executed (after/) | PROPUESTA = mockup iter.1 (FAB bottom, header móvil sin botón)
 import { readFileSync, writeFileSync } from 'fs'
 
 const DIR = new URL('./', import.meta.url).pathname
 const b64 = (p) => `data:image/png;base64,${readFileSync(DIR + p).toString('base64')}`
 
 const pairs = [
-  { name: 'Desktop 1920×1080', before: 'current/desktop.png', after: 'proposal/render-desktop.png' },
-  { name: 'Tablet 768×1024', before: 'current/tablet.png', after: 'proposal/render-tablet.png' },
-  { name: 'Mobile 375×812', before: 'current/mobile.png', after: 'proposal/render-mobile.png' },
+  { name: 'Desktop 1920×1080', before: 'after/desktop.png', after: 'proposal/render-desktop.png' },
+  { name: 'Tablet 768×1024', before: 'after/tablet.png', after: 'proposal/render-tablet.png' },
+  { name: 'Mobile 375×812', before: 'after/mobile.png', after: 'proposal/render-mobile.png' },
 ]
 
 const crops = [
-  { name: 'Móvil — header (Publicá visible entre lupa y Entrar)', img: 'proposal/crop-mobile-header.png' },
-  { name: 'Móvil — hero (botón primario Publicá gratis + link vendedor)', img: 'proposal/crop-mobile-hero.png' },
-  { name: 'Móvil — strip final (Publicá gratis primario, Crear cuenta outline)', img: 'proposal/crop-mobile-ctastrip.png' },
+  { name: 'Móvil — FAB sticky bottom (top de página)', img: 'proposal/crop-mobile-fab.png' },
+  { name: 'Móvil — FAB persiste sobre contenido (mid-scroll)', img: 'proposal/crop-mobile-fab-scrolled.png' },
+  { name: 'Móvil — header decluttered iter.1 (lupa + Entrar, sin Publicá)', img: 'proposal/crop-mobile-header-v2.png' },
+  { name: 'Móvil iter.0 — header con Publicá (impl v1, para comparar)', img: 'proposal/crop-mobile-header.png' },
+  { name: 'Móvil — hero (botón primario Publicá gratis + link vendedor, ya en impl v1)', img: 'proposal/crop-mobile-hero.png' },
+  { name: 'Móvil — strip final (Publicá gratis primario, ya en impl v1)', img: 'proposal/crop-mobile-ctastrip.png' },
 ]
 
 const g3c = [
-  ['F-1', 'addressed', 'Header móvil/tablet: botón primario compacto "Publicá" (icono+texto, 44px) insertado entre lupa y Entrar — visible <1024px. Evidencia: crop-mobile-header.png; render-tablet/mobile.png'],
-  ['F-2', 'addressed', 'Contenido landing: hero gana botón primario "Publicá gratis" (/crear) bajo el buscador + strip final gana "Publicá gratis" primario. Evidencia: crop-mobile-hero.png, crop-mobile-ctastrip.png'],
-  ['F-3', 'addressed', 'Link vendedor re-wording "¿Vendés? Mirá qué buscan los compradores" (sigue a /busco, browse) y publicación ahora es acción distinta y visible al lado — cero ambigüedad'],
-  ['F-4', 'addressed', 'CtaStrip: "Publicá gratis" botón primario primero, "Crear cuenta gratis" degradado a outline, link login intacto'],
-  ['F-5', 'addressed', 'Vocabulario unificado a voseo "Publicá gratis" en los 4 CTAs (header móvil+desktop, hero, strip; drawer label se cambia en impl — portal fuera del DOM estático). Tests header-monkey actualizados en Stage 8'],
+  ['F-1', 'addressed', 'ITER.1: FAB sticky bottom "Publicá gratis" (pill 48px, token primary, safe-area inset) visible siempre <1024px + botón header móvil REMOVIDO (declutter 5→4 controles). Desktop conserva header. Evidencia: crop-mobile-fab.png, crop-mobile-fab-scrolled.png, crop-mobile-header-v2.png'],
+  ['F-2', 'addressed', 'Contenido landing: hero gana botón primario "Publicá gratis" (/crear) bajo el buscador + strip final gana "Publicá gratis" primario (impl v1, sin cambios iter.1). Evidencia: crop-mobile-hero.png, crop-mobile-ctastrip.png'],
+  ['F-3', 'addressed', 'Link vendedor re-wording "¿Vendés? Mirá qué buscan los compradores" (sigue a /busco, browse) y publicación ahora es acción distinta y visible al lado — cero ambigüedad (impl v1, sin cambios iter.1)'],
+  ['F-4', 'addressed', 'CtaStrip: "Publicá gratis" botón primario primero, "Crear cuenta gratis" degradado a outline, link login intacto (impl v1, sin cambios iter.1)'],
+  ['F-5', 'addressed', 'Vocabulario unificado a voseo "Publicá gratis" en todos los CTAs — iter.1 mantiene (FAB usa mismo label). Tests header-monkey ya actualizados en impl v1; iter.1 ajusta asserts del botón header móvil removido'],
 ]
 
 const g3d = [
-  ['components/layout/Header.tsx', 'addressed', 'botón móvil + label voseo desktop'],
-  ['components/layout/MobileNavigationDrawer.tsx', 'addressed', 'label "Publicar Gratis"→"Publicá gratis" en impl (F-5)'],
-  ['components/home/CtaStrip.tsx', 'addressed', 'publish primario + register outline'],
-  ['app/page.tsx', 'addressed', 'hero action row'],
+  ['components/layout/Header.tsx', 'addressed', 'ITER.1: botón móvil removido; label voseo desktop queda'],
+  ['components/layout/MobileNavigationDrawer.tsx', 'addressed', 'label "Publicá gratis" ya en impl v1'],
+  ['components/home/CtaStrip.tsx', 'addressed', 'publish primario + register outline ya en impl v1'],
+  ['app/page.tsx', 'addressed', 'hero action row ya en impl v1'],
   ['app/crear/page.tsx', 'not-affected', 'chooser destino, vocabulario local queda'],
   ['app/buscar/page.tsx', 'not-affected', 'CTA cards empty-state ya existen (referencia voseo)'],
   ['app/busco/page.tsx', 'not-affected', 'botones Publicar solicitud ya existen'],
@@ -36,7 +40,7 @@ const g3d = [
   ['app/perfil/mis-productos/page.tsx', 'not-affected', 'superficie auth'],
   ['app/perfil/demandas/page.tsx', 'not-affected', 'superficie auth'],
   ['components/onboarding/WelcomeScreen.tsx', 'not-affected', 'copy ya voseo "publicá gratis"'],
-  ['components/layout/Footer.tsx', 'not-affected', 'sin link publicar por diseño (scope cerrado)'],
+  ['components/layout/Footer.tsx', 'addressed', 'ITER.1: padding-bottom en impl para compensar FAB (no tapar links)'],
 ]
 
 const html = `<!DOCTYPE html>
@@ -63,11 +67,12 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
 <div class="wrap">
-<h1>home-publish-cta — / (landing) — antes vs propuesta</h1>
-<p>Feedback origen (2026-09-22): usuarios entran a la app pero no encuentran cómo publicar. Verificado en prod: mobile/tablet = 0 CTAs publicar visibles; desktop = solo header.</p>
-<p>Propuesta = mockup fiel sobre DOM real hidratado de <code>/</code> (mismo tema oklch, mismas cards, mismos datos) + parches mínimos. Capturas antes/después idénticas: fullPage, dsf=2, anon, mismos viewports.</p>
+<h1>home-publish-cta — / (landing) — ITERACIÓN 1: impl v1 vs propuesta FAB bottom</h1>
+<p>Feedback origen (2026-09-22): usuarios entran a la app pero no encuentran cómo publicar. Iteración 0 (impl v1, ya en branch) resolvió con botón header móvil. <strong>Feedback Checkpoint 4 (mismo día): evaluar botón sticky inferior en vez de header.</strong></p>
+<p>ANTES = impl v1 as-executed (capturas after/). PROPUESTA iter.1 = mockup fiel sobre el MISMO DOM real (dev server sirve branch impl v1) + delta: D-1 remueve botón header móvil, D-2 inyecta FAB sticky bottom (pill "Publicá gratis", tokens primary vivos vía getComputedStyle, hidden ≥1024px). Capturas idénticas: fullPage, dsf=2, anon, mismos viewports.</p>
 
-<div class="note"><strong>Transparencia:</strong> Stitch MCP generó un diseño de referencia esta vez (proposal/stitch-screen.html + stitch-render-reference.png) pero con design system propio (Plus Jakarta Sans, hex #109353) — diverge del tema real; precedente buscar-a11y loop 1 = rechazo humano. Propuesta de registro = mockup fiel (precedente ×8). Defectos conocidos del mockup: (1) label drawer "Publicá gratis" cambia en impl (portal no está en DOM estático); (2) imágenes servidas por dev server absoluto; (3) SW/PWA no installado en captures (igual ambos lados).</div>
+<div class="note"><strong>Transparencia iter.1:</strong> (1) FAB en fullPage renders aparece anclado al primer viewport (comportamiento Chromium con position:fixed) — crops viewport muestran comportamiento real top y mid-scroll; (2) valores del FAB leídos del botón primario real (bg lab/oklch primary) — cero valores inventados; (3) hero/strip/drawer sin cambios vs impl v1; (4) iter.0 Stitch sigue como reference-only (stitch-meta.json).</div>
+<div class="note"><strong>Rationale FAB (evaluación):</strong> zona pulgar (Fitts), header declutter 5→4 controles en 375px, patrón Wallapop/Meli, auth-agnóstico. Header sticky ya persistía — ventaja real es ergonomía + espacio, no persistencia.</div>
 
 <h2>Pares antes/después</h2>
 ${pairs
@@ -94,14 +99,13 @@ ${g3c.map((r) => `<tr><td>${r[0]}</td><td class="${r[1] === 'addressed' ? 'addr'
 ${g3d.map((r) => `<tr><td><code>${r[0]}</code></td><td class="${r[1] === 'addressed' ? 'addr' : 'na'}">${r[1]}</td><td>${r[2]}</td></tr>`).join('\n')}
 </table>
 
-<h2>Qué cambia exactamente (impl)</h2>
+<h2>Qué cambia exactamente (impl iter.1 — delta sobre impl v1)</h2>
 <ul>
-<li><strong>Header móvil/tablet (&lt;1024px)</strong>: botón primario compacto megáfono + "Publicá" (sm+ muestra "Publicá gratis") → /crear, entre lupa y Entrar. Logo flex-1 absorbe el ancho.</li>
-<li><strong>Header desktop</strong>: label "Publicar Gratis" → "Publicá gratis".</li>
-<li><strong>Hero</strong>: fila bajo el buscador = botón primario "Publicá gratis" (/crear) + link muted "¿Vendés? Mirá qué buscan los compradores" (/busco). Stack en móvil, fila en sm+.</li>
-<li><strong>CtaStrip (anon)</strong>: "Publicá gratis" primario primero, "Crear cuenta gratis" outline, login link intacto.</li>
-<li><strong>Drawer</strong>: label unificado "Publicá gratis".</li>
-<li><strong>Tests</strong>: header-monkey.spec.ts actualiza selector/texto "Publicá gratis" (2 tests).</li>
+<li><strong>NUEVO componente FAB</strong> (components/layout/PublishFab.tsx o inline en layout): pill fixed bottom-center "Publicá gratis" → /crear, <code>lg:hidden</code>, 48px, safe-area inset, z-40 (bajo drawer z-50), tokens primary.</li>
+<li><strong>Header móvil</strong>: botón Publicá REMOVIDO (desktop nav intacto).</li>
+<li><strong>Footer</strong>: padding-bottom compensatorio (FAB no tapa links).</li>
+<li><strong>Tests</strong>: header-monkey mobile asserts ajustan (botón header móvil fuera; FAB add asserts).</li>
+<li><strong>Sin cambios</strong>: hero, CtaStrip, drawer, desktop header.</li>
 </ul>
 </div>
 </body>
