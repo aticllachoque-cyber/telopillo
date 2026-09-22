@@ -91,7 +91,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 min-w-0 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-4">
+      <div className="container mx-auto flex h-16 min-w-0 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-4">
         {/* Logo */}
         <Link
           href="/"
@@ -245,7 +245,7 @@ export function Header() {
               aria-label="Buscar en Telopillo"
               aria-modal="true"
             >
-              <div className="container flex items-center gap-2 py-3 px-3 sm:px-4">
+              <div className="container mx-auto flex items-center gap-2 py-3 px-3 sm:px-4">
                 <Suspense fallback={<div className="min-h-[44px] flex-1" />}>
                   <SearchBar
                     className="flex-1"

@@ -8,7 +8,7 @@ export function Footer() {
 
   return (
     <footer className="border-t bg-background">
-      <div className="container px-4 py-6 md:py-8">
+      <div className="container mx-auto px-4 py-6 md:py-8">
         {/* Top row: Brand + Social + Links */}
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           {/* Brand + Social */}
