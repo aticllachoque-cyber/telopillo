@@ -1,0 +1,5 @@
+home-publish-cta after captures — 2026-09-22
+route: / | state: anon | branch: redesign/home-publish-cta (impl F-1..F-5)
+desktop: / | viewport 1920x1080, fullPage, dsf=2, anon | publish links: total=4 visible=3
+tablet: / | viewport 768x1024, fullPage, dsf=2, anon | publish links: total=4 visible=3
+mobile: / | viewport 375x812, fullPage, dsf=2, anon | publish links: total=4 visible=3

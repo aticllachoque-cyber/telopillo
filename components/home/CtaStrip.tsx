@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Megaphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/components/providers/AuthProvider'
@@ -19,11 +20,22 @@ export function CtaStrip() {
               ¿Listo para empezar?
             </h2>
             <p className="text-pretty text-muted-foreground">
-              Cuenta gratis en 2 minutos. Sin tarjeta. Sin compromisos.
+              Publicá tu primer aviso en 2 minutos. Gratis, sin tarjeta, sin comisiones.
             </p>
             <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center sm:gap-4">
               <Button
                 size="lg"
+                className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
+                asChild
+              >
+                <Link href="/crear" aria-label="Publicá gratis — sin costo ni comisiones">
+                  <Megaphone className="size-4" aria-hidden />
+                  Publicá gratis
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
                 className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
                 asChild
               >

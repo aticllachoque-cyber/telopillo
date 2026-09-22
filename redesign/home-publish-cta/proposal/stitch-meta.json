@@ -1,0 +1,14 @@
+{
+  "project": "projects/3518708570007846424",
+  "screen": "projects/3518708570007846424/screens/c96a8d34c389426b8bafdb037d05da44",
+  "generated": "2026-09-22",
+  "deviceType": "MOBILE",
+  "status": "captured",
+  "decision": "reference-only",
+  "reason": "Stitch render usa design system propio (Plus Jakarta Sans, hex #109353, tokens ajenos) — diverge del tema real oklch/geist de la app. Propuesta de registro = mockup fiel sobre DOM real (precedente buscar-a11y loop 1 rechazo humano + fallback x7). Stitch conservado como referencia de estructura/ideas: header movil con boton publicar visible, hero callout vendedor, CTA strip final con publicar primario, guia 3 pasos vendedor.",
+  "briefHash": "see stitch-brief.md 2026-09-22",
+  "files": {
+    "html": "proposal/stitch-screen.html",
+    "render": "proposal/stitch-render-reference.png"
+  }
+}

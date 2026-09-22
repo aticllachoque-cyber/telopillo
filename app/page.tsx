@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CtaStrip } from '@/components/home/CtaStrip'
 import { getHomepagePreview } from '@/lib/home/getHomepagePreview'
@@ -113,16 +114,22 @@ export default async function Home() {
 
               <HeroSearchForm />
 
-              <p className="mt-6 text-center">
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+                <Button asChild className="min-h-[44px] touch-manipulation px-6">
+                  <Link href="/crear" aria-label="Publicá gratis — sin costo ni comisiones">
+                    <Megaphone className="size-4" aria-hidden />
+                    Publicá gratis
+                  </Link>
+                </Button>
                 <Link
                   href="/busco"
                   className="inline-flex min-h-[44px] touch-manipulation items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <Target className="size-4 shrink-0" aria-hidden />
-                  <span className="text-pretty">¿Vendés? Encontrá qué buscan los compradores</span>
+                  <span className="text-pretty">¿Vendés? Mirá qué buscan los compradores</span>
                   <ChevronRight className="size-4 shrink-0" aria-hidden />
                 </Link>
-              </p>
+              </div>
             </CardContent>
           </Card>
         </div>

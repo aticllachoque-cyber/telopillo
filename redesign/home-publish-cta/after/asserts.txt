@@ -1,0 +1,5 @@
+desktop header label voseo: true
+hero publish link: true
+hero+strip publish links (aria-label): 2
+old label gone: true
+mobile header publish visible+44px: true 44px

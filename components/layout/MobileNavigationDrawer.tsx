@@ -431,7 +431,7 @@ export function MobileNavigationDrawer({
             {isAuthenticated ? (
               <Button asChild className="w-full" size="lg">
                 <Link href="/crear" onClick={() => onClose(false)}>
-                  Publicar Gratis
+                  Publicá gratis
                 </Link>
               </Button>
             ) : (

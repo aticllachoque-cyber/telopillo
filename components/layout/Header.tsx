@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Menu, Search, X } from 'lucide-react'
+import { Megaphone, Menu, Search, X } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { MobileNavigationDrawer } from './MobileNavigationDrawer'
@@ -144,7 +144,7 @@ export function Header() {
             </Link>
           </div>
           <Button asChild className="min-h-[44px]">
-            <Link href="/crear">Publicar Gratis</Link>
+            <Link href="/crear">Publicá gratis</Link>
           </Button>
           <UserMenu />
         </nav>
@@ -163,6 +163,18 @@ export function Header() {
             aria-label="Buscar"
           >
             <Search className="h-5 w-5" aria-hidden />
+          </Button>
+
+          {/* Publish CTA — visible on mobile/tablet (desktop nav has its own) */}
+          <Button asChild className="min-h-[44px] min-w-[44px] touch-manipulation px-2.5 sm:px-4">
+            <Link href="/crear" aria-label="Publicá gratis">
+              <Megaphone className="size-4" aria-hidden />
+              <span aria-hidden>Publicá</span>
+              <span className="hidden sm:inline" aria-hidden>
+                {' '}
+                gratis
+              </span>
+            </Link>
           </Button>
 
           {!isAuthenticated ? (
