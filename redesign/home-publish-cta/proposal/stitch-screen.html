@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Telopillo Bolivia - Lo buscás, ¡te lo pillo!</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-dim": "#cbdbf5",
+            "on-surface-variant": "#3e4a40",
+            "on-tertiary-fixed-variant": "#3f465c",
+            "secondary": "#855300",
+            "on-background": "#0b1c30",
+            "on-surface": "#0b1c30",
+            "error": "#ba1a1a",
+            "surface-container-low": "#eff4ff",
+            "surface": "#f8f9ff",
+            "outline-variant": "#bdcabd",
+            "on-tertiary-container": "#fefcff",
+            "on-secondary": "#ffffff",
+            "tertiary": "#545c72",
+            "secondary-fixed": "#ffddb8",
+            "inverse-primary": "#6cdc94",
+            "surface-container-lowest": "#ffffff",
+            "on-primary": "#ffffff",
+            "primary-fixed": "#88f9ae",
+            "primary": "#006a39",
+            "on-tertiary-fixed": "#131b2e",
+            "on-tertiary": "#ffffff",
+            "outline": "#6e7a6f",
+            "on-primary-fixed-variant": "#00522b",
+            "tertiary-fixed-dim": "#bec6e0",
+            "surface-container-high": "#dce9ff",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a",
+            "surface-variant": "#d3e4fe",
+            "surface-bright": "#f8f9ff",
+            "on-secondary-container": "#684000",
+            "on-primary-container": "#f6fff4",
+            "on-secondary-fixed": "#2a1700",
+            "on-secondary-fixed-variant": "#653e00",
+            "surface-container-highest": "#d3e4fe",
+            "on-primary-fixed": "#00210e",
+            "error-container": "#ffdad6",
+            "background": "#f8f9ff",
+            "tertiary-fixed": "#dae2fd",
+            "tertiary-container": "#6c748b",
+            "surface-tint": "#006d3b",
+            "secondary-container": "#fea619",
+            "secondary-fixed-dim": "#ffb95f",
+            "inverse-on-surface": "#eaf1ff",
+            "primary-fixed-dim": "#6cdc94",
+            "primary-container": "#00864a",
+            "surface-container": "#e5eeff",
+            "inverse-surface": "#213145"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "gutter-desktop": "1.5rem",
+            "margin-desktop": "2rem",
+            "space-lg": "1.5rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2rem",
+            "space-md": "1rem",
+            "gutter-mobile": "0.75rem",
+            "margin-mobile": "1rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "display-lg": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "headline-md": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+            "headline-xl-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700"}],
+            "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+            "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "headline-xl": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "headline-lg": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+            "headline-sm": ["16px", {"lineHeight": "22px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
+            "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+            "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.03em", "fontWeight": "800"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body { -webkit-tap-highlight-color: transparent; }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex justify-center">
+<!-- Mobile Container viewport: max 375px style target -->
+<div class="w-full max-w-[375px] bg-background min-h-screen relative flex flex-col shadow-2xl pb-24">
+<!-- 1. STICKY TOP APP BAR (from Shared Components JSON with High-Priority Sell Action) -->
+<header class="bg-surface-container-lowest sticky top-0 z-40 w-full shadow-sm">
+<div class="flex justify-between items-center w-full px-3 h-14">
+<!-- Brand Logo & Badge -->
+<a class="flex items-center gap-1.5 focus:outline-none" href="#">
+<div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-md font-headline-md font-extrabold text-primary tracking-tight leading-none">Telopillo</span>
+<span class="text-[9px] font-bold text-secondary uppercase tracking-widest leading-none mt-0.5">Bolivia</span>
+</div>
+</a>
+<!-- Right Quick Actions with Unmistakable 'Publicá gratis' -->
+<div class="flex items-center gap-1.5">
+<button aria-label="Buscar" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="search">search</span>
+</button>
+<!-- Primary Immediate Target CTA (Minimum 44px target) -->
+<a class="inline-flex items-center justify-center gap-1 min-h-[44px] px-3.5 bg-primary hover:bg-primary-container text-on-primary rounded-full shadow-sm text-label-md font-label-md font-bold active:scale-[0.97] transition-all" href="#publicar">
+<span class="material-symbols-outlined text-[18px]" data-icon="add_circle">add_circle</span>
+<span>Publicá gratis</span>
+</a>
+<!-- Menu Hamburger Drawer Trigger -->
+<button aria-label="Menú" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-[0.98] transition-transform" id="menuToggle" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="menu">menu</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SIDE NAVIGATION DRAWER (Shared Component from JSON, initial hidden state) -->
+<div class="fixed inset-0 bg-on-background/40 z-50 backdrop-blur-sm hidden transition-opacity duration-300" id="drawerOverlay">
+<aside class="h-full w-80 max-w-[85vw] rounded-r-xl bg-surface-container-lowest shadow-2xl flex flex-col p-4 overflow-y-auto transform -translate-x-full transition-transform duration-300" id="drawerContent">
+<div class="flex items-center justify-between pb-4 border-b border-outline-variant/30">
+<div>
+<span class="text-headline-md font-headline-md font-extrabold text-primary">Telopillo Bolivia</span>
+<p class="text-body-sm font-body-sm text-on-surface-variant">El marketplace de tu ciudad</p>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container" id="closeDrawer" type="button">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Drawer Nav items exactly matching JSON -->
+<nav class="flex flex-col gap-1.5 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 bg-surface-container text-primary font-bold rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="text-label-lg font-label-lg">Explorar categorías</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="text-label-lg font-label-lg">Mis publicaciones</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-label-lg font-label-lg">Solicitudes de compra</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+<span class="text-label-lg font-label-lg">Ciudades y zonas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="text-label-lg font-label-lg">Centro de seguridad</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-lg font-label-lg">Configuración</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex flex-col gap-2">
+<a class="w-full min-h-[44px] flex items-center justify-center gap-2 bg-primary text-on-primary font-label-lg text-label-lg font-bold rounded-lg shadow-sm" href="#publicar">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+            Publicá gratis ahora
+          </a>
+</div>
+</aside>
+</div>
+<!-- MAIN SCROLLABLE CONTENT -->
+<main class="flex-1 flex flex-col">
+<!-- 2. HERO SECTION / HERO CARD -->
+<section class="px-3 pt-3 pb-2">
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 shadow-sm relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-32 h-32 bg-primary-fixed/20 rounded-full blur-2xl pointer-events-none"></div>
+<!-- Bolivian Badge Pill -->
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface mb-3">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-label-sm font-label-sm text-primary font-bold">Marketplace 100% boliviano</span>
+</div>
+<!-- Hero Headline with authentic Bolivian Voseo -->
+<h1 class="text-headline-xl-mobile font-headline-xl-mobile text-on-surface tracking-tight leading-tight">
+            Lo buscás, <br/><span class="text-primary underline decoration-secondary-container decoration-4 underline-offset-2">¡te lo pillo!</span>
+</h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 leading-relaxed">
+            Comprá y vendé en Santa Cruz, La Paz, Cochabamba y todo el país sin intermediarios ni comisiones.
+          </p>
+<!-- Search Box Input Container -->
+<div class="mt-4 relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline text-[20px]" data-icon="search">search</span>
+<input class="w-full pl-9 pr-12 py-3 bg-surface border border-outline-variant/60 rounded-lg text-body-sm font-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary h-[48px]" placeholder="¿Qué buscás hoy? (Ej: Celular, auto...)" type="text"/>
+<button aria-label="Buscar ahora" class="absolute right-1.5 p-2 bg-primary-container text-on-primary rounded-md flex items-center justify-center h-9 w-9 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- CRITICAL DESIGN OBJECTIVE: Secondary Seller Callout Immediately Underneath Search -->
+<div class="mt-3.5 p-3 rounded-lg bg-surface-container-low border border-primary/20 flex items-center justify-between gap-2 shadow-xs">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]" data-icon="campaign">campaign</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-surface font-bold">¿Tenés algo para vender?</span>
+<span class="text-[11px] font-body-sm text-on-surface-variant">Ganá plata hoy al instante.</span>
+</div>
+</div>
+<!-- Repeated min 44px touch target -->
+<a class="inline-flex items-center justify-center min-h-[44px] px-3 bg-primary text-on-primary rounded-lg text-label-sm font-label-sm font-bold shadow-sm whitespace-nowrap active:scale-[0.97] transition-all" href="#publicar">
+              Publicá gratis →
+            </a>
+</div>
+</div>
+</section>
+<!-- 3. CATEGORIES SECTION ('Categorías populares') -->
+<section class="px-3 py-3">
+<div class="flex items-center justify-between mb-2.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="category">category</span>
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold">Explorar categorías</h2>
+</div>
+<a class="text-label-sm font-label-sm text-primary font-bold hover:underline" href="#">Ver todas (18)</a>
+</div>
+<!-- Horizontal Scrollable Chip Grid for Rapid Mobile Thumb Scanning -->
+<div class="flex gap-2 overflow-x-auto no-scrollbar py-1 -mx-3 px-3">
+<!-- Category Chip 1 -->
+<div class="flex flex-col items-center justify-center min-w-[76px] p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xs active:bg-surface-container cursor-pointer transition-colors">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="smartphone">smartphone</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface text-center line-clamp-1">Celulares</span>
+</div>
+<!-- Category Chip 2 -->
+<div class="flex flex-col items-center justify-center min-w-[76px] p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xs active:bg-surface-container cursor-pointer transition-colors">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="directions_car">directions_car</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface text-center line-clamp-1">Vehículos</span>
+</div>
+<!-- Category Chip 3 -->
+<div class="flex flex-col items-center justify-center min-w-[76px] p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xs active:bg-surface-container cursor-pointer transition-colors">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="chair">chair</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface text-center line-clamp-1">Hogar</span>
+</div>
+<!-- Category Chip 4 -->
+<div class="flex flex-col items-center justify-center min-w-[76px] p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xs active:bg-surface-container cursor-pointer transition-colors">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="checkroom">checkroom</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface text-center line-clamp-1">Moda</span>
+</div>
+<!-- Category Chip 5 -->
+<div class="flex flex-col items-center justify-center min-w-[76px] p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xs active:bg-surface-container cursor-pointer transition-colors">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="fitness_center">fitness_center</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface text-center line-clamp-1">Deportes</span>
+</div>
+<!-- Category Chip 6 (View All) -->
+<div class="flex flex-col items-center justify-center min-w-[76px] p-2.5 bg-surface-container-high border border-outline-variant/40 rounded-xl shadow-xs active:scale-95 cursor-pointer transition-all">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center mb-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="apps">apps</span>
+</div>
+<span class="text-label-sm font-label-sm text-primary font-bold text-center line-clamp-1">Ver más</span>
+</div>
+</div>
+</section>
+<!-- 4. 'PRODUCTOS POPULARES' (Featured Marketplace Feed with City Filter) -->
+<section class="px-3 py-3">
+<div class="flex items-center justify-between mb-2">
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold">Productos populares</h2>
+<span class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]" data-icon="tune">tune</span> Filtrar
+          </span>
+</div>
+<!-- City Location Tabs / Selector -->
+<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-2.5">
+<button class="px-3 py-1.5 rounded-full text-label-sm font-label-sm font-bold bg-primary text-on-primary shadow-xs shrink-0">Todo Bolivia</button>
+<button class="px-3 py-1.5 rounded-full text-label-sm font-label-sm bg-surface-container-lowest border border-outline-variant/40 text-on-surface-variant hover:text-primary shrink-0">Santa Cruz</button>
+<button class="px-3 py-1.5 rounded-full text-label-sm font-label-sm bg-surface-container-lowest border border-outline-variant/40 text-on-surface-variant hover:text-primary shrink-0">La Paz</button>
+<button class="px-3 py-1.5 rounded-full text-label-sm font-label-sm bg-surface-container-lowest border border-outline-variant/40 text-on-surface-variant hover:text-primary shrink-0">Cochabamba</button>
+</div>
+<!-- 2-Column Product Grid -->
+<div class="grid grid-cols-2 gap-2.5 mt-1">
+<!-- Card 1: iPhone 14 Pro Max -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-xs hover:border-primary/40 transition-colors flex flex-col group">
+<div class="relative w-full aspect-square bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A modern deep purple smartphone sitting on a pristine minimalist white marble surface in bright daylight. The device is pristine, reflecting crisp studio lights with clean lines, representing high-end mobile technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBipkulNiZnQx3otkOsqJNu7xYq12IkshtQxcCxIU_mLQVBqDSAu4X-xPG3oF3CHXWWrcKRsPln3fd6zLI7pLZ-fkA8bfbQ-wQmxW-FO7Ts0chfFp9j8miLQqVemsmOBaOYms6M8kLdvFlnx2bP9uXum44k5dwXp2-FBlj9Q09U_LCzarzdSUBVcXlfydRicwIGXRq8RMgRcoJsEZ4tytiUgxVN_dTerJmS16gBLvnMx1rNCF4wP-TnR3LGlemN5-SG6CV3uJft3Hs"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-surface-container-lowest/90 backdrop-blur-xs text-[10px] font-bold text-on-surface border border-outline-variant/30">Seminuevo</span>
+<button aria-label="Favorito" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-surface-container-lowest/80 backdrop-blur-xs flex items-center justify-center text-outline hover:text-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-2.5 flex flex-col flex-1 justify-between">
+<div>
+<p class="text-headline-sm font-headline-sm font-extrabold text-on-surface leading-tight">Bs. 6.200</p>
+<h3 class="text-body-sm font-body-sm text-on-surface line-clamp-2 mt-0.5 leading-snug">iPhone 14 Pro Max 256GB Batería 92%</h3>
+</div>
+<div class="mt-2 pt-2 border-t border-outline-variant/20 flex flex-col gap-0.5">
+<span class="text-[11px] font-label-sm text-on-surface-variant truncate flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="location_on">location_on</span> Equipetrol, Santa Cruz
+                </span>
+<span class="text-[10px] text-outline">Hace 2 horas</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Toyota Hilux 4x4 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-xs hover:border-primary/40 transition-colors flex flex-col group">
+<div class="relative w-full aspect-square bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A rugged metallic silver 4x4 pickup truck parked cleanly in an urban driveway with bright clean daylight, crisp reflections on the bodywork and immaculate tires, exuding strength and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1_m8JrwDB-VcTSPfFco8dJF3BRr4jy-nnKB5mCD68z_BiRBpEWXPQ6cJ4fmhclsJt7eIoczmU9IC0hLvdo83qAyee9pGZuQCt_DdiKF3V3pX7MeLl8fMQzZFfKAajkK0VdTdfliTrY1MMFY4EVWqMI2FLi8hQJ4EYEiC6lImRYIHbA21DB0mp-RK5Y7aTBZZuTp9MRMD-FSjO_LPhuKuAJCvpj2z6lX9Mn9FuijL5pUw31raw1g36-v6jxdrfWZ949Uhcu4ci_fE"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold">Verificado</span>
+<button aria-label="Favorito" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-surface-container-lowest/80 backdrop-blur-xs flex items-center justify-center text-outline hover:text-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-2.5 flex flex-col flex-1 justify-between">
+<div>
+<p class="text-headline-sm font-headline-sm font-extrabold text-on-surface leading-tight">Bs. 210.000</p>
+<h3 class="text-body-sm font-body-sm text-on-surface line-clamp-2 mt-0.5 leading-snug">Toyota Hilux 4x4 2021 Impecable</h3>
+</div>
+<div class="mt-2 pt-2 border-t border-outline-variant/20 flex flex-col gap-0.5">
+<span class="text-[11px] font-label-sm text-on-surface-variant truncate flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="location_on">location_on</span> Calacoto, La Paz
+                </span>
+<span class="text-[10px] text-outline">Hace 4 horas</span>
+</div>
+</div>
+</div>
+<!-- Card 3: PlayStation 5 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-xs hover:border-primary/40 transition-colors flex flex-col group">
+<div class="relative w-full aspect-square bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A sleek modern gaming console with two wireless dualsense controllers placed on an oak tabletop with clean atmospheric soft neon studio accents, highlighting pristine hardware condition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNsXDV1Bf9pRpWyB8uuVR_vCpdV7vLLBbNAfy3avGR3AO4ONG937emm4aW0Pv9bJngV86FFYoRr1Oc_PErVhDYXckILmYw6sKUFO2_ELI5xIw2JDtQKy6wDqzYWy23G5bSdz2AUoxkzVAVe7CK0c2cQ0_vBl4F6A5EKJnhppzGooMROvzt-diQWmraQqm1Lo4b6DjaQD2m6Urlos2VDyQMDUWsVtUx8Yp15zSCTXuQGsXku-WL5Tcp6X656xW22k6G1fkPOR-Vcdk"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold">Nuevo en caja</span>
+<button aria-label="Favorito" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-surface-container-lowest/80 backdrop-blur-xs flex items-center justify-center text-outline hover:text-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-2.5 flex flex-col flex-1 justify-between">
+<div>
+<p class="text-headline-sm font-headline-sm font-extrabold text-on-surface leading-tight">Bs. 3.850</p>
+<h3 class="text-body-sm font-body-sm text-on-surface line-clamp-2 mt-0.5 leading-snug">PlayStation 5 con 2 Mandos Sellado</h3>
+</div>
+<div class="mt-2 pt-2 border-t border-outline-variant/20 flex flex-col gap-0.5">
+<span class="text-[11px] font-label-sm text-on-surface-variant truncate flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="location_on">location_on</span> Cala Cala, Cochabamba
+                </span>
+<span class="text-[10px] text-outline">Hace 6 horas</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Sofá Seccional Lino -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-xs hover:border-primary/40 transition-colors flex flex-col group">
+<div class="relative w-full aspect-square bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A contemporary light gray linen sectional sofa in a bright warm living room setting with modern indoor plants, gentle morning sunlight and elegant wooden flooring." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZpd8JVwy5KiIl25cSX1IRd3Onzi5V-ubNTQH5dEGSbk7TWuovFsxhxXGGyq4SN1kWQLkyQA7j19pT5RFcwiwse9MGrWf6Qv_th8e0et3isTH0qGP_EJdd7-PD6uM8-nWvYmny2yxJ_dFuo7ofAyhagXIUfWsAmzDTzDzMiL-I3RXi5mAn29vlxziCgIVAgEro65mEdtFc95eFnYJ-7fsLvjOI3lU0o6Dsln983TUWtDHMrz35ftzUY7fgLSu9cw6avFpUPK0Z814"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-surface-container-lowest/90 backdrop-blur-xs text-[10px] font-bold text-on-surface border border-outline-variant/30">Como nuevo</span>
+<button aria-label="Favorito" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-surface-container-lowest/80 backdrop-blur-xs flex items-center justify-center text-outline hover:text-error">
+<span class="material-symbols-outlined text-[16px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-2.5 flex flex-col flex-1 justify-between">
+<div>
+<p class="text-headline-sm font-headline-sm font-extrabold text-on-surface leading-tight">Bs. 1.950</p>
+<h3 class="text-body-sm font-body-sm text-on-surface line-clamp-2 mt-0.5 leading-snug">Sofá Seccional Lino Gris 4 Cuerpos</h3>
+</div>
+<div class="mt-2 pt-2 border-t border-outline-variant/20 flex flex-col gap-0.5">
+<span class="text-[11px] font-label-sm text-on-surface-variant truncate flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="location_on">location_on</span> Urubó, Santa Cruz
+                </span>
+<span class="text-[10px] text-outline">Hace 1 día</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Repeated Strategic Publisher CTA Banner between feeds -->
+<div class="mt-3.5 p-3 rounded-xl bg-surface-container-highest/60 border border-outline-variant/40 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]" data-icon="sell">sell</span>
+<div class="text-left">
+<p class="text-label-sm font-label-sm text-on-surface font-bold">¿Querés vender más rápido?</p>
+<p class="text-[11px] text-on-surface-variant">Tus avisos en primera fila gratis.</p>
+</div>
+</div>
+<a class="min-h-[44px] px-3 inline-flex items-center bg-primary text-on-primary rounded-lg text-label-sm font-label-sm font-bold active:scale-95 transition-transform" href="#publicar">
+            Publicá acá
+          </a>
+</div>
+</section>
+<!-- 5. 'SOLICITUDES RECIENTES' (Community Requests / 'Te lo pillamos') -->
+<section class="px-3 py-3 bg-surface-container-low/50">
+<div class="flex items-start justify-between mb-2">
+<div>
+<div class="inline-flex items-center gap-1 text-primary text-label-sm font-label-sm font-bold uppercase tracking-wider mb-0.5">
+<span class="material-symbols-outlined text-[15px]" data-icon="radar">radar</span> Te lo pillamos
+            </div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold leading-tight">¿No encontrás lo que buscás?</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Pedilo y la comunidad te lo pilla al instante.</p>
+</div>
+</div>
+<!-- Buyer Request Cards Stack -->
+<div class="flex flex-col gap-2 mt-2">
+<!-- Request 1 -->
+<div class="bg-surface-container-lowest p-3 rounded-xl border border-outline-variant/30 shadow-xs flex flex-col gap-1.5">
+<div class="flex justify-between items-start">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-secondary-fixed/50 text-secondary">Repuestos Autos</span>
+<span class="text-[11px] font-label-sm text-primary font-bold">Ofrece: Bs. 800</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface font-bold leading-snug">"Busco repuesto cremallera Suzuki Grand Vitara 2012"</p>
+<div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-outline-variant/20">
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" data-icon="location_on">location_on</span> La Paz - Sopocachi</span>
+<button class="text-primary font-bold hover:underline flex items-center gap-0.5 min-h-[36px]">
+                Yo lo tengo <span class="material-symbols-outlined text-[14px]" data-icon="chat">chat</span>
+</button>
+</div>
+</div>
+<!-- Request 2 -->
+<div class="bg-surface-container-lowest p-3 rounded-xl border border-outline-variant/30 shadow-xs flex flex-col gap-1.5">
+<div class="flex justify-between items-start">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container text-on-surface-variant">Inmuebles Alquiler</span>
+<span class="text-[11px] font-label-sm text-primary font-bold">Trato directo</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface font-bold leading-snug">"Compro o alquilo dpto 2 dormitorios en Equipetrol"</p>
+<div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-outline-variant/20">
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" data-icon="location_on">location_on</span> Santa Cruz</span>
+<button class="text-primary font-bold hover:underline flex items-center gap-0.5 min-h-[36px]">
+                Yo lo tengo <span class="material-symbols-outlined text-[14px]" data-icon="chat">chat</span>
+</button>
+</div>
+</div>
+<!-- Request 3 -->
+<div class="bg-surface-container-lowest p-3 rounded-xl border border-outline-variant/30 shadow-xs flex flex-col gap-1.5">
+<div class="flex justify-between items-start">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary-fixed/40 text-on-primary-fixed-variant">Computación</span>
+<span class="text-[11px] font-label-sm text-primary font-bold">Hasta: Bs. 4.500</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface font-bold leading-snug">"Busco laptop Ryzen 7 o Core i7 para diseño gráfico"</p>
+<div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-outline-variant/20">
+<span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" data-icon="location_on">location_on</span> Cbba - Las Cuadras</span>
+<button class="text-primary font-bold hover:underline flex items-center gap-0.5 min-h-[36px]">
+                Yo lo tengo <span class="material-symbols-outlined text-[14px]" data-icon="chat">chat</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Micro Seller Conversion CTA -->
+<div class="mt-3 text-center">
+<p class="text-body-sm font-body-sm text-on-surface-variant">¿Tenés lo que buscan? <strong class="text-primary">Respondé y vendé al toque.</strong></p>
+</div>
+</section>
+<!-- 6. TRUST & SECURITY STRIP ('¿Por qué Telopillo?') -->
+<section class="px-3 py-4">
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold text-center mb-3">¿Por qué usar Telopillo?</h2>
+<div class="grid grid-cols-2 gap-2">
+<div class="p-3 bg-surface-container-lowest border border-outline-variant/30 rounded-xl flex flex-col items-center text-center shadow-xs">
+<div class="w-10 h-10 rounded-full bg-primary-fixed/40 text-primary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[22px]" data-icon="public">public</span>
+</div>
+<span class="text-label-md font-label-md font-bold text-on-surface">9 Departamentos</span>
+<p class="text-[11px] font-body-sm text-on-surface-variant mt-0.5">Cobertura nacional de punta a punta.</p>
+</div>
+<div class="p-3 bg-surface-container-lowest border border-outline-variant/30 rounded-xl flex flex-col items-center text-center shadow-xs">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[22px]" data-icon="percent">percent</span>
+</div>
+<span class="text-label-md font-label-md font-bold text-on-surface">0% Comisiones</span>
+<p class="text-[11px] font-body-sm text-on-surface-variant mt-0.5">Lo que vendés es 100% para vos.</p>
+</div>
+<div class="p-3 bg-surface-container-lowest border border-outline-variant/30 rounded-xl flex flex-col items-center text-center shadow-xs">
+<div class="w-10 h-10 rounded-full bg-primary-fixed/40 text-primary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[22px]" data-icon="verified_user">verified_user</span>
+</div>
+<span class="text-label-md font-label-md font-bold text-on-surface">Verificados</span>
+<p class="text-[11px] font-body-sm text-on-surface-variant mt-0.5">Comprá y vendé con alta confianza.</p>
+</div>
+<div class="p-3 bg-surface-container-lowest border border-outline-variant/30 rounded-xl flex flex-col items-center text-center shadow-xs">
+<div class="w-10 h-10 rounded-full bg-surface-container text-tertiary flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[22px]" data-icon="support_agent">support_agent</span>
+</div>
+<span class="text-label-md font-label-md font-bold text-on-surface">Soporte 24/7</span>
+<p class="text-[11px] font-body-sm text-on-surface-variant mt-0.5">Comunidad local activa siempre.</p>
+</div>
+</div>
+</section>
+<!-- 7. SELLER STEPS ('Vender en Telopillo es súper fácil') -->
+<section class="px-3 py-4 bg-surface-container-lowest border-y border-outline-variant/30">
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold text-center mb-1">Vender en Telopillo es súper fácil</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant text-center mb-4">Empezá a recibir ofertas en 3 pasos rápidos:</p>
+<div class="space-y-3">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-label-md shrink-0">1</div>
+<div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold">Sacale foto a tu producto</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Desde tu celular, mostrá el estado real de lo que ofrecés.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-label-md shrink-0">2</div>
+<div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold">Describilo y poné el precio en Bs.</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Indicá tu ciudad o barrio para que te ubiquen más rápido.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-label-md shrink-0">3</div>
+<div>
+<h3 class="text-label-lg font-label-lg text-on-surface font-bold">¡Recibí mensajes y cerrá el trato!</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Chateá directo por la app o coordiná por WhatsApp sin vueltas.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 8. FINAL HIGH-CONVERTING CTA STRIP (Solves seller hesitation) -->
+<section class="px-3 py-5" id="publicar">
+<div class="bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-2xl p-5 shadow-lg relative overflow-hidden text-center flex flex-col items-center">
+<div class="w-12 h-12 rounded-full bg-on-primary/10 flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[28px]" data-icon="add_business">add_business</span>
+</div>
+<h2 class="text-headline-lg font-headline-lg font-extrabold text-on-primary tracking-tight">¿Listo para empezar?</h2>
+<p class="text-body-sm font-body-sm text-on-primary/90 mt-1 max-w-xs">
+            Publicá tu primer aviso en menos de 2 minutos. Es 100% gratis y sin comisiones.
+          </p>
+<!-- Large, highly visible 48px touch target primary button -->
+<a class="mt-4 w-full min-h-[48px] px-6 bg-surface-container-lowest text-primary rounded-xl font-label-lg text-label-lg font-extrabold shadow-md flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="add_circle">add_circle</span>
+            Publicá gratis ahora
+          </a>
+<div class="mt-3 flex items-center justify-center gap-4 text-[12px] text-on-primary/80">
+<a class="hover:underline" href="#">¿Ya tenés cuenta? Entrar</a>
+<span>•</span>
+<a class="hover:underline" href="#">Crear cuenta</a>
+</div>
+</div>
+</section>
+<!-- 9. FOOTER (Shared Component from JSON) -->
+<footer class="w-full px-4 py-8 mb-6 max-w-7xl mx-auto flex flex-col gap-6 bg-surface-container-low border-t border-outline-variant/30">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<span class="text-headline-md font-headline-md font-black text-primary">Telopillo</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">El marketplace boliviano hecho para comprar y vender con total confianza.</p>
+</div>
+<div class="flex flex-col gap-2">
+<span class="text-label-sm font-label-sm font-bold text-on-surface uppercase tracking-wider">Ciudades populares</span>
+<div class="flex flex-wrap gap-x-3 gap-y-1 text-body-sm font-body-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Santa Cruz</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">La Paz</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">Cochabamba</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">El Alto</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#">Sucre</a>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<span class="text-label-sm font-label-sm font-bold text-on-surface uppercase tracking-wider">Enlaces de ayuda</span>
+<div class="flex flex-col gap-1.5 text-body-sm font-body-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Términos y Condiciones</a>
+<a class="hover:text-primary transition-colors" href="#">Seguridad y Estafas</a>
+<a class="hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="chat">chat</span> Contacto por WhatsApp
+            </a>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/30 text-center">
+<p class="text-label-sm font-label-sm text-on-surface-variant">
+            © 2025 Telopillo Marketplace. Todos los derechos reservados en Bolivia.
+          </p>
+</div>
+</footer>
+</main>
+<!-- BOTTOM NAVIGATION BAR (Shared Component from JSON, Mobile Destination Shell) -->
+<!-- Destination 0: Inicio is active according to the landing page intent -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-1 bg-surface-container-lowest max-w-[375px] mx-auto right-0 border-t border-outline-variant/30 shadow-lg">
+<!-- Inicio (Active) -->
+<a aria-current="page" class="flex flex-col items-center justify-center text-primary font-bold py-1.5 min-w-[56px] focus:outline-none" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-label-sm font-label-sm">Inicio</span>
+</a>
+<!-- Buscar -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1.5 min-w-[56px] hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="search">search</span>
+<span class="text-label-sm font-label-sm">Buscar</span>
+</a>
+<!-- Publicar (Prominent Center Action Button) -->
+<a aria-label="Publicar gratis" class="flex flex-col items-center justify-center py-0.5 -mt-3.5 group" href="#publicar">
+<div class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md active:scale-95 group-hover:bg-primary-container transition-all">
+<span class="material-symbols-outlined text-[28px]" data-icon="add_circle">add_circle</span>
+</div>
+<span class="text-[11px] font-label-sm font-bold text-primary mt-0.5">Publicar</span>
+</a>
+<!-- Mensajes -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1.5 min-w-[56px] hover:text-primary transition-colors relative" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="chat">chat</span>
+<span class="text-label-sm font-label-sm">Mensajes</span>
+</a>
+<!-- Mi cuenta -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1.5 min-w-[56px] hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm">Mi cuenta</span>
+</a>
+</nav>
+</div>
+<!-- Micro Drawer Interactivity Script -->
+<script>
+    const menuToggle = document.getElementById('menuToggle');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const drawerContent = document.getElementById('drawerContent');
+    const closeDrawer = document.getElementById('closeDrawer');
+
+    function openNav() {
+      drawerOverlay.classList.remove('hidden');
+      setTimeout(() => {
+        drawerContent.classList.remove('-translate-x-full');
+      }, 10);
+    }
+
+    function closeNav() {
+      drawerContent.classList.add('-translate-x-full');
+      setTimeout(() => {
+        drawerOverlay.classList.add('hidden');
+      }, 300);
+    }
+
+    menuToggle?.addEventListener('click', openNav);
+    closeDrawer?.addEventListener('click', closeNav);
+    drawerOverlay?.addEventListener('click', (e) => {
+      if (e.target === drawerOverlay) closeNav();
+    });
+  </script>
+</body></html>

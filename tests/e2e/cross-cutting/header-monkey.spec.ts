@@ -1,6 +1,6 @@
 /**
  * Monkey/Chaos testing for Telopillo header.
- * Tests: Desktop header (Logo | Search | Publicar Gratis | Ingresar),
+ * Tests: Desktop header (Logo | Search | Publicá gratis | Ingresar),
  * Mobile hamburger menu, responsive transitions, search bar, navigation flow,
  * keyboard navigation.
  */
@@ -87,7 +87,7 @@ async function randomClickStorm(page: Page, iterations: number = 30) {
 test.describe('Header Monkey - Desktop Structure', () => {
   test.use({ viewport: { width: 1024, height: 768 } })
 
-  test('Desktop header shows only Logo, Search, Publicar Gratis, Ingresar (unauthenticated)', async ({
+  test('Desktop header shows only Logo, Search, Publicá gratis, Ingresar (unauthenticated)', async ({
     page,
   }) => {
     await page.goto('/')
@@ -98,7 +98,7 @@ test.describe('Header Monkey - Desktop Structure', () => {
     // Must be visible
     await expect(header.getByRole('link', { name: /telopillo/i })).toBeVisible()
     await expect(header.getByRole('search', { name: /buscar productos/i })).toBeVisible()
-    await expect(header.getByRole('link', { name: /publicar gratis/i })).toBeVisible()
+    await expect(header.getByRole('link', { name: /publicá gratis/i })).toBeVisible()
     await expect(header.getByRole('link', { name: /ingresar/i })).toBeVisible()
 
     // Must NOT be visible (removed from desktop)
@@ -122,7 +122,7 @@ test.describe('Header Monkey - Desktop Structure', () => {
     const header = page.getByRole('banner')
     await expect(header.getByRole('link', { name: /telopillo/i })).toBeVisible()
     await expect(header.getByRole('search', { name: /buscar productos/i })).toBeVisible()
-    await expect(header.getByRole('link', { name: /publicar gratis/i })).toBeVisible()
+    await expect(header.getByRole('link', { name: /publicá gratis/i })).toBeVisible()
     await expect(header.getByRole('link', { name: /ingresar/i })).toBeVisible()
   })
 
@@ -166,7 +166,7 @@ test.describe('Header Monkey - Mobile Menu', () => {
     await expect(menu.getByRole('link', { name: /buscar/i })).toBeVisible()
     await expect(menu.getByRole('link', { name: /categorías/i })).toBeVisible()
     await expect(menu.getByRole('link', { name: /lo que buscan/i })).toBeVisible()
-    await expect(menu.getByRole('link', { name: /publicar gratis/i })).toBeVisible()
+    await expect(menu.getByRole('link', { name: /publicá gratis/i })).toBeVisible()
     await expect(menu.getByRole('link', { name: /iniciar sesión/i })).toBeVisible()
   })
 
@@ -260,11 +260,40 @@ test.describe('Header Monkey - Responsive Transitions', () => {
     await expect(page.getByRole('button', { name: /abrir menú/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /categorías/i })).not.toBeVisible()
 
-    // 768px = desktop
+    // 768px = tablet layout (<1024px): publish CTA is the sticky landing FAB
     await page.setViewportSize({ width: 768, height: 600 })
     await page.waitForTimeout(400)
     await expect(page.getByRole('search', { name: /buscar productos/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /publicar gratis/i })).toBeVisible()
+    await expect(page.locator('#publish-fab')).toBeVisible()
+  })
+
+  test('Sticky publish FAB: visible mobile/tablet, hidden desktop, navigates to /crear', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+
+    // Mobile + tablet (<1024px): FAB visible
+    for (const width of [375, 768]) {
+      await page.setViewportSize({ width, height: 800 })
+      await page.waitForTimeout(300)
+      await expect(page.locator('#publish-fab')).toBeVisible()
+    }
+
+    // Desktop (>=1024px): FAB hidden — header nav carries the CTA
+    await page.setViewportSize({ width: 1024, height: 768 })
+    await page.waitForTimeout(300)
+    await expect(page.locator('#publish-fab')).not.toBeVisible()
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: /publicá gratis/i })
+    ).toBeVisible()
+
+    // Tap FAB on mobile -> publish chooser
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.waitForTimeout(300)
+    await page.locator('#publish-fab').click()
+    await page.waitForURL(/\/crear/, { timeout: 5000 })
+    await expect(page.getByRole('heading', { name: /qué querés publicar/i })).toBeVisible()
   })
 })
 
@@ -367,11 +396,14 @@ test.describe('Header Monkey - Navigation Flow', () => {
     await page.waitForURL(/\/register/, { timeout: 5000 })
   })
 
-  test('Publicar Gratis navigates to publish chooser', async ({ page }) => {
+  test('Publicá gratis navigates to publish chooser', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    await page.getByRole('link', { name: /publicar gratis/i }).click()
+    await page
+      .getByRole('banner')
+      .getByRole('link', { name: /publicá gratis/i })
+      .click()
     await page.waitForURL(/\/crear/, { timeout: 5000 })
     await expect(page.getByRole('heading', { name: /qué querés publicar/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /ir a publicar producto/i })).toBeVisible()

@@ -1,0 +1,178 @@
+# / — viewport desktop, anon, branch redesign/home-publish-cta iter.1 (FAB)
+
+- main:
+  - region "Lo buscás, ¡te lo pillo!":
+    - paragraph: Marketplace 100% boliviano
+    - heading "Lo buscás, ¡te lo pillo!" [level=1]
+    - paragraph: El marketplace boliviano para comprar y vender de todo. Gratis y seguro.
+    - search "Buscar productos":
+      - text: ¿Qué estás buscando?
+      - searchbox "¿Qué estás buscando?"
+      - button "Buscar"
+      - paragraph
+    - link "Publicá gratis — sin costo ni comisiones":
+      - /url: /crear
+      - text: Publicá gratis
+    - link "¿Vendés? Mirá qué buscan los compradores":
+      - /url: /busco
+  - region "Categorías populares":
+    - heading "Categorías populares" [level=2]
+    - list:
+      - listitem:
+        - link "Electrónica":
+          - /url: /buscar?category=electronics
+          - paragraph: Electrónica
+      - listitem:
+        - link "Vehículos":
+          - /url: /buscar?category=vehicles
+          - paragraph: Vehículos
+      - listitem:
+        - link "Hogar":
+          - /url: /buscar?category=home
+          - paragraph: Hogar
+      - listitem:
+        - link "Moda":
+          - /url: /buscar?category=fashion
+          - paragraph: Moda
+      - listitem:
+        - link "Deportes":
+          - /url: /buscar?category=sports
+          - paragraph: Deportes
+      - listitem:
+        - link "Construcción":
+          - /url: /buscar?category=construction
+          - paragraph: Construcción
+      - listitem:
+        - link "Para Bebés":
+          - /url: /buscar?category=baby
+          - paragraph: Para Bebés
+      - listitem:
+        - link "Juguetes":
+          - /url: /buscar?category=toys
+          - paragraph: Juguetes
+      - listitem:
+        - link "Ver todas":
+          - /url: /categorias
+          - paragraph: Ver todas
+  - region "Publicaciones recientes":
+    - heading "Publicaciones recientes" [level=2]
+    - paragraph: Una muestra de productos que ya se están moviendo en Telopillo.
+    - link "Ver más productos":
+      - /url: /buscar
+    - list:
+      - listitem:
+        - link "Ver Samsung Galaxy A55 5G 256GB Nuevo Sellado":
+          - /url: /productos/vFI4E3XNi7UtNDn3Sw47j--samsung-galaxy-a55-5g-256gb-nuevo-sellado
+          - img "Samsung Galaxy A55 5G 256GB Nuevo Sellado"
+          - heading "Samsung Galaxy A55 5G 256GB Nuevo Sellado" [level=3]
+          - paragraph: Bs 2.890
+          - text: La Paz, La Paz
+        - link "Contactar por WhatsApp sobre Samsung Galaxy A55 5G 256GB Nuevo Sellado":
+          - /url: https://wa.me/59171234501?text=Mira%20esta%20publicaci%C3%B3n%3A%20Samsung%20Galaxy%20A55%205G%20256GB%20Nuevo%20Sellado%20por%20Bs%202.890%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2FvFI4E3XNi7UtNDn3Sw47j--samsung-galaxy-a55-5g-256gb-nuevo-sellado
+          - text: WhatsApp
+      - listitem:
+        - link "Ver Departamento 2 Dormitorios Las Palmas":
+          - /url: /productos/5FvzQzqVrdKF6lKPqSrTpm--departamento-2-dormitorios-las-palmas
+          - img "Departamento 2 Dormitorios Las Palmas"
+          - heading "Departamento 2 Dormitorios Las Palmas" [level=3]
+          - paragraph: Bs 245.000
+          - text: Santa Cruz de la Sierra, Santa Cruz
+        - link "Contactar por WhatsApp sobre Departamento 2 Dormitorios Las Palmas":
+          - /url: https://wa.me/59171234502?text=Mira%20esta%20publicaci%C3%B3n%3A%20Departamento%202%20Dormitorios%20Las%20Palmas%20por%20Bs%20245.000%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F5FvzQzqVrdKF6lKPqSrTpm--departamento-2-dormitorios-las-palmas
+          - text: WhatsApp
+      - listitem:
+        - link "Ver Specialized Rockhopper Sport 29 Usada":
+          - /url: /productos/3HGWvQTGlAqeJbFZtmKAjK--specialized-rockhopper-sport-29-usada
+          - img "Specialized Rockhopper Sport 29 Usada"
+          - heading "Specialized Rockhopper Sport 29 Usada" [level=3]
+          - paragraph: Bs 2.800
+          - text: Cochabamba, Cochabamba
+        - link "Contactar por WhatsApp sobre Specialized Rockhopper Sport 29 Usada":
+          - /url: https://wa.me/59171234503?text=Mira%20esta%20publicaci%C3%B3n%3A%20Specialized%20Rockhopper%20Sport%2029%20Usada%20por%20Bs%202.800%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F3HGWvQTGlAqeJbFZtmKAjK--specialized-rockhopper-sport-29-usada
+          - text: WhatsApp
+      - listitem:
+        - link "Ver Casco de Ciclismo Giro Register MIPS":
+          - /url: /productos/2BAEHfocBDkXzh2Sgds6f0--casco-de-ciclismo-giro-register-mips
+          - img "Casco de Ciclismo Giro Register MIPS"
+          - heading "Casco de Ciclismo Giro Register MIPS" [level=3]
+          - paragraph: Bs 590
+          - text: Cochabamba, Cochabamba
+        - link "Contactar por WhatsApp sobre Casco de Ciclismo Giro Register MIPS":
+          - /url: https://wa.me/59171234503?text=Mira%20esta%20publicaci%C3%B3n%3A%20Casco%20de%20Ciclismo%20Giro%20Register%20MIPS%20por%20Bs%20590%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F2BAEHfocBDkXzh2Sgds6f0--casco-de-ciclismo-giro-register-mips
+          - text: WhatsApp
+      - listitem:
+        - link "Ver Samsung Galaxy Tab A9+ 11\" 128GB":
+          - /url: /productos/3q5ahZXX7OGgvamdR74WjH--samsung-galaxy-tab-a9-11-128gb
+          - img "Samsung Galaxy Tab A9+ 11\" 128GB"
+          - heading "Samsung Galaxy Tab A9+ 11\" 128GB" [level=3]
+          - paragraph: Bs 1.780
+          - text: La Paz, La Paz
+        - link "Contactar por WhatsApp sobre Samsung Galaxy Tab A9+ 11\" 128GB":
+          - /url: https://wa.me/59171234501?text=Mira%20esta%20publicaci%C3%B3n%3A%20Samsung%20Galaxy%20Tab%20A9%2B%2011%22%20128GB%20por%20Bs%201.780%0A%0AVer%20publicaci%C3%B3n%3A%20http%3A%2F%2Flocalhost%3A3000%2Fproductos%2F3q5ahZXX7OGgvamdR74WjH--samsung-galaxy-tab-a9-11-128gb
+          - text: WhatsApp
+      - listitem:
+        - link "Ver Bicicleta urbana rodada 27.5 con cambios":
+          - /url: /productos/4UbOQLdfj4X4o2OhRuytx2--bicicleta-urbana-rodada-27-5-con-cambios
+          - img "Bicicleta urbana rodada 27.5 con cambios"
+          - heading "Bicicleta urbana rodada 27.5 con cambios" [level=3]
+          - paragraph: Bs 900
+          - text: La Paz, La Paz
+  - region "Gente buscando esto ahora":
+    - heading "Gente buscando esto ahora" [level=2]
+    - paragraph: Compradores publicando lo que necesitan para recibir ofertas de vendedores.
+    - link "Ver más solicitudes":
+      - /url: /busco
+    - list:
+      - listitem:
+        - 'link "Ver solicitud: Busco double-click 1789566646862"':
+          - /url: /busco/71GLeaOtx7w4xfS1efPIG5--busco-double-click-1789566646862
+          - paragraph: Busco
+          - paragraph: Electrónica
+          - text: Electrónica Hace 6d
+          - heading "Busco double-click 1789566646862" [level=3]
+          - text: Bs. 2,500 - 3,500 La Paz, La Paz 0 ofertas
+      - listitem:
+        - 'link "Ver solicitud: Busco double-click 1789566253535"':
+          - /url: /busco/5LchD47rkEb1kHvfrR7Vd7--busco-double-click-1789566253535
+          - paragraph: Busco
+          - paragraph: Electrónica
+          - text: Electrónica Hace 6d
+          - heading "Busco double-click 1789566253535" [level=3]
+          - text: Bs. 2,500 - 3,500 La Paz, La Paz 0 ofertas
+      - listitem:
+        - 'link "Ver solicitud: necesito un TV smart mini 23 pulgadas"':
+          - /url: /busco/39uj2vfipD9MUuJBeIXJfr--necesito-un-tv-smart-mini-23-pulgadas
+          - img "necesito un TV smart mini 23 pulgadas"
+          - text: Electrónica Hace 6d
+          - heading "necesito un TV smart mini 23 pulgadas" [level=3]
+          - text: Bs. 100 - 2,000 La Paz, La Paz 0 ofertas
+      - listitem:
+        - 'link "Ver solicitud: Iphone 12 nuevo"':
+          - /url: /busco/3BTjnQJtEVzWbO1cBi9BJA--iphone-12-nuevo
+          - img "Iphone 12 nuevo"
+          - text: Electrónica Hace 6d
+          - heading "Iphone 12 nuevo" [level=3]
+          - text: Hasta Bs. 2,000 La Paz, La Paz 0 ofertas
+  - region "Datos de confianza":
+    - heading "Datos de confianza" [level=2]
+    - text: 9 Departamentos 0% Comisiones Vendedores verificados 24/7 Disponible siempre
+  - region "¿Por qué Telopillo?":
+    - heading "¿Por qué Telopillo?" [level=2]
+    - heading "Publicá Gratis" [level=3]
+    - paragraph: Sin costo ni comisiones. Llegá a compradores en toda Bolivia.
+    - heading "Búsqueda Inteligente" [level=3]
+    - paragraph: Encontrá lo que buscás con filtros por ubicación, categoría y precio.
+    - heading "Chat Directo" [level=3]
+    - paragraph: Hablá con compradores y vendedores en tiempo real.
+    - heading "Hecho para Celular" [level=3]
+    - paragraph: Optimizado para la mejor experiencia móvil en Bolivia.
+  - region "¿Listo para empezar?":
+    - heading "¿Listo para empezar?" [level=2]
+    - paragraph: Publicá tu primer aviso en 2 minutos. Gratis, sin tarjeta, sin comisiones.
+    - link "Publicá gratis — sin costo ni comisiones":
+      - /url: /crear
+      - text: Publicá gratis
+    - link "Crear cuenta gratis":
+      - /url: /register
+    - link "¿Ya tenés cuenta? Iniciá sesión":
+      - /url: /login

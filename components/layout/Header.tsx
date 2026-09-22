@@ -144,7 +144,7 @@ export function Header() {
             </Link>
           </div>
           <Button asChild className="min-h-[44px]">
-            <Link href="/crear">Publicar Gratis</Link>
+            <Link href="/crear">Publicá gratis</Link>
           </Button>
           <UserMenu />
         </nav>

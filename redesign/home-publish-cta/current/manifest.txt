@@ -1,0 +1,5 @@
+home-publish-cta current captures — 2026-09-22
+route: / | state: anon | source: dev server (working tree = main 436af44 landing; branch docs/play-store-material docs-only)
+desktop: / | viewport 1920x1080, fullPage, dsf=2, anon | publish links: total=1 visible=1
+tablet: / | viewport 768x1024, fullPage, dsf=2, anon | publish links: total=1 visible=0
+mobile: / | viewport 375x812, fullPage, dsf=2, anon | publish links: total=1 visible=0

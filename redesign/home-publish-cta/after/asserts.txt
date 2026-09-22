@@ -1,0 +1,11 @@
+desktop FAB absent (hidden via lg): true
+desktop header label voseo: true
+hero publish link: true
+hero+strip publish links (aria-label): 2
+old label gone: true
+tablet FAB visible: true (48px)
+mobile header publish button removed: true
+mobile FAB visible+48px: true 48px @y=752 (viewport 812)
+mobile Entrar still present: true
+mobile footer clearance (copyright bottom 6819 <= FAB top 6855): true
+horizontal overflow 375px: false
