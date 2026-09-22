@@ -8,7 +8,7 @@ export function Footer() {
 
   return (
     <footer className="border-t bg-background">
-      <div className="container px-4 py-6 md:py-8 pb-24 lg:pb-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 pb-24 lg:pb-8">
         {/* Top row: Brand + Social + Links */}
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           {/* Brand + Social */}
@@ -59,6 +59,12 @@ export function Footer() {
             aria-label="Footer"
             className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"
           >
+            <Link
+              href="/descargar"
+              className="hover:text-primary transition-colors inline-flex items-center min-h-[44px] sm:min-h-0 touch-manipulation font-medium text-foreground"
+            >
+              App Android
+            </Link>
             <Link
               href="/acerca"
               className="hover:text-primary transition-colors inline-flex items-center min-h-[44px] sm:min-h-0 touch-manipulation"

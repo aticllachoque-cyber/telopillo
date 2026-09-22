@@ -162,236 +162,238 @@ export function DemandPostDetail({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2 space-y-6">
-        <div>
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <DemandStatusBadge status={displayStatus} />
-            <Badge variant="secondary">{categoryName || post.category}</Badge>
-            {post.subcategory && <Badge variant="outline">{post.subcategory}</Badge>}
-          </div>
-
-          <h1 className={productPresentation.detailTitle}>{post.title}</h1>
+    <div className="space-y-6">
+      <div>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <DemandStatusBadge status={displayStatus} />
+          <Badge variant="secondary">{categoryName || post.category}</Badge>
+          {post.subcategory && <Badge variant="outline">{post.subcategory}</Badge>}
         </div>
 
-        {/* Compact near-top CTA on mobile (F-2, mirrors product detail pattern) */}
-        {!currentUserId && isActive && (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-border/80 p-3 lg:hidden">
-            <p className="min-w-0 text-pretty text-sm text-foreground/80">
-              ¿Tenés lo que esta persona busca?
-            </p>
-            <Button asChild className="min-h-[44px] shrink-0">
-              <Link href={`/login?redirect=${encodeURIComponent(demandPath)}`}>
-                Iniciá sesión para ofrecer
-              </Link>
-            </Button>
-          </div>
-        )}
-
-        <DemandImageFrame
-          imageUrl={post.image_url}
-          category={post.category}
-          title={post.title}
-          aspectClassName="aspect-[16/9] sm:aspect-[2/1]"
-          sizes="(max-width: 1024px) 100vw, 66vw"
-        />
-
-        <Card className="border-border/80 shadow-sm">
-          <CardContent className="space-y-5 p-4 sm:p-6">
-            <ul className="grid gap-2 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-3" aria-label="Resumen">
-              <li className={productPresentation.metaRow}>
-                <MapPin className={productPresentation.metaIcon} aria-hidden />
-                <span className="min-w-0">
-                  <span className={productPresentation.metaLabel}>Ubicación · </span>
-                  <span className="font-medium">{location}</span>
-                </span>
-              </li>
-              <li className={productPresentation.metaRow}>
-                <Calendar className={productPresentation.metaIcon} aria-hidden />
-                <span className="min-w-0">
-                  <span className={productPresentation.metaLabel}>Publicado · </span>
-                  <span className="font-medium">{formatDate(post.created_at)}</span>
-                </span>
-              </li>
-              {isActive && (
-                <li className={productPresentation.metaRow}>
-                  <Clock className={productPresentation.metaIcon} aria-hidden />
-                  <span className="min-w-0">
-                    <span className={productPresentation.metaLabel}>Vigencia · </span>
-                    <span className="font-medium">
-                      {expiryDays} {expiryDays === 1 ? 'día restante' : 'días restantes'}
-                    </span>
-                  </span>
-                </li>
-              )}
-              {priceRange && (
-                <li className={productPresentation.metaRow}>
-                  <MessageSquare className={productPresentation.metaIcon} aria-hidden />
-                  <span className="min-w-0">
-                    <span className={productPresentation.metaLabel}>Presupuesto · </span>
-                    <span className="font-medium">{priceRange}</span>
-                  </span>
-                </li>
-              )}
-            </ul>
-
-            <Separator />
-
-            <div>
-              <h2 className={productPresentation.sectionHeading}>Descripción</h2>
-              {isPlaceholderDescription(post.description) ? (
-                <p className="mt-2 text-muted-foreground italic text-pretty">
-                  El comprador no agregó más detalles. Puedes contactarlo directamente para pedir
-                  más contexto.
-                </p>
-              ) : (
-                <p className={cn(productPresentation.sectionBody, 'mt-2')}>{post.description}</p>
-              )}
-            </div>
-
-            {isOwner && isActive && (
-              <>
-                <Separator />
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                  <Button asChild variant="outline" className="min-h-[44px]">
-                    <Link href={demandEditPath}>Editar solicitud</Link>
-                  </Button>
-                  <Button
-                    onClick={handleMarkFound}
-                    disabled={isMarkingFound}
-                    variant="outline"
-                    className="min-h-[44px]"
-                  >
-                    {isMarkingFound ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                    ) : (
-                      <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />
-                    )}
-                    Marcar como encontrado
-                  </Button>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/80 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="flex items-center gap-2 font-semibold text-balance">
-                <MessageSquare className="h-5 w-5" aria-hidden />
-                Ofertas ({offers.length})
-              </h2>
-              {canOffer && (
-                <Button onClick={() => setShowOfferModal(true)} className="min-h-[44px] shrink-0">
-                  Ofrecer producto
-                </Button>
-              )}
-            </div>
-
-            {offers.length === 0 ? (
-              <div className="rounded-lg border border-border/60 bg-muted/20 px-4 py-8 text-center">
-                <p className="text-muted-foreground text-pretty">
-                  {isActive
-                    ? 'Aún no hay ofertas. Sé el primero en proponer un producto.'
-                    : 'No se recibieron ofertas para esta solicitud.'}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {offers.map((offer) => (
-                  <OfferCard key={offer.id} offer={offer} />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <h1 className={productPresentation.detailTitle}>{post.title}</h1>
       </div>
 
-      <div className="space-y-4">
-        {poster && (
-          <Card className="border-border/80 shadow-sm">
-            <CardContent className="space-y-4 p-4 sm:p-6">
-              <div>
-                <h2 className="text-lg font-semibold">Comprador</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Esta persona publicó la necesidad y recibirá las ofertas.
-                </p>
-              </div>
-
-              <Link
-                href={`/vendedor/${poster.id}`}
-                className="flex items-center gap-4 rounded-lg p-2 -m-2 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                aria-label={`Ver perfil de ${poster.full_name}`}
-              >
-                <Avatar className="h-14 w-14">
-                  <AvatarImage
-                    src={resolveAvatarUrl(poster.avatar_url) || undefined}
-                    alt={poster.full_name}
-                  />
-                  <AvatarFallback className="text-foreground/80 text-base font-medium">
-                    {poster.full_name
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-lg font-semibold">{poster.full_name}</p>
-                  <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                    <span className="truncate">{location}</span>
-                  </div>
-                </div>
-              </Link>
-
-              {posterBusiness && (
-                <Link
-                  href={`/negocio/${posterBusiness.slug}`}
-                  className="flex items-center rounded-lg bg-muted/40 px-3 py-3 text-sm text-primary transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  {posterBusiness.business_name}
-                </Link>
-              )}
-
-              {whatsappHref && !isOwner && (
-                <ProductWhatsAppLink
-                  href={whatsappHref}
-                  ariaLabel={`Contactar a ${poster.full_name} por WhatsApp sobre esta solicitud`}
-                />
-              )}
-
-              {!whatsappHref && !isOwner && (
-                <Button asChild variant="outline" className="w-full min-h-[44px]">
-                  <Link
-                    href={`/vendedor/${poster.id}`}
-                    className="flex items-center justify-center gap-2"
-                  >
-                    <User className="h-4 w-4" aria-hidden />
-                    Ver perfil público
-                  </Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {!currentUserId && isActive && (
-          <Card className="hidden border-border/80 shadow-sm lg:block">
-            <CardContent className="p-4 text-center sm:p-6">
-              <p className="mb-3 text-sm text-muted-foreground text-pretty">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Compact near-top CTA on mobile (F-2, mirrors product detail pattern) */}
+          {!currentUserId && isActive && (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border/80 p-3 lg:hidden">
+              <p className="min-w-0 text-pretty text-sm text-foreground/80">
                 ¿Tenés lo que esta persona busca?
               </p>
-              <Button asChild className="w-full min-h-[44px]">
+              <Button asChild className="min-h-[44px] shrink-0">
                 <Link href={`/login?redirect=${encodeURIComponent(demandPath)}`}>
                   Iniciá sesión para ofrecer
                 </Link>
               </Button>
+            </div>
+          )}
+
+          <DemandImageFrame
+            imageUrl={post.image_url}
+            category={post.category}
+            title={post.title}
+            aspectClassName="aspect-[16/9] sm:aspect-[2/1]"
+            sizes="(max-width: 1024px) 100vw, 66vw"
+          />
+
+          <Card className="border-border/80 shadow-sm">
+            <CardContent className="space-y-5 p-4 sm:p-6">
+              <ul className="grid gap-2 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-3" aria-label="Resumen">
+                <li className={productPresentation.metaRow}>
+                  <MapPin className={productPresentation.metaIcon} aria-hidden />
+                  <span className="min-w-0">
+                    <span className={productPresentation.metaLabel}>Ubicación · </span>
+                    <span className="font-medium">{location}</span>
+                  </span>
+                </li>
+                <li className={productPresentation.metaRow}>
+                  <Calendar className={productPresentation.metaIcon} aria-hidden />
+                  <span className="min-w-0">
+                    <span className={productPresentation.metaLabel}>Publicado · </span>
+                    <span className="font-medium">{formatDate(post.created_at)}</span>
+                  </span>
+                </li>
+                {isActive && (
+                  <li className={productPresentation.metaRow}>
+                    <Clock className={productPresentation.metaIcon} aria-hidden />
+                    <span className="min-w-0">
+                      <span className={productPresentation.metaLabel}>Vigencia · </span>
+                      <span className="font-medium">
+                        {expiryDays} {expiryDays === 1 ? 'día restante' : 'días restantes'}
+                      </span>
+                    </span>
+                  </li>
+                )}
+                {priceRange && (
+                  <li className={productPresentation.metaRow}>
+                    <MessageSquare className={productPresentation.metaIcon} aria-hidden />
+                    <span className="min-w-0">
+                      <span className={productPresentation.metaLabel}>Presupuesto · </span>
+                      <span className="font-medium">{priceRange}</span>
+                    </span>
+                  </li>
+                )}
+              </ul>
+
+              <Separator />
+
+              <div>
+                <h2 className={productPresentation.sectionHeading}>Descripción</h2>
+                {isPlaceholderDescription(post.description) ? (
+                  <p className="mt-2 text-muted-foreground italic text-pretty">
+                    El comprador no agregó más detalles. Puedes contactarlo directamente para pedir
+                    más contexto.
+                  </p>
+                ) : (
+                  <p className={cn(productPresentation.sectionBody, 'mt-2')}>{post.description}</p>
+                )}
+              </div>
+
+              {isOwner && isActive && (
+                <>
+                  <Separator />
+                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                    <Button asChild variant="outline" className="min-h-[44px]">
+                      <Link href={demandEditPath}>Editar solicitud</Link>
+                    </Button>
+                    <Button
+                      onClick={handleMarkFound}
+                      disabled={isMarkingFound}
+                      variant="outline"
+                      className="min-h-[44px]"
+                    >
+                      {isMarkingFound ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                      ) : (
+                        <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />
+                      )}
+                      Marcar como encontrado
+                    </Button>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
-        )}
+
+          <Card className="border-border/80 shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-2 font-semibold text-balance">
+                  <MessageSquare className="h-5 w-5" aria-hidden />
+                  Ofertas ({offers.length})
+                </h2>
+                {canOffer && (
+                  <Button onClick={() => setShowOfferModal(true)} className="min-h-[44px] shrink-0">
+                    Ofrecer producto
+                  </Button>
+                )}
+              </div>
+
+              {offers.length === 0 ? (
+                <div className="rounded-lg border border-border/60 bg-muted/20 px-4 py-8 text-center">
+                  <p className="text-muted-foreground text-pretty">
+                    {isActive
+                      ? 'Aún no hay ofertas. Sé el primero en proponer un producto.'
+                      : 'No se recibieron ofertas para esta solicitud.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {offers.map((offer) => (
+                    <OfferCard key={offer.id} offer={offer} />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          {poster && (
+            <Card className="border-border/80 shadow-sm">
+              <CardContent className="space-y-4 p-4 sm:p-6">
+                <div>
+                  <h2 className="text-lg font-semibold">Comprador</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Esta persona publicó la necesidad y recibirá las ofertas.
+                  </p>
+                </div>
+
+                <Link
+                  href={`/vendedor/${poster.id}`}
+                  className="flex items-center gap-4 rounded-lg p-2 -m-2 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  aria-label={`Ver perfil de ${poster.full_name}`}
+                >
+                  <Avatar className="h-14 w-14">
+                    <AvatarImage
+                      src={resolveAvatarUrl(poster.avatar_url) || undefined}
+                      alt={poster.full_name}
+                    />
+                    <AvatarFallback className="text-foreground/80 text-base font-medium">
+                      {poster.full_name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-lg font-semibold">{poster.full_name}</p>
+                    <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      <span className="truncate">{location}</span>
+                    </div>
+                  </div>
+                </Link>
+
+                {posterBusiness && (
+                  <Link
+                    href={`/negocio/${posterBusiness.slug}`}
+                    className="flex items-center rounded-lg bg-muted/40 px-3 py-3 text-sm text-primary transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    {posterBusiness.business_name}
+                  </Link>
+                )}
+
+                {whatsappHref && !isOwner && (
+                  <ProductWhatsAppLink
+                    href={whatsappHref}
+                    ariaLabel={`Contactar a ${poster.full_name} por WhatsApp sobre esta solicitud`}
+                  />
+                )}
+
+                {!whatsappHref && !isOwner && (
+                  <Button asChild variant="outline" className="w-full min-h-[44px]">
+                    <Link
+                      href={`/vendedor/${poster.id}`}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <User className="h-4 w-4" aria-hidden />
+                      Ver perfil público
+                    </Link>
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {!currentUserId && isActive && (
+            <Card className="hidden border-border/80 shadow-sm lg:block">
+              <CardContent className="p-4 text-center sm:p-6">
+                <p className="mb-3 text-sm text-muted-foreground text-pretty">
+                  ¿Tenés lo que esta persona busca?
+                </p>
+                <Button asChild className="w-full min-h-[44px]">
+                  <Link href={`/login?redirect=${encodeURIComponent(demandPath)}`}>
+                    Iniciá sesión para ofrecer
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
 
       {canOffer && (

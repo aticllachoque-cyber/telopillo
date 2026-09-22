@@ -1,19 +1,17 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
-import { productPresentation } from '@/lib/constants/productPresentation'
 import { VerificationBadge } from '@/components/ui/VerificationBadge'
 import { getAvatarColor } from '@/lib/utils'
-import { MapPin, Package, Store, User } from 'lucide-react'
+import { MapPin, Store, User } from 'lucide-react'
 import {
   buildProductWhatsAppPrefillMessage,
   buildWhatsAppMeUrl,
   resolveSellerWhatsAppDigits,
 } from '@/lib/utils/whatsapp'
-import { resolveAvatarUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
+import { resolveAvatarUrl } from '@/lib/utils/image'
 
 interface SellerProfile {
   id: string
@@ -33,8 +31,6 @@ interface BusinessInfo {
 }
 
 interface ProductContactPreview {
-  /** First listing image URL, or null to show placeholder */
-  imageUrl: string | null
   price: number
   /** Canonical product page URL (included in WhatsApp message) */
   productPageUrl: string
@@ -44,7 +40,7 @@ interface SellerCardProps {
   seller: SellerProfile
   productTitle: string
   business?: BusinessInfo | null
-  /** Summary shown above contact actions; also used to build the WhatsApp message */
+  /** Listing price and URL used to build the WhatsApp message */
   productContact?: ProductContactPreview | null
   /** When true, hides preview and WhatsApp (e.g. product owner viewing own listing) */
   hideContactActions?: boolean
@@ -146,43 +142,6 @@ export function SellerCard({
               Visitar tienda
             </span>
           </Link>
-        )}
-
-        {/* Product preview for buyers — ties contact action to this listing */}
-        {!hideContactActions && productContact && (
-          <div
-            className="rounded-lg border border-border/80 bg-muted/40 p-3"
-            role="region"
-            aria-label="Resumen del producto para tu consulta"
-          >
-            <p className="text-xs font-medium text-muted-foreground mb-2">Tu consulta sobre</p>
-            <div className="flex gap-3">
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
-                {productContact.imageUrl ? (
-                  <Image
-                    src={productContact.imageUrl}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                    unoptimized={shouldBypassNextImageOptimization(productContact.imageUrl)}
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center" aria-hidden>
-                    <Package className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-sm text-foreground line-clamp-2 text-pretty">
-                  {productTitle}
-                </p>
-                <p className={productPresentation.sellerPreviewPrice}>
-                  Bs {productContact.price.toLocaleString('es-BO')}
-                </p>
-              </div>
-            </div>
-          </div>
         )}
 
         {/* Contact Button */}

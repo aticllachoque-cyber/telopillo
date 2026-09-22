@@ -1,12 +1,18 @@
 import { notFound, permanentRedirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { createClient, createPublicClient, getOptionalUser } from '@/lib/supabase/server'
-import { ProductDetailPageClient } from '@/components/products/ProductDetailPageClient'
+import {
+  ProductDetailPageClient,
+  type RelatedProduct,
+} from '@/components/products/ProductDetailPageClient'
 import { absoluteUrl } from '@/lib/utils'
 import { getProductPath, resolveUuidFromRouteParam } from '@/lib/utils/publicRoutes'
 import { resolveProductImageUrl } from '@/lib/utils/image'
 import { resolveSellerWhatsAppDigits } from '@/lib/utils/whatsapp'
 import { CONDITION_LABELS } from '@/lib/validations/product'
+
+/** How many same-category listings to show under a product. */
+const RELATED_PRODUCTS_LIMIT = 4
 
 interface ProductPageProps {
   params: Promise<{
@@ -125,15 +131,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
     p_user_id: product.user_id,
   })
 
-  // Related products: same category, active, most recent first (existing table + RLS, no new API).
-  const { data: relatedProducts } = await supabase
-    .from('products')
-    .select('id, title, price, location_city, location_department, images')
-    .eq('category', product.category)
-    .eq('status', 'active')
-    .neq('id', id)
-    .order('created_at', { ascending: false })
-    .limit(4)
+  // Related products: same category, active, most recent first. Uses the search RPC
+  // so the rows carry seller/contact/condition fields and render with the same
+  // listing card as /buscar. Ask for one extra row to drop the current product.
+  const { data: relatedRows } = await supabase.rpc('search_products', {
+    search_query: null,
+    category_filter: product.category,
+    status_filter: 'active',
+    sort_by: 'newest',
+    result_limit: RELATED_PRODUCTS_LIMIT + 1,
+    result_offset: 0,
+  })
+  const relatedProducts = ((relatedRows?.[0]?.products ?? []) as RelatedProduct[])
+    .filter((item) => item.id !== id)
+    .slice(0, RELATED_PRODUCTS_LIMIT)
 
   return (
     <ProductDetailPageClient
@@ -163,14 +174,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             businessProfile?.social_whatsapp,
             typeof sellerContactPhone === 'string' ? sellerContactPhone : null
           ).normalizedDigits ?? null,
-        relatedProducts: (relatedProducts ?? []).map((item) => ({
-          id: item.id,
-          title: item.title,
-          price: item.price,
-          location_city: item.location_city,
-          location_department: item.location_department,
-          images: item.images,
-        })),
+        relatedProducts,
       }}
     />
   )

@@ -40,7 +40,7 @@ async function getBusinessProducts(userId: string) {
   const { data: products } = await supabase
     .from('products')
     .select(
-      'id, title, price, images, status, location_city, location_department, views_count, created_at'
+      'id, title, price, images, status, condition, location_city, location_department, views_count, created_at'
     )
     .eq('user_id', userId)
     .eq('status', 'active')
@@ -172,8 +172,6 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
 
   const products = await getBusinessProducts(profile.id)
 
-  const storefrontWhatsApp = business.social_whatsapp?.trim() || contactPhone
-
   const jsonLd = buildJsonLd(business, absoluteUrl(`/negocio/${slug}`), contactPhone)
 
   return (
@@ -269,11 +267,7 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
               </div>
 
               {products.length > 0 ? (
-                <ProductGrid
-                  products={products}
-                  showActions={false}
-                  whatsappContactPhone={storefrontWhatsApp}
-                />
+                <ProductGrid products={products} showActions={false} />
               ) : (
                 /* Empty storefront */
                 <Card>
