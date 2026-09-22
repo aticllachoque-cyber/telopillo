@@ -57,7 +57,7 @@ export default async function EditDemandPostPage({ params }: EditDemandPostPageP
 
   return (
     <div className="min-h-dvh bg-background py-8">
-      <div className="container max-w-2xl px-4 sm:px-6">
+      <div className="container mx-auto max-w-2xl px-4 sm:px-6">
         <div className="mb-8">
           <Link
             href={getDemandPath(id, post.title)}

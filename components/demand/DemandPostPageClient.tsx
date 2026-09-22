@@ -67,7 +67,7 @@ interface DemandPostResponse {
 export function DemandPostPageClient({ initialData }: DemandPostPageClientProps) {
   return (
     <div className="min-h-dvh bg-background py-8 pb-24 lg:pb-8">
-      <div className="container px-4 sm:px-6">
+      <div className="container mx-auto px-4 sm:px-6">
         <Link
           href="/busco"
           className="mb-6 inline-flex min-h-[44px] touch-manipulation items-center py-2 pl-2 pr-2 text-sm text-muted-foreground hover:text-foreground"
