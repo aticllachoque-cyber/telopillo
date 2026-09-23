@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { createPublicClient } from '@/lib/supabase/server'
 import { BusinessHeader } from '@/components/business/BusinessHeader'
 import { BusinessInfoSidebar } from '@/components/business/BusinessInfoSidebar'
 import { ProductGrid } from '@/components/products/ProductGrid'
+import { SearchSort } from '@/components/search/SearchSort'
 import { Card, CardContent } from '@/components/ui/card'
 import { Construction, Package, Store } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
@@ -15,6 +17,32 @@ interface StorefrontPageProps {
   params: Promise<{
     slug: string
   }>
+  searchParams: Promise<{
+    sort?: string
+    page?: string
+  }>
+}
+
+const PAGE_SIZE = 12
+const STOREFRONT_SORTS = ['newest', 'price_asc', 'price_desc'] as const
+type StorefrontSort = (typeof STOREFRONT_SORTS)[number]
+
+function parseSort(value: string | undefined): StorefrontSort {
+  return STOREFRONT_SORTS.includes(value as StorefrontSort) ? (value as StorefrontSort) : 'newest'
+}
+
+function parsePage(value: string | undefined): number {
+  const parsed = Number.parseInt(value ?? '', 10)
+  return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1
+}
+
+/** URL for a storefront page; omits defaults so canonical stays clean. */
+function storefrontHref(slug: string, sort: StorefrontSort, page: number) {
+  const params = new URLSearchParams()
+  if (sort !== 'newest') params.set('sort', sort)
+  if (page > 1) params.set('page', String(page))
+  const qs = params.toString()
+  return `/negocio/${slug}${qs ? `?${qs}` : ''}`
 }
 
 // ---------------------------------------------------------------------------
@@ -34,19 +62,41 @@ async function getBusinessBySlug(slug: string) {
   return business
 }
 
-async function getBusinessProducts(userId: string) {
+async function getBusinessProducts(userId: string, sort: StorefrontSort, requestedPage: number) {
   const supabase = createPublicClient()
 
-  const { data: products } = await supabase
-    .from('products')
-    .select(
-      'id, title, price, images, status, condition, location_city, location_department, views_count, created_at'
-    )
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
+  const select =
+    'id, title, price, images, status, condition, location_city, location_department, views_count, created_at'
 
-  return products ?? []
+  const fetchPage = async (page: number) => {
+    let query = supabase
+      .from('products')
+      .select(select, { count: 'exact' })
+      .eq('user_id', userId)
+      .eq('status', 'active')
+
+    if (sort === 'price_asc') {
+      query = query.order('price', { ascending: true })
+    } else if (sort === 'price_desc') {
+      query = query.order('price', { ascending: false })
+    } else {
+      query = query.order('created_at', { ascending: false })
+    }
+
+    const from = (page - 1) * PAGE_SIZE
+    const { data, count } = await query.range(from, from + PAGE_SIZE - 1)
+    return { products: data ?? [], total: count ?? 0, page }
+  }
+
+  let result = await fetchPage(requestedPage)
+
+  // Out-of-range page (stale link) → clamp to last page instead of rendering empty
+  if (result.products.length === 0 && requestedPage > 1 && result.total > 0) {
+    const lastPage = Math.ceil(result.total / PAGE_SIZE)
+    result = await fetchPage(Math.min(requestedPage, lastPage))
+  }
+
+  return result
 }
 
 // ---------------------------------------------------------------------------
@@ -142,8 +192,11 @@ function buildJsonLd(
 // Page Component
 // ---------------------------------------------------------------------------
 
-export default async function StorefrontPage({ params }: StorefrontPageProps) {
+export default async function StorefrontPage({ params, searchParams }: StorefrontPageProps) {
   const { slug } = await params
+  const sp = await searchParams
+  const sort = parseSort(sp.sort)
+  const requestedPage = parsePage(sp.page)
   const supabase = createPublicClient()
   const business = await getBusinessBySlug(slug)
 
@@ -170,7 +223,8 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
       ? sellerContactPhone.trim()
       : null
 
-  const products = await getBusinessProducts(profile.id)
+  const { products, total, page } = await getBusinessProducts(profile.id, sort, requestedPage)
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   const jsonLd = buildJsonLd(business, absoluteUrl(`/negocio/${slug}`), contactPhone)
 
@@ -202,26 +256,28 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
             </ol>
           </nav>
 
-          {/* MVP: set expectations — storefronts are still being enriched */}
-          <div
-            className="mb-6 flex gap-3 rounded-xl border border-primary/35 bg-muted/40 px-4 py-3 shadow-sm sm:px-5 sm:py-4"
-            role="status"
-            aria-live="polite"
-          >
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-background/80 shadow-sm ring-1 ring-primary/20">
-              <Construction className="size-5 text-primary" aria-hidden />
+          {/* MVP: set expectations — only while the storefront has no catalog yet */}
+          {total === 0 && (
+            <div
+              className="mb-6 flex gap-3 rounded-xl border border-primary/35 bg-muted/40 px-4 py-3 shadow-sm sm:px-5 sm:py-4"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-background/80 shadow-sm ring-1 ring-primary/20">
+                <Construction className="size-5 text-primary" aria-hidden />
+              </div>
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm font-semibold leading-snug text-foreground">
+                  Tienda en construcción en Telopillo
+                </p>
+                <p className="text-sm leading-relaxed text-foreground/80">
+                  Estamos ayudando a este negocio a completar su vitrina: datos, horarios y catálogo
+                  pueden ir sumándose. Si ves algo que te interesa, contactá al vendedor — así les
+                  das una mano a seguir mejorando.
+                </p>
+              </div>
             </div>
-            <div className="min-w-0 space-y-1">
-              <p className="text-sm font-semibold leading-snug text-foreground">
-                Tienda en construcción en Telopillo
-              </p>
-              <p className="text-sm leading-relaxed text-foreground/80">
-                Estamos ayudando a este negocio a completar su vitrina: datos, horarios y catálogo
-                pueden ir sumándose. Si ves algo que te interesa, contactá al vendedor — así les das
-                una mano a seguir mejorando.
-              </p>
-            </div>
-          </div>
+          )}
 
           {/* Header Card */}
           <Card className="mb-6 sm:mb-8">
@@ -254,20 +310,67 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
 
             {/* Products */}
             <div className="order-2 lg:order-1 lg:col-span-2 space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold flex items-center gap-2">
                   <Package className="size-5" aria-hidden="true" />
                   Productos
-                  {products.length > 0 && (
-                    <span className="text-base font-normal text-muted-foreground">
-                      ({products.length})
-                    </span>
+                  {total > 0 && (
+                    <span className="text-base font-normal text-muted-foreground">({total})</span>
                   )}
                 </h2>
+                {total > 0 && (
+                  <Suspense fallback={null}>
+                    <SearchSort
+                      pathname={`/negocio/${slug}`}
+                      defaultSort="newest"
+                      options={STOREFRONT_SORTS}
+                      showLabel={false}
+                      className="min-w-0 sm:w-auto"
+                    />
+                  </Suspense>
+                )}
               </div>
 
               {products.length > 0 ? (
-                <ProductGrid products={products} showActions={false} />
+                <>
+                  <ProductGrid products={products} showActions={false} />
+                  {totalPages > 1 && (
+                    <nav
+                      aria-label="Paginación de productos"
+                      className="flex items-center justify-between gap-3 pt-2"
+                    >
+                      {page > 1 ? (
+                        <Link
+                          href={storefrontHref(slug, sort, page - 1)}
+                          className="inline-flex min-h-[44px] touch-manipulation items-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-muted"
+                          rel="prev"
+                        >
+                          ← Anterior
+                        </Link>
+                      ) : (
+                        <span aria-hidden="true" className="w-28" />
+                      )}
+                      <span
+                        className="text-sm text-muted-foreground tabular-nums"
+                        aria-live="polite"
+                        aria-atomic="true"
+                      >
+                        Página {page} de {totalPages}
+                      </span>
+                      {page < totalPages ? (
+                        <Link
+                          href={storefrontHref(slug, sort, page + 1)}
+                          className="inline-flex min-h-[44px] touch-manipulation items-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-muted"
+                          rel="next"
+                        >
+                          Siguiente →
+                        </Link>
+                      ) : (
+                        <span aria-hidden="true" className="w-28" />
+                      )}
+                    </nav>
+                  )}
+                </>
               ) : (
                 /* Empty storefront */
                 <Card>
