@@ -27,27 +27,41 @@ interface SearchSortProps {
   showLabel?: boolean
   /** Restrict offered options (unified search per-type). Default: all four. */
   options?: ReadonlyArray<SortOption>
+  /** Route to push on change. Default: /buscar. */
+  pathname?: string
+  /** Value used when the URL has no sort param (and when clearing back to default). Default: relevance. */
+  defaultSort?: SortOption
 }
 
 export function SearchSort({
   className = '',
   showLabel = true,
   options = SORT_OPTIONS.map((opt) => opt.value),
+  pathname = '/buscar',
+  defaultSort = 'relevance',
 }: SearchSortProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const currentSort = (searchParams?.get('sort') as SortOption) || 'relevance'
 
   const available = SORT_OPTIONS.filter((opt) => options.includes(opt.value))
 
+  const requested = (searchParams?.get('sort') as SortOption) || defaultSort
+  // Unknown/absent-for-this-page value (e.g. ?sort=relevance on a storefront) → safe fallback
+  const fallback =
+    available.find((opt) => opt.value === defaultSort)?.value ?? available[0]?.value ?? 'relevance'
+  const currentSort = available.some((opt) => opt.value === requested) ? requested : fallback
+
   const handleSortChange = (value: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '')
-    if (value === 'relevance') {
+    if (value === defaultSort) {
       params.delete('sort')
     } else {
       params.set('sort', value)
     }
-    router.push(`/buscar?${params.toString()}`)
+    // Sort change invalidates the current page window
+    params.delete('page')
+    const qs = params.toString()
+    router.push(qs ? `${pathname}?${qs}` : pathname)
   }
 
   return (
