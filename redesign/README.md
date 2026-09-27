@@ -1,9 +1,10 @@
 # redesign/ — índice de estados
 
 > Estado por item: ver fila en [PLAN.md](PLAN.md) (fuente de verdad, rows in-place).
-> Este README es SOLO el índice legible. Dir de cada item = `redesign/<slug>/`, NO mover (PLAN.md y el skill ui-redesign-flow referencian por ruta).
+> Estructura por carpetas de estado. Item nuevo entra en `wip/` (o raíz si el skill ui-redesign-flow lo crea ahí); al cerrar con merge → mover a `done/` y actualizar este README + PLAN.md.
+> Los docs históricos dentro de cada item en `done/` conservan rutas viejas `redesign/<slug>/` — son registros congelados, no reescribir.
 
-## ✅ done — implementado, mergeado a `main` (10/10)
+## ✅ done/ — implementado, mergeado a `main` (10/10)
 
 | slug | ruta | signoff | impl | PR/merge |
 |------|------|---------|------|----------|
@@ -18,11 +19,11 @@
 | busco-detalle | `/busco/[id]` | 2026-09-18 (iter 0) | `bddd095` | mergeado (branch eliminada) |
 | home-publish-cta | landing FAB "Publicá gratis" | 2026-09-24 (iter 1) | `e24bdec` | PR #18 mergeado |
 
-## 🔵 wip — vacío
+## 🔵 wip/ — vacío
 
 Ningún item en curso. Último cerrado: `home-publish-cta` (2026-09-24).
 
-## ⚪ backlog — items futuros anotados en flags de PLAN.md
+## ⚪ backlog/ — items futuros anotados en flags de PLAN.md (sin dirs aún)
 
 | candidato | origen | nota |
 |-----------|--------|------|
