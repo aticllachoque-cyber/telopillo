@@ -14,20 +14,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, Plus, Package, ArrowLeft, ArrowUpDown, Eye, ExternalLink } from 'lucide-react'
+import {
+  Loader2,
+  Plus,
+  Package,
+  ArrowLeft,
+  ArrowUpDown,
+  Eye,
+  ExternalLink,
+  Store,
+} from 'lucide-react'
 import Link from 'next/link'
 import { ShareProfile } from '@/components/profile/ShareProfile'
+import { CatalogManager, type CatalogProduct } from '@/components/profile/CatalogManager'
 
-type Product = {
-  id: string
-  title: string
-  price: number
-  images: string[]
-  status: string
+type Product = CatalogProduct & {
   location_city: string
   location_department: string
-  views_count: number
-  created_at: string
 }
 
 type StatusFilter = 'all' | 'active' | 'sold' | 'inactive'
@@ -201,17 +204,29 @@ export default function MisProductosPage() {
           <CardHeader className="pb-2">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <Badge variant="secondary" className="mb-3 w-fit gap-1">
-                  <Eye className="h-3.5 w-3.5" aria-hidden />
-                  Vista personal
-                </Badge>
-                <h1 className="text-balance text-2xl font-bold sm:text-3xl">Mis productos</h1>
+                {businessSlug ? (
+                  <Badge variant="secondary" className="mb-3 w-fit gap-1">
+                    <Store className="h-3.5 w-3.5" aria-hidden />
+                    Mi vitrina
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="mb-3 w-fit gap-1">
+                    <Eye className="h-3.5 w-3.5" aria-hidden />
+                    Vista personal
+                  </Badge>
+                )}
+                <h1 className="text-balance text-2xl font-bold sm:text-3xl">
+                  {businessSlug ? 'Catálogo de mi negocio' : 'Mis productos'}
+                </h1>
                 <p className="text-pretty mt-1 text-sm text-muted-foreground sm:text-base">
-                  Gestiona tus productos
+                  {businessSlug
+                    ? 'Organiza lo que verán tus clientes en tu vitrina'
+                    : 'Gestiona tus productos'}
                 </p>
                 <p className="text-pretty mt-3 max-w-2xl text-sm text-muted-foreground">
-                  Esta vista es solo para ti. Si compartes tu perfil, otras personas verán tu perfil
-                  público y tus productos publicados, sin estos controles de gestión.
+                  {businessSlug
+                    ? 'Destaca hasta 4 productos y ordena tu catálogo por sección. Tus clientes ven este orden en la vitrina de tu negocio.'
+                    : 'Esta vista es solo para ti. Si compartes tu perfil, otras personas verán tu perfil público y tus productos publicados, sin estos controles de gestión.'}
                 </p>
                 <Button
                   asChild
@@ -219,7 +234,7 @@ export default function MisProductosPage() {
                   className="mt-2 h-auto min-h-[44px] px-0 text-sm sm:min-h-10"
                 >
                   <Link href={publicProfileHref}>
-                    Ver perfil público
+                    {businessSlug ? 'Ver mi vitrina' : 'Ver perfil público'}
                     <ExternalLink className="ml-1 h-4 w-4 shrink-0" aria-hidden />
                   </Link>
                 </Button>
@@ -325,7 +340,15 @@ export default function MisProductosPage() {
         )}
 
         {products.length > 0 ? (
-          <ProductGrid products={products} onUpdate={handleUpdate} showActions={true} />
+          businessSlug && (statusFilter === 'all' || statusFilter === 'active') ? (
+            <CatalogManager
+              products={products}
+              businessSlug={businessSlug}
+              onUpdate={handleUpdate}
+            />
+          ) : (
+            <ProductGrid products={products} onUpdate={handleUpdate} showActions={true} />
+          )
         ) : (
           <Card className="border border-border/60 shadow-md">
             <CardContent className="flex flex-col items-center justify-center py-12 text-center sm:py-16">
