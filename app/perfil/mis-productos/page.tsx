@@ -228,16 +228,21 @@ export default function MisProductosPage() {
                     ? 'Destaca hasta 4 productos y ordena tu catálogo por sección. Tus clientes ven este orden en la vitrina de tu negocio.'
                     : 'Esta vista es solo para ti. Si compartes tu perfil, otras personas verán tu perfil público y tus productos publicados, sin estos controles de gestión.'}
                 </p>
-                <Button
-                  asChild
-                  variant="link"
-                  className="mt-2 h-auto min-h-[44px] px-0 text-sm sm:min-h-10"
-                >
-                  <Link href={publicProfileHref}>
-                    {businessSlug ? 'Ver mi vitrina' : 'Ver perfil público'}
-                    <ExternalLink className="ml-1 h-4 w-4 shrink-0" aria-hidden />
-                  </Link>
-                </Button>
+                {/* F-5: in business mode the CatalogManager already offers
+                    "Ver mi vitrina" — keep this header link only for the
+                    personal profile view to avoid a duplicate CTA. */}
+                {!businessSlug && (
+                  <Button
+                    asChild
+                    variant="link"
+                    className="mt-2 h-auto min-h-[44px] px-0 text-sm sm:min-h-10"
+                  >
+                    <Link href={publicProfileHref}>
+                      Ver perfil público
+                      <ExternalLink className="ml-1 h-4 w-4 shrink-0" aria-hidden />
+                    </Link>
+                  </Button>
+                )}
               </div>
               <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
                 {userId && (

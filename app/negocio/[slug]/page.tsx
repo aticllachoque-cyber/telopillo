@@ -410,12 +410,12 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
               {catalogCategories.length > 1 && (
                 <nav
                   aria-label="Categorías del catálogo"
-                  className="flex gap-2 overflow-x-auto pb-1"
+                  className="relative flex gap-2 overflow-x-auto pb-1 after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:hidden after:w-10 after:bg-gradient-to-l after:from-background after:to-transparent max-sm:after:block"
                 >
                   <Link
                     href={storefrontHref(slug, sort, 1, null)}
                     aria-current={activeCategory ? undefined : 'page'}
-                    className={`inline-flex min-h-[36px] shrink-0 items-center rounded-full border px-3 text-sm font-medium touch-manipulation ${
+                    className={`inline-flex min-h-[44px] shrink-0 items-center rounded-full border px-3 text-sm font-medium touch-manipulation sm:min-h-[36px] ${
                       activeCategory
                         ? 'border-input bg-background text-foreground hover:bg-muted'
                         : 'border-primary bg-primary text-primary-foreground'
@@ -428,7 +428,7 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                       key={category}
                       href={storefrontHref(slug, sort, 1, category)}
                       aria-current={activeCategory === category ? 'page' : undefined}
-                      className={`inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-medium touch-manipulation ${
+                      className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-medium touch-manipulation sm:min-h-[36px] ${
                         activeCategory === category
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-input bg-background text-foreground hover:bg-muted'
@@ -459,7 +459,10 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                     <Star className="size-4 fill-primary text-primary" aria-hidden />
                     Destacados
                   </h3>
-                  <ProductGrid products={featuredProducts} showActions={false} />
+                  {/* F-1: horizontal scroll-snap carousel under sm — grid from sm up */}
+                  <div className="[&>ul]:max-sm:flex! [&>ul]:max-sm:overflow-x-auto [&>ul]:max-sm:snap-x [&>ul]:max-sm:snap-mandatory [&>ul]:max-sm:pb-1 [&>ul>li]:max-sm:w-[72vw]! [&>ul>li]:max-sm:max-w-[280px]! [&>ul>li]:max-sm:flex-none! [&>ul>li]:max-sm:snap-start">
+                    <ProductGrid products={featuredProducts} showActions={false} />
+                  </div>
                 </section>
               )}
 
@@ -469,7 +472,7 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                   {totalPages > 1 && (
                     <nav
                       aria-label="Paginación de productos"
-                      className="flex items-center justify-between gap-3 pt-2"
+                      className="flex items-center gap-3 pt-2 max-sm:flex-col max-sm:gap-2 sm:justify-between"
                     >
                       {page > 1 ? (
                         <Link
@@ -480,7 +483,7 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                           ← Anterior
                         </Link>
                       ) : (
-                        <span aria-hidden="true" className="w-28" />
+                        <span aria-hidden="true" className="w-28 max-sm:hidden" />
                       )}
                       <span
                         className="text-sm text-muted-foreground tabular-nums"
@@ -498,7 +501,7 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                           Siguiente →
                         </Link>
                       ) : (
-                        <span aria-hidden="true" className="w-28" />
+                        <span aria-hidden="true" className="w-28 max-sm:hidden" />
                       )}
                     </nav>
                   )}
