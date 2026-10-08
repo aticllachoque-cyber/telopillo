@@ -8,10 +8,11 @@ import { BusinessInfoSidebar } from '@/components/business/BusinessInfoSidebar'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { SearchSort } from '@/components/search/SearchSort'
 import { Card, CardContent } from '@/components/ui/card'
-import { Construction, Package, Store } from 'lucide-react'
+import { Construction, Package, Star, Store } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
 import { resolveBusinessLogoUrl } from '@/lib/utils/image'
 import { serializeJsonLd } from '@/lib/utils/json-ld'
+import { CATEGORY_LABELS } from '@/lib/validations/product'
 
 interface StorefrontPageProps {
   params: Promise<{
@@ -20,15 +21,17 @@ interface StorefrontPageProps {
   searchParams: Promise<{
     sort?: string
     page?: string
+    cat?: string
   }>
 }
 
 const PAGE_SIZE = 12
-const STOREFRONT_SORTS = ['newest', 'price_asc', 'price_desc'] as const
+const MAX_FEATURED = 4
+const STOREFRONT_SORTS = ['vitrina', 'newest', 'price_asc', 'price_desc'] as const
 type StorefrontSort = (typeof STOREFRONT_SORTS)[number]
 
 function parseSort(value: string | undefined): StorefrontSort {
-  return STOREFRONT_SORTS.includes(value as StorefrontSort) ? (value as StorefrontSort) : 'newest'
+  return STOREFRONT_SORTS.includes(value as StorefrontSort) ? (value as StorefrontSort) : 'vitrina'
 }
 
 function parsePage(value: string | undefined): number {
@@ -37,10 +40,16 @@ function parsePage(value: string | undefined): number {
 }
 
 /** URL for a storefront page; omits defaults so canonical stays clean. */
-function storefrontHref(slug: string, sort: StorefrontSort, page: number) {
+function storefrontHref(
+  slug: string,
+  sort: StorefrontSort,
+  page: number,
+  category?: string | null
+) {
   const params = new URLSearchParams()
-  if (sort !== 'newest') params.set('sort', sort)
+  if (sort !== 'vitrina') params.set('sort', sort)
   if (page > 1) params.set('page', String(page))
+  if (category) params.set('cat', category)
   const qs = params.toString()
   return `/negocio/${slug}${qs ? `?${qs}` : ''}`
 }
@@ -62,7 +71,12 @@ async function getBusinessBySlug(slug: string) {
   return business
 }
 
-async function getBusinessProducts(userId: string, sort: StorefrontSort, requestedPage: number) {
+async function getBusinessProducts(
+  userId: string,
+  sort: StorefrontSort,
+  requestedPage: number,
+  category?: string | null
+) {
   const supabase = createPublicClient()
 
   const select =
@@ -75,12 +89,25 @@ async function getBusinessProducts(userId: string, sort: StorefrontSort, request
       .eq('user_id', userId)
       .eq('status', 'active')
 
-    if (sort === 'price_asc') {
-      query = query.order('price', { ascending: true })
-    } else if (sort === 'price_desc') {
-      query = query.order('price', { ascending: false })
-    } else {
-      query = query.order('created_at', { ascending: false })
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    switch (sort) {
+      case 'price_asc':
+        query = query.order('price', { ascending: true })
+        break
+      case 'price_desc':
+        query = query.order('price', { ascending: false })
+        break
+      case 'vitrina':
+        // Seller-curated order first, then newest among unordered products
+        query = query
+          .order('display_order', { ascending: true, nullsFirst: false })
+          .order('created_at', { ascending: false })
+        break
+      default:
+        query = query.order('created_at', { ascending: false })
     }
 
     const from = (page - 1) * PAGE_SIZE
@@ -97,6 +124,42 @@ async function getBusinessProducts(userId: string, sort: StorefrontSort, request
   }
 
   return result
+}
+
+/** Products the seller starred for the vitrina (max 4, app-enforced). */
+async function getFeaturedProducts(userId: string) {
+  const supabase = createPublicClient()
+
+  const { data } = await supabase
+    .from('products')
+    .select(
+      'id, title, price, images, status, condition, location_city, location_department, views_count, created_at'
+    )
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .eq('is_featured', true)
+    .order('display_order', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(MAX_FEATURED)
+
+  return data ?? []
+}
+
+/** Category breakdown of the active catalog, for the buyer-side section chips. */
+async function getCatalogCategories(userId: string) {
+  const supabase = createPublicClient()
+
+  const { data } = await supabase
+    .from('products')
+    .select('category')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+
+  const counts = new Map<string, number>()
+  for (const row of data ?? []) {
+    counts.set(row.category, (counts.get(row.category) ?? 0) + 1)
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])
 }
 
 // ---------------------------------------------------------------------------
@@ -197,6 +260,7 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
   const sp = await searchParams
   const sort = parseSort(sp.sort)
   const requestedPage = parsePage(sp.page)
+  const activeCategory = sp.cat?.trim() || null
   const supabase = createPublicClient()
   const business = await getBusinessBySlug(slug)
 
@@ -223,8 +287,19 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
       ? sellerContactPhone.trim()
       : null
 
-  const { products, total, page } = await getBusinessProducts(profile.id, sort, requestedPage)
+  const [{ products, total, page }, featuredProducts, catalogCategories] = await Promise.all([
+    getBusinessProducts(profile.id, sort, requestedPage, activeCategory),
+    getFeaturedProducts(profile.id),
+    getCatalogCategories(profile.id),
+  ])
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  // Featured row only makes sense on the unfiltered, default-order view
+  const showFeatured =
+    featuredProducts.length > 0 && !activeCategory && sort === 'vitrina' && requestedPage === 1
+  const gridProducts = showFeatured
+    ? products.filter((p) => !featuredProducts.some((f) => f.id === p.id))
+    : products
 
   const jsonLd = buildJsonLd(business, absoluteUrl(`/negocio/${slug}`), contactPhone)
 
@@ -322,7 +397,7 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                   <Suspense fallback={null}>
                     <SearchSort
                       pathname={`/negocio/${slug}`}
-                      defaultSort="newest"
+                      defaultSort="vitrina"
                       options={STOREFRONT_SORTS}
                       showLabel={false}
                       className="min-w-0 sm:w-auto"
@@ -331,24 +406,84 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                 )}
               </div>
 
-              {products.length > 0 ? (
+              {/* Catalog section chips — seller-curated categories */}
+              {catalogCategories.length > 1 && (
+                <nav
+                  aria-label="Categorías del catálogo"
+                  className="relative flex gap-2 overflow-x-auto pb-1 after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:hidden after:w-10 after:bg-gradient-to-l after:from-background after:to-transparent max-sm:after:block"
+                >
+                  <Link
+                    href={storefrontHref(slug, sort, 1, null)}
+                    aria-current={activeCategory ? undefined : 'page'}
+                    className={`inline-flex min-h-[44px] shrink-0 items-center rounded-full border px-3 text-sm font-medium touch-manipulation sm:min-h-[36px] ${
+                      activeCategory
+                        ? 'border-input bg-background text-foreground hover:bg-muted'
+                        : 'border-primary bg-primary text-primary-foreground'
+                    }`}
+                  >
+                    Todo
+                  </Link>
+                  {catalogCategories.map(([category, count]) => (
+                    <Link
+                      key={category}
+                      href={storefrontHref(slug, sort, 1, category)}
+                      aria-current={activeCategory === category ? 'page' : undefined}
+                      className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-medium touch-manipulation sm:min-h-[36px] ${
+                        activeCategory === category
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-input bg-background text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      {CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] ?? category}
+                      <span
+                        className={`text-xs tabular-nums ${
+                          activeCategory === category
+                            ? 'text-primary-foreground/80'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </Link>
+                  ))}
+                </nav>
+              )}
+
+              {/* Seller-featured highlights */}
+              {showFeatured && (
+                <section aria-labelledby="featured-heading" className="space-y-3">
+                  <h3
+                    id="featured-heading"
+                    className="flex items-center gap-1.5 text-sm font-semibold text-foreground"
+                  >
+                    <Star className="size-4 fill-primary text-primary" aria-hidden />
+                    Destacados
+                  </h3>
+                  {/* F-1: horizontal scroll-snap carousel under sm — grid from sm up */}
+                  <div className="[&>ul]:max-sm:flex! [&>ul]:max-sm:overflow-x-auto [&>ul]:max-sm:snap-x [&>ul]:max-sm:snap-mandatory [&>ul]:max-sm:pb-1 [&>ul>li]:max-sm:w-[72vw]! [&>ul>li]:max-sm:max-w-[280px]! [&>ul>li]:max-sm:flex-none! [&>ul>li]:max-sm:snap-start">
+                    <ProductGrid products={featuredProducts} showActions={false} />
+                  </div>
+                </section>
+              )}
+
+              {gridProducts.length > 0 ? (
                 <>
-                  <ProductGrid products={products} showActions={false} />
+                  <ProductGrid products={gridProducts} showActions={false} />
                   {totalPages > 1 && (
                     <nav
                       aria-label="Paginación de productos"
-                      className="flex items-center justify-between gap-3 pt-2"
+                      className="flex items-center gap-3 pt-2 max-sm:flex-col max-sm:gap-2 sm:justify-between"
                     >
                       {page > 1 ? (
                         <Link
-                          href={storefrontHref(slug, sort, page - 1)}
+                          href={storefrontHref(slug, sort, page - 1, activeCategory)}
                           className="inline-flex min-h-[44px] touch-manipulation items-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-muted"
                           rel="prev"
                         >
                           ← Anterior
                         </Link>
                       ) : (
-                        <span aria-hidden="true" className="w-28" />
+                        <span aria-hidden="true" className="w-28 max-sm:hidden" />
                       )}
                       <span
                         className="text-sm text-muted-foreground tabular-nums"
@@ -359,14 +494,14 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                       </span>
                       {page < totalPages ? (
                         <Link
-                          href={storefrontHref(slug, sort, page + 1)}
+                          href={storefrontHref(slug, sort, page + 1, activeCategory)}
                           className="inline-flex min-h-[44px] touch-manipulation items-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-muted"
                           rel="next"
                         >
                           Siguiente →
                         </Link>
                       ) : (
-                        <span aria-hidden="true" className="w-28" />
+                        <span aria-hidden="true" className="w-28 max-sm:hidden" />
                       )}
                     </nav>
                   )}

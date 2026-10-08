@@ -10,10 +10,11 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 
-type SortOption = 'relevance' | 'newest' | 'price_asc' | 'price_desc'
+type SortOption = 'relevance' | 'vitrina' | 'newest' | 'price_asc' | 'price_desc'
 
 const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
   { value: 'relevance', label: 'Relevancia' },
+  { value: 'vitrina', label: 'Orden de la tienda' },
   { value: 'newest', label: 'Más recientes' },
   { value: 'price_asc', label: 'Precio: menor a mayor' },
   { value: 'price_desc', label: 'Precio: mayor a menor' },
