@@ -50,6 +50,10 @@ interface Product {
   seller_whatsapp_phone?: string | null
   seller_business_whatsapp?: string | null
   seller_profile_phone?: string | null
+  // Active promotion info (from search RPC JOINs)
+  promo_id?: string | null
+  promo_name?: string | null
+  promo_price?: number | null
 }
 
 interface CommonEnvelope {

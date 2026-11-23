@@ -12,6 +12,10 @@ interface Product {
   location_department: string
   views_count: number
   created_at: string
+  // Active promotion (optional)
+  promo_id?: string | null
+  promo_name?: string | null
+  promo_price?: number | null
   // Seller info (optional — present when from search API)
   seller_name?: string | null
   seller_business_name?: string | null

@@ -1,12 +1,19 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { requireAuthenticatedUser } from '@/lib/actions/auth'
 import { actionError, actionSuccess, type ActionResult } from '@/lib/actions/result'
+import { applyPromotionToProductInternal } from '@/lib/actions/promotions'
 import { productSchema } from '@/lib/validations/product'
+import {
+  productPromotionInputSchema,
+  validatePromoPriceAgainstBase,
+} from '@/lib/validations/promotion'
 import { removeStorageImageByPublicUrl } from '@/lib/utils/image'
 
 export async function createProductAction(
-  input: unknown
+  input: unknown,
+  promotionInput?: unknown
 ): Promise<ActionResult<{ id: string; title: string }>> {
   const auth = await requireAuthenticatedUser()
   if (!auth) {
@@ -16,6 +23,21 @@ export async function createProductAction(
   const parsed = productSchema.safeParse(input)
   if (!parsed.success) {
     return actionError(parsed.error.issues[0]?.message ?? 'Datos de producto inválidos')
+  }
+
+  let parsedPromotion: ReturnType<typeof productPromotionInputSchema.safeParse> | null = null
+  if (promotionInput !== undefined && promotionInput !== null) {
+    parsedPromotion = productPromotionInputSchema.safeParse(promotionInput)
+    if (!parsedPromotion.success) {
+      return actionError(parsedPromotion.error.issues[0]?.message ?? 'Datos de promoción inválidos')
+    }
+    const priceError = validatePromoPriceAgainstBase(
+      parsed.data.price,
+      parsedPromotion.data.promoPrice
+    )
+    if (priceError) {
+      return actionError(priceError)
+    }
   }
 
   const { supabase, user } = auth
@@ -44,13 +66,31 @@ export async function createProductAction(
     return actionError('No se pudo publicar el producto')
   }
 
+  if (parsedPromotion?.success) {
+    const promoResult = await applyPromotionToProductInternal(
+      supabase,
+      user.id,
+      product.id,
+      data.price,
+      parsedPromotion.data
+    )
+    if (!promoResult.success) {
+      // Product is already created; report cleanly so the seller can adjust the promotion
+      console.error('[createProductAction] promotion error', promoResult.error)
+    }
+  }
+
+  revalidatePath('/')
+  revalidatePath('/perfil/mis-productos')
+
   return actionSuccess({ id: product.id, title: product.title })
 }
 
 export async function updateProductAction(
   productId: string,
   input: unknown,
-  previousImages: string[] = []
+  previousImages: string[] = [],
+  promotionInput?: unknown | null
 ): Promise<ActionResult<{ id: string; title: string }>> {
   const auth = await requireAuthenticatedUser()
   if (!auth) {
@@ -60,6 +100,21 @@ export async function updateProductAction(
   const parsed = productSchema.safeParse(input)
   if (!parsed.success) {
     return actionError(parsed.error.issues[0]?.message ?? 'Datos de producto inválidos')
+  }
+
+  let parsedPromotion: ReturnType<typeof productPromotionInputSchema.safeParse> | null = null
+  if (promotionInput !== undefined && promotionInput !== null) {
+    parsedPromotion = productPromotionInputSchema.safeParse(promotionInput)
+    if (!parsedPromotion.success) {
+      return actionError(parsedPromotion.error.issues[0]?.message ?? 'Datos de promoción inválidos')
+    }
+    const priceError = validatePromoPriceAgainstBase(
+      parsed.data.price,
+      parsedPromotion.data.promoPrice
+    )
+    if (priceError) {
+      return actionError(priceError)
+    }
   }
 
   const { supabase, user } = auth
@@ -86,6 +141,28 @@ export async function updateProductAction(
     return actionError('No se pudo actualizar el producto')
   }
 
+  if (promotionInput === null) {
+    const { error: removePromoError } = await supabase
+      .from('promotion_products')
+      .delete()
+      .eq('product_id', productId)
+    if (removePromoError) {
+      console.error('[updateProductAction] remove promotion error', removePromoError.message)
+      return actionError('El producto se actualizó, pero no se pudo quitar la promoción')
+    }
+  } else if (parsedPromotion?.success) {
+    const promoResult = await applyPromotionToProductInternal(
+      supabase,
+      user.id,
+      productId,
+      data.price,
+      parsedPromotion.data
+    )
+    if (!promoResult.success) {
+      return actionError(promoResult.error)
+    }
+  }
+
   const removedImages = previousImages.filter((url) => !data.images.includes(url))
   if (removedImages.length > 0) {
     try {
@@ -98,6 +175,10 @@ export async function updateProductAction(
       console.error('[updateProductAction] image cleanup', cleanupError)
     }
   }
+
+  revalidatePath('/')
+  revalidatePath('/perfil/mis-productos')
+  revalidatePath(`/productos/${productId}`)
 
   return actionSuccess({ id: productId, title: data.title })
 }

@@ -13,6 +13,7 @@ import {
   getProductPath,
   resolveUuidFromRouteParam,
 } from '@/lib/utils/publicRoutes'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 
 export default function EditProductPage() {
   const router = useRouter()
@@ -34,6 +35,9 @@ export default function EditProductPage() {
     location_department: string
     location_city: string
     images: string[]
+    promo_id: string | null
+    promo_name: string | null
+    promo_price: number | null
   } | null>(null)
 
   useEffect(() => {
@@ -94,7 +98,27 @@ export default function EditProductPage() {
         return
       }
 
-      setProductData(product)
+      const promos = await fetchActivePromotionsByProductIds(supabase, [
+        { id: product.id, price: product.price },
+      ])
+      const promo = promos.get(product.id) ?? {
+        promo_id: null,
+        promo_name: null,
+        promo_price: null,
+      }
+
+      setProductData({
+        title: product.title,
+        description: product.description,
+        category: product.category,
+        subcategory: product.subcategory ?? undefined,
+        price: product.price,
+        condition: product.condition,
+        location_department: product.location_department,
+        location_city: product.location_city,
+        images: product.images || [],
+        ...promo,
+      })
     } catch (err) {
       console.error('Error loading product:', err)
       setError(err instanceof Error ? err.message : 'Error al cargar producto')
@@ -168,6 +192,15 @@ export default function EditProductPage() {
           userId={userId}
           productId={productId}
           mode="edit"
+          initialPromotion={
+            productData.promo_id && productData.promo_name && productData.promo_price != null
+              ? {
+                  promo_id: productData.promo_id,
+                  promo_name: productData.promo_name,
+                  promo_price: productData.promo_price,
+                }
+              : null
+          }
           defaultValues={{
             title: productData.title,
             description: productData.description,

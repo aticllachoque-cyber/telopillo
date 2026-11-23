@@ -23,4 +23,11 @@ export const productPresentation = {
   metaRow: 'flex items-start gap-2 text-sm leading-snug min-w-0',
   metaIcon: 'h-3.5 w-3.5 shrink-0 text-muted-foreground mt-0.5',
   metaLabel: 'text-muted-foreground shrink-0',
+  /** Promotion price & high-contrast WCAG AA badges (distinct from green WhatsApp CTAs) */
+  promoPrice: 'text-rose-700 dark:text-rose-400',
+  promoOriginalPrice: 'text-muted-foreground line-through tabular-nums',
+  promoDiscountBadge:
+    'inline-flex items-center rounded-md bg-rose-700 px-1.5 py-0.5 text-xs font-bold leading-none text-white tabular-nums shadow-sm dark:bg-rose-600 dark:text-white',
+  promoNamePill:
+    'inline-flex max-w-full items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-900 dark:border-rose-800/70 dark:bg-rose-950/60 dark:text-rose-100',
 } as const

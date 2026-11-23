@@ -22,7 +22,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useSnackbar } from '@/components/ui/snackbar'
-import { Edit, MoreVertical, Loader2, Share2 } from 'lucide-react'
+import { ProductPromotionDialog } from '@/components/products/ProductPromotionDialog'
+import { resolveActivePromotion } from '@/lib/utils/promotion'
+import { Edit, MoreVertical, Loader2, Share2, Tag } from 'lucide-react'
 import { getProductEditPath, getProductPath } from '@/lib/utils/publicRoutes'
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
@@ -30,6 +32,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://telopillo'
 interface ProductActionsProps {
   productId: string
   productTitle?: string
+  productPrice?: number
+  currentPromotion?: {
+    promo_id?: string | null
+    promo_name?: string | null
+    promo_price?: number | null
+  } | null
   status: string
   onUpdate?: () => void
   showEdit?: boolean
@@ -41,6 +49,8 @@ type ActionType = 'sold' | 'inactive' | 'delete' | null
 export function ProductActions({
   productId,
   productTitle,
+  productPrice,
+  currentPromotion,
   status,
   onUpdate,
   showEdit = true,
@@ -51,7 +61,14 @@ export function ProductActions({
   const { showSnackbar } = useSnackbar()
   const [isProcessing, setIsProcessing] = useState(false)
   const [dialogAction, setDialogAction] = useState<ActionType>(null)
+  const [promoDialogOpen, setPromoDialogOpen] = useState(false)
   const productPath = getProductPath(productId, productTitle)
+  const canManagePromotion =
+    status === 'active' && productPrice != null && Number.isFinite(productPrice) && productPrice > 0
+  const activePromo = canManagePromotion
+    ? resolveActivePromotion(productPrice, currentPromotion)
+    : null
+  const promoActionLabel = activePromo ? 'Editar promoción' : 'Agregar promoción'
 
   const handleEdit = () => {
     router.push(getProductEditPath(productId))
@@ -142,6 +159,16 @@ export function ProductActions({
               Editar
             </Button>
           )}
+          {canManagePromotion && (
+            <Button
+              onClick={() => setPromoDialogOpen(true)}
+              variant="outline"
+              disabled={isProcessing}
+            >
+              <Tag className="mr-2 h-4 w-4 text-rose-700 dark:text-rose-400" aria-hidden />
+              {promoActionLabel}
+            </Button>
+          )}
           {status === 'active' && (
             <>
               <Button onClick={() => openDialog('sold')} variant="outline" disabled={isProcessing}>
@@ -179,6 +206,18 @@ export function ProductActions({
           onConfirm={handleAction}
           onCancel={closeDialog}
         />
+
+        {canManagePromotion && (
+          <ProductPromotionDialog
+            open={promoDialogOpen}
+            onOpenChange={setPromoDialogOpen}
+            productId={productId}
+            productTitle={productTitle}
+            productPrice={productPrice}
+            currentPromotion={currentPromotion}
+            onUpdate={onUpdate}
+          />
+        )}
       </>
     )
   }
@@ -207,6 +246,12 @@ export function ProductActions({
             <DropdownMenuItem onClick={handleEdit}>
               <Edit className="mr-2 h-4 w-4" aria-hidden />
               Editar
+            </DropdownMenuItem>
+          )}
+          {canManagePromotion && (
+            <DropdownMenuItem onClick={() => setPromoDialogOpen(true)}>
+              <Tag className="mr-2 h-4 w-4 text-rose-700 dark:text-rose-400" aria-hidden />
+              {promoActionLabel}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onClick={handleShareProduct}>
@@ -241,6 +286,18 @@ export function ProductActions({
         onConfirm={handleAction}
         onCancel={closeDialog}
       />
+
+      {canManagePromotion && (
+        <ProductPromotionDialog
+          open={promoDialogOpen}
+          onOpenChange={setPromoDialogOpen}
+          productId={productId}
+          productTitle={productTitle}
+          productPrice={productPrice}
+          currentPromotion={currentPromotion}
+          onUpdate={onUpdate}
+        />
+      )}
     </>
   )
 }
