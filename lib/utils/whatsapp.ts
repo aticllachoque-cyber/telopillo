@@ -103,13 +103,16 @@ export function buildProductWhatsAppPrefillMessage(args: {
   productTitle: string
   price: number
   productAbsoluteUrl: string
+  promoName?: string | null
+  originalPrice?: number | null
 }): string {
   const priceLabel = `Bs ${args.price.toLocaleString('es-BO')}`
-  return [
-    `Mira esta publicación: ${args.productTitle} por ${priceLabel}`,
-    '',
-    `Ver publicación: ${args.productAbsoluteUrl}`,
-  ].join('\n')
+  const hasPromo =
+    Boolean(args.promoName?.trim()) && args.originalPrice != null && args.originalPrice > args.price
+  const headline = hasPromo
+    ? `Mira esta publicación en promoción (${args.promoName!.trim()}): ${args.productTitle} por ${priceLabel} (antes Bs ${args.originalPrice!.toLocaleString('es-BO')})`
+    : `Mira esta publicación: ${args.productTitle} por ${priceLabel}`
+  return [headline, '', `Ver publicación: ${args.productAbsoluteUrl}`].join('\n')
 }
 
 export function buildDemandWhatsAppPrefillMessage(args: {

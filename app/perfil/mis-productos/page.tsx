@@ -17,6 +17,7 @@ import {
 import { Loader2, Plus, Package, ArrowLeft, ArrowUpDown, Eye, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { ShareProfile } from '@/components/profile/ShareProfile'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 
 type Product = {
   id: string
@@ -28,6 +29,9 @@ type Product = {
   location_department: string
   views_count: number
   created_at: string
+  promo_id: string | null
+  promo_name: string | null
+  promo_price: number | null
 }
 
 type StatusFilter = 'all' | 'active' | 'sold' | 'inactive'
@@ -118,7 +122,26 @@ export default function MisProductosPage() {
 
       if (fetchError) throw fetchError
 
-      setProducts(data || [])
+      const rows = data || []
+      const promosByProductId = await fetchActivePromotionsByProductIds(supabase, rows)
+      const normalizedProducts: Product[] = rows.map((item) => ({
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        images: item.images,
+        status: item.status,
+        location_city: item.location_city,
+        location_department: item.location_department,
+        views_count: item.views_count,
+        created_at: item.created_at,
+        ...(promosByProductId.get(item.id) ?? {
+          promo_id: null,
+          promo_name: null,
+          promo_price: null,
+        }),
+      }))
+
+      setProducts(normalizedProducts)
     } catch (err) {
       console.error('Error loading products:', err)
       if (!authenticatedUserId) {

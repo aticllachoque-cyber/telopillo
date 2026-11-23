@@ -18,6 +18,8 @@ import { Label } from '@/components/ui/label'
 import { Loader2, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
+import { ProductPrice } from '@/components/products/ProductPrice'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 
 interface OfferProductModalProps {
   demandPostId: string
@@ -34,6 +36,9 @@ interface UserProduct {
   images: string[]
   status: string
   location_city: string
+  promo_id: string | null
+  promo_name: string | null
+  promo_price: number | null
 }
 
 export function OfferProductModal({
@@ -68,7 +73,18 @@ export function OfferProductModal({
         .order('created_at', { ascending: false })
 
       if (fetchError) throw fetchError
-      setProducts(data ?? [])
+      const rows = data ?? []
+      const promosByProductId = await fetchActivePromotionsByProductIds(supabase, rows)
+      setProducts(
+        rows.map((item) => ({
+          ...item,
+          ...(promosByProductId.get(item.id) ?? {
+            promo_id: null,
+            promo_name: null,
+            promo_price: null,
+          }),
+        }))
+      )
     } catch (err) {
       console.error('Error loading products:', err)
       setError('No se pudieron cargar tus productos.')
@@ -182,9 +198,13 @@ export function OfferProductModal({
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{product.title}</p>
-                      <p className="text-sm font-semibold text-primary tabular-nums">
-                        Bs {product.price.toLocaleString('es-BO')}
-                      </p>
+                      <ProductPrice
+                        price={product.price}
+                        promoPrice={product.promo_price}
+                        promoName={product.promo_name}
+                        variant="inline"
+                        showPromoName={false}
+                      />
                       <p className="text-xs text-muted-foreground">{product.location_city}</p>
                     </div>
                     {isSelected && (

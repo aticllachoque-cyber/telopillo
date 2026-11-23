@@ -7,6 +7,7 @@ import { ProductGallery } from '@/components/products/ProductGallery'
 import { ProductGrid } from '@/components/products/ProductGrid'
 import { SellerCard } from '@/components/products/SellerCard'
 import { ProductActions } from '@/components/products/ProductActions'
+import { ProductPrice } from '@/components/products/ProductPrice'
 import { ShareButton } from '@/components/products/ShareButton'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import { Button } from '@/components/ui/button'
@@ -32,6 +33,7 @@ import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validation
 import { getCategoryName } from '@/lib/data/categories'
 import { getProductPath } from '@/lib/utils/publicRoutes'
 import { resolveProductImageUrls } from '@/lib/utils/image'
+import { getEffectiveProductPrice, resolveActivePromotion } from '@/lib/utils/promotion'
 import {
   buildProductWhatsAppPrefillMessage,
   buildWhatsAppMeUrl,
@@ -58,6 +60,9 @@ export interface RelatedProduct {
   seller_whatsapp_phone?: string | null
   seller_business_whatsapp?: string | null
   seller_profile_phone?: string | null
+  promo_id?: string | null
+  promo_name?: string | null
+  promo_price?: number | null
 }
 
 interface ProductDetailPageClientProps {
@@ -79,6 +84,9 @@ interface ProductDetailResponse {
     status: string
     views_count: number
     created_at: string
+    promo_id?: string | null
+    promo_name?: string | null
+    promo_price?: number | null
   }
   sellerProfile: {
     id: string
@@ -138,6 +146,13 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
   const [reportReason, setReportReason] = useState<string>(REPORT_REASONS[0].value)
   const [reportStatus, setReportStatus] = useState<ReportStatus>('idle')
 
+  const activePromo = resolveActivePromotion(product.price, {
+    promo_id: product.promo_id,
+    promo_name: product.promo_name,
+    promo_price: product.promo_price,
+  })
+  const effectivePrice = getEffectiveProductPrice(product.price, product.promo_price)
+
   // Buyer-only compact mobile CTA (F-1: contact action surfaced near the top on mobile)
   const sellerContact = isOwner
     ? null
@@ -152,8 +167,10 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
         compactDigits,
         buildProductWhatsAppPrefillMessage({
           productTitle: product.title,
-          price: Number(product.price),
+          price: Number(effectivePrice),
           productAbsoluteUrl: absoluteUrl(productPath),
+          promoName: activePromo?.promoName ?? null,
+          originalPrice: activePromo ? Number(product.price) : null,
         })
       )
     : null
@@ -214,6 +231,12 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
               <ProductActions
                 productId={product.id}
                 productTitle={product.title}
+                productPrice={product.price}
+                currentPromotion={{
+                  promo_id: product.promo_id,
+                  promo_name: product.promo_name,
+                  promo_price: product.promo_price,
+                }}
                 status={product.status}
                 variant="buttons"
               />
@@ -227,13 +250,18 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
 
             <Card className="min-w-0 border-border/80 shadow-sm">
               <CardContent className="space-y-4 p-4 sm:space-y-6 sm:p-6">
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                   <h1 className={cn(productPresentation.detailTitle, 'min-w-0 flex-1')}>
                     {product.title}
                   </h1>
-                  <p className={cn(productPresentation.detailPrice, 'sm:text-right')}>
-                    Bs {product.price.toLocaleString('es-BO')}
-                  </p>
+                  <ProductPrice
+                    price={product.price}
+                    promoPrice={product.promo_price}
+                    promoName={product.promo_name}
+                    variant="detail"
+                    align="right"
+                    className="shrink-0"
+                  />
                 </div>
 
                 <Separator />
@@ -276,10 +304,16 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
                 {!isOwner && canWhatsAppCompact && compactWhatsAppHref && (
                   <div className="flex items-center justify-between gap-3 rounded-lg border border-border/80 p-3 lg:hidden">
                     <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">Precio</p>
-                      <p className={cn(productPresentation.sellerPreviewPrice, 'text-lg')}>
-                        Bs {product.price.toLocaleString('es-BO')}
+                      <p className="text-xs text-muted-foreground">
+                        {activePromo ? activePromo.promoName : 'Precio'}
                       </p>
+                      <ProductPrice
+                        price={product.price}
+                        promoPrice={product.promo_price}
+                        promoName={product.promo_name}
+                        variant="inline"
+                        showPromoName={false}
+                      />
                     </div>
                     <ProductWhatsAppLink
                       href={compactWhatsAppHref}
@@ -304,7 +338,11 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
                   <div className="flex w-full gap-2 sm:w-auto sm:flex-1 sm:justify-start">
                     <ShareButton
                       title={product.title}
-                      shareText={`Mira esta publicación: ${product.title} por Bs ${product.price.toLocaleString('es-BO')}`}
+                      shareText={
+                        activePromo
+                          ? `Mira esta publicación en promoción (${activePromo.promoName}): ${product.title} por Bs ${activePromo.promoPrice.toLocaleString('es-BO')} (antes Bs ${product.price.toLocaleString('es-BO')})`
+                          : `Mira esta publicación: ${product.title} por Bs ${product.price.toLocaleString('es-BO')}`
+                      }
                       className="flex-1 sm:min-w-[8rem] sm:flex-initial"
                     />
                     {!isOwner && (
@@ -338,8 +376,10 @@ export function ProductDetailPageClient({ initialData }: ProductDetailPageClient
                   isOwner
                     ? undefined
                     : {
-                        price: Number(product.price),
+                        price: Number(effectivePrice),
                         productPageUrl: absoluteUrl(productPath),
+                        promoName: activePromo?.promoName ?? null,
+                        originalPrice: activePromo ? Number(product.price) : null,
                       }
                 }
               />

@@ -12,6 +12,7 @@ import { Construction, Package, Store } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
 import { resolveBusinessLogoUrl } from '@/lib/utils/image'
 import { serializeJsonLd } from '@/lib/utils/json-ld'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 
 interface StorefrontPageProps {
   params: Promise<{
@@ -85,7 +86,17 @@ async function getBusinessProducts(userId: string, sort: StorefrontSort, request
 
     const from = (page - 1) * PAGE_SIZE
     const { data, count } = await query.range(from, from + PAGE_SIZE - 1)
-    return { products: data ?? [], total: count ?? 0, page }
+    const rows = data ?? []
+    const promosByProductId = await fetchActivePromotionsByProductIds(supabase, rows)
+    const products = rows.map((item) => ({
+      ...item,
+      ...(promosByProductId.get(item.id) ?? {
+        promo_id: null,
+        promo_name: null,
+        promo_price: null,
+      }),
+    }))
+    return { products, total: count ?? 0, page }
   }
 
   let result = await fetchPage(requestedPage)

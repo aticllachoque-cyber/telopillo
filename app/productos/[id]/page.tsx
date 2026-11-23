@@ -8,6 +8,7 @@ import {
 import { absoluteUrl } from '@/lib/utils'
 import { getProductPath, resolveUuidFromRouteParam } from '@/lib/utils/publicRoutes'
 import { resolveProductImageUrl } from '@/lib/utils/image'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 import { resolveSellerWhatsAppDigits } from '@/lib/utils/whatsapp'
 import { CONDITION_LABELS } from '@/lib/validations/product'
 
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   // RLS must match page body: public sees active rows only; owners may see inactive (same rules as the main query + status check below).
   const { data: product } = await supabase
     .from('products')
-    .select('title, description, images, price, condition, location_city')
+    .select('id, title, description, images, price, condition, location_city')
     .eq('id', id)
     .maybeSingle()
 
@@ -48,16 +49,27 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     }
   }
 
+  const promos = await fetchActivePromotionsByProductIds(supabase, [
+    { id: product.id, price: product.price },
+  ])
+  const promo = promos.get(product.id) ?? {
+    promo_id: null,
+    promo_name: null,
+    promo_price: null,
+  }
   const imageUrl = resolveProductImageUrl(product.images?.[0]) || '/og-image.png'
   const canonicalPath = getProductPath(id, product.title)
   const conditionLabel =
     CONDITION_LABELS[product.condition as keyof typeof CONDITION_LABELS] ?? product.condition
 
   const rawDescription = (product.description ?? '').trim()
+  const displayPrice = promo.promo_price ?? product.price
   const ogDescription =
     rawDescription.length > 0
       ? rawDescription.slice(0, 160)
-      : `Bs ${product.price.toLocaleString('es-BO')} · ${conditionLabel} · Ver publicación en Telopillo`
+      : promo.promo_name
+        ? `${promo.promo_name}: Bs ${displayPrice.toLocaleString('es-BO')} (antes Bs ${product.price.toLocaleString('es-BO')}) · ${conditionLabel} · Telopillo`
+        : `Bs ${product.price.toLocaleString('es-BO')} · ${conditionLabel} · Ver publicación en Telopillo`
 
   return {
     title: `${product.title} en ${product.location_city} | Telopillo`,
@@ -95,6 +107,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   if (error || !product) {
     notFound()
+  }
+  const promos = await fetchActivePromotionsByProductIds(supabase, [
+    { id: product.id, price: product.price },
+  ])
+  const activePromotion = promos.get(product.id) ?? {
+    promo_id: null,
+    promo_name: null,
+    promo_price: null,
   }
   const canonicalPath = getProductPath(id, product.title)
   const canonicalRouteParam = canonicalPath.split('/').pop()
@@ -151,6 +171,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       initialData={{
         product: {
           ...product,
+          ...activePromotion,
           views_count: isOwner ? product.views_count : product.views_count + 1,
         },
         sellerProfile: {
