@@ -462,7 +462,7 @@ export function DemandPostForm({
                       isCompleted
                         ? 'bg-primary text-primary-foreground'
                         : isCurrent
-                          ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                          ? 'bg-brand text-brand-foreground ring-4 ring-brand/30'
                           : 'bg-muted text-muted-foreground'
                     }`}
                   >
@@ -886,12 +886,18 @@ export function DemandPostForm({
           </p>
 
           {currentStep < STEPS.length ? (
-            <Button type="button" className="min-h-[44px] sm:min-h-0" onClick={handleNext}>
+            <Button
+              variant="brand"
+              type="button"
+              className="min-h-[44px] sm:min-h-0"
+              onClick={handleNext}
+            >
               Siguiente
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
             </Button>
           ) : (
             <Button
+              variant="brand"
               type="button"
               className="min-h-[44px] sm:min-h-0"
               onClick={handleSubmit(onSubmit, handleSubmitError)}

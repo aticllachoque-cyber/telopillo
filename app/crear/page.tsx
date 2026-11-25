@@ -54,14 +54,14 @@ export default function CrearPage() {
             <Link
               key={option.href}
               href={option.href}
-              className="block rounded-2xl border border-border/70 bg-card p-4 shadow-sm transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="block rounded-2xl border border-border/70 bg-card p-4 shadow-sm transition-colors hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-strong">
                   <option.Icon className="size-5" aria-hidden />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-primary/80">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-brand-strong">
                     {option.eyebrow}
                   </p>
                   <h2 className="mt-1 text-lg font-semibold leading-tight">{option.title}</h2>
@@ -79,10 +79,10 @@ export default function CrearPage() {
           {publishOptions.map((option) => (
             <Card key={option.href} className="border-border/70 shadow-md">
               <CardContent className="flex h-full flex-col p-7">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-brand-soft text-brand-strong">
                   <option.Icon className="size-6" aria-hidden />
                 </div>
-                <p className="mt-5 text-sm font-medium uppercase tracking-wide text-primary/80">
+                <p className="mt-5 text-sm font-medium uppercase tracking-wide text-brand-strong">
                   {option.eyebrow}
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold">{option.title}</h2>

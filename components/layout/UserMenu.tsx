@@ -94,7 +94,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
 
         <div
-          className="mb-2 rounded-lg border border-primary/25 bg-primary/5 p-1.5"
+          className="mb-2 rounded-lg border border-brand/40 bg-brand-soft/50 p-1.5"
           role="group"
           aria-labelledby="user-menu-publicaciones-label"
         >

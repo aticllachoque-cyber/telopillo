@@ -289,6 +289,7 @@ export default function DemandDashboardPage() {
               </div>
               {!hideHeaderNewRequest && (
                 <Button
+                  variant="brand"
                   asChild
                   className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
                 >
@@ -319,7 +320,7 @@ export default function DemandDashboardPage() {
                   onClick={() => setActiveTab(key)}
                   className={`min-h-[44px] touch-manipulation flex-1 px-2 py-2 text-center text-sm font-medium transition-colors sm:flex-none sm:px-4 ${
                     activeTab === key
-                      ? 'border-b-2 border-primary text-primary'
+                      ? 'border-b-2 border-brand-strong text-foreground'
                       : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >
