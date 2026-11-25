@@ -4,7 +4,7 @@
 > Estructura por carpetas de estado. Item nuevo entra en `wip/` (o raíz si el skill ui-redesign-flow lo crea ahí); al cerrar con merge → mover a `done/` y actualizar este README + PLAN.md.
 > Los docs históricos dentro de cada item en `done/` conservan rutas viejas `redesign/<slug>/` — son registros congelados, no reescribir.
 
-## ✅ done/ — implementado, mergeado a `main` (10/10)
+## ✅ done/ — implementado, mergeado a `main` (11/11)
 
 | slug | ruta | signoff | impl | PR/merge |
 |------|------|---------|------|----------|
@@ -18,10 +18,11 @@
 | tinted-card-contrast-sweep | sweep contraste cards | 2026-09-17 | en main | mergeado |
 | busco-detalle | `/busco/[id]` | 2026-09-18 (iter 0) | `bddd095` | mergeado (branch eliminada) |
 | home-publish-cta | landing FAB "Publicá gratis" | 2026-09-24 (iter 1) | `e24bdec` | PR #18 mergeado |
+| vitrina-seller-catalog | `/negocio/[slug]` + `/perfil/mis-productos` | 2026-09-28 (iter 1) | `ca6da67`+`a5baf0d` | PR #20 mergeado (`e5ef9d3`) |
 
 ## 🔵 wip/ — vacío
 
-Ningún item en curso. Último cerrado: `home-publish-cta` (2026-09-24).
+Ningún item en curso. Último cerrado: `vitrina-seller-catalog` (2026-11-25).
 
 ## ⚪ backlog/ — items futuros anotados en flags de PLAN.md (sin dirs aún)
 
