@@ -88,6 +88,92 @@ export type Database = {
         }
         Relationships: []
       }
+      promotions: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          default_discount_percent: number | null
+          is_active: boolean
+          starts_at: string | null
+          ends_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          default_discount_percent?: number | null
+          is_active?: boolean
+          starts_at?: string | null
+          ends_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          default_discount_percent?: number | null
+          is_active?: boolean
+          starts_at?: string | null
+          ends_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'promotions_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      promotion_products: {
+        Row: {
+          id: string
+          promotion_id: string
+          product_id: string
+          promo_price: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          promotion_id: string
+          product_id: string
+          promo_price: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          promotion_id?: string
+          product_id?: string
+          promo_price?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'promotion_products_promotion_id_fkey'
+            columns: ['promotion_id']
+            isOneToOne: false
+            referencedRelation: 'promotions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'promotion_products_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: true
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       products: {
         Row: {
           category: string
@@ -640,6 +726,10 @@ export interface SearchProduct {
   seller_profile_phone?: string | null
   /** Legacy COALESCE(business WhatsApp, profile phone) from search RPC */
   seller_whatsapp_phone?: string | null
+  // Active promotion info (joined from promotion_products + promotions)
+  promo_id?: string | null
+  promo_name?: string | null
+  promo_price?: number | null
 }
 
 // ---------------------------------------------------------------------------

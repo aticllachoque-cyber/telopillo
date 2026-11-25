@@ -27,10 +27,14 @@ import {
 import Link from 'next/link'
 import { ShareProfile } from '@/components/profile/ShareProfile'
 import { CatalogManager, type CatalogProduct } from '@/components/profile/CatalogManager'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 
 type Product = CatalogProduct & {
   location_city: string
   location_department: string
+  promo_id: string | null
+  promo_name: string | null
+  promo_price: number | null
 }
 
 type StatusFilter = 'all' | 'active' | 'sold' | 'inactive'
@@ -121,7 +125,30 @@ export default function MisProductosPage() {
 
       if (fetchError) throw fetchError
 
-      setProducts(data || [])
+      const rows = data || []
+      const promosByProductId = await fetchActivePromotionsByProductIds(supabase, rows)
+      const normalizedProducts: Product[] = rows.map((item) => ({
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        images: item.images,
+        status: item.status,
+        category: item.category,
+        contacts_count: item.contacts_count,
+        is_featured: item.is_featured,
+        display_order: item.display_order,
+        location_city: item.location_city,
+        location_department: item.location_department,
+        views_count: item.views_count,
+        created_at: item.created_at,
+        ...(promosByProductId.get(item.id) ?? {
+          promo_id: null,
+          promo_name: null,
+          promo_price: null,
+        }),
+      }))
+
+      setProducts(normalizedProducts)
     } catch (err) {
       console.error('Error loading products:', err)
       if (!authenticatedUserId) {
@@ -250,6 +277,7 @@ export default function MisProductosPage() {
                 )}
                 {hasProducts && (
                   <Button
+                    variant="brand"
                     asChild
                     className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
                   >

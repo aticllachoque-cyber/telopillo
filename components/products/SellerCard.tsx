@@ -34,6 +34,8 @@ interface ProductContactPreview {
   price: number
   /** Canonical product page URL (included in WhatsApp message) */
   productPageUrl: string
+  promoName?: string | null
+  originalPrice?: number | null
 }
 
 interface SellerCardProps {
@@ -76,6 +78,8 @@ export function SellerCard({
             productTitle,
             price: productContact.price,
             productAbsoluteUrl: productContact.productPageUrl,
+            promoName: productContact.promoName,
+            originalPrice: productContact.originalPrice,
           })
         : `Hola! Estoy interesado en tu producto: ${productTitle}`
 

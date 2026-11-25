@@ -284,7 +284,11 @@ export function DemandPostDetail({
                   Ofertas ({offers.length})
                 </h2>
                 {canOffer && (
-                  <Button onClick={() => setShowOfferModal(true)} className="min-h-[44px] shrink-0">
+                  <Button
+                    variant="brand"
+                    onClick={() => setShowOfferModal(true)}
+                    className="min-h-[44px] shrink-0"
+                  >
                     Ofrecer producto
                   </Button>
                 )}
@@ -398,7 +402,11 @@ export function DemandPostDetail({
 
       {canOffer && (
         <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden z-40">
-          <Button onClick={() => setShowOfferModal(true)} className="w-full min-h-[48px]">
+          <Button
+            variant="brand"
+            onClick={() => setShowOfferModal(true)}
+            className="w-full min-h-[48px]"
+          >
             Ofrecer producto
           </Button>
         </div>

@@ -9,6 +9,7 @@ import { ArrowLeft, Package } from 'lucide-react'
 import { absoluteUrl } from '@/lib/utils'
 import { resolveAvatarUrl } from '@/lib/utils/image'
 import { serializeJsonLd } from '@/lib/utils/json-ld'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -75,7 +76,17 @@ async function getSellerProducts(userId: string) {
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 
-  return products ?? []
+  const rows = products ?? []
+  const promosByProductId = await fetchActivePromotionsByProductIds(supabase, rows)
+
+  return rows.map((item) => ({
+    ...item,
+    ...(promosByProductId.get(item.id) ?? {
+      promo_id: null,
+      promo_name: null,
+      promo_price: null,
+    }),
+  }))
 }
 
 // ---------------------------------------------------------------------------

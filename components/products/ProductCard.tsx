@@ -8,11 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Clock, Eye, MapPin, Package, Store, User } from 'lucide-react'
 import { ProductActions } from './ProductActions'
+import { ProductPrice } from './ProductPrice'
 import { CONDITION_LABELS, formatProductLocationDisplay } from '@/lib/validations/product'
 import { formatFullDate, formatPublishedLabel } from '@/lib/utils/date'
 import { productPresentation } from '@/lib/constants/productPresentation'
 import { cn } from '@/lib/utils'
 import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
+import { resolveActivePromotion } from '@/lib/utils/promotion'
 import { getProductPath } from '@/lib/utils/publicRoutes'
 
 interface ProductCardProps {
@@ -29,6 +31,10 @@ interface ProductCardProps {
     location_department: string
     views_count: number
     created_at: string
+    // Active promotion (optional)
+    promo_id?: string | null
+    promo_name?: string | null
+    promo_price?: number | null
     // Seller info (optional — available when coming from search API)
     seller_name?: string | null
     seller_business_name?: string | null
@@ -106,6 +112,11 @@ export function ProductCard({
   const publishedLabel = formatPublishedLabel(product.created_at)
   const publishedFullDate = formatFullDate(product.created_at)
   const viewsLabel = `${product.views_count} ${product.views_count === 1 ? 'vista' : 'vistas'}`
+  const activePromo = resolveActivePromotion(product.price, {
+    promo_id: product.promo_id,
+    promo_name: product.promo_name,
+    promo_price: product.promo_price,
+  })
 
   const productPath = getProductPath(product.id, product.title)
 
@@ -167,12 +178,29 @@ export function ProductCard({
           </div>
         )}
 
+        {/* Discount percentage badge in storefront/card corner */}
+        {activePromo && activePromo.discountPercent > 0 && (
+          <div className="pointer-events-none absolute bottom-2 left-2">
+            <span
+              className={cn(productPresentation.promoDiscountBadge, 'px-2 py-1 text-xs shadow-md')}
+            >
+              <span className="sr-only">Descuento del </span>-{activePromo.discountPercent}%
+            </span>
+          </div>
+        )}
+
         {/* Quick Actions Menu — outside the Link to avoid nested interactive elements */}
         {showActions && (
           <div className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
             <ProductActions
               productId={product.id}
               productTitle={product.title}
+              productPrice={product.price}
+              currentPromotion={{
+                promo_id: product.promo_id,
+                promo_name: product.promo_name,
+                promo_price: product.promo_price,
+              }}
               status={product.status}
               onUpdate={onUpdate}
               variant="dropdown"
@@ -196,10 +224,14 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          {/* Price */}
-          <p className={productPresentation.listingPrice}>
-            Bs {product.price.toLocaleString('es-BO')}
-          </p>
+          {/* Price (shows promo pill, promotional price, and strikethrough original when active) */}
+          <ProductPrice
+            price={product.price}
+            promoPrice={product.promo_price}
+            promoName={product.promo_name}
+            variant="card"
+            showDiscountBadge={false}
+          />
         </Link>
 
         {/* Meta block — location, seller, views, published: one compact list, same row style */}

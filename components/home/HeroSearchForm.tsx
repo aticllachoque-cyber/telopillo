@@ -72,6 +72,7 @@ export function HeroSearchForm() {
         </div>
         <Button
           type="submit"
+          variant="brand"
           size="lg"
           className="h-12 min-h-[44px] px-8 touch-manipulation sm:shrink-0"
         >

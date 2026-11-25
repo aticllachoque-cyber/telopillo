@@ -1,4 +1,5 @@
 import { createPublicClient } from '@/lib/supabase/server'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 import type { SearchDemandPost } from '@/types/database'
 
 export interface HomepagePreviewProduct {
@@ -12,6 +13,9 @@ export interface HomepagePreviewProduct {
   location_department: string
   views_count: number
   created_at: string
+  promo_id: string | null
+  promo_name: string | null
+  promo_price: number | null
   seller_business_whatsapp: string | null
   seller_profile_phone: string | null
 }
@@ -86,10 +90,19 @@ export async function getHomepagePreview(): Promise<HomepagePreviewData> {
   )
   const contactByUserId = new Map(contactEntries)
 
-  const products: HomepagePreviewProduct[] = (productsResult.data ?? []).map((product) => {
+  const rawProducts = productsResult.data ?? []
+  const promotionsByProductId = await fetchActivePromotionsByProductIds(supabase, rawProducts)
+
+  const products: HomepagePreviewProduct[] = rawProducts.map((product) => {
     const contactPhone = contactByUserId.get(product.user_id) ?? null
+    const promo = promotionsByProductId.get(product.id) ?? {
+      promo_id: null,
+      promo_name: null,
+      promo_price: null,
+    }
     return {
       ...product,
+      ...promo,
       seller_business_whatsapp: businessWhatsAppByUserId.get(product.user_id) ?? null,
       seller_profile_phone: contactPhone,
     }

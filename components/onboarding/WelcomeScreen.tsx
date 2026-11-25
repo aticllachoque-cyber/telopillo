@@ -68,9 +68,9 @@ export function WelcomeScreen({ userId, firstName, onDismiss }: WelcomeScreenPro
     <Dialog open onOpenChange={() => handleExplore()}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto border-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:max-w-md [&>button:last-child]:flex [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:size-11 [&>button:last-child]:top-3 [&>button:last-child]:right-3 [&>button:last-child]:rounded-full [&>button:last-child]:bg-muted [&>button:last-child]:opacity-100 [&>button:last-child_svg]:size-5">
         <div className="space-y-6 text-center">
-          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-primary/10">
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-brand-soft">
             <svg
-              className="size-8 text-primary"
+              className="size-8 text-brand-strong"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

@@ -185,8 +185,9 @@ const nextConfig: NextConfig = {
               // 'unsafe-inline' needed for Next.js inline scripts
               // 'unsafe-eval' needed in dev for React Hot Reload; stripped in production
               // cdn.jsdelivr.net: browser-image-compression loads its web worker script from here when useWebWorker is true
+              // va.vercel-scripts.com: @vercel/analytics loads its debug script from here in development (production uses first-party /_vercel/insights)
               isDev
-                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net"
+                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://va.vercel-scripts.com"
                 : "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
               "font-src 'self'",
               "frame-ancestors 'none'",

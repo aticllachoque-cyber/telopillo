@@ -50,7 +50,7 @@ export default function DownloadPage() {
                 Gratis, sin comisiones y 100% boliviana. Instalala en tu Android en menos de un
                 minuto.
               </p>
-              <Button asChild size="lg" className="mt-2">
+              <Button variant="brand" asChild size="lg" className="mt-2">
                 <a href={APK_PATH} download={`telopillo-${APK_VERSION}.apk`}>
                   <Download className="size-5" aria-hidden />
                   Descargar app

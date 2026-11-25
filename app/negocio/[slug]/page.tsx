@@ -13,6 +13,7 @@ import { absoluteUrl } from '@/lib/utils'
 import { resolveBusinessLogoUrl } from '@/lib/utils/image'
 import { serializeJsonLd } from '@/lib/utils/json-ld'
 import { CATEGORY_LABELS } from '@/lib/validations/product'
+import { fetchActivePromotionsByProductIds } from '@/lib/promotions/fetchActivePromotions'
 
 interface StorefrontPageProps {
   params: Promise<{
@@ -112,7 +113,17 @@ async function getBusinessProducts(
 
     const from = (page - 1) * PAGE_SIZE
     const { data, count } = await query.range(from, from + PAGE_SIZE - 1)
-    return { products: data ?? [], total: count ?? 0, page }
+    const rows = data ?? []
+    const promosByProductId = await fetchActivePromotionsByProductIds(supabase, rows)
+    const products = rows.map((item) => ({
+      ...item,
+      ...(promosByProductId.get(item.id) ?? {
+        promo_id: null,
+        promo_name: null,
+        promo_price: null,
+      }),
+    }))
+    return { products, total: count ?? 0, page }
   }
 
   let result = await fetchPage(requestedPage)
@@ -142,7 +153,18 @@ async function getFeaturedProducts(userId: string) {
     .order('created_at', { ascending: false })
     .limit(MAX_FEATURED)
 
-  return data ?? []
+  // Featured items are removed from the grid below, so they must carry their
+  // active promotion here or the sale price would never show on the storefront.
+  const rows = data ?? []
+  const promosByProductId = await fetchActivePromotionsByProductIds(supabase, rows)
+  return rows.map((item) => ({
+    ...item,
+    ...(promosByProductId.get(item.id) ?? {
+      promo_id: null,
+      promo_name: null,
+      promo_price: null,
+    }),
+  }))
 }
 
 /** Category breakdown of the active catalog, for the buyer-side section chips. */

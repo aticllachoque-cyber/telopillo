@@ -16,6 +16,13 @@ import {
 import { CATEGORIES, getSubcategories, CATEGORY_ICONS } from '@/lib/data/categories'
 import { ImageUpload } from '@/components/products/ImageUpload'
 import { CategoryGrid } from '@/components/products/CategoryGrid'
+import { ProductPrice } from '@/components/products/ProductPrice'
+import {
+  PromotionFields,
+  buildPromotionPayloadFromDraft,
+  createEmptyPromotionDraft,
+  type PromotionFormDraft,
+} from '@/components/products/PromotionFields'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -32,6 +39,8 @@ import { useSnackbar } from '@/components/ui/snackbar'
 import { cn, getSupabaseErrorMessage } from '@/lib/utils'
 import { resolveStorageImageUrl } from '@/lib/utils/image'
 import { createProductAction, updateProductAction } from '@/lib/actions/products'
+import { listMyPromotionsAction, type SellerPromotionSummary } from '@/lib/actions/promotions'
+import { calculateDiscountPercent } from '@/lib/utils/promotion'
 import { getProductPath } from '@/lib/utils/publicRoutes'
 import { clearDraft, loadDraft, saveDraft } from '@/lib/offline/drafts'
 import type { FieldErrors } from 'react-hook-form'
@@ -47,11 +56,18 @@ import {
   Eye,
   MapPin,
   Package,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 
 interface ProductFormWizardProps {
   userId: string
   defaultValues?: Partial<ProductInput>
+  initialPromotion?: {
+    promo_id: string
+    promo_name: string
+    promo_price: number
+  } | null
   productId?: string
   mode?: 'create' | 'edit'
 }
@@ -81,6 +97,7 @@ interface ProductFormDraftData {
 export function ProductFormWizard({
   userId,
   defaultValues,
+  initialPromotion = null,
   productId,
   mode = 'create',
 }: ProductFormWizardProps) {
@@ -93,6 +110,28 @@ export function ProductFormWizard({
   const [draftStatus, setDraftStatus] = useState<'idle' | 'saved' | 'restored' | 'error'>('idle')
   const [draftUpdatedAt, setDraftUpdatedAt] = useState<string | null>(null)
   const [pendingDraft, setPendingDraft] = useState<ProductFormDraftData | null>(null)
+
+  // Optional product promotion state (collapsed by default on create; expanded when editing an existing promo)
+  const [promoEnabled, setPromoEnabled] = useState(Boolean(initialPromotion))
+  const [existingPromotions, setExistingPromotions] = useState<SellerPromotionSummary[]>([])
+  const [isLoadingPromotions, setIsLoadingPromotions] = useState(false)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [promoDraft, setPromoDraft] = useState<PromotionFormDraft>(() => {
+    if (initialPromotion) {
+      const basePrice = defaultValues?.price ?? 0
+      const pct =
+        basePrice > 0 ? calculateDiscountPercent(basePrice, initialPromotion.promo_price) : 0
+      return {
+        mode: 'new',
+        promotionId: initialPromotion.promo_id,
+        name: initialPromotion.promo_name,
+        promoPrice: String(initialPromotion.promo_price),
+        discountPercent: pct > 0 ? String(pct) : '',
+        replacePromotionId: initialPromotion.promo_id,
+      }
+    }
+    return createEmptyPromotionDraft()
+  })
 
   const formDefaultValues: Partial<ProductInput> = {
     ...defaultValues,
@@ -219,6 +258,36 @@ export function ProductFormWizard({
     }
   }, [])
 
+  // Load seller's existing promotions so they can reuse them directly during publish/edit
+  const initialPromoId = initialPromotion?.promo_id ?? null
+  useEffect(() => {
+    let active = true
+    setIsLoadingPromotions(true)
+    listMyPromotionsAction()
+      .then((res) => {
+        if (!active || !res.success) return
+        setExistingPromotions(res.data)
+        const firstPromo = res.data[0]
+        if (!initialPromoId && firstPromo) {
+          setPromoDraft((prev) =>
+            prev.name || prev.promoPrice
+              ? prev
+              : {
+                  ...prev,
+                  mode: 'existing',
+                  promotionId: firstPromo.id,
+                }
+          )
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoadingPromotions(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [initialPromoId])
+
   // Focus the first invalid field after failed validation
   const focusFirstInvalidField = () => {
     requestAnimationFrame(() => {
@@ -239,6 +308,23 @@ export function ProductFormWizard({
     }
   }
 
+  const validatePromotionStep = (): boolean => {
+    if (!promoEnabled) {
+      setPromoError(null)
+      return true
+    }
+    const { error: validationError } = buildPromotionPayloadFromDraft(
+      promoDraft,
+      Number(watchAll.price)
+    )
+    if (validationError) {
+      setPromoError(validationError)
+      return false
+    }
+    setPromoError(null)
+    return true
+  }
+
   // Validate current step and go to next
   const handleNext = async () => {
     const fieldsToValidate = STEP_FIELDS[currentStep] ?? []
@@ -248,6 +334,9 @@ export function ProductFormWizard({
         focusFirstInvalidField()
         return
       }
+    }
+    if (currentStep === 3 && !validatePromotionStep()) {
+      return
     }
     setCurrentStep((prev) => Math.min(prev + 1, 4))
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -276,6 +365,10 @@ export function ProductFormWizard({
           return
         }
       }
+      if (s === 3 && !validatePromotionStep()) {
+        setCurrentStep(3)
+        return
+      }
     }
     setCurrentStep(step)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -297,6 +390,27 @@ export function ProductFormWizard({
 
   const onSubmit = async (data: ProductInput) => {
     if (submitLockRef.current) return
+
+    let promotionPayload:
+      | ReturnType<typeof buildPromotionPayloadFromDraft>['payload']
+      | null
+      | undefined = undefined
+    if (promoEnabled) {
+      const { payload, error: validationError } = buildPromotionPayloadFromDraft(
+        promoDraft,
+        Number(data.price)
+      )
+      if (!payload || validationError) {
+        setPromoError(validationError ?? 'Revisá los datos de la promoción')
+        setCurrentStep(3)
+        return
+      }
+      promotionPayload = payload
+    } else if (mode === 'edit' && initialPromotion) {
+      // Seller explicitly turned off an existing promotion while editing
+      promotionPayload = null
+    }
+
     submitLockRef.current = true
 
     setIsSubmitting(true)
@@ -304,7 +418,7 @@ export function ProductFormWizard({
 
     try {
       if (mode === 'create') {
-        const result = await createProductAction(data)
+        const result = await createProductAction(data, promotionPayload)
         if (!result.success) throw new Error(result.error)
 
         clearDraft(draftKey)
@@ -312,7 +426,7 @@ export function ProductFormWizard({
         router.push(getProductPath(result.data.id, result.data.title))
       } else if (mode === 'edit' && productId) {
         const previousImages = defaultValues?.images ?? []
-        const result = await updateProductAction(productId, data, previousImages)
+        const result = await updateProductAction(productId, data, previousImages, promotionPayload)
         if (!result.success) throw new Error(result.error)
 
         clearDraft(draftKey)
@@ -424,7 +538,7 @@ export function ProductFormWizard({
                       isCompleted
                         ? 'bg-primary text-primary-foreground'
                         : isCurrent
-                          ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                          ? 'bg-brand text-brand-foreground ring-4 ring-brand/30'
                           : 'bg-muted text-muted-foreground'
                     }`}
                   >
@@ -492,7 +606,7 @@ export function ProductFormWizard({
                   currentStep > step.id
                     ? 'bg-primary text-primary-foreground'
                     : currentStep === step.id
-                      ? 'bg-primary text-primary-foreground ring-2 ring-primary/30'
+                      ? 'bg-brand text-brand-foreground ring-2 ring-brand/40'
                       : 'bg-muted text-muted-foreground'
                 }`}
                 aria-label={`Ir al paso ${step.id}: ${step.title}`}
@@ -530,7 +644,7 @@ export function ProductFormWizard({
               </p>
             </div>
 
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+            <div className="rounded-lg border border-brand/40 bg-brand-soft/50 p-4 text-sm">
               <p className="font-medium">Tips para buenas fotos:</p>
               <p className="mt-1 text-foreground/80 sm:hidden">
                 Mostrá el producto con buena luz y desde varios ángulos.
@@ -767,6 +881,63 @@ export function ProductFormWizard({
               )}
             </div>
 
+            {/* Optional collapsible promotion section */}
+            <div className="rounded-lg border border-border/80 bg-card">
+              <button
+                type="button"
+                onClick={() => {
+                  setPromoEnabled((prev) => !prev)
+                  setPromoError(null)
+                }}
+                aria-expanded={promoEnabled}
+                aria-controls="wizard-promotion-panel"
+                className="flex w-full min-h-[48px] items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 touch-manipulation"
+              >
+                <span className="flex min-w-0 items-center gap-2.5">
+                  <Tag className="h-4 w-4 shrink-0 text-rose-700 dark:text-rose-400" aria-hidden />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-foreground">
+                      {promoEnabled
+                        ? 'Promoción activada para este producto'
+                        : existingPromotions.length > 0
+                          ? 'Aplicar una promoción (opcional)'
+                          : 'Agregar precio de promoción (opcional)'}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {promoEnabled
+                        ? 'Tocá para quitar la promoción de esta publicación'
+                        : existingPromotions.length > 0
+                          ? `Tenés ${existingPromotions.length} ${existingPromotions.length === 1 ? 'promoción guardada' : 'promociones guardadas'} o podés crear una nueva`
+                          : 'Mostrá un precio rebajado y el porcentaje de descuento en tu vitrina'}
+                    </span>
+                  </span>
+                </span>
+                {promoEnabled ? (
+                  <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                ) : (
+                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                )}
+              </button>
+
+              {promoEnabled && (
+                <div id="wizard-promotion-panel" className="border-t border-border/70 px-4 py-4">
+                  <PromotionFields
+                    basePrice={Number(watchAll.price)}
+                    existingPromotions={existingPromotions}
+                    isLoadingPromotions={isLoadingPromotions}
+                    value={promoDraft}
+                    onChange={(next) => {
+                      setPromoDraft(next)
+                      if (promoError) setPromoError(null)
+                    }}
+                    error={promoError}
+                    disabled={isSubmitting}
+                    idPrefix="wizard-promo"
+                  />
+                </div>
+              )}
+            </div>
+
             {/* Location */}
             <div className="space-y-3">
               <h3 className="font-medium flex items-center gap-2">
@@ -851,7 +1022,7 @@ export function ProductFormWizard({
                     htmlFor={`condition-${condition}`}
                     className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${
                       selectedCondition === condition
-                        ? 'border-primary bg-primary/5'
+                        ? 'border-brand-strong bg-brand-soft/60'
                         : 'border-border hover:border-muted-foreground/30'
                     }`}
                   >
@@ -927,13 +1098,29 @@ export function ProductFormWizard({
 
               <div className="p-5 space-y-4">
                 {/* Title & Price */}
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <h3 className="line-clamp-2 text-lg font-semibold">
                     {watchAll.title || 'Sin título'}
                   </h3>
-                  <span className="text-xl font-bold text-primary whitespace-nowrap">
-                    Bs {watchAll.price ? watchAll.price.toLocaleString() : '0'}
-                  </span>
+                  {(() => {
+                    const previewPromoName = promoEnabled
+                      ? promoDraft.mode === 'existing'
+                        ? (existingPromotions.find((p) => p.id === promoDraft.promotionId)?.name ??
+                          null)
+                        : promoDraft.name.trim() || null
+                      : null
+                    const previewPromoPrice = promoEnabled ? Number(promoDraft.promoPrice) : null
+                    return (
+                      <ProductPrice
+                        price={Number(watchAll.price) || 0}
+                        promoName={previewPromoName}
+                        promoPrice={previewPromoPrice}
+                        variant="card"
+                        align="right"
+                        className="shrink-0"
+                      />
+                    )
+                  })()}
                 </div>
 
                 {/* Category */}
@@ -1033,6 +1220,7 @@ export function ProductFormWizard({
 
           {currentStep < 4 ? (
             <Button
+              variant="brand"
               type="button"
               onClick={handleNext}
               className="gap-2 min-h-[44px] touch-manipulation sm:min-h-0"
@@ -1042,6 +1230,7 @@ export function ProductFormWizard({
             </Button>
           ) : (
             <Button
+              variant="brand"
               type="button"
               disabled={isSubmitting}
               onClick={handleSubmit(onSubmit, handleSubmitError)}

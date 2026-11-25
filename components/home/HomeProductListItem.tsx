@@ -2,11 +2,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Package } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { ProductPrice } from '@/components/products/ProductPrice'
 import { ProductWhatsAppLink } from '@/components/products/ProductWhatsAppLink'
 import type { HomepagePreviewProduct } from '@/lib/home/getHomepagePreview'
 import { absoluteUrl } from '@/lib/utils'
 import { formatProductLocationDisplay } from '@/lib/validations/product'
 import { resolveProductImageUrl, shouldBypassNextImageOptimization } from '@/lib/utils/image'
+import { getEffectiveProductPrice, resolveActivePromotion } from '@/lib/utils/promotion'
 import { getProductPath } from '@/lib/utils/publicRoutes'
 import {
   buildProductWhatsAppPrefillMessage,
@@ -27,14 +29,22 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
     product.seller_business_whatsapp,
     product.seller_profile_phone
   )
+  const activePromo = resolveActivePromotion(product.price, {
+    promo_id: product.promo_id,
+    promo_name: product.promo_name,
+    promo_price: product.promo_price,
+  })
+  const effectivePrice = getEffectiveProductPrice(product.price, product.promo_price)
   const whatsappHref =
     sellerContact.normalizedDigits != null
       ? buildWhatsAppMeUrl(
           sellerContact.normalizedDigits,
           buildProductWhatsAppPrefillMessage({
             productTitle: product.title,
-            price: product.price,
+            price: effectivePrice,
             productAbsoluteUrl: absoluteUrl(productPath),
+            promoName: activePromo?.promoName ?? null,
+            originalPrice: activePromo ? product.price : null,
           })
         )
       : null
@@ -69,9 +79,13 @@ export function HomeProductListItem({ product, priority = false }: HomeProductLi
             <h3 className="line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary group-focus-visible:text-primary sm:text-base">
               {product.title}
             </h3>
-            <p className="mt-2 text-xl font-bold leading-tight text-primary tabular-nums">
-              Bs {product.price.toLocaleString('es-BO')}
-            </p>
+            <ProductPrice
+              price={product.price}
+              promoPrice={product.promo_price}
+              promoName={product.promo_name}
+              variant="compact"
+              className="mt-2"
+            />
             <div className="mt-2 flex min-w-0 items-center gap-1 text-xs text-muted-foreground sm:text-sm">
               <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
               <span className="block min-w-0 flex-1 truncate">{location}</span>

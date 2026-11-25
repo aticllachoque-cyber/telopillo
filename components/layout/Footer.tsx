@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { FaFacebookF, FaInstagram, FaTiktok, FaXTwitter } from 'react-icons/fa6'
+import { BrandMark } from '@/components/ui/brand-mark'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -13,7 +14,10 @@ export function Footer() {
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           {/* Brand + Social */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <span className="shrink-0 text-sm font-bold">Telopillo</span>
+            <span className="inline-flex shrink-0 items-center gap-2 text-sm font-bold">
+              <BrandMark className="size-6" />
+              Telopillo
+            </span>
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <Link
                 href="https://www.facebook.com/profile.php?id=61589457988698"

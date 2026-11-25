@@ -11,6 +11,7 @@ import { UserMenu } from './UserMenu'
 import { SearchBar } from '@/components/search/SearchBar'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { BrandMark } from '@/components/ui/brand-mark'
 import { cn, getAvatarColor } from '@/lib/utils'
 
 function desktopMarketplaceLinkClass(pathname: string, href: string) {
@@ -95,9 +96,10 @@ export function Header() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex min-w-0 flex-1 items-center space-x-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:flex-initial lg:shrink-0"
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:flex-initial lg:shrink-0"
         >
-          <span className="truncate text-[1.35rem] font-bold text-primary sm:text-2xl">
+          <BrandMark className="size-8 sm:size-9" />
+          <span className="truncate text-[1.35rem] font-bold tracking-tight text-foreground sm:text-2xl">
             Telopillo
           </span>
         </Link>
@@ -143,7 +145,7 @@ export function Header() {
               Solicitudes
             </Link>
           </div>
-          <Button asChild className="min-h-[44px]">
+          <Button asChild variant="brand" className="min-h-[44px]">
             <Link href="/crear">Publicá gratis</Link>
           </Button>
           <UserMenu />
@@ -166,7 +168,11 @@ export function Header() {
           </Button>
 
           {!isAuthenticated ? (
-            <Button asChild className="min-h-[44px] px-3 text-sm touch-manipulation sm:px-4">
+            <Button
+              asChild
+              variant="outline"
+              className="min-h-[44px] px-3 text-sm touch-manipulation sm:px-4"
+            >
               <Link href="/login">Entrar</Link>
             </Button>
           ) : profile ? (

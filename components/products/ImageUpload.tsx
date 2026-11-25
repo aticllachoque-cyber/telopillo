@@ -481,8 +481,8 @@ export function ImageUpload({
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
               ${
                 isDragging
-                  ? 'border-primary bg-primary/5'
-                  : 'border-muted-foreground/25 hover:border-primary/50'
+                  ? 'border-brand-strong bg-brand-soft/60'
+                  : 'border-muted-foreground/25 hover:border-brand'
               }
               ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
             `}

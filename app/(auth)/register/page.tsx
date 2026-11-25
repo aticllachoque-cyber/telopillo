@@ -251,7 +251,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Optional business section */}
-            <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-3">
+            <div className="rounded-lg border border-dashed border-brand/50 bg-brand-soft/50 p-3">
               <button
                 type="button"
                 onClick={toggleBusiness}
@@ -308,7 +308,7 @@ export default function RegisterPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-foreground/60">
+                    <p className="text-xs text-foreground/80">
                       Opcional - puedes cambiarlo después
                     </p>
                   </div>
@@ -317,7 +317,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Submit */}
-            <Button type="submit" disabled={isLoading} className="w-full h-11">
+            <Button variant="brand" type="submit" disabled={isLoading} className="w-full h-11">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />

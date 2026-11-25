@@ -94,7 +94,7 @@ export function CategoryGrid({
               'flex flex-col items-center gap-1 sm:gap-2 rounded-lg border-2 px-2 py-2.5 sm:p-4 text-center transition-colors min-h-[72px] sm:min-h-[88px] touch-manipulation',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               isSelected
-                ? 'border-primary bg-primary/5 text-foreground'
+                ? 'border-brand-strong bg-brand-soft/60 text-foreground'
                 : 'border-border hover:border-muted-foreground/30 text-muted-foreground hover:text-foreground',
               error && !value && 'border-destructive/50'
             )}
@@ -102,7 +102,7 @@ export function CategoryGrid({
             <div
               className={cn(
                 'flex items-center justify-center size-8 sm:size-10 rounded-lg transition-colors',
-                isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                isSelected ? 'bg-brand text-brand-foreground' : 'bg-muted text-muted-foreground'
               )}
             >
               {Icon && <Icon className="size-5" aria-hidden="true" />}

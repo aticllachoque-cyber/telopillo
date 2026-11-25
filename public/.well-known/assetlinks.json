@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "lat.telopillo.app",
       "sha256_cert_fingerprints": [
-        "A9:84:B3:B4:F0:B1:2C:00:3E:8F:71:C4:B1:70:49:90:BA:B3:AA:F0:6D:05:DF:B1:18:07:05:75:32:89:59:41"
+        "A9:84:B3:B4:F0:B1:2C:00:3E:8F:71:C4:B1:70:49:90:BA:B3:AA:F0:6D:05:DF:B1:18:07:05:75:32:89:59:41",
+        "77:C7:E6:BC:9D:3C:3A:F5:B5:8E:DA:1A:48:98:59:29:96:B8:75:92:8E:D7:1C:14:3E:0E:76:BE:1D:C5:F6:F5"
       ]
     }
   }
