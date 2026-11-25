@@ -1,0 +1,6 @@
+app/negocio/[slug]/page.tsx
+components/search/SearchSort.tsx
+app/perfil/mis-productos/page.tsx
+components/profile/CatalogManager.tsx
+redesign/
+supabase/migrations/20260927184845_product_vitrina_organization.sql

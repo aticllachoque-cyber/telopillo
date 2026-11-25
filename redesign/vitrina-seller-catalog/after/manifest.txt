@@ -1,0 +1,8 @@
+# Stage 8 after-captures — vitrina-seller-catalog (2026-09-28)
+# Branch: redesign/vitrina-seller-catalog (desde feat/catalog-vitrina) · dev localhost:3000 · fullPage:true · dsf=2
+# Implementación F-1..F-11 aprobada (SIGNOFF 526a216c…)
+desktop.png          http://localhost:3000/negocio/electrolab-bolivia   1920x1080 fullPage auth=anon 2026-09-28 HTTP 200
+tablet.png           http://localhost:3000/negocio/electrolab-bolivia   768x1024  fullPage auth=anon 2026-09-28 HTTP 200
+mobile.png           http://localhost:3000/negocio/electrolab-bolivia   375x812   fullPage auth=anon 2026-09-28 HTTP 200
+catalog-desktop.png  /perfil/mis-productos                              1920x1080 fullPage auth=marco HTTP 200
+catalog-mobile.png   /perfil/mis-productos                              375x812   fullPage auth=marco HTTP 200

@@ -1,0 +1,17 @@
+# Stage 3 captures — vitrina-seller-catalog (2026-09-28)
+# Branch: feat/catalog-vitrina (7d7d7dd) · dev server localhost:3000 · fullPage:true · dsf=2
+# Primario: /negocio/electrolab-bolivia (anon) — vista default vitrina (chips + destacados + paginación)
+desktop.png  http://localhost:3000/negocio/electrolab-bolivia            1920x1080 fullPage auth=anon 2026-09-28 HTTP 200
+tablet.png   http://localhost:3000/negocio/electrolab-bolivia            768x1024  fullPage auth=anon 2026-09-28 HTTP 200
+mobile.png   http://localhost:3000/negocio/electrolab-bolivia            375x812   fullPage auth=anon 2026-09-28 HTTP 200
+# Extra states (audit context, no gate):
+cat-home-desktop.png   ?cat=home (chips filtro activo)          1920x1080 fullPage anon HTTP 200
+cat-home-mobile.png    ?cat=home                                375x812   fullPage anon HTTP 200
+page2-desktop.png      ?page=2 (paginación)                     1920x1080 fullPage anon HTTP 200
+page2-mobile.png       ?page=2                                  375x812   fullPage anon HTTP 200
+# Superficie 2 (login marco.antonio.quintanilla@telopillo.test = ElectroLab owner):
+catalog-desktop.png         /perfil/mis-productos viewport      1920x1080 auth=marco HTTP 200
+catalog-desktop-scrolled.png  scroll a CatalogManager           1920x1080 viewport auth=marco
+catalog-mobile.png          /perfil/mis-productos viewport      375x812   auth=marco HTTP 200
+catalog-mobile-scrolled.png   scroll a CatalogManager           375x812   viewport auth=marco
+# Nota: datos locales sembrados (4 featured ElectroLab) para ejercitar la feature.
