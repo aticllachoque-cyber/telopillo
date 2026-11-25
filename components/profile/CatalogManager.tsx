@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { ProductPrice } from '@/components/products/ProductPrice'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,9 @@ export interface CatalogProduct {
   is_featured: boolean
   display_order: number | null
   created_at: string
+  promo_id?: string | null
+  promo_name?: string | null
+  promo_price?: number | null
 }
 
 interface CatalogManagerProps {
@@ -136,7 +140,7 @@ export function CatalogManager({ products, businessSlug, onUpdate }: CatalogMana
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
-          <Star className="mr-1 inline size-4 fill-primary text-primary" aria-hidden />
+          <Star className="mr-1 inline size-4 fill-brand text-brand-strong" aria-hidden />
           Destacados: <span className="tabular-nums">{featuredCount}</span> de {MAX_FEATURED} —
           aparecen arriba en tu vitrina
           {atFeaturedCap && (
@@ -170,7 +174,7 @@ export function CatalogManager({ products, businessSlug, onUpdate }: CatalogMana
               return (
                 <Card
                   key={product.id}
-                  className={`group gap-0 py-0 ${product.is_featured ? 'ring-1 ring-primary' : ''}`}
+                  className={`group gap-0 py-0 ${product.is_featured ? 'ring-1 ring-brand-strong' : ''}`}
                 >
                   <CardContent className="space-y-3 p-4">
                     <div className="flex items-start justify-between gap-2">
@@ -189,9 +193,13 @@ export function CatalogManager({ products, businessSlug, onUpdate }: CatalogMana
                         >
                           {product.title}
                         </Link>
-                        <p className="mt-1 text-base font-semibold tabular-nums">
-                          Bs. {product.price.toLocaleString('es-BO')}
-                        </p>
+                        <ProductPrice
+                          price={product.price}
+                          promoPrice={product.promo_price}
+                          promoName={product.promo_name}
+                          variant="inline"
+                          className="mt-1"
+                        />
                       </div>
                       {product.images[0] ? (
                         <Image
@@ -230,9 +238,9 @@ export function CatalogManager({ products, businessSlug, onUpdate }: CatalogMana
 
                     <div className="flex items-center justify-between gap-2 border-t pt-3">
                       <Button
-                        variant={product.is_featured ? 'default' : 'outline'}
+                        variant="outline"
                         size="sm"
-                        className="min-h-[44px] sm:min-h-9"
+                        className={`min-h-[44px] sm:min-h-9 ${product.is_featured ? 'border-brand-strong bg-brand-soft/60 hover:bg-brand-soft' : ''}`}
                         disabled={
                           busyId === product.id ||
                           product.status !== 'active' ||
@@ -247,7 +255,7 @@ export function CatalogManager({ products, businessSlug, onUpdate }: CatalogMana
                         aria-pressed={product.is_featured}
                       >
                         <Star
-                          className={`mr-1.5 size-4 ${product.is_featured ? 'fill-primary-foreground' : ''}`}
+                          className={`mr-1.5 size-4 ${product.is_featured ? 'fill-brand text-brand-strong' : ''}`}
                           aria-hidden
                         />
                         {product.is_featured ? 'Destacado' : 'Destacar'}
@@ -279,6 +287,12 @@ export function CatalogManager({ products, businessSlug, onUpdate }: CatalogMana
                         <ProductActions
                           productId={product.id}
                           productTitle={product.title}
+                          productPrice={product.price}
+                          currentPromotion={{
+                            promo_id: product.promo_id,
+                            promo_name: product.promo_name,
+                            promo_price: product.promo_price,
+                          }}
                           status={product.status}
                           onUpdate={onUpdate}
                         />

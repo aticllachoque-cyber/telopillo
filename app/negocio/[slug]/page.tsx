@@ -384,7 +384,8 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
           </Card>
 
           {/* Main Content: Products + Sidebar */}
-          <div className="grid gap-8 lg:grid-cols-3">
+          {/* grid-cols-1 = minmax(0,1fr): keeps the mobile featured carousel from widening the page */}
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Sidebar — first on mobile so contact CTAs appear before products */}
             <div className="order-1 lg:order-2 lg:col-span-1">
               <div className="lg:sticky lg:top-8">
@@ -406,7 +407,7 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
             </div>
 
             {/* Products */}
-            <div className="order-2 lg:order-1 lg:col-span-2 space-y-4">
+            <div className="order-2 min-w-0 lg:order-1 lg:col-span-2 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold flex items-center gap-2">
                   <Package className="size-5" aria-hidden="true" />
@@ -478,11 +479,13 @@ export default async function StorefrontPage({ params, searchParams }: Storefron
                     id="featured-heading"
                     className="flex items-center gap-1.5 text-sm font-semibold text-foreground"
                   >
-                    <Star className="size-4 fill-primary text-primary" aria-hidden />
+                    <Star className="size-4 fill-brand text-brand-strong" aria-hidden />
                     Destacados
                   </h3>
-                  {/* F-1: horizontal scroll-snap carousel under sm — grid from sm up */}
-                  <div className="[&>ul]:max-sm:flex! [&>ul]:max-sm:overflow-x-auto [&>ul]:max-sm:snap-x [&>ul]:max-sm:snap-mandatory [&>ul]:max-sm:pb-1 [&>ul>li]:max-sm:w-[72vw]! [&>ul>li]:max-sm:max-w-[280px]! [&>ul>li]:max-sm:flex-none! [&>ul>li]:max-sm:snap-start">
+                  {/* F-1: horizontal scroll-snap carousel under sm — grid from sm up.
+                      `relative` makes the scroller the containing block of the cards'
+                      sr-only labels, otherwise they escape the clip and widen the page. */}
+                  <div className="[&>ul]:max-sm:relative [&>ul]:max-sm:flex! [&>ul]:max-sm:overflow-x-auto [&>ul]:max-sm:snap-x [&>ul]:max-sm:snap-mandatory [&>ul]:max-sm:pb-1 [&>ul>li]:max-sm:w-[72vw]! [&>ul>li]:max-sm:max-w-[280px]! [&>ul>li]:max-sm:flex-none! [&>ul>li]:max-sm:snap-start">
                     <ProductGrid products={featuredProducts} showActions={false} />
                   </div>
                 </section>
