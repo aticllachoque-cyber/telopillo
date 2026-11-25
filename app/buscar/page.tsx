@@ -649,7 +649,7 @@ function BuscarPageContent() {
 
                 {/* Demand CTA at bottom of results (productos only, F-4) */}
                 {totalCount > 0 && activeType === 'productos' && (
-                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center mt-8">
+                  <div className="rounded-lg border border-brand/40 bg-brand-soft/50 p-6 text-center mt-8">
                     <p className="font-medium mb-1">¿No encontraste exactamente lo que buscás?</p>
                     <p className="text-sm text-foreground/80 mb-3">
                       Publicá una solicitud y dejá que los vendedores te contacten.

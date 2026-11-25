@@ -25,6 +25,7 @@ export function CtaStrip() {
             <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center sm:gap-4">
               <Button
                 size="lg"
+                variant="brand"
                 className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
                 asChild
               >

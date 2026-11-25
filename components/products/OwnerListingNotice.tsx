@@ -12,10 +12,10 @@ interface OwnerListingNoticeProps {
  */
 export function OwnerListingNotice({ hasBuyerContactConfigured }: OwnerListingNoticeProps) {
   return (
-    <Card className="mb-6 border-primary/25 bg-primary/5 shadow-none">
+    <Card className="mb-6 border-brand/40 bg-brand-soft/50 shadow-none">
       <CardContent className="flex gap-3 pt-4 pb-4">
         <div className="shrink-0 pt-0.5" aria-hidden>
-          <Info className="size-5 text-primary" />
+          <Info className="size-5 text-brand-strong" />
         </div>
         <div className="min-w-0 space-y-2 text-sm">
           <p className="font-semibold text-foreground">Este es tu producto</p>

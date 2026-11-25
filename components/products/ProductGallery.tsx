@@ -157,7 +157,7 @@ export function ProductGallery({ images, productTitle }: ProductGalleryProps) {
               onClick={() => handleThumbnailClick(index)}
               className={`relative size-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all sm:size-20 ${
                 index === selectedIndex
-                  ? 'border-primary ring-2 ring-primary/20'
+                  ? 'border-brand-strong ring-2 ring-brand/30'
                   : 'border-transparent hover:border-muted-foreground/20'
               }`}
               aria-label={`Ver imagen ${index + 1}`}

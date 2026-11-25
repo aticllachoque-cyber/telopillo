@@ -244,6 +244,7 @@ function BuscoPageContent() {
                 </p>
               </div>
               <Button
+                variant="brand"
                 asChild
                 size="lg"
                 className="hidden min-h-[44px] shrink-0 touch-manipulation sm:inline-flex sm:min-h-10"
@@ -300,7 +301,12 @@ function BuscoPageContent() {
               </Button>
             </form>
 
-            <Button asChild size="lg" className="w-full min-h-[44px] touch-manipulation sm:hidden">
+            <Button
+              variant="brand"
+              asChild
+              size="lg"
+              className="w-full min-h-[44px] touch-manipulation sm:hidden"
+            >
               <Link href="/busco/publicar">
                 <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                 Publicar solicitud

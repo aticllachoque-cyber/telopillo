@@ -180,7 +180,7 @@ export function OfferProductModal({
                     className={cn(
                       'flex items-start gap-3 rounded-lg border p-3 text-left transition-colors min-h-[44px]',
                       isSelected
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                        ? 'border-brand-strong bg-brand-soft/60 ring-1 ring-brand-strong'
                         : 'hover:bg-muted/50'
                     )}
                   >
@@ -244,6 +244,7 @@ export function OfferProductModal({
             Cancelar
           </Button>
           <Button
+            variant="brand"
             onClick={handleSubmit}
             disabled={!selectedProductId || isSubmitting}
             className="min-h-[44px]"

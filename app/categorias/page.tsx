@@ -40,9 +40,9 @@ export default function CategoriasPage() {
               <Link
                 key={category}
                 href={`/buscar?category=${category}`}
-                className="group flex items-start gap-4 rounded-xl border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="group flex items-start gap-4 rounded-xl border bg-card p-5 transition-all hover:border-brand hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand-strong group-hover:bg-brand group-hover:text-brand-foreground transition-colors">
                   {Icon && <Icon className="h-6 w-6" aria-hidden />}
                 </div>
                 <div className="min-w-0">

@@ -433,7 +433,11 @@ export default function ProfilePage() {
                   Ver mis productos
                 </Link>
               </Button>
-              <Button className="min-h-[44px] flex-1 touch-manipulation sm:min-h-10" asChild>
+              <Button
+                variant="brand"
+                className="min-h-[44px] flex-1 touch-manipulation sm:min-h-10"
+                asChild
+              >
                 <Link href="/publicar">
                   <Plus className="mr-2 h-4 w-4 shrink-0" aria-hidden />
                   Publicar producto

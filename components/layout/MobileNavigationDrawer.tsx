@@ -117,12 +117,12 @@ export function MobileNavigationDrawer({
           aria-label="Navegación principal"
         >
           {!isAuthenticated && (
-            <div className="mx-4 mt-4 rounded-lg border bg-primary/5 p-4">
+            <div className="mx-4 mt-4 rounded-lg border border-brand/40 bg-brand-soft/50 p-4">
               <p className="text-sm font-semibold">Creá tu cuenta gratis</p>
               <p className="text-xs text-foreground/80 mt-0.5">
                 Publicá, ofertá y contactá vendedores
               </p>
-              <Button asChild size="sm" className="w-full mt-3 min-h-[40px]">
+              <Button asChild variant="brand" size="sm" className="w-full mt-3 min-h-[40px]">
                 <Link href="/register" onClick={() => onClose(false)}>
                   Crear Cuenta
                 </Link>
@@ -243,7 +243,7 @@ export function MobileNavigationDrawer({
 
             {isAuthenticated && (
               <section
-                className="space-y-1 rounded-xl border border-primary/25 bg-primary/5 p-3 shadow-sm"
+                className="space-y-1 rounded-xl border border-brand/40 bg-brand-soft/50 p-3 shadow-sm"
                 aria-labelledby="mobile-nav-publications-heading"
               >
                 <h2
@@ -429,7 +429,7 @@ export function MobileNavigationDrawer({
 
           <div className="border-t p-4">
             {isAuthenticated ? (
-              <Button asChild className="w-full" size="lg">
+              <Button asChild variant="brand" className="w-full" size="lg">
                 <Link href="/crear" onClick={() => onClose(false)}>
                   Publicá gratis
                 </Link>

@@ -253,6 +253,7 @@ export default function MisProductosPage() {
                 )}
                 {hasProducts && (
                   <Button
+                    variant="brand"
                     asChild
                     className="min-h-[44px] w-full touch-manipulation sm:min-h-10 sm:w-auto"
                   >

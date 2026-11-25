@@ -538,7 +538,7 @@ export function ProductFormWizard({
                       isCompleted
                         ? 'bg-primary text-primary-foreground'
                         : isCurrent
-                          ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                          ? 'bg-brand text-brand-foreground ring-4 ring-brand/30'
                           : 'bg-muted text-muted-foreground'
                     }`}
                   >
@@ -606,7 +606,7 @@ export function ProductFormWizard({
                   currentStep > step.id
                     ? 'bg-primary text-primary-foreground'
                     : currentStep === step.id
-                      ? 'bg-primary text-primary-foreground ring-2 ring-primary/30'
+                      ? 'bg-brand text-brand-foreground ring-2 ring-brand/40'
                       : 'bg-muted text-muted-foreground'
                 }`}
                 aria-label={`Ir al paso ${step.id}: ${step.title}`}
@@ -644,7 +644,7 @@ export function ProductFormWizard({
               </p>
             </div>
 
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+            <div className="rounded-lg border border-brand/40 bg-brand-soft/50 p-4 text-sm">
               <p className="font-medium">Tips para buenas fotos:</p>
               <p className="mt-1 text-foreground/80 sm:hidden">
                 Mostrá el producto con buena luz y desde varios ángulos.
@@ -1022,7 +1022,7 @@ export function ProductFormWizard({
                     htmlFor={`condition-${condition}`}
                     className={`flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-colors ${
                       selectedCondition === condition
-                        ? 'border-primary bg-primary/5'
+                        ? 'border-brand-strong bg-brand-soft/60'
                         : 'border-border hover:border-muted-foreground/30'
                     }`}
                   >
@@ -1220,6 +1220,7 @@ export function ProductFormWizard({
 
           {currentStep < 4 ? (
             <Button
+              variant="brand"
               type="button"
               onClick={handleNext}
               className="gap-2 min-h-[44px] touch-manipulation sm:min-h-0"
@@ -1229,6 +1230,7 @@ export function ProductFormWizard({
             </Button>
           ) : (
             <Button
+              variant="brand"
               type="button"
               disabled={isSubmitting}
               onClick={handleSubmit(onSubmit, handleSubmitError)}
